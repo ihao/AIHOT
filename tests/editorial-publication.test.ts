@@ -59,6 +59,7 @@ test("selected requires a separate curation grant and stale tabs cannot revive i
   await decideArticleCuration(articleId, { approved: true, fingerprint: proposal.fingerprint, reviewVersion: 2, version: 0, reason: "feature" }, "editor");
   assert.equal((await projection(articleId))?.selected, true);
   assert.equal((await sql`SELECT count(*)::int AS n FROM selected_ledger WHERE article_id = ${articleId}`)[0]?.n, 1);
+  await assert.rejects(() => decideArticleCuration(articleId, { approved: false, fingerprint: proposal.fingerprint, reviewVersion: 2, version: 0, reason: "stale curation tab" }, "editor"), StaleReview);
   await assert.rejects(() => decideArticleReview(articleId, { status: "rejected", fingerprint: proposal.fingerprint, version: 1, reason: "stale tab" }, "editor"), StaleReview);
   assert.equal((await projection(articleId))?.visibility, "public");
 });
@@ -99,4 +100,19 @@ test("auto-public projection is all-only, even if model selects it", async () =>
   assert.equal((await projection(articleId))?.indexable, false);
   assert.equal((await sql`SELECT count(*)::int AS n FROM selected_ledger WHERE article_id = ${articleId}`)[0]?.n, 0);
   assert.ok(proposal.fingerprint);
+});
+
+test("historical publish options cannot place a new human approval before its review cutoff", async () => {
+  const { articleId, proposal } = await fixture();
+  const earliestApproval = new Date();
+  await sql`UPDATE editorial_reviews SET status = 'approved', version = 2, reviewed_by = 'editor',
+    reviewed_at = now() WHERE article_id = ${articleId}`;
+  await sql`INSERT INTO editorial_curations (article_id, status, fingerprint, review_version, reviewed_by, reason, reviewed_at)
+    VALUES (${articleId}, 'approved', ${proposal.fingerprint}, 2, 'editor', 'reviewed', now())`;
+  const historical = new Date("2020-01-02T00:00:10Z");
+  await publishArticle(articleId, { now: historical, releasedAt: historical });
+  const [row] = await sql<{ selected_ready_at: Date; visible_after: Date }[]>`
+    SELECT selected_ready_at, visible_after FROM publications WHERE article_id = ${articleId}`;
+  assert.ok(row?.selected_ready_at >= earliestApproval, "selected release cannot precede approval");
+  assert.ok(row?.visible_after >= earliestApproval, "a report cutoff cannot see this item before approval");
 });

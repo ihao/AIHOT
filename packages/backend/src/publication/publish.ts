@@ -90,7 +90,7 @@ export interface V1ItemPayload {
 
 export interface PublishOptions {
   now?: Date;
-  /** Historical import: the item was already public, so it is released at its discovery time. */
+  /** Legacy historical import hint; never releases a 9BTC approval before the approval transaction. */
   releasedAt?: Date | null;
 }
 
@@ -226,12 +226,16 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   let selectedReadyAt = sameGrant && selected ? previous!.selected_ready_at : null;
   let visibleAfter = sameGrant && selected ? previous!.visible_after : null;
   if (selected && !selectedReadyAt) {
-    selectedReadyAt = options.releasedAt ?? now;
+    // The report lock was acquired before this clock sample. Even callers replaying a
+    // historical import or supplying a simulated `now` cannot backdate a new grant
+    // across a report cutoff that preceded its human approval.
+    const releaseFloor = new Date(Math.max(Date.now(), now.getTime(), review!.reviewed_at!.getTime()));
+    selectedReadyAt = releaseFloor;
     visibleAfter = options.releasedAt
-      ? options.releasedAt
-      : article.grouped_at && article.grouped_at <= now
-        ? now
-        : new Date(now.getTime() + config.selectedVisibleAfterSeconds * 1000);
+      ? new Date(Math.max(options.releasedAt.getTime(), releaseFloor.getTime()))
+      : article.grouped_at && article.grouped_at <= releaseFloor
+        ? releaseFloor
+        : new Date(releaseFloor.getTime() + config.selectedVisibleAfterSeconds * 1000);
   } else if (selected && visibleAfter && visibleAfter > now && article.grouped_at && article.grouped_at <= now) {
     const earliest = new Date(Math.max(selectedReadyAt!.getTime(), article.grouped_at.getTime()));
     if (earliest < visibleAfter) {
