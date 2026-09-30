@@ -6,6 +6,7 @@ import { actorOf } from "@aihot/backend/admin/auth";
 
 import { importSelectBenchRun, listSelectBenchRuns, selectBenchRun } from "@aihot/backend/admin/selectbench";
 import { modelsOverview, switchModel } from "@aihot/backend/admin/models";
+import { listReviewQueue } from "@aihot/backend/admin/review";
 
 import { contentChain, detachFromFact, mergeStories, overrideFields, rerun, searchContent, setSeoIndexed, setVisibility } from "@aihot/backend/admin/content";
 import { decideArticleCuration, decideArticleReview } from "@aihot/backend/editorial/decision";
@@ -34,6 +35,7 @@ function decodeImage(dataUrl: unknown): Buffer {
 }
 
 export function registerAdmin(app: FastifyInstance) {
+  app.get("/api/admin/review", adminHandler(async (req) => listReviewQueue(Number(q(req).limit) || 40, q(req).source)));
   // Sources (F18)
   app.get("/api/admin/sources", adminHandler(async (req) => {
     const f = q(req);
@@ -143,7 +145,14 @@ export function registerAdmin(app: FastifyInstance) {
   // Attention counts for the navigation.
   app.get("/api/admin/nav-counts", adminHandler(async () => {
     const [c] = await sql<Record<string, number>[]>`
-      SELECT (SELECT count(*)::int FROM feedback WHERE status = 'new') AS feedback,
+      SELECT (SELECT count(*)::int FROM articles a
+                JOIN LATERAL (SELECT relevance, title_zh, summary_zh FROM analyses
+                  WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
+                LEFT JOIN editorial_reviews r ON r.article_id = a.id
+                WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
+                  AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
+                  AND (r.article_id IS NULL OR r.status = 'pending')) AS review,
+             (SELECT count(*)::int FROM feedback WHERE status = 'new') AS feedback,
              (SELECT count(*)::int FROM sources WHERE enabled AND health = 'failing') AS sources,
              (SELECT count(*)::int FROM receipts WHERE status = 'unknown') + (SELECT count(*)::int FROM deliveries WHERE status = 'unknown') AS runs,
              (SELECT count(*)::int FROM monitor_posts WHERE (recognition->>'needsReview')::boolean IS TRUE AND (recognition->>'reviewed')::boolean IS NOT TRUE AND processed_at > now() - interval '7 days')
