@@ -30,11 +30,10 @@ export const SITE = {
   footerNote: "9BTC · Web3 热点与研究",
   /** 中国大陆网站的 ICP 备案号（选填），填了就显示在页脚并链接到工信部备案系统。 */
   icp: null as string | null,
-  /** 结构化数据里的网站运营者（搜索引擎用）。 */
-  organization: {
-    name: "9BTC",
-    /** 创始人（选填）：{ name, url, description }。 */
-    founder: null as null | { name: string; url?: string; description?: string },
+  /** 公司主体尚未公示；不要把品牌名当作公司名称写入结构化数据。 */
+  organization: null as null | {
+    name: string;
+    founder?: { name: string; url?: string; description?: string };
   },
   /** 抓取信源时报上的名字（User-Agent 里用），不要冒用别的站。 */
   crawlerName: "9BTCBot",

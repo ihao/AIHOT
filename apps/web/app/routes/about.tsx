@@ -4,7 +4,7 @@ import type { SiteStats } from "@aihot/contracts/site";
 import { apiGet } from "../lib/api.server";
 import { shortSourceName } from "../lib/format";
 import { ABOUT, SITE, withSubject } from "@aihot/industry/site";
-import { organizationLd, pageMeta } from "../lib/seo";
+import { websiteLd, pageMeta } from "../lib/seo";
 import { Kicker } from "../components/ui/Kicker";
 import { buttonClass } from "../components/ui/Controls";
 import { IconArrowRight } from "../components/icons";
@@ -31,7 +31,7 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export function meta() {
-  return pageMeta({ title: "关于", description: `关于 ${SITE.name}：${SITE.description}`, path: "/about", image: "/og/pages/about.png", jsonLd: organizationLd() });
+  return pageMeta({ title: "关于", description: `关于 ${SITE.name}：${SITE.description}`, path: "/about", image: "/og/pages/about.png", jsonLd: websiteLd() });
 }
 
 const NO_SOURCES: RiverSource[] = [];
