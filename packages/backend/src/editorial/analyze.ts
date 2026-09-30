@@ -13,6 +13,7 @@ import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
 import { CATEGORIES } from "@aihot/industry/taxonomy";
 import { SELECTION } from "@aihot/industry/selection";
 import { sql } from "../db.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 import { chatJson, MODELS, type ContentPart } from "../providers/llm.ts";
 import { completeReceipt, ProviderRejectedError } from "../providers/receipts.ts";
 import { collapseWhitespace } from "../lib/text.ts";
@@ -447,6 +448,9 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
     for (const id of receiptIds) await completeReceipt(tx, id);
     if (!stale) {
       await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL WHERE id = ${articleId}`;
+      // A newer judgement changes the exact proposal even when the material revision
+      // did not change (for example an explicit rerun). Close the old grant atomically.
+      await publishArticleTx(tx, articleId);
     }
     return { analysisId: row!.id, stale };
   });

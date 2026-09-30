@@ -1,9 +1,10 @@
 // The single entrance for new material from every channel (collectors, external reports, imports).
 // It owns identity, revisions and the timeline rule, so no entrance can bypass them.
-import { sql, type Db } from "../db.ts";
+import { sql, type Db, type Tx } from "../db.ts";
 import { newArticleId, sha256 } from "../lib/ids.ts";
 import { identityKeyForUrl } from "../lib/url.ts";
 import { collapseWhitespace } from "../lib/text.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 
 export interface MediaItem {
   kind: "image" | "video";
@@ -201,5 +202,8 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
     RETURNING revision`;
   await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
            VALUES (${existing!.id}, ${row!.revision}, ${next}, ${title}, ${bodyText})`;
+  // The article row is already locked. Revocation, selected-ledger removal and the
+  // material revision must become visible in the same commit, before any worker reruns.
+  await publishArticleTx(db as Tx, existing!.id);
   return { articleId: existing!.id, created: false, revised: true, backfill: existing!.backfill };
 }

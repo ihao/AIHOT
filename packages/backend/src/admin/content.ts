@@ -7,8 +7,9 @@ import { ARTICLE_ID_PATTERN, CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
 import { sql } from "../db.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
 import { queueProcessing } from "../jobs/content.ts";
+import { invalidateArticleReviewTx } from "../editorial/review.ts";
 import { normalizeUrl } from "../lib/url.ts";
-import { publishArticle } from "../publication/publish.ts";
+import { publishArticle, publishArticleTx } from "../publication/publish.ts";
 
 import { computeHotRanking } from "../events/hot.ts";
 import { mergeStoryInto } from "../events/merge.ts";
@@ -72,27 +73,26 @@ async function inHotRanking(id: string): Promise<boolean> {
 
 const STALE = "这条内容的人工设置已被修改，请刷新后再操作";
 
-async function overrideRow(id: string) {
-  const [o] = await sql<{ fields: Record<string, unknown>; visibility: string | null; version: number }[]>`SELECT fields, visibility, version FROM editorial_overrides WHERE article_id = ${id}`;
-  return o ?? { fields: {}, visibility: null, version: 0 };
-}
-
 /**
  * Public / summary-only / withdrawn. Applies to the site, API, RSS, MCP, the sync ledger and the
  * search index through the one publication projection; ETags change with the content.
  */
 export async function setVisibility(id: string, input: { visibility: "public" | "summary-only" | "withdrawn"; reason: string; version: number }, actor: string) {
   if (!input.reason?.trim()) throw new Error("reason is required");
-  const before = await overrideRow(id);
-  if (before.version !== input.version) throw new Conflict(STALE);
-  // The version check and the write are one statement: of two tabs saving the same version, one wins.
-  const written = await sql`
-    INSERT INTO editorial_overrides (article_id, visibility, reason, version, updated_by) VALUES (${id}, ${input.visibility}, ${input.reason}, 1, ${actor})
-    ON CONFLICT (article_id) DO UPDATE SET visibility = EXCLUDED.visibility, reason = EXCLUDED.reason, version = editorial_overrides.version + 1, updated_by = EXCLUDED.updated_by, updated_at = now()
-    WHERE editorial_overrides.version = ${input.version}
-    RETURNING version`;
-  if (!written.count) throw new Conflict(STALE);
-  const published = await publishArticle(id);
+  const { before, published } = await sql.begin(async (tx) => {
+    await tx`SELECT id FROM articles WHERE id = ${id} FOR UPDATE`;
+    const [current] = await tx<{ fields: Record<string, unknown>; visibility: string | null; version: number }[]>`
+      SELECT fields, visibility, version FROM editorial_overrides WHERE article_id = ${id}`;
+    const before = current ?? { fields: {}, visibility: null, version: 0 };
+    if (before.version !== input.version) throw new Conflict(STALE);
+    const written = await tx`
+      INSERT INTO editorial_overrides (article_id, visibility, reason, version, updated_by) VALUES (${id}, ${input.visibility}, ${input.reason}, 1, ${actor})
+      ON CONFLICT (article_id) DO UPDATE SET visibility = EXCLUDED.visibility, reason = EXCLUDED.reason, version = editorial_overrides.version + 1, updated_by = EXCLUDED.updated_by, updated_at = now()
+      WHERE editorial_overrides.version = ${input.version}
+      RETURNING version`;
+    if (!written.count) throw new Conflict(STALE);
+    return { before, published: await publishArticleTx(tx, id) };
+  });
   if (published?.reduced || (before.visibility ?? "public") !== input.visibility) {
     // On the hot board the change shows at once, not at the next five-minute ranking.
     if (await inHotRanking(id)) await computeHotRanking();
@@ -131,17 +131,22 @@ const FieldsSchema = z
 export async function overrideFields(id: string, input: { fields: unknown; clear?: string[]; reason: string; version: number }, actor: string) {
   if (!input.reason?.trim()) throw new Error("reason is required");
   const fields = FieldsSchema.parse(input.fields ?? {});
-  const before = await overrideRow(id);
-  if (before.version !== input.version) throw new Conflict(STALE);
-  const next = { ...before.fields, ...fields };
-  for (const k of input.clear ?? []) delete (next as Record<string, unknown>)[k];
-  const written = await sql`
-    INSERT INTO editorial_overrides (article_id, fields, reason, version, updated_by) VALUES (${id}, ${sql.json(next as never)}, ${input.reason}, 1, ${actor})
-    ON CONFLICT (article_id) DO UPDATE SET fields = EXCLUDED.fields, reason = EXCLUDED.reason, version = editorial_overrides.version + 1, updated_by = EXCLUDED.updated_by, updated_at = now()
-    WHERE editorial_overrides.version = ${input.version}
-    RETURNING version`;
-  if (!written.count) throw new Conflict(STALE);
-  const published = await publishArticle(id);
+  const { before, next, published } = await sql.begin(async (tx) => {
+    await tx`SELECT id FROM articles WHERE id = ${id} FOR UPDATE`;
+    const [current] = await tx<{ fields: Record<string, unknown>; visibility: string | null; version: number }[]>`
+      SELECT fields, visibility, version FROM editorial_overrides WHERE article_id = ${id}`;
+    const before = current ?? { fields: {}, visibility: null, version: 0 };
+    if (before.version !== input.version) throw new Conflict(STALE);
+    const next = { ...before.fields, ...fields };
+    for (const k of input.clear ?? []) delete (next as Record<string, unknown>)[k];
+    const written = await tx`
+      INSERT INTO editorial_overrides (article_id, fields, reason, version, updated_by) VALUES (${id}, ${tx.json(next as never)}, ${input.reason}, 1, ${actor})
+      ON CONFLICT (article_id) DO UPDATE SET fields = EXCLUDED.fields, reason = EXCLUDED.reason, version = editorial_overrides.version + 1, updated_by = EXCLUDED.updated_by, updated_at = now()
+      WHERE editorial_overrides.version = ${input.version}
+      RETURNING version`;
+    if (!written.count) throw new Conflict(STALE);
+    return { before, next, published: await publishArticleTx(tx, id) };
+  });
   // A corrected title or summary reaches the event summary: rewrite the digest of its story.
   if (published?.changed) {
     const [st] = await sql<{ story_id: number | null }[]>`SELECT story_id FROM publications WHERE article_id = ${id}`;
@@ -162,11 +167,21 @@ export async function rerun(id: string, step: "extract" | "analyze" | "group", r
   let jobId: string | null;
   if (step === "group") {
     // An explicit regroup replaces an earlier manual "keep standalone" decision and the automatic membership.
-    await sql`DELETE FROM grouping_overrides WHERE article_id = ${id}`;
+    await sql.begin(async (tx) => {
+      await tx`SELECT id FROM articles WHERE id = ${id} FOR UPDATE`;
+      await tx`SELECT pg_advisory_xact_lock_shared(hashtext('report_candidates'))`;
+      await tx`DELETE FROM grouping_overrides WHERE article_id = ${id}`;
+      await invalidateArticleReviewTx(tx, id);
+      await publishArticleTx(tx, id);
+    });
     jobId = await enqueue(QUEUES.group, { articleId: id, force: true }, { singletonKey: `manual:group:${id}:${requestId}` });
   } else {
-    await sql`UPDATE articles SET processing_state = 'new', processing_error = NULL, processing_attempts = 0, processing_retry_at = NULL,
+    await sql.begin(async (tx) => {
+      await tx`SELECT id FROM articles WHERE id = ${id} FOR UPDATE`;
+      await tx`UPDATE articles SET processing_state = 'new', processing_error = NULL, processing_attempts = 0, processing_retry_at = NULL,
                 body_status = CASE WHEN ${step === "extract"} THEN 'pending' ELSE body_status END WHERE id = ${id}`;
+      await publishArticleTx(tx, id);
+    });
     jobId = step === "analyze"
       ? await queueProcessing(id, { step: "analyze", attemptTag: `admin:${requestId}` })
       : await queueProcessing(id, { step: "extract" });

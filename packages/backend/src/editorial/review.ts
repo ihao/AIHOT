@@ -2,7 +2,7 @@
 // This module does not make a publication public: approval and projection are one
 // transaction in the next implementation slice.
 import { createHash } from "node:crypto";
-import { sql, type Db } from "../db.ts";
+import { sql, type Db, type Tx } from "../db.ts";
 
 export const EDITORIAL_POLICY_VERSION = "9btc-web3-v1";
 
@@ -180,6 +180,17 @@ export async function proposeReview(articleId: string): Promise<ReviewProposal |
       WHERE article_id = ${articleId}`;
     return proposal;
   });
+}
+
+/** Revoke a grant for a change that does not itself alter the proposal fingerprint.
+ * The caller holds the article row lock and must reproject before committing. */
+export async function invalidateArticleReviewTx(tx: Tx, articleId: string): Promise<void> {
+  const reset = await tx`UPDATE editorial_reviews SET status = 'pending', version = version + 1,
+    reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+    WHERE article_id = ${articleId} AND status <> 'pending'`;
+  if (reset.count) await tx`UPDATE editorial_curations SET status = 'pending', fingerprint = NULL, review_version = NULL,
+    version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+    WHERE article_id = ${articleId}`;
 }
 
 export class StaleSourcePolicy extends Error {

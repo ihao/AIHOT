@@ -10,6 +10,7 @@ import * as cheerio from "cheerio";
 import type { AnyNode, Element } from "domhandler";
 import { z } from "zod";
 import { sql } from "../db.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 import { sanitizeBody, textToHtml } from "../content/sanitize.ts";
 import { chatJson } from "../providers/llm.ts";
 import { collapseWhitespace } from "../lib/text.ts";
@@ -169,7 +170,7 @@ export async function translateArticle(articleId: string): Promise<TranslateResu
     if (meaningful.length < X_MIN_CHARS) return result({ status: "skipped", reason: "short post" });
     const [t] = await translateAll(articleId, row.revision, [text], SYSTEM_POST);
     if (!t) return result({ status: "skipped", reason: "translation did not line up" });
-    await store(articleId, row.revision, row.title, textToHtml(t), t, true);
+    await storeTranslation(articleId, row.revision, row.title, textToHtml(t), t, true);
     return result({ status: "translated", segments: 1 });
   }
 
@@ -206,18 +207,26 @@ export async function translateArticle(articleId: string): Promise<TranslateResu
   if (!done) return result({ status: "skipped", reason: "no batch translated" });
   const complete = done === blocks.length;
   const html = sanitizeBody($.html());
-  await store(articleId, row.revision, row.title, html, cheerio.load(html, null, false).root().text().trim(), complete);
+  await storeTranslation(articleId, row.revision, row.title, html, cheerio.load(html, null, false).root().text().trim(), complete);
   return result({ status: complete ? "translated" : "partial", segments: done });
 }
 
-async function store(articleId: string, revision: number, title: string, html: string, text: string, complete: boolean) {
+/** Store a model result only for its exact input revision; revoke the old grant in that commit. */
+export async function storeTranslation(articleId: string, revision: number, title: string, html: string, text: string, complete: boolean) {
   // Never over a translation of a later revision (a slow run finishing after a newer one).
-  await sql`
-    INSERT INTO translations (article_id, lang, revision, title, body_html, body_text, complete, origin)
-    VALUES (${articleId}, 'zh', ${revision}, ${title}, ${html}, ${text}, ${complete}, 'model')
-    ON CONFLICT (article_id, lang) DO UPDATE SET revision = EXCLUDED.revision, title = EXCLUDED.title, body_html = EXCLUDED.body_html,
-      body_text = EXCLUDED.body_text, complete = EXCLUDED.complete, origin = 'model', created_at = now()
-    WHERE translations.origin <> 'source' AND translations.revision <= EXCLUDED.revision`;
+  await sql.begin(async (tx) => {
+    const [article] = await tx<{ revision: number }[]>`SELECT revision FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    if (article?.revision !== revision) return;
+    const changed = await tx`
+      INSERT INTO translations (article_id, lang, revision, title, body_html, body_text, complete, origin)
+      VALUES (${articleId}, 'zh', ${revision}, ${title}, ${html}, ${text}, ${complete}, 'model')
+      ON CONFLICT (article_id, lang) DO UPDATE SET revision = EXCLUDED.revision, title = EXCLUDED.title, body_html = EXCLUDED.body_html,
+        body_text = EXCLUDED.body_text, complete = EXCLUDED.complete, origin = 'model', created_at = now()
+      WHERE translations.origin <> 'source' AND translations.revision <= EXCLUDED.revision
+        AND (translations.revision, translations.title, translations.body_html, translations.body_text, translations.complete, translations.origin)
+          IS DISTINCT FROM (EXCLUDED.revision, EXCLUDED.title, EXCLUDED.body_html, EXCLUDED.body_text, EXCLUDED.complete, EXCLUDED.origin)`;
+    if (changed.count) await publishArticleTx(tx, articleId);
+  });
 }
 
 /** A quoted post worth translating: at least a few letters beyond its links, and not already Chinese. */
@@ -268,12 +277,29 @@ export async function translateQuotes(opts: { days?: number; limit?: number; bud
       }
     }
     if (!zh) continue;
-    await sql`
-      INSERT INTO quote_translations (tweet_id, text_hash, text_zh, origin) VALUES (${r.tweet_id}, ${hash}, ${zh}, ${origin})
-      ON CONFLICT (tweet_id) DO UPDATE SET text_hash = EXCLUDED.text_hash, text_zh = EXCLUDED.text_zh, origin = EXCLUDED.origin, created_at = now()`;
+    await storeQuoteTranslation(r.tweet_id, hash, zh, origin);
     stored += 1;
   }
   return stored;
+}
+
+/** A shared quote translation changes every quoting article's exact review target. */
+export async function storeQuoteTranslation(tweetId: string, hash: string, zh: string, origin: "reused" | "model") {
+  await sql.begin(async (tx) => {
+    // Every article that quotes this post fingerprints the shared translation.
+    // Lock all affected articles in ID order before changing it, so readers never
+    // observe a new translation beside an old approval.
+    const affected = await tx<{ id: string }[]>`
+      SELECT id FROM articles WHERE substring(x_post->'quoted'->>'url' from '/status/([0-9]+)') = ${tweetId}
+      ORDER BY id FOR UPDATE`;
+    const changed = await tx`
+      INSERT INTO quote_translations (tweet_id, text_hash, text_zh, origin) VALUES (${tweetId}, ${hash}, ${zh}, ${origin})
+      ON CONFLICT (tweet_id) DO UPDATE SET text_hash = EXCLUDED.text_hash, text_zh = EXCLUDED.text_zh,
+        origin = EXCLUDED.origin, created_at = now()
+      WHERE (quote_translations.text_hash, quote_translations.text_zh, quote_translations.origin)
+        IS DISTINCT FROM (EXCLUDED.text_hash, EXCLUDED.text_zh, EXCLUDED.origin)`;
+    if (changed.count) for (const article of affected) await publishArticleTx(tx, article.id);
+  });
 }
 
 /**
