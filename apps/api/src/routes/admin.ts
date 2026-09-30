@@ -8,6 +8,7 @@ import { importSelectBenchRun, listSelectBenchRuns, selectBenchRun } from "@aiho
 import { modelsOverview, switchModel } from "@aihot/backend/admin/models";
 
 import { contentChain, detachFromFact, mergeStories, overrideFields, rerun, searchContent, setSeoIndexed, setVisibility } from "@aihot/backend/admin/content";
+import { decideArticleCuration, decideArticleReview } from "@aihot/backend/editorial/decision";
 import { banSource, eraseFeedback, feedbackScreenshot, listFeedback, unbanSource, updateFeedback } from "@aihot/backend/admin/feedback";
 import { listMonitorEvents, listMonitorPosts, relinkPost, resolveMonitorPost, reviewReceipt, setWithdrawn, updateMonitorEvent } from "@aihot/backend/admin/monitor";
 import { releaseReceipt, requeueFailedArticles, resolveDelivery, runsOverview } from "@aihot/backend/admin/runs";
@@ -54,6 +55,10 @@ export function registerAdmin(app: FastifyInstance) {
   // Content and events (F19)
   app.get("/api/admin/content", adminHandler(async (req) => ({ rows: await searchContent(q(req).q ?? "") })));
   app.get("/api/admin/content/:id", adminHandler(async (req, reply) => orNotFound(req, reply, await contentChain(param(req, "id")))));
+  app.post("/api/admin/content/:id/review", adminHandler(async (req, reply, admin) =>
+    orNotFound(req, reply, await decideArticleReview(param(req, "id"), body(req), actorOf(admin)))));
+  app.post("/api/admin/content/:id/curation", adminHandler(async (req, reply, admin) =>
+    orNotFound(req, reply, await decideArticleCuration(param(req, "id"), body(req), actorOf(admin)))));
   app.post("/api/admin/content/:id/visibility", adminHandler(async (req, _reply, admin) => setVisibility(param(req, "id"), body(req) as never, actorOf(admin))));
   app.post("/api/admin/content/:id/seo", adminHandler(async (req, reply, admin) => orNotFound(req, reply, await setSeoIndexed(param(req, "id"), body(req) as never, actorOf(admin)))));
   app.post("/api/admin/content/:id/override", adminHandler(async (req, _reply, admin) => overrideFields(param(req, "id"), body(req) as never, actorOf(admin))));
