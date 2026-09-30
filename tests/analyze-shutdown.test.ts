@@ -25,7 +25,7 @@ let active: {
 const provider = await stub(async (_hit, request) => {
   const body = JSON.parse(request.body);
   const system = String(body.messages[0]?.content ?? "");
-  const step: Step = system.includes("宽召回") ? "prefilter" : system.includes("事件注意力评分器") ? "score"
+  const step: Step = system.includes("事件注意力评分器") ? "score" : system.includes("宽召回") ? "prefilter"
     : system.includes("资料结构化助手") ? "structure" : "understand";
   active.calls.push(step);
   const count = active.calls.filter(s => s === step).length;
@@ -94,7 +94,7 @@ after(async () => {
   await provider.close(); await stopBoss(); await closeDb();
 });
 
-test("SIGTERM during the final paid writing call still commits the complete analysis and publication", async () => {
+test("SIGTERM during the final paid writing call commits analysis while publication awaits review", async () => {
   active = { calls: [], scoreAsked: gate(), structureAsked: gate(), scoreAnswer: gate(), structureAnswer: gate(), writingAsked: gate(), writingAnswer: gate(), failScore: false };
   active.scoreAnswer.open(); active.structureAnswer.open();
   const queue = `test.analyze-stop-${T}-final`;
@@ -113,7 +113,9 @@ test("SIGTERM during the final paid writing call still commits the complete anal
   assert.equal((await sql`SELECT processing_state FROM articles WHERE id=${articleId}`)[0]!.processing_state, "analyzed");
   const [analysis] = await sql`SELECT selected,score,receipt_ids FROM analyses WHERE article_id=${articleId}`;
   assert.equal(analysis!.selected, true); assert.equal(analysis!.score, 80); assert.equal(analysis!.receipt_ids.length, 5);
-  assert.equal((await sql`SELECT selected FROM publications WHERE article_id=${articleId}`)[0]!.selected, true);
+  const [publication] = await sql`SELECT selected,visibility FROM publications WHERE article_id=${articleId}`;
+  assert.equal(publication!.selected, false);
+  assert.equal(publication!.visibility, "withdrawn");
   assert.equal((await sql`SELECT 1 FROM receipts WHERE subject=${`article:${articleId}@1`} AND status='completed'`).length, 5);
 });
 
