@@ -44,7 +44,7 @@ export const SITE = {
 export const ABOUT = {
   kicker: `关于 ${SITE.name}`,
   /** 大标题：第一行正常颜色，第二行强调色。 */
-  headline: ["Web3 热点与研究，", "从可靠信源开始。"] as [string, string],
+  headline: ["Web3 热点与研究，", "从可核对的来源开始。"] as [string, string],
   /** 标题下面的一段话。{sources} 会换成实时的信源数。 */
   lead: `${SITE.name} 围绕 Web3 项目、协议、研究机构和行业媒体等 {sources} 个公开信源，整理热点与研究摘要，并保留原文链接，方便继续阅读和核对。`,
   /** 信源河动画下面的四个环节。 */
