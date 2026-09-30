@@ -54,3 +54,13 @@ Docker Compose v5.1.3 可用，现有 Caddy 管理 80/443，站点配置通过 `
 其后已把品牌与公示页面更新到提交 `e20a8fe`，更新前另存数据库快照。EU 私有端口上的 `/terms`、`/privacy` 和首页网站结构化标记已核对；四个 Compose 服务运行中，9BTC 的 Caddy 站点文件仍未安装。
 
 私有端口的健康接口、首页、后台登录均返回 200；内置页面/API/RSS/MCP/图片冒烟检查全部通过。数据库迁移共 39 个，信源数 0，符合专题调研前不入库的决定。已把初始数据库导出并恢复到同一 PostgreSQL 实例内的独立 `ninebtc_restore_check` 数据库，恢复后可见 39 个迁移、0 个信源；这只验证恢复过程，**不能代替异机备份**。演练库与 `/tmp/ninebtc-initial-restore-check.dump` 暂留作检查，不属于正式备份。2026-09-30 已启用 EU 本机备份与 naban 主动拉取定时器，并完成从 naban 取回备份到 EU 独立测试库的恢复，详见[备份实施记录](backup-ops-server.md)。仍需检查定时任务首次自动运行结果。
+
+## 首批信源接入记录（2026-10-01）
+
+站长批准首批 6 个来源，并将日常运营改为全自动。信源配置提交为 `659ee56`，全自动设计记录提交为 `1e0d9fa`；新自动发布规则仍待确认及实现，不能把信源入库等同于自动发布已经完成。
+
+入库前 EU 本地备份服务返回 `Result=success`、`ExecMainStatus=0`，快照 `20260930T160833Z`。固定提交 `1e0d9fae6dba25afd0b4e65c994bd90e2384bb7d` 的 GitHub `check` 与 `docker` 两项 CI 均成功，包含 PostgreSQL 17 后端测试和 Docker 验证。本机类型检查、Web3 规则 9 项测试、网页构建与 16 项网页测试通过。
+
+EU 以该提交构建独立镜像并更新 `ninebtc` Compose，初始化脚本写入 Bitcoin Core、Ethereum Foundation、Coin Metrics、Chainalysis、PANews 和 SEC 共 6 个启用的 RSS 来源。数据库逐项核对 `site_fulltext=false`、`syndicate_fulltext=false`，自动公开来源策略启用数 0；采集、模型调用均为 `false`，模型 API key 尚未配置。四个服务运行，数据库健康。首次紧接启动的 localhost 烟测未连通；在服务就绪后改用明确的 IPv4 地址 `http://127.0.0.1:3000` 复测，页面、API、RSS、MCP 与图片检查全部通过。
+
+Web 继续只对 EU 本机的 `127.0.0.1:3109` 提供私有验收；本次没有安装或启用 9BTC 的公共 Caddy 入口，也没有真实模型摘要或自动精选。后续以全自动流程验收为准，不再要求站长逐篇人工批准。
