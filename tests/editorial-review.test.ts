@@ -93,6 +93,33 @@ test("proposal fingerprint changes with material, override and source attributio
   await setSourceAutoPublic(sourceId, { enabled: true, version: 0, reason: "policy fingerprint" }, "editor-test");
   assert.notEqual((await getReviewProposal(id))!.fingerprint, source);
   await setSourceAutoPublic(sourceId, { enabled: false, version: 1, reason: "close again" }, "editor-test");
+  const closed = (await getReviewProposal(id))!.fingerprint;
+  await sql`INSERT INTO translations (article_id, lang, revision, body_text, body_html, origin)
+            VALUES (${id}, 'zh', 1, '初版中文译文', '<p>初版中文译文</p>', 'source')`;
+  const translated = (await getReviewProposal(id))!.fingerprint;
+  assert.notEqual(translated, closed);
+  await sql`UPDATE translations SET body_text = '修改后的中文译文' WHERE article_id = ${id} AND lang = 'zh'`;
+  assert.notEqual((await getReviewProposal(id))!.fingerprint, translated);
+  await sql`UPDATE articles SET x_post = ${sql.json({ quoted: { url: 'https://x.com/test/status/1234567890' } })} WHERE id = ${id}`;
+  const quoted = (await getReviewProposal(id))!.fingerprint;
+  await sql`INSERT INTO quote_translations (tweet_id, text_hash, text_zh) VALUES ('1234567890', 'hash1', '引用中文译文')`;
+  assert.notEqual((await getReviewProposal(id))!.fingerprint, quoted);
+});
+
+test("a temporary invalid proposal cannot revive an old approval when content returns", async () => {
+  const id = await material();
+  await analyze(id, 1);
+  const first = await proposeReview(id);
+  assert.ok(first);
+  await sql`UPDATE editorial_reviews SET status = 'approved', reviewed_by = 'editor-test', reviewed_at = now() WHERE article_id = ${id}`;
+  assert.equal((await getEffectiveReview(id)).status, 'approved');
+  await sql`UPDATE articles SET processing_state = 'new' WHERE id = ${id}`;
+  assert.equal(await proposeReview(id), null);
+  await sql`UPDATE articles SET processing_state = 'analyzed' WHERE id = ${id}`;
+  assert.equal((await getReviewProposal(id))?.fingerprint, first.fingerprint, "the same content is back");
+  assert.equal((await getEffectiveReview(id)).status, 'pending', "the prior approval must stay revoked");
+  const [review] = await sql<{ status: string; version: number }[]>`SELECT status, version FROM editorial_reviews WHERE article_id = ${id}`;
+  assert.deepEqual([review!.status, review!.version], ['pending', 2]);
 });
 
 test("auto-public allowlist changes require a version and are audited", async () => {

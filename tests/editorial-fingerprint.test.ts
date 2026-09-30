@@ -6,6 +6,8 @@ const target = () => ({
   article: { id: "article-1", revision: 1, title: "Release", body_text: "Original material" },
   source: { id: "source-1", name: "Official", site_fulltext: false },
   analysis: { id: 10, input_revision: 1, title_zh: "中文标题", summary_zh: "中文摘要" },
+  translation: { body_text: "完整中文译文" },
+  quoteTranslation: null,
   override: null,
   sourcePolicyVersion: 0,
 });
@@ -24,5 +26,7 @@ test("fingerprint changes when any approval input changes", () => {
     { ...target(), override: { version: 1, fields: { summary: "编辑修改" } } },
     { ...target(), source: { ...target().source, site_fulltext: true } },
     { ...target(), sourcePolicyVersion: 1 },
+    { ...target(), translation: { body_text: "被修改的中文译文" } },
+    { ...target(), quoteTranslation: { text_zh: "引用的译文" } },
   ]) assert.notEqual(fingerprintReviewTarget(changed), original);
 });

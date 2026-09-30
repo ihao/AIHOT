@@ -26,6 +26,8 @@ type ProposalRow = {
   article: Record<string, unknown>;
   source: Record<string, unknown>;
   analysis: Record<string, unknown>;
+  translation: Record<string, unknown> | null;
+  quote_translation: Record<string, unknown> | null;
   override_data: Record<string, unknown> | null;
   source_policy_version: number | null;
 };
@@ -44,6 +46,8 @@ export function fingerprintReviewTarget(target: {
   article: Record<string, unknown>;
   source: Record<string, unknown>;
   analysis: Record<string, unknown>;
+  translation: Record<string, unknown> | null;
+  quoteTranslation: Record<string, unknown> | null;
   override: Record<string, unknown> | null;
   sourcePolicyVersion: number;
 }): string {
@@ -59,6 +63,8 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
              'id', a.id, 'revision', a.revision, 'source_id', a.source_id, 'identity_key', a.identity_key,
              'url', a.url, 'title', a.title, 'author', a.author, 'language', a.language,
              'published_at', a.published_at, 'published_at_claim', a.published_at_claim,
+             'discovered_at', a.discovered_at, 'timeline_at', a.timeline_at,
+             'backfill', a.backfill, 'backfill_reason', a.backfill_reason, 'grouped_at', a.grouped_at,
              'source_updated_at', a.source_updated_at, 'content_hash', a.content_hash,
              'excerpt', a.excerpt, 'body_text', a.body_text, 'body_html', a.body_html,
              'body_status', a.body_status, 'media', a.media, 'x_post', a.x_post,
@@ -79,6 +85,13 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
              'reason_zh', an.reason_zh, 'score', an.score, 'selected', an.selected,
              'output', an.output
            ) AS analysis,
+           CASE WHEN tr.article_id IS NULL THEN NULL ELSE jsonb_build_object(
+             'revision', tr.revision, 'title', tr.title, 'body_html', tr.body_html,
+             'body_text', tr.body_text, 'complete', tr.complete, 'origin', tr.origin
+           ) END AS translation,
+           CASE WHEN qt.tweet_id IS NULL THEN NULL ELSE jsonb_build_object(
+             'tweet_id', qt.tweet_id, 'text_hash', qt.text_hash, 'text_zh', qt.text_zh, 'origin', qt.origin
+           ) END AS quote_translation,
            CASE WHEN o.article_id IS NULL THEN NULL ELSE jsonb_build_object(
              'version', o.version, 'fields', o.fields, 'visibility', o.visibility
            ) END AS override_data,
@@ -88,6 +101,8 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
     JOIN LATERAL (
       SELECT * FROM analyses WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1
     ) an ON true
+    LEFT JOIN translations tr ON tr.article_id = a.id AND tr.lang = 'zh' AND tr.revision >= a.revision
+    LEFT JOIN quote_translations qt ON qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')
     LEFT JOIN editorial_overrides o ON o.article_id = a.id
     LEFT JOIN source_auto_public_policies sp ON sp.source_id = s.id
     WHERE a.id = ${articleId} AND a.processing_state = 'analyzed'
@@ -99,29 +114,37 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
   const sourcePolicyVersion = Number(row.source_policy_version ?? 0);
   const fingerprint = fingerprintReviewTarget({
     article: row.article, source: row.source, analysis: row.analysis,
+    translation: row.translation, quoteTranslation: row.quote_translation,
     override: row.override_data, sourcePolicyVersion,
   });
   return { articleId, articleRevision, analysisId, overrideVersion, sourcePolicyVersion, fingerprint };
 }
 
-/** A legacy public projection or a decision against changed material is always effectively pending. */
-export async function getEffectiveReview(articleId: string, db: Db = sql): Promise<EffectiveReview> {
-  const proposal = await getReviewProposal(articleId, db);
-  const [row] = await db<{
+/**
+ * A single repeatable-read snapshot prevents mixing a proposal and decision from different commits.
+ * This is a review-state read, not by itself a public-exit gate: a later content query needs its own
+ * transactionally consistent projection check and mutation-time invalidation (slices B/C).
+ */
+export async function getEffectiveReview(articleId: string): Promise<EffectiveReview> {
+  return sql.begin(async (tx) => {
+    await tx`SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY`;
+    const proposal = await getReviewProposal(articleId, tx);
+    const [row] = await tx<{
     status: EffectiveReview["status"]; fingerprint: string | null; version: number;
     curated_status: string | null; curated_fingerprint: string | null; curated_review_version: number | null;
-  }[]>`
-    SELECT r.status, r.fingerprint, r.version,
-           c.status AS curated_status, c.fingerprint AS curated_fingerprint, c.review_version AS curated_review_version
-    FROM editorial_reviews r LEFT JOIN editorial_curations c ON c.article_id = r.article_id
-    WHERE r.article_id = ${articleId}`;
-  const current = !!proposal && row?.fingerprint === proposal.fingerprint;
-  const status = current ? row!.status : "pending";
-  return {
-    proposal, status, version: row?.version ?? 0,
-    curated: status === "approved" && row!.curated_status === "approved" &&
-      row!.curated_fingerprint === proposal!.fingerprint && row!.curated_review_version === row!.version,
-  };
+    }[]>`
+      SELECT r.status, r.fingerprint, r.version,
+             c.status AS curated_status, c.fingerprint AS curated_fingerprint, c.review_version AS curated_review_version
+      FROM editorial_reviews r LEFT JOIN editorial_curations c ON c.article_id = r.article_id
+      WHERE r.article_id = ${articleId}`;
+    const current = !!proposal && row?.fingerprint === proposal.fingerprint;
+    const status = current ? row!.status : "pending";
+    return {
+      proposal, status, version: row?.version ?? 0,
+      curated: status === "approved" && row!.curated_status === "approved" &&
+        row!.curated_fingerprint === proposal!.fingerprint && row!.curated_review_version === row!.version,
+    };
+  });
 }
 
 /** Bring the queue row up to the current proposal under the article lock. No approval is inferred. */
@@ -131,7 +154,16 @@ export async function proposeReview(articleId: string): Promise<ReviewProposal |
     if (!article) return null;
     await tx`SELECT id FROM sources WHERE id = ${article.source_id} FOR SHARE`;
     const proposal = await getReviewProposal(articleId, tx);
-    if (!proposal) return null;
+    if (!proposal) {
+      const reset = await tx`UPDATE editorial_reviews SET status = 'pending', fingerprint = NULL,
+        article_revision = NULL, analysis_id = NULL, override_version = 0, source_policy_version = 0,
+        version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+        WHERE article_id = ${articleId} AND (status <> 'pending' OR fingerprint IS NOT NULL)`;
+      if (reset.count) await tx`UPDATE editorial_curations SET status = 'pending', fingerprint = NULL, review_version = NULL,
+        version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+        WHERE article_id = ${articleId}`;
+      return null;
+    }
     const [current] = await tx<{ fingerprint: string | null }[]>`SELECT fingerprint FROM editorial_reviews WHERE article_id = ${articleId} FOR UPDATE`;
     if (current?.fingerprint === proposal.fingerprint) return proposal;
     await tx`
