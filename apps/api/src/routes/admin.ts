@@ -10,6 +10,7 @@ import { listReviewQueue } from "@aihot/backend/admin/review";
 
 import { contentChain, detachFromFact, mergeStories, overrideFields, rerun, searchContent, setSeoIndexed, setVisibility } from "@aihot/backend/admin/content";
 import { decideArticleCuration, decideArticleReview } from "@aihot/backend/editorial/decision";
+import { setSourceAutoPublic } from "@aihot/backend/editorial/review";
 import { banSource, eraseFeedback, feedbackScreenshot, listFeedback, unbanSource, updateFeedback } from "@aihot/backend/admin/feedback";
 import { listMonitorEvents, listMonitorPosts, relinkPost, resolveMonitorPost, reviewReceipt, setWithdrawn, updateMonitorEvent } from "@aihot/backend/admin/monitor";
 import { releaseReceipt, requeueFailedArticles, resolveDelivery, runsOverview } from "@aihot/backend/admin/runs";
@@ -47,6 +48,13 @@ export function registerAdmin(app: FastifyInstance) {
   app.patch("/api/admin/sources/:id", adminHandler(async (req, reply, admin) => {
     const b = body<{ patch: unknown; version: string; reason?: string }>(req);
     return orNotFound(req, reply, await updateSource(param(req, "id"), b, actorOf(admin)));
+  }));
+  app.post("/api/admin/sources/:id/auto-public", adminHandler(async (req, _reply, admin) => {
+    const b = body<{ enabled: boolean; version: number; reason: string }>(req);
+    if (typeof b.enabled !== "boolean" || !Number.isInteger(b.version) || typeof b.reason !== "string" || !b.reason.trim()) {
+      throw Object.assign(new Error("需要启用状态、当前版本和原因"), { statusCode: 400 });
+    }
+    return setSourceAutoPublic(param(req, "id"), b, actorOf(admin));
   }));
   app.post("/api/admin/sources/:id/preview", adminHandler(async (req, reply) => {
     const [s] = await sql`SELECT * FROM sources WHERE id = ${param(req, "id")}`;

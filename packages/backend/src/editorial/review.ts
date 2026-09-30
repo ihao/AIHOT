@@ -195,6 +195,7 @@ export async function invalidateArticleReviewTx(tx: Tx, articleId: string): Prom
 }
 
 export class StaleSourcePolicy extends Error {
+  code = "conflict";
   constructor() { super("信源自动发布设置版本已改变，请刷新后重试"); }
 }
 

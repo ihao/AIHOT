@@ -64,7 +64,10 @@ export async function sourceDetail(id: string) {
     FROM articles a WHERE a.source_id = ${id}`;
   const history = await sql`SELECT created_at, actor, action, reason, before, after FROM audit_log WHERE subject = ${`source:${id}`} ORDER BY created_at DESC LIMIT 20`;
   const [republish] = await sql<{ value: Record<string, unknown> }[]>`SELECT value FROM settings WHERE key = ${republishKey(id)}`;
-  return { source, runs, items, stats, history, republish: republish?.value ?? null };
+  const [autoPolicy] = await sql<{ enabled: boolean; version: number; reason: string | null }[]>`
+    SELECT enabled, version, reason FROM source_auto_public_policies WHERE source_id = ${id}`;
+  return { source, runs, items, stats, history, republish: republish?.value ?? null,
+    autoPolicy: autoPolicy ?? { enabled: false, version: 0, reason: null } };
 }
 
 /** Fetches a source (saved or draft) and returns what it would collect, without storing anything. */
