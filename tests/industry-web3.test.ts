@@ -5,6 +5,30 @@ import { ABOUT, SITE } from "@aihot/industry/site";
 import { FEATURES } from "@aihot/industry/features";
 import { CATEGORIES, CATEGORY_BY_ITEM_TYPE, CATEGORY_TAGS, ENTITIES, ENTITY_TAGS, IDENTITY_LEXICON, ITEM_TYPES, TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { enforceIdentity, matchEntityIds } from "@aihot/backend/editorial/writing";
+import { promptText } from "@aihot/backend/editorial/prompts";
+
+test("Web3 score prompt weights cover ITEM_TYPES and preserve the single integer output contract", () => {
+  const prompt = promptText("selection-score");
+  const rows = prompt.split("\n").filter((line) => /^\|\s*[a-z][a-z_]+\s*\|/.test(line))
+    .map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+  assert.deepEqual(rows.map(([type]) => type).sort(), [...ITEM_TYPES].sort());
+  for (const [type, ...weights] of rows) {
+    assert.equal(weights.length, 5, type);
+    for (const weight of weights) assert.match(weight, /^\d+$/, `${type}: ${weight}`);
+    assert.equal(weights.reduce((sum, weight) => sum + Number(weight), 0), 10, type);
+  }
+  assert.match(prompt, /\| 类型 \| sig \| nov \| cred \| reson \| act \|/);
+  assert.match(prompt, /0–100 的整数/);
+  assert.match(prompt, /只返回合法 JSON/);
+  assert.match(prompt, /顶层必须且只能包含 `attentionScore`/);
+  const examples = [...prompt.matchAll(/^\{.*\}$/gm)].map(([json]) => JSON.parse(json));
+  assert.ok(examples.length > 0, "score output example is required");
+  for (const example of examples) {
+    assert.deepEqual(Object.keys(example), ["attentionScore"]);
+    assert.ok(Number.isInteger(example.attentionScore));
+    assert.ok(example.attentionScore >= 0 && example.attentionScore <= 100);
+  }
+});
 
 test("site uses the 9BTC Web3 identity and disables AI-only modules", () => {
   assert.equal(SITE.name, "9BTC");
