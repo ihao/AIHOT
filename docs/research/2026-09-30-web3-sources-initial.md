@@ -1,13 +1,13 @@
 # 9BTC Web3 信源专题：首轮摸底（未入库）
 
-状态：候选研究，**不是生产信源清单**。2026-09-30 核对公开站点和 RSS；`industry/sources.json` 继续保持空数组。所有候选的自动发布白名单默认关闭。
+状态：候选研究，**不是生产信源清单**。2026-09-30 核对公开站点和 RSS；从实际 EU 服务器直连下表五个 feed 均返回 HTTP 200，但这只证明一次可达，不证明连续稳定。`industry/sources.json` 继续保持空数组。所有候选的自动发布白名单默认关闭。
 
 | 候选与入口 | 已核实事实 | 初步用途 | 入库前要解决的问题 |
 |---|---|---|---|
 | [Bitcoin Core RSS](https://bitcoincore.org/en/rss/) → [公告 feed](https://bitcoincore.org/en/announcements.xml) | 官方页面列出安全公告、发布公告、博客和版本 feed；公告 XML 本次返回 200，读到 5 条，最新条目为版本发布。 | 软件版本与安全公告的一手材料。 | 同一个 feed 同时包含安全与常规版本，不能整源自动放行；核对条目日期、正文和不同 feed 的重复。 |
-| [Ethereum Foundation Blog](https://blog.ethereum.org/) → [英文 feed](https://blog.ethereum.org/en/feed.xml) | 官方博客同时发布协议、研发、安全、组织、活动等类别；feed 在先前检查可读取，本次直连超时。 | 协议进展、研究和安全的一手材料。 | 按栏目/内容类型过滤，限制首次回填；重新测 feed 连通性、完整日期和来源许可。 |
-| [Aave Governance Forum](https://governance.aave.com/) → [最新 feed](https://governance.aave.com/latest.rss) | 官方论坛既有治理讨论、ARFC，也有普通提问；feed 在先前检查可读取，本次直连超时。 | 治理提案与讨论线索。 | 论坛发帖**不等于协议正式决定**；核对发帖者身份、提案状态与执行证据，论坛内容只作审阅候选。 |
-| [Uniswap Governance Forum](https://gov.uniswap.org/) → [最新 feed](https://gov.uniswap.org/latest.rss) | 官方治理论坛可访问；feed 在先前检查可读取，本次直连超时。 | 治理讨论线索。 | 与 Aave 相同：讨论、投票、执行分层；核对 feed 稳定性和正文使用边界。 |
+| [Ethereum Foundation Blog](https://blog.ethereum.org/) → [英文 feed](https://blog.ethereum.org/en/feed.xml) | 官方博客同时发布协议、研发、安全、组织、活动等类别；本机一次直连超时，但 EU 服务器返回 200。 | 协议进展、研究和安全的一手材料。 | 按栏目/内容类型过滤，限制首次回填；连续测 feed 稳定性、完整日期和来源许可。 |
+| [Aave Governance Forum](https://governance.aave.com/) → [最新 feed](https://governance.aave.com/latest.rss) | 官方论坛既有治理讨论、ARFC，也有普通提问；本机一次直连超时，但 EU 服务器返回 200。 | 治理提案与讨论线索。 | 论坛发帖**不等于协议正式决定**；核对发帖者身份、提案状态与执行证据，论坛内容只作审阅候选。 |
+| [Uniswap Governance Forum](https://gov.uniswap.org/) → [最新 feed](https://gov.uniswap.org/latest.rss) | 官方治理论坛可访问；本机一次直连超时，但 EU 服务器返回 200。 | 治理讨论线索。 | 与 Aave 相同：讨论、投票、执行分层；核对 feed 稳定性和正文使用边界。 |
 | [SEC RSS 目录](https://www.sec.gov/about/rss-feeds) → [新闻稿 feed](https://www.sec.gov/news/pressreleases.rss) | 官方提供新闻稿 RSS；本次 XML 返回 200、25 条。内容覆盖广泛，并非 Web3 专用。 | 美国监管原始公告。 | 严格筛选 Web3 关联，人工核对法律语境与生效状态；监管内容不进入自动发布。 |
 
 ## 入库判定方法
@@ -20,4 +20,4 @@
 
 ## 目前还不能下的结论
 
-本轮只是连通性和内容口径摸底，没有完成连续观察、100–200 条人工标注、转载许可审查、去重与模型成本测算，也未将任何来源导入数据库。Ethereum Foundation、Aave 和 Uniswap feed 的本次直连超时需要复测，不把单次超时判为来源失效。
+本轮只是连通性和内容口径摸底，没有完成连续观察、100–200 条人工标注、转载许可审查、去重与模型成本测算，也未将任何来源导入数据库。本机网络对部分 feed 超时，但 EU 一次探测均返回 200；后续应以 EU 连续观察为准。
