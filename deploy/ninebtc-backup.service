@@ -1,0 +1,9 @@
+[Unit]
+Description=9BTC offsite backup to OPS server
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/9btc/deploy/offsite-backup.sh
+TimeoutStartSec=2h
