@@ -33,7 +33,7 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 DNS 已先于应用发布完成切换。私有验收通过后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常；`www.9btc.com` 应跳转到根域。旧服务器无需改动。
 
-2026-09-30 已向两台权威 NS 和 Google 公共 DNS 核对：根域 A 均返回 `62.171.163.77`；`www` 仍是指向根域的 CNAME。应用尚未部署时，HTTP 跳转到 HTTPS，而 HTTPS 握手失败；发布时必须把证书和站点访问一起验收。[GoDaddy 官方 A 记录说明](https://www.godaddy.com/en-uk/help/add-or-edit-an-a-record-42546) 留作必要时的回退参考。
+2026-09-30 已向两台权威 NS 和 Google 公共 DNS 核对：根域 A 均返回 `62.171.163.77`；`www` 仍是指向根域的 CNAME。发布时必须把证书和站点访问一起验收。[GoDaddy 官方 A 记录说明](https://www.godaddy.com/en-uk/help/add-or-edit-an-a-record-42546) 留作必要时的回退参考。
 
 ## 备份和回退
 
@@ -44,3 +44,9 @@ DNS 已先于应用发布完成切换。私有验收通过后，把已校验的 
 Docker Compose v5.1.3 可用，现有 Caddy 管理 80/443，站点配置通过 `/etc/caddy/sites-enabled/*.caddy` 导入；本机 3000、3001、5432 已由其他服务使用，3109 空闲。以上是一次只读检查结果，执行部署前应重新确认。
 
 域名 NS 为 `ns43.domaincontrol.com` / `ns44.domaincontrol.com`；根域 A 已切到 `62.171.163.77`，`www` 是指向根域的 CNAME。部署前再次查询，避免依据过期的 DNS 状态操作。
+
+## 私有部署记录（2026-09-30）
+
+已从 `ihao/AIHOT` 的 `feat/9btc-web3` 分支检出经 CI 验证的提交 `cca02dafec2721024e24d1934fd1321e4627ce11` 到 EU `/srv/9btc`。独立 `ninebtc` Compose 项目已启动 PostgreSQL 17、API、worker、web；网页只监听 `127.0.0.1:3109`。服务器 `.env` 权限为 `0600`，密钥现场随机生成，采集、模型调用、内容推送与索引提交均关闭。Caddy 未添加 9BTC 站点，公开域名仍未接入这套应用。
+
+私有端口的健康接口、首页、后台登录均返回 200；内置页面/API/RSS/MCP/图片冒烟检查全部通过。数据库迁移共 39 个，信源数 0，符合专题调研前不入库的决定。已把初始数据库导出并恢复到同一 PostgreSQL 实例内的独立 `ninebtc_restore_check` 数据库，恢复后可见 39 个迁移、0 个信源；这只验证恢复过程，**不能代替异机备份**。演练库与 `/tmp/ninebtc-initial-restore-check.dump` 暂留作检查，不属于正式备份。正式公开前仍需确定异机目的地、留存期和恢复告警，并完成一次异机恢复。
