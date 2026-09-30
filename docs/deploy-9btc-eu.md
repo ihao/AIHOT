@@ -27,7 +27,7 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 ## 域名切换
 
-私有验收后，站长把 `9btc.com` 的 A 记录改为 EU 地址。DNS 生效后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常。旧服务器无需改动。
+私有验收后，站长把 `9btc.com` 的 A 记录改为 `62.171.163.77`。DNS 生效后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常；`www.9btc.com` 应跳转到根域。旧服务器无需改动。
 
 ## 备份和回退
 
@@ -36,3 +36,5 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 ## 已核实的 EU 环境（2026-09-30）
 
 Docker Compose v5.1.3 可用，现有 Caddy 管理 80/443，站点配置通过 `/etc/caddy/sites-enabled/*.caddy` 导入；本机 3000、3001、5432 已由其他服务使用，3109 空闲。以上是一次只读检查结果，执行部署前应重新确认。
+
+域名当前 NS 为 `ns43.domaincontrol.com` / `ns44.domaincontrol.com`；根域 A 为旧地址 `104.160.32.13`，`www` 是指向根域的 CNAME，未查到 AAAA 记录。切换前需再次查询，因为 DNS 状态可能变化。只替换根域 A 记录即可保留旧服务器原状。
