@@ -7,6 +7,34 @@ import { CATEGORIES, CATEGORY_BY_ITEM_TYPE, CATEGORY_TAGS, ENTITIES, ENTITY_TAGS
 import { enforceIdentity, matchEntityIds } from "@aihot/backend/editorial/writing";
 import { promptText } from "@aihot/backend/editorial/prompts";
 
+test("content understanding enumerates the live item types and a compatible JSON example", () => {
+  const prompt = promptText("content-understanding");
+  const types = [...prompt.matchAll(/^- `([a-z_]+)`：/gm)].map((match) => match[1]!).filter((type) => !["principal", "observer", "relayer"].includes(type));
+  assert.deepEqual(types.sort(), [...ITEM_TYPES].sort());
+  const examples = [...prompt.matchAll(/^\{.*\}$/gm)].map(([json]) => JSON.parse(json));
+  assert.ok(examples.length > 0, "a parseable output example is required");
+  for (const example of examples) {
+    assert.deepEqual(Object.keys(example).sort(), ["itemType", "authorRole", "tags", "editorialJudgment", "titleZh", "summaryZh"].sort());
+    assert.ok((ITEM_TYPES as readonly string[]).includes(example.itemType));
+    assert.equal(example.tags[0], CATEGORY_BY_ITEM_TYPE[example.itemType]);
+    assert.ok(["principal", "observer", "relayer"].includes(example.authorRole));
+    const allowed = new Set<string>([...CATEGORY_TAGS, ...TOPIC_TAGS, ...ENTITY_TAGS]);
+    assert.ok(example.tags.every((tag: string) => allowed.has(tag)));
+    for (const key of ["editorialJudgment", "titleZh", "summaryZh"]) assert.equal(typeof example[key], "string");
+  }
+});
+
+test("structure consumes dynamic vocabulary and preserves its JSON output fields", () => {
+  const raw = readFileSync(new URL("../industry/prompts/structure.md", import.meta.url), "utf8");
+  const values = Object.fromEntries(["categoryCount", "categoryGuide", "categoryTags", "topicTags", "entityTags", "entities"].map((key) => [key, `CONTRACT_${key}`]));
+  for (const key of Object.keys(values)) assert.ok(raw.includes(`{{${key}}}`), key);
+  const prompt = promptText("structure", values);
+  for (const value of Object.values(values)) assert.ok(prompt.includes(value));
+  assert.doesNotMatch(prompt, /\{\{|已确认与 AI/);
+  assert.match(prompt, /字段：category, tags, subjects, fact/);
+  for (const field of ["title", "subject", "action", "object", "occurredAt"]) assert.match(prompt, new RegExp(`\\b${field}\\b`));
+});
+
 test("Web3 score prompt weights cover ITEM_TYPES and preserve the single integer output contract", () => {
   const prompt = promptText("selection-score");
   const rows = prompt.split("\n").filter((line) => /^\|\s*[a-z][a-z_]+\s*\|/.test(line))
