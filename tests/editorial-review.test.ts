@@ -38,8 +38,8 @@ async function analyze(articleId: string, revision: number) {
 
 test("review state and source auto-public policy start closed, including existing public projections", async () => {
   const id = await material();
-  await sql`INSERT INTO publications (article_id, title, source_id, channel, url, discovered_at, timeline_at, visibility)
-            SELECT id, title, source_id, 'news', url, discovered_at, timeline_at, 'public' FROM articles WHERE id = ${id}`;
+  await sql`INSERT INTO publications (article_id, title, source_id, channel, url, discovered_at, timeline_at, sort_at, visibility)
+            SELECT id, title, source_id, 'news', url, discovered_at, timeline_at, timeline_at, 'public' FROM articles WHERE id = ${id}`;
   const [state] = await sql<{ count: number }[]>`SELECT count(*)::int AS count FROM editorial_reviews WHERE article_id = ${id}`;
   const [policy] = await sql<{ count: number }[]>`SELECT count(*)::int AS count FROM source_auto_public_policies WHERE source_id = ${sourceId}`;
   assert.equal(state!.count, 0, "a legacy public projection is never converted into approval");
