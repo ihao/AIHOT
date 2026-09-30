@@ -65,7 +65,7 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
              'url', a.url, 'title', a.title, 'author', a.author, 'language', a.language,
              'published_at', a.published_at, 'published_at_claim', a.published_at_claim,
              'discovered_at', a.discovered_at, 'timeline_at', a.timeline_at,
-             'backfill', a.backfill, 'backfill_reason', a.backfill_reason, 'grouped_at', a.grouped_at,
+             'backfill', a.backfill, 'backfill_reason', a.backfill_reason,
              'source_updated_at', a.source_updated_at, 'content_hash', a.content_hash,
              'excerpt', a.excerpt, 'body_text', a.body_text, 'body_html', a.body_html,
              'body_status', a.body_status, 'media', a.media, 'x_post', a.x_post,
