@@ -1,7 +1,7 @@
 // Feedback: content, optional email, page URL, one optional screenshot. The screenshot
 // goes to the internal Feishu chat and only its image key is stored. Abuse control uses an unreadable
 // source identifier (HMAC of client IP + UA family), per-source bans and a per-minute limit.
-import { createHmac } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { config, credential } from "../config.ts";
@@ -63,7 +63,9 @@ export async function submitFeedback(input: FeedbackInput): Promise<{ id: number
     if (!/^image\/(png|jpeg|webp|gif)$/.test(input.screenshot.mime)) throw new FeedbackRejected(400, "invalid_request", "截图需要是 PNG、JPG、WebP 或 GIF。");
     if (input.screenshot.data.length > 8 * 1024 * 1024) throw new FeedbackRejected(400, "invalid_request", "截图最大 8MB。");
     // Stored locally only until it is forwarded (notify/feishu.ts); the database keeps only an identifier.
-    const name = `${sha256(input.screenshot.data).slice(0, 24)}.${input.screenshot.mime.split("/")[1]}`;
+    // Each feedback owns its file. A content-hash filename could be shared by two submissions,
+    // so deleting one feedback's screenshot would break the other's reference.
+    const name = `${sha256(input.screenshot.data).slice(0, 16)}-${randomBytes(8).toString("hex")}.${input.screenshot.mime.split("/")[1]}`;
     const dir = path.join(config.dataDir, "feedback-screenshots");
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, name), input.screenshot.data);

@@ -6,6 +6,7 @@ import path from "node:path";
 import { after, test } from "node:test";
 import { config } from "@aihot/backend/config";
 import { closeDb, sql } from "@aihot/backend/db";
+import { submitFeedback } from "@aihot/backend/operations/feedback";
 import { dailyRetention } from "@aihot/backend/operations/retention";
 import { tag } from "./setup.ts";
 
@@ -57,4 +58,26 @@ test("an old feedback record cannot delete a screenshot still referenced by a re
   assert.equal(oldRow!.screenshot_key, "gone:expired");
   assert.equal(freshRow!.screenshot_key, `local:${name}`);
   assert.equal((await readFile(path.join(dir, name))).toString(), "shared screenshot");
+});
+
+test("failed screenshot deletion leaves the database reference for retry", async () => {
+  const name = `blocked-${tag()}`;
+  await mkdir(path.join(config.dataDir, "feedback-screenshots", name), { recursive: true });
+  const [row] = await sql<{ id: number }[]>`
+    INSERT INTO feedback (content, screenshot_key, source_hash, created_at)
+    VALUES ('blocked test', ${`local:${name}`}, ${tag()}, now() - interval '31 days') RETURNING id`;
+  await assert.rejects(() => dailyRetention(), /EISDIR|EPERM/);
+  const [remaining] = await sql<{ screenshot_key: string | null }[]>`SELECT screenshot_key FROM feedback WHERE id = ${row!.id}`;
+  assert.equal(remaining!.screenshot_key, `local:${name}`);
+});
+
+test("equal screenshot bytes in two new feedback submissions get independent files", async () => {
+  process.env.FEISHU_INTERNAL_ENABLED = "false";
+  const screenshot = { mime: "image/png", data: Buffer.from("same screenshot") };
+  const first = await submitFeedback({ content: "First screenshot", screenshot, ip: "203.0.113.11", userAgent: "test" });
+  const second = await submitFeedback({ content: "Second screenshot", screenshot, ip: "203.0.113.12", userAgent: "test" });
+  const rows = await sql<{ screenshot_key: string }[]>`
+    SELECT screenshot_key FROM feedback WHERE id IN (${first.id}, ${second.id}) ORDER BY id`;
+  assert.equal(rows.length, 2);
+  assert.notEqual(rows[0]!.screenshot_key, rows[1]!.screenshot_key);
 });
