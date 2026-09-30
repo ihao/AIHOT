@@ -54,10 +54,17 @@ async function expireFeedbackScreenshots(now: Date, maxAgeMs: number): Promise<{
   }
   // A crash between writing a file and inserting feedback can leave an orphan. Only remove it
   // after its age limit and a database reference check; report real unlink failures to the job.
-  for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+  const entries = await readdir(dir, { withFileTypes: true }).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  });
+  for (const entry of entries) {
     if (!entry.isFile()) continue;
     const file = path.join(dir, entry.name);
-    const info = await stat(file).catch(() => null);
+    const info = await stat(file).catch((error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") return null;
+      throw error;
+    });
     if (!info || now.getTime() - info.mtimeMs <= maxAgeMs) continue;
     const [linked] = await sql`SELECT 1 FROM feedback WHERE screenshot_key = ${`local:${entry.name}`} LIMIT 1`;
     if (linked) continue;

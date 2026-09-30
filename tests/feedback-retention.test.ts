@@ -81,3 +81,16 @@ test("equal screenshot bytes in two new feedback submissions get independent fil
   assert.equal(rows.length, 2);
   assert.notEqual(rows[0]!.screenshot_key, rows[1]!.screenshot_key);
 });
+
+test("an unreadable screenshot directory fails retention instead of reporting success", async () => {
+  const previous = config.dataDir;
+  const root = await mkdtemp(path.join(tmpdir(), "ninebtc-retention-error-"));
+  try {
+    config.dataDir = root;
+    await writeFile(path.join(root, "feedback-screenshots"), "not a directory");
+    await assert.rejects(() => dailyRetention(new Date("2020-01-01T00:00:00Z")), /ENOTDIR/);
+  } finally {
+    config.dataDir = previous;
+    await rm(root, { recursive: true });
+  }
+});
