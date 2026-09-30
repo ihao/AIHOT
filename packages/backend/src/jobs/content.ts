@@ -1,3 +1,4 @@
+import { verifyAutomaticArticle, sweepAutomaticVerifications } from "../editorial/automatic-verification.ts";
 // Content processing: body extraction when the source needs it → analysis → publish → event grouping.
 // Every article reaches the queues through queueProcessing, which records when it was queued, so the
 // safety net only picks up articles nothing is working on and sends those still waiting for a body to
@@ -158,6 +159,10 @@ async function afterFailure(articleId: string, error: unknown): Promise<{ state:
 }
 
 export async function registerContentJobs(boss: PgBoss, concurrency = Number(process.env.ANALYZE_CONCURRENCY || 6)) {
+  await ensureQueue(QUEUES.verifyAutomatic);
+  await boss.work<{ articleId: string }>(QUEUES.verifyAutomatic, { localConcurrency: 2, pollingIntervalSeconds: 2 }, async ([job]) => {
+    if (job) await verifyAutomaticArticle(job.data.articleId);
+  });
   await ensureQueue(QUEUES.analyze);
   await boss.work<{ articleId: string; attemptTag?: string }>(QUEUES.analyze, { localConcurrency: concurrency, pollingIntervalSeconds: 2 }, async ([job]) => {
     if (!job) return;
@@ -213,7 +218,8 @@ export async function sweepUnprocessed(): Promise<{ enqueued: number }> {
       AND (processing_queued_at IS NULL OR processing_queued_at < now() - ${QUEUED_STALE}::interval)
     ORDER BY discovered_at DESC LIMIT 500`;
   for (const r of rows) await queueProcessing(r.id);
-  return { enqueued: rows.length };
+  const verificationEnqueued = await sweepAutomaticVerifications();
+  return { enqueued: rows.length + verificationEnqueued };
 }
 
 /** How the runs page groups failures: the message with ids and numbers masked. */

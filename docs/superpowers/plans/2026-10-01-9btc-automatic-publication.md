@@ -24,14 +24,14 @@ Files: create `packages/backend/src/editorial/automatic-policy.ts`, `industry/pr
 
 Files: create incremental migration `0043_automatic_verification.sql` and `editorial/automatic-verification.ts`; modify `editorial/analyze.ts`, `auto-publication.ts`, `review.ts`, `jobs/content.ts`, `jobs/queue.ts`, `publication/publish.ts`, `events/eligibility.ts`, `events/group.ts`, `events/merge.ts`, necessary event read/digest paths. Tests: `tests/automatic-verification.test.ts`, `tests/automatic-publication.test.ts` and existing editorial/events tests.
 
-- [ ] PG17 失败用例验证：相关性 UNKNOWN、未批准源、正文失败、缺失核验、伪造引文、过期 revision、错误中文金额均不公开；完整材料+独立核验可自动公开/精选且不需人工决定。
-- [ ] 新核验轮次按 article revision+rule version 唯一，analysis 绑定不得重置同轮次数；保存原文/文案 hash、输入版本、receipt IDs、材料快照、阶段/次数/状态、决定理由；不可在重启后重置已消耗次数。并发分析/核验使用唯一轮次 claim；陈旧 claim 有限恢复，已保存回执可复用。禁止锁内等待模型。
-- [ ] 分析完成排队核验，核验使用项目 chatJson/paidRequest（usage/预算）。仅取得 verified 记录才调用纯策略并给当前指纹自动放行。补抓最多2个原文内 HTTPS 一手链接，遵守 fetch/extract 防 SSRF/大小/超时，最多1次补抓复核和1次重写复核，合计最多3次核验；终止状态不能由普通 sweep 重置。
-- [ ] 外链不是首批采集来源新增；只从文章实际链接中选取批准的一手域名，绝不请求模型虚构 URL。摘要重写结果需重新核验并绑定最终输出。错误继续使用现有有限队列重试与回执复用；每轮 attemptTag/identity 含 policy、analysis、round。
-- [ ] 自动授权沿用 auto_public 与 curation 状态，但必须有当前 verified 授权；未核验的旧狭窄 auto_public 不变成精选。管理员主动禁发/撤稿优先，自动模式不依赖人工审核流程。
-- [ ] 归组/合并后在现有锁下复查并重新应用有效自动精选；值/文案授权不因纯成员关系变动永久失效。显式去重恢复，队列重试最多2次。原文/文案/规则变动使旧核验失效。自动精选沿用精选可索引规则。
-- [ ] 自动模式事件公开文案只用已核验条目 title/summary；生成的 story digest 未经独立核验不公开，首版允许直接回退已核验条目，避免引入额外模型步骤。检查所有网站/API/MCP事件 DTO，不只页面。
-- [ ] 完成 PG17集成与既有人工回归；spec review → quality review →提交。
+- [x] PG17 失败用例验证：相关性 UNKNOWN、未批准源、正文失败、缺失核验、伪造引文、过期 revision、错误中文金额均不公开；完整材料+独立核验可自动公开/精选且不需人工决定。
+- [x] 新核验轮次按 article revision+rule version 唯一，analysis 绑定不得重置同轮次数；保存原文/文案 hash、输入版本、receipt IDs、材料快照、阶段/次数/状态、决定理由；不可在重启后重置已消耗次数。并发分析/核验使用唯一轮次 claim；陈旧 claim 有限恢复，已保存回执可复用。禁止锁内等待模型。
+- [x] 分析完成排队核验，核验使用项目 chatJson/paidRequest（usage/预算）。仅取得 verified 记录才调用纯策略并给当前指纹自动放行。补抓最多2个原文内 HTTPS 一手链接，遵守 fetch/extract 防 SSRF/大小/超时，最多1次补抓复核和1次重写复核，合计最多3次核验；终止状态不能由普通 sweep 重置。
+- [x] 外链不是首批采集来源新增；只从文章实际链接中选取批准的一手域名，绝不请求模型虚构 URL。摘要重写结果需重新核验并绑定最终输出。错误继续使用现有有限队列重试与回执复用；每轮 attemptTag/identity 含 policy、analysis、round。
+- [x] 自动授权沿用 auto_public 与 curation 状态，但必须有当前 verified 授权；未核验的旧狭窄 auto_public 不变成精选。管理员主动禁发/撤稿优先，自动模式不依赖人工审核流程。
+- [x] 归组/合并后在现有锁下复查并重新应用有效自动精选；值/文案授权不因纯成员关系变动永久失效。显式去重恢复，队列重试最多2次。原文/文案/规则变动使旧核验失效。自动精选沿用精选可索引规则。
+- [x] 自动模式事件公开文案只用已核验条目 title/summary；生成的 story digest 未经独立核验不公开，首版允许直接回退已核验条目，避免引入额外模型步骤。检查所有网站/API/MCP事件 DTO，不只页面。
+- [x] 完成 PG17集成与既有人工回归；spec review → quality review →提交。
 
 ## Task 3: 自动日报和无人值守运行
 
@@ -61,4 +61,4 @@ Files: update `industry/site.ts` / public method text and affected admin labels 
 
 ## Implementation evidence
 
-Task 1 completed at `ee75e04`: pure policy/preset 17 tests, scoring local-stub 7 integration tests, full typecheck and whitespace check passed; independent spec and quality reviews approved after fixing missing-evidence verdict classification. Task 2 is in progress. Bailian connectivity evidence is isolated synthetic integration, not public news or production acceptance.
+Task 1 completed at `ee75e04`: pure policy/preset 17 tests, scoring local-stub 7 integration tests, full typecheck and whitespace check passed; independent spec and quality reviews approved after fixing missing-evidence verdict classification. Task 2 is complete locally: isolated PG17 38/38 final analysis/verification regressions passed, prior publication/source/manual regressions passed, evidence pure tests 10/10 and full typecheck passed. Independent spec and quality reviews approved after fixing normal-job replay identity, actual automatic group retries and compound/token currency parsing. Production and real-content acceptance remain pending. Bailian connectivity evidence is isolated synthetic integration, not public news or production acceptance.

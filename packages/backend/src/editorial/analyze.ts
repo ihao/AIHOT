@@ -13,10 +13,12 @@ import { z } from "zod";
 import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
 import { CATEGORIES } from "@aihot/industry/taxonomy";
 import { SELECTION } from "@aihot/industry/selection";
-import { sql } from "../db.ts";
+import { sql, type Tx } from "../db.ts";
+import { sha256, stableJson } from "../lib/ids.ts";
 import { config, type EditorialMode } from "../config.ts";
 import { scoreAssessment } from "./automatic-policy.ts";
 import { publishArticleTx } from "../publication/publish.ts";
+import { AUTOMATIC_RULE_VERSION, queueAutomaticVerificationTx } from "./automatic-verification.ts";
 import { considerAutoPublicationTx } from "./auto-publication.ts";
 import { chatJson, MODELS, type ContentPart } from "../providers/llm.ts";
 import { completeReceipt, ProviderRejectedError } from "../providers/receipts.ts";
@@ -420,6 +422,61 @@ export interface AnalyzeResult {
   reused: boolean;
 }
 
+type NormalizedAnalysis = ReturnType<typeof normalizeAnalysis>;
+interface ReplayRow {
+  id: number; input_revision: number; origin: string; model: string; prompt_version: string; receipt_ids: number[];
+  relevance: string; category: string | null; tags: string[]; subjects: string[];
+  title_zh: string | null; summary_zh: string | null; reason_zh: string | null; score: number | null; selected: boolean;
+  output: Record<string, unknown>; rewritten: boolean | null;
+  original_copy: { titleZh: string | null; summaryZh: string | null; reasonZh: string | null; category: string | null } | null;
+  final_copy: ReplayRow['original_copy'];
+}
+
+/** Only non-secret model configuration participates in the automatic replay identity. */
+async function replayModelConfiguration(opts: StepOpts) {
+  const capabilities = ['prefilter', 'score', 'understand', 'summarize', 'structure'] as const;
+  return Promise.all(capabilities.map(async capability => {
+    const key = capability === 'score' && opts.scoreModel ? opts.scoreModel : await modelFor(capability);
+    const spec = MODELS[key];
+    return { capability, key, model: spec?.model, service: spec?.service, extra: spec?.extra ?? null,
+      jsonMode: spec?.jsonMode, vision: spec?.vision, ...(capability === 'score' ? { call: scoreCall(key) } : {}) };
+  }));
+}
+const replayInputHash = (input: AnalyzeInputArticle, models: unknown) => sha256(stableJson({
+  input, models, mode: 'automatic', rule: AUTOMATIC_RULE_VERSION, prompts: ANALYZE_PROMPT_VERSION,
+}));
+function analysisResultHash(model: string, receiptIds: number[], out: NormalizedAnalysis, detail: Record<string, unknown>) {
+  return sha256(stableJson({ model, prompt: ANALYZE_PROMPT_VERSION, receiptIds, detail,
+    relevance: out.relevance, category: out.category, tags: out.tags, subjects: out.subjects,
+    titleZh: out.titleZh, summaryZh: out.summaryZh, reasonZh: out.reasonZh, score: out.score, selected: out.selected }));
+}
+/** Called under the article lock both before paid work and at commit (concurrent replay). */
+async function reusableAutomaticAnalysis(tx: Tx, articleId: string, revision: number, inputHash: string, expectedResultHash?: string): Promise<AnalyzeResult | null> {
+  const [r] = await tx<ReplayRow[]>`SELECT an.*,av.rewritten,av.original_copy,av.final_copy FROM
+    (SELECT * FROM analyses WHERE article_id=${articleId} ORDER BY id DESC LIMIT 1) an
+    LEFT JOIN automatic_verifications av ON av.analysis_id=an.id AND av.automatic_rule_version=${AUTOMATIC_RULE_VERSION}`;
+  const replay = r?.output.automaticReplay as { inputHash?: string; resultHash?: string; receiptHash?: string } | undefined;
+  if (!r || r.origin !== 'model' || r.input_revision !== revision || r.prompt_version !== ANALYZE_PROMPT_VERSION || replay?.inputHash !== inputHash || !r.receipt_ids.length) return null;
+  const currentCopy = { titleZh: r.title_zh, summaryZh: r.summary_zh, reasonZh: r.reason_zh, category: r.category };
+  // A verifier's rewrite is the final copy; raw receipt replay must never replace it.
+  if (r.rewritten && stableJson(currentCopy) !== stableJson(r.final_copy)) return null;
+  const rawCopy = r.rewritten ? r.original_copy : currentCopy;
+  if (!rawCopy) return null;
+  const out: NormalizedAnalysis = {
+    relevance: r.relevance, category: rawCopy.category, titleZh: rawCopy.titleZh ?? '', summaryZh: rawCopy.summaryZh ?? '', reasonZh: rawCopy.reasonZh,
+    tags: r.tags, subjects: r.subjects, score: r.score, selected: r.selected,
+    scores: (r.output.scores ?? null) as NormalizedAnalysis['scores'], scoreRange: r.output.scoreRange as NormalizedAnalysis['scoreRange'],
+    scoreModel: (r.output.scoreModel ?? null) as string | null, scoreRefused: r.output.scoreRefused === true,
+    threshold: (r.output.threshold ?? null) as number | null, fact: (r.output.fact ?? null) as NormalizedAnalysis['fact'],
+  };
+  const { automaticReplay: _identity, ...detail } = r.output;
+  if (replay.resultHash !== analysisResultHash(r.model, r.receipt_ids, out, detail) || expectedResultHash && replay.resultHash !== expectedResultHash) return null;
+  const receipts = await tx`SELECT id,logical_key,response FROM receipts WHERE id=ANY(${r.receipt_ids}) AND status='completed' ORDER BY id`;
+  if (receipts.length !== new Set(r.receipt_ids).size || replay.receiptHash !== sha256(stableJson(receipts))) return null;
+  return { analysisId: r.id, stale: false, receiptIds: r.receipt_ids, reused: true,
+    output: { ...out, ...currentCopy, titleZh: currentCopy.titleZh ?? '', summaryZh: currentCopy.summaryZh ?? '' } };
+}
+
 /**
  * Analyses the current revision and commits the judgement. A result computed for an older revision
  * is kept for traceability but never overwrites a newer input (stale = true).
@@ -429,26 +486,54 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
   if (!input) return null;
   // Its page first; extraction queues the analysis again (normally the queue already routed it there).
   if (waitsForPage(input)) return { analysisId: null, stale: false, needsBody: true, output: null, receiptIds: [], reused: true };
+  const replayModels = config.editorialMode === 'automatic' ? await replayModelConfiguration(opts) : null;
+  const inputHash = replayModels ? replayInputHash(input, replayModels) : null;
+  if (inputHash && !opts.attemptTag) {
+    const previous = await sql.begin(async tx => {
+      await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
+      const current = await loadAnalyzeInput(articleId, tx);
+      return current && replayInputHash(current, replayModels) === inputHash ? reusableAutomaticAnalysis(tx, articleId, input.revision, inputHash) : null;
+    });
+    if (previous) return previous;
+  }
   const run = await runAnalysis(input, opts);
   const out = normalizeAnalysis(run);
   const receiptIds = [
     run.prefilter.receiptId, ...(run.scores?.receiptIds ?? []), ...(run.writing?.receiptIds ?? []), ...(run.structure ? [run.structure.receiptId] : []),
   ];
   const w = run.writing;
-  const detail = {
+  const detail: Record<string, unknown> = {
     prefilter: { label: run.prefilter.label, reason: run.prefilter.reason },
     scores: out.scores, scoreRange: out.scoreRange, scoreModel: out.scoreModel, threshold: out.threshold, ...(out.scoreRefused ? { scoreRefused: true } : {}),
     ...(w ? { writer: w.kind, writerModel: w.model, itemType: w.itemType ?? null, authorRole: w.authorRole ?? null } : {}),
     ...(w?.identityGuard?.outcome === "fallback" ? { identityGuard: w.identityGuard } : {}),
     fact: out.fact,
   };
+  const model = w?.model ?? run.prefilter.model;
+  const resultHash = analysisResultHash(model, receiptIds, out, detail);
+  // If a model switch raced the run, keep its result but do not advertise it as replayable.
+  if (inputHash && !opts.attemptTag && stableJson(replayModels) === stableJson(await replayModelConfiguration(opts))) detail.automaticReplay = {
+    inputHash, resultHash,
+  };
   const committed = await sql.begin(async (tx) => {
     const [current] = await tx<{ revision: number }[]>`SELECT revision FROM articles WHERE id = ${articleId} FOR UPDATE`;
-    const stale = !current || current.revision !== input.revision;
+    const currentInput = inputHash && current ? await loadAnalyzeInput(articleId, tx) : null;
+    const stale = !current || current.revision !== input.revision || !!inputHash && (!currentInput || replayInputHash(currentInput, replayModels) !== inputHash);
+    if (!stale && inputHash && detail.automaticReplay && !opts.attemptTag) {
+      const previous = await reusableAutomaticAnalysis(tx, articleId, input.revision, inputHash, resultHash);
+      if (previous) {
+        for (const id of receiptIds) await completeReceipt(tx, id);
+        return previous;
+      }
+    }
+    if (detail.automaticReplay) {
+      const receipts = await tx`SELECT id,logical_key,response FROM receipts WHERE id=ANY(${receiptIds}) ORDER BY id`;
+      Object.assign(detail.automaticReplay, { receiptHash: sha256(stableJson(receipts)) });
+    }
     const [row] = await tx<{ id: number }[]>`
       INSERT INTO analyses (article_id, input_revision, origin, model, prompt_version, receipt_ids, relevance, category, tags,
         subjects, title_zh, summary_zh, reason_zh, score, selected, output)
-      VALUES (${articleId}, ${input.revision}, 'model', ${w?.model ?? run.prefilter.model}, ${ANALYZE_PROMPT_VERSION}, ${receiptIds},
+      VALUES (${articleId}, ${input.revision}, 'model', ${model}, ${ANALYZE_PROMPT_VERSION}, ${receiptIds},
         ${out.relevance}, ${out.category}, ${out.tags}, ${out.subjects}, ${out.titleZh}, ${out.summaryZh}, ${out.reasonZh},
         ${out.score}, ${out.selected}, ${tx.json(detail as never)})
       RETURNING id`;
@@ -459,11 +544,13 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
       await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL WHERE id = ${articleId}`;
       // A newer judgement changes the exact proposal even when the material revision
       // did not change (for example an explicit rerun). Close the old grant atomically.
-      if (out.relevance === "pass") await considerAutoPublicationTx(tx, articleId);
+      if (config.editorialMode === "automatic") await queueAutomaticVerificationTx(tx, articleId);
+      else if (out.relevance === "pass") await considerAutoPublicationTx(tx, articleId);
       await publishArticleTx(tx, articleId);
     }
     return { analysisId: row!.id, stale };
   });
+  if ('output' in committed) return committed;
   const reused = run.prefilter.reused && (run.scores?.reused ?? true) && (w?.reused ?? true) && (run.structure?.reused ?? true);
   return { analysisId: committed.analysisId, stale: committed.stale, output: out, receiptIds, reused };
 }

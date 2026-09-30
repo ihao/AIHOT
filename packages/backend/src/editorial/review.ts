@@ -1,6 +1,8 @@
 // Exact content proposals for 9BTC's closed-by-default editorial gate.
 // This module does not make a publication public: approval and projection are one
 // transaction in the next implementation slice.
+import { config } from "../config.ts";
+import { currentAutomaticDecision } from "./automatic-verification.ts";
 import { createHash } from "node:crypto";
 import { sql, type Db, type Tx } from "../db.ts";
 import { withLockedSourceArticles } from "./source-lock.ts";
@@ -138,11 +140,13 @@ export async function getEffectiveReview(articleId: string): Promise<EffectiveRe
              c.status AS curated_status, c.fingerprint AS curated_fingerprint, c.review_version AS curated_review_version
       FROM editorial_reviews r LEFT JOIN editorial_curations c ON c.article_id = r.article_id
       WHERE r.article_id = ${articleId}`;
-    const current = !!proposal && row?.fingerprint === proposal.fingerprint;
+    const automatic = config.editorialMode === "automatic" ? await currentAutomaticDecision(tx, articleId) : null;
+    const current = !!proposal && row?.fingerprint === proposal.fingerprint &&
+      (row.status !== "auto_public" || config.editorialMode === "manual" || !!automatic);
     const status = current ? row!.status : "pending";
     return {
       proposal, status, version: row?.version ?? 0,
-      curated: status === "approved" && row!.curated_status === "approved" &&
+      curated: (status === "approved" || status === "auto_public" && !!automatic?.selected) && row!.curated_status === "approved" &&
         row!.curated_fingerprint === proposal!.fingerprint && row!.curated_review_version === row!.version,
     };
   });

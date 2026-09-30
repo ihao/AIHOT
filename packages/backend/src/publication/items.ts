@@ -2,6 +2,7 @@
 // items through these functions; visibility, release gate and body licences are applied here.
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
 import type { FeedItemSummary, ItemSummary, MediaView, SourceKind, XPostView } from "@aihot/contracts/site";
+import { curatedEvidence } from "../events/eligibility.ts";
 import { sql, type Db } from "../db.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { displayTags } from "./rules.ts";
@@ -67,16 +68,15 @@ export const API_ITEM_COLUMNS = sql`
   p.published_at, p.discovered_at, p.category, p.score, p.selected, p.reason`;
 export const API_ITEM_FROM = sql`FROM publications p JOIN sources s ON s.id = p.source_id`;
 
-/** A translation of an older revision is left out: the original changed after it (the worker translates it again). */
+/** Story metadata recognizes stored verified automatic grants independently of import-time mode;
+ * the publication projection and listing conditions retain their mode/release gates.
+ * A translation of an older revision is left out: the original changed after it (the worker translates it again). */
 export const ITEM_FROM = sql`
   FROM publications p
   JOIN sources s ON s.id = p.source_id
   JOIN articles a ON a.id = p.article_id
   LEFT JOIN stories st ON st.id = p.story_id AND st.merged_into IS NULL
-    AND p.visibility = 'public' AND EXISTS (
-      SELECT 1 FROM editorial_reviews er JOIN editorial_curations ec ON ec.article_id = er.article_id
-      WHERE er.article_id = p.article_id AND er.status = 'approved' AND ec.status = 'approved'
-        AND ec.fingerprint = er.fingerprint AND ec.review_version = er.version)
+    AND ${curatedEvidence("p", null, true)}
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
 

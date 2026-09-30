@@ -1,6 +1,8 @@
 // Apply the narrow automatic all-feed grant to an already analyzed article.
 // The caller holds its article row lock and publishes the resulting projection
 // before commit; no source is allowlisted by migration or code defaults.
+import { config } from "../config.ts";
+import { currentAutomaticDecision } from "./automatic-verification.ts";
 import type { Tx } from "../db.ts";
 import { getReviewProposal } from "./review.ts";
 import { evaluateAutoPolicy, type AutoPolicyDecision } from "./auto-policy.ts";
@@ -8,6 +10,7 @@ import { evaluateAutoPolicy, type AutoPolicyDecision } from "./auto-policy.ts";
 export interface AutoPublicationResult extends AutoPolicyDecision { granted: boolean }
 
 export async function considerAutoPublicationTx(tx: Tx, articleId: string): Promise<AutoPublicationResult> {
+  if (config.editorialMode === "automatic") return considerVerifiedPublicationTx(tx, articleId);
   const [row] = await tx<{
     source_id: string; url: string; title: string; body_text: string | null; body_status: string;
     name: string; source_enabled: boolean; kind: string; tier: string; participation_mode: string;
@@ -78,4 +81,40 @@ export async function considerAutoPublicationTx(tx: Tx, articleId: string): Prom
       ${tx.json(previous ? { status: previous.status, version: previous.version } : null)},
       ${tx.json({ status: "auto_public", version: (previous?.version ?? 0) + 1, fingerprint: proposal.fingerprint })})`;
   return { ...held, granted: true };
+}
+
+/** Exact verified automatic grants; legacy auto-policy grants remain manual-mode only. */
+async function considerVerifiedPublicationTx(tx: Tx, articleId: string): Promise<AutoPublicationResult> {
+  const decision = await currentAutomaticDecision(tx, articleId);
+  if (!decision) return { admit: false, granted: false, reason: "当前版本尚未通过自动证据核验" };
+  const proposal = await getReviewProposal(articleId, tx);
+  if (!proposal || proposal.analysisId !== decision.analysisId) return { admit:false,granted:false,reason:"核验目标已变化" };
+  const [previous] = await tx<{status:string;fingerprint:string|null;version:number}[]>`
+    SELECT status,fingerprint,version FROM editorial_reviews WHERE article_id=${articleId} FOR UPDATE`;
+  if (previous && !["pending","auto_public"].includes(previous.status)) return {admit:false,granted:false,reason:"已有人工审核决定"};
+  const unchanged = previous?.status === "auto_public" && previous.fingerprint === proposal.fingerprint;
+  const version = unchanged ? previous!.version : (previous?.version ?? 0) + 1;
+  const reason = `自动证据核验通过（记录 ${decision.verificationId}）`;
+  if (!unchanged) await tx`INSERT INTO editorial_reviews
+    (article_id,status,fingerprint,article_revision,analysis_id,override_version,source_policy_version,version,reviewed_by,reason,reviewed_at)
+    VALUES (${articleId},'auto_public',${proposal.fingerprint},${proposal.articleRevision},${proposal.analysisId},
+      ${proposal.overrideVersion},${proposal.sourcePolicyVersion},${version},'automatic-verification',${reason},now())
+    ON CONFLICT(article_id) DO UPDATE SET status=EXCLUDED.status,fingerprint=EXCLUDED.fingerprint,
+      article_revision=EXCLUDED.article_revision,analysis_id=EXCLUDED.analysis_id,override_version=EXCLUDED.override_version,
+      source_policy_version=EXCLUDED.source_policy_version,version=EXCLUDED.version,reviewed_by=EXCLUDED.reviewed_by,
+      reason=EXCLUDED.reason,reviewed_at=EXCLUDED.reviewed_at,updated_at=now()`;
+  if(decision.selected) await tx`INSERT INTO editorial_curations
+    (article_id,status,fingerprint,review_version,reviewed_by,reason,reviewed_at)
+    VALUES(${articleId},'approved',${proposal.fingerprint},${version},'automatic-verification',${reason},now())
+    ON CONFLICT(article_id) DO UPDATE SET status=EXCLUDED.status,fingerprint=EXCLUDED.fingerprint,
+      review_version=EXCLUDED.review_version,version=editorial_curations.version+1,reviewed_by=EXCLUDED.reviewed_by,
+      reason=EXCLUDED.reason,reviewed_at=EXCLUDED.reviewed_at,updated_at=now()
+    WHERE editorial_curations.status<>'approved' OR editorial_curations.fingerprint IS DISTINCT FROM EXCLUDED.fingerprint
+      OR editorial_curations.review_version IS DISTINCT FROM EXCLUDED.review_version`;
+  else await tx`UPDATE editorial_curations SET status='pending',fingerprint=NULL,review_version=NULL,
+    version=version+1,reviewed_by=NULL,reason=NULL,reviewed_at=NULL,updated_at=now() WHERE article_id=${articleId} AND status<>'pending'`;
+  if(!unchanged) await tx`INSERT INTO audit_log(actor,action,subject,reason,before,after)
+    VALUES('automatic-verification','content.auto_public',${`content:${articleId}`},${reason},
+      ${tx.json(previous ?? null)},${tx.json({status:'auto_public',selected:decision.selected,verificationId:decision.verificationId,fingerprint:proposal.fingerprint,version})})`;
+  return {admit:true,granted:!unchanged,reason};
 }

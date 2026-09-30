@@ -1,5 +1,6 @@
 // Story digest: rewritten incrementally as reports arrive; contradictions with earlier reporting are
 // stated explicitly. v1 `digest` and `latest` read the same stored version.
+import { config } from "../config.ts";
 import { z } from "zod";
 import { modelFor } from "../editorial/models.ts";
 import { beijingDate, beijingTime } from "@aihot/contracts/time";
@@ -30,6 +31,8 @@ export function storyStatusFor(latestAt: Date | null, now = Date.now()): "active
 
 /** `afterCorrection`: an editor changed a report of this story; rewrite even when older versions lack inputs. */
 export async function composeStoryDigest(storyId: number, opts: { afterCorrection?: boolean } = {}): Promise<{ updated: boolean; version?: number }> {
+  // Automatic event readers reuse verified article cards; an unused generated digest adds no value.
+  if (config.editorialMode === "automatic") return { updated: false };
   const [story] = await sql<{ id: number; title: string; digest: string | null; version: number; origin: string }[]>`
     SELECT id, title, digest, version, origin FROM stories WHERE id = ${storyId} AND merged_into IS NULL`;
   if (!story) return { updated: false };

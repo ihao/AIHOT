@@ -1,5 +1,6 @@
 // Reading the latest published hot ranking. The web shows heat values; machine exits only ranks.
 import type { HotParticipant, HotStripEntry } from "@aihot/contracts/site";
+import { config } from "../config.ts";
 import { sql } from "../db.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { CURATED_HOT_RULE_VERSION, curatedEvidence } from "./eligibility.ts";
@@ -66,7 +67,22 @@ async function queryLatestHotRanking(): Promise<HotRanking | null> {
       AND ss.observed_at > now() - interval '48 hours'
     GROUP BY ss.story_id HAVING count(DISTINCT ss.participant_key) >= 2` : [];
   const allowed = new Set(current.map((r) => Number(r.story_id)));
-  const entries = row.entries.filter((e) => allowed.has(e.storyId)).map((e, i) => ({ ...e, rank: i + 1 }));
+  let entries = row.entries.filter((e) => allowed.has(e.storyId)).map((e, i) => ({ ...e, rank: i + 1 }));
+  if (config.editorialMode === "automatic" && entries.length) {
+    // Ranking snapshots may outlive their representative. Reader-facing words and links always
+    // come from a current verified publication, with no new generated event prose.
+    const representatives = await sql<{ story_id: number; id: string; title: string; url: string; source_name: string }[]>`
+      SELECT DISTINCT ON (p.story_id) p.story_id,p.article_id AS id,p.title,p.url,s.name AS source_name
+      FROM publications p JOIN sources s ON s.id=p.source_id
+      WHERE p.story_id=ANY(${entries.map((e) => e.storyId)}::bigint[]) AND ${curatedEvidence("p", new Date())}
+      ORDER BY p.story_id,p.first_party DESC,p.selected DESC,p.score DESC NULLS LAST,
+        coalesce(p.published_at,p.discovered_at) DESC,p.article_id`;
+    const current = new Map(representatives.map((p) => [Number(p.story_id),p]));
+    entries = entries.flatMap((e) => {
+      const p = current.get(e.storyId);
+      return p ? [{...e,title:p.title,representativeItemId:p.id,representativeUrl:p.url,representativeSource:p.source_name}] : [];
+    }).map((e,i) => ({...e,rank:i+1}));
+  }
   return { id: row.id, computedAt: row.computed_at.toISOString(), ruleVersion: row.rule_version, entries, coverage: row.evidence };
 }
 
@@ -79,6 +95,7 @@ let extrasCache: { rankingId: number; extras: Extras } | null = null;
 const extrasPending = new Map<number, Promise<Extras>>();
 
 async function readExtras(ranking: HotRanking): Promise<Extras> {
+  if (config.editorialMode === "automatic") return queryExtras(ranking);
   if (extrasCache?.rankingId === ranking.id) return extrasCache.extras;
   const pending = extrasPending.get(ranking.id);
   if (pending) return pending;
@@ -108,7 +125,7 @@ async function queryExtras(ranking: HotRanking): Promise<Extras> {
     faces: new Map(faces.map((f) => [f.name, f.icon_url ?? f.avatar])),
     texts: new Map(texts.map((t) => [Number(t.id), { summary: t.summary, latest: t.latest }])),
   };
-  extrasCache = { rankingId: ranking.id, extras };
+  if (config.editorialMode === "manual") extrasCache = { rankingId: ranking.id, extras };
   return extras;
 }
 

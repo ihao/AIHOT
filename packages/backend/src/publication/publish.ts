@@ -7,6 +7,7 @@ import { config } from "../config.ts";
 import { one, sql, type Tx } from "../db.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
 import { collapseWhitespace } from "../lib/text.ts";
+import { currentAutomaticDecision } from "../editorial/automatic-verification.ts";
 import { getReviewProposal } from "../editorial/review.ts";
 import { itemUrl } from "./links.ts";
 import { enqueue, QUEUES, shutdownSignal } from "../jobs/queue.ts";
@@ -177,8 +178,9 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
       version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
       WHERE article_id = ${articleId}`;
   }
-  const approved = current && (review!.status === "approved" || review!.status === "auto_public");
-  const [curation] = approved && review!.status === "approved"
+  const automatic = config.editorialMode === "automatic" ? await currentAutomaticDecision(tx, articleId) : null;
+  const approved = current && (review!.status === "approved" || (review!.status === "auto_public" && (config.editorialMode === "manual" || !!automatic)));
+  const [curation] = approved && (review!.status === "approved" || !!automatic)
     ? await tx<{ status: string; fingerprint: string | null; review_version: number | null }[]>`
       SELECT status, fingerprint, review_version FROM editorial_curations WHERE article_id = ${articleId}`
     : [];
@@ -206,7 +208,8 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(analysis?.subjects ?? []).map((s) => `entity:${s}`)])];
   const score = typeof f.score === "number" ? f.score : analysis?.score ?? null;
   const relevance = typeof f.relevance === "string" ? (f.relevance as string) : analysis?.relevance ?? null;
-  const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
+  const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean)
+    : review?.status === "auto_public" && automatic ? automatic.selected : analysis?.selected ?? null;
   // Material from an isolated source reaches no public surface at all: not even a detail page.
   const visibility = !approved || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
@@ -215,7 +218,9 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const hasXPost = !!article.x_post;
   const channel = channelOf(source.kind, hasXPost);
-  const bodyMode = bodyModeOf(source, article.body_status, !!article.body_text && article.body_text.length > 0);
+  // The automatic verifier authorizes the Chinese card, never a generated or original full body.
+  const bodyMode = config.editorialMode === "automatic" ? "summary"
+    : bodyModeOf(source, article.body_status, !!article.body_text && article.body_text.length > 0);
   const syndicate = mayRedistribute(source, bodyMode);
   const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);
 
@@ -246,7 +251,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     }
   }
 
-  const indexable = review?.status !== "auto_public" && isIndexable({
+  const indexable = (review?.status !== "auto_public" || !!automatic?.selected) && isIndexable({
     visibility, hasSummary: !!summary, selected, seoIndexedAt: previous?.seo_indexed_at ?? null, seoExcludedAt: previous?.seo_excluded_at ?? null,
   });
   const searchText = collapseWhitespace(
