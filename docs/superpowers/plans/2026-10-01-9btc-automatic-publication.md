@@ -37,12 +37,12 @@ Files: create incremental migration `0043_automatic_verification.sql` and `edito
 
 Files: modify `reports/editorial.ts`, `publication/reports.ts`, `apps/worker/src/schedules.ts`; create `reports/automatic.ts` if separation improves clarity; tests `tests/automatic-report.test.ts`, existing report-editorial tests. Optional minimal ops settings stats within existing backend/admin routes.
 
-- [ ] 失败用例：只有自动精选且核验当前者进入日报；无人点击生成/发布；空候选跳过；过期草稿不能发布；重复任务/重启不重复发同一期；已撤稿引文不泄露。
-- [ ] 复用候选快照、report_drafts/version和统一published_reports；新增自动专用入口以 actor=automatic-policy 留痕，不伪装管理员。汇总现有核验摘要，不生成额外新闻结论/导语。
-- [ ] 配置 `AUTOMATIC_DAILY_TIME=21:30`，验证 HH:mm，仅 automatic 模式注册日程，Asia/Shanghai，missed once、队列有限重试。事务复查一次不匹配时重新生成一次；无候选不创建公开空刊，窗口接续上期真实截止。周/月不启用。
-- [ ] 公开报告引用同时接受当前核验自动精选与已有人工模式；源/稿撤销继续标不可用，索引和详情均不泄露未核验摘要。
-- [ ] 留存自动决定原因、评分分歧/缺证/失败/用量，可由后台现有来源/运行查看；异常的暂停与调用上限使用现有预算/来源禁用开关，禁止自动改写生产规则。提供版本化回归测试。
-- [ ] PG17 日报和人工回归；spec review → quality review →提交。
+- [x] 失败用例：只有自动精选且核验当前者进入日报；无人点击生成/发布；空候选跳过；过期草稿不能发布；重复任务/重启不重复发同一期；已撤稿引文不泄露。
+- [x] 复用候选快照、report_drafts/version和统一published_reports；新增自动专用入口以 actor=automatic-policy 留痕，不伪装管理员。汇总现有核验摘要，不生成额外新闻结论/导语。
+- [x] 配置 `AUTOMATIC_DAILY_TIME=21:30`，验证 HH:mm，仅 automatic 模式注册日程，Asia/Shanghai，missed once、队列有限重试。事务复查一次不匹配时重新生成一次；无候选不创建公开空刊，窗口接续上期真实截止。周/月不启用。
+- [x] 公开报告引用同时接受当前核验自动精选与已有人工模式；源/稿撤销继续标不可用，索引和详情均不泄露未核验摘要。
+- [x] 留存自动决定原因、评分分歧/缺证/失败/用量，可由后台现有来源/运行查看；异常的暂停与调用上限使用现有预算/来源禁用开关，禁止自动改写生产规则。提供版本化回归测试。
+- [x] PG17 日报和人工回归；spec review → quality review →提交。
 
 ## Task 4: 验证、文案与 EU 部署
 
@@ -62,3 +62,5 @@ Files: update `industry/site.ts` / public method text and affected admin labels 
 ## Implementation evidence
 
 Task 1 completed at `ee75e04`: pure policy/preset 17 tests, scoring local-stub 7 integration tests, full typecheck and whitespace check passed; independent spec and quality reviews approved after fixing missing-evidence verdict classification. Task 2 is complete locally: isolated PG17 38/38 final analysis/verification regressions passed, prior publication/source/manual regressions passed, evidence pure tests 10/10 and full typecheck passed. Independent spec and quality reviews approved after fixing normal-job replay identity, actual automatic group retries and compound/token currency parsing. Production and real-content acceptance remain pending. Bailian connectivity evidence is isolated synthetic integration, not public news or production acceptance.
+
+Task 3 completed locally after independent spec and quality approval: PG17 automatic/manual report, queue and source regressions 15/15; final automatic report 5/5 including original source dates, no-date/history exclusion, warm-cache stale title redaction, and pause persisted during an in-flight prefilter. Three pure configuration/schedule/safety tests and full typecheck passed. Both review findings were reproduced RED before fixes. Public deployment and real-news acceptance are still pending.

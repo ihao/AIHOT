@@ -1,11 +1,42 @@
 // Runs view: task timeline, queue backlog, source lag, error classes, process
 // heartbeats, and the receipts and deliveries whose outcome needs an operator.
+import { automaticSafetyStates } from "../editorial/automatic-safety.ts";
 import { sql } from "../db.ts";
 import { audit } from "./auth.ts";
 import { Conflict } from "./sources.ts";
 import { failureGroupSql, queueProcessing, requeueFailed } from "../jobs/content.ts";
 
 const STALE_HEARTBEAT_MS = 3 * 60_000;
+
+/** Stored decisions only. This view never retries a round or calls a model. */
+export async function automaticVerificationOverview() {
+  const [statuses, reasons, recent, sourcePauses, issues] = await Promise.all([
+    sql<{ status: string; n: number }[]>`SELECT status,count(*)::int AS n FROM automatic_verifications
+      WHERE created_at>now()-interval '24 hours' GROUP BY status`,
+    sql<{ reason: string; n: number }[]>`SELECT reason,count(*)::int AS n
+      FROM automatic_verifications av CROSS JOIN LATERAL jsonb_array_elements_text(av.reasons) reason
+      WHERE av.created_at>now()-interval '24 hours' GROUP BY reason ORDER BY n DESC,reason LIMIT 40`,
+    sql<{ id: number; article_id: string; status: string; reasons: string[]; verification_count: number; receipt_ids: number[]; scores: number[] }[]>`
+      SELECT av.id,av.article_id,av.article_revision,av.status,av.selected,av.verification->>'verdict' AS verdict,
+        av.reasons,av.verification_count,av.failures,av.receipt_ids,av.updated_at,an.output->'scores' AS scores
+      FROM automatic_verifications av JOIN analyses an ON an.id=av.analysis_id ORDER BY av.updated_at DESC,av.id DESC LIMIT 20`,
+    automaticSafetyStates(),
+    sql<{ failed: number; missing_evidence: number; disagreement: number }[]>`
+      SELECT count(*) FILTER(WHERE av.failures>0)::int AS failed,
+        count(*) FILTER(WHERE av.reasons ? 'verification_needs_evidence' OR av.reasons ? 'no_new_primary_evidence'
+          OR av.reasons ? 'verification_missing_or_invalid' OR av.verification->>'verdict'='needs_evidence')::int AS missing_evidence,
+        count(*) FILTER(WHERE (SELECT max(value::int)-min(value::int)>20 OR
+          (min(value::int)<(an.output->>'threshold')::numeric AND max(value::int)>=(an.output->>'threshold')::numeric)
+          FROM jsonb_array_elements_text(CASE WHEN jsonb_typeof(an.output->'scores')='array' THEN an.output->'scores' ELSE '[]'::jsonb END) value
+          WHERE value ~ '^[0-9]{1,3}$'))::int AS disagreement
+      FROM automatic_verifications av JOIN analyses an ON an.id=av.analysis_id WHERE av.created_at>now()-interval '24 hours'`,
+  ]);
+  const counts = Object.fromEntries(statuses.map(s => [s.status,s.n]));
+  const terminal = (counts.accepted ?? 0)+(counts.rejected ?? 0)+(counts.stale ?? 0);
+  return { counts, acceptanceRate: terminal ? (counts.accepted ?? 0)/terminal : null,
+    failed: issues[0]?.failed ?? 0, missingEvidence: issues[0]?.missing_evidence ?? 0,
+    disagreement: issues[0]?.disagreement ?? 0, reasons, recent, sourcePauses };
+}
 
 export async function runsOverview() {
   const [heartbeats, latest, timeline, queues, failedJobs, lagging, receipts, receiptIssues, deliveries, errors, ingest, leaderboard] = await Promise.all([
@@ -56,6 +87,7 @@ export async function runsOverview() {
   const now = Date.now();
   return {
     checkedAt: new Date(now).toISOString(),
+    automatic: await automaticVerificationOverview(),
     processes: heartbeats.map((h) => ({
       role: h.key.slice("heartbeat.".length),
       ...h.value,

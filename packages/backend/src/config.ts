@@ -40,8 +40,15 @@ function editorialMode(): EditorialMode {
   return value;
 }
 
+function automaticDailyTime(): string {
+  const value = env.AUTOMATIC_DAILY_TIME ?? "21:30";
+  if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value)) throw new Error("Environment variable AUTOMATIC_DAILY_TIME must be HH:mm");
+  return value;
+}
+
 export const config = {
   editorialMode: editorialMode(),
+  automaticDailyTime: automaticDailyTime(),
   databaseUrl: str("DATABASE_URL", "postgres://127.0.0.1:5432/aihot"),
   apiPort: int("API_PORT", 3001),
   webPort: int("WEB_PORT", 3000),

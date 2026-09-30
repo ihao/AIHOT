@@ -6,6 +6,9 @@ import { cached, type Cached } from "../lib/cache.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { dailyUrl, itemUrl, siteUrl } from "./links.ts";
 import { SITE, withSubject } from "@aihot/industry/site";
+import { config } from "../config.ts";
+import { getReviewProposal } from "../editorial/review.ts";
+import { currentAutomaticDecision } from "../editorial/automatic-verification.ts";
 import { curatedEvidence } from "../events/eligibility.ts";
 
 export type { ReportKind };
@@ -33,15 +36,18 @@ interface Availability {
 async function availability(ids: string[]): Promise<Map<string, Availability>> {
   const out = new Map<string, Availability>();
   if (ids.length === 0) return out;
-  const rows = await sql<{ id: string; visibility: string; eligible: boolean; selected: boolean; fingerprint: string | null; first_party: boolean; source_id: string; icon_url: string | null; story_public_id: string | null; at: Date | null }[]>`
-    SELECT p.article_id AS id, p.visibility, p.eligible, p.selected, r.fingerprint, p.first_party, p.source_id, s.icon_url, st.public_id::text AS story_public_id,
+  const rows = await sql<{ id: string; visibility: string; eligible: boolean; selected: boolean; fingerprint: string | null; review_status: string; first_party: boolean; source_id: string; icon_url: string | null; story_public_id: string | null; at: Date | null }[]>`
+    SELECT p.article_id AS id, p.visibility, p.eligible, p.selected, r.fingerprint, r.status AS review_status, p.first_party, p.source_id, s.icon_url, st.public_id::text AS story_public_id,
       coalesce(p.published_at, p.discovered_at) AS at
     FROM publications p LEFT JOIN sources s ON s.id = p.source_id LEFT JOIN stories st ON st.id = p.story_id
-    LEFT JOIN editorial_reviews r ON r.article_id=p.article_id AND r.status='approved'
+    LEFT JOIN editorial_reviews r ON r.article_id=p.article_id
     LEFT JOIN editorial_curations c ON c.article_id=p.article_id AND c.status='approved'
       AND c.fingerprint=r.fingerprint AND c.review_version=r.version
-    WHERE p.article_id IN ${sql(ids)} AND c.article_id IS NOT NULL`;
+    WHERE p.article_id IN ${sql(ids)} AND p.selected AND ${curatedEvidence("p", new Date())} AND c.article_id IS NOT NULL`;
   for (const r of rows) {
+    const proposal = await getReviewProposal(r.id);
+    if (!proposal || proposal.fingerprint !== r.fingerprint) continue;
+    if (r.review_status === "auto_public" && !(await currentAutomaticDecision(sql, r.id))?.selected) continue;
     out.set(r.id, {
       available: r.visibility === "public" && r.eligible && r.selected,
       fingerprint: r.fingerprint,
@@ -123,9 +129,9 @@ function citationFrom(raw: Record<string, any>, avail: Map<string, Availability>
   // Items absent from this database (older than the imported window) stay cited as they were published.
   const available = id ? !!a?.available && (!raw.approvedFingerprint || raw.approvedFingerprint === a.fingerprint) : true;
   if (!available) {
-    // Withdrawn since: the reader sees a marked title; the summary and links are not sent at all.
+    // Automatic citations expose a neutral withdrawal marker; stale copy and links are withheld.
     return {
-      itemId: id, title: String(raw.title ?? ""), summary: null, sourceName: "", sourceUrl: "", sourceId: null, sourceIconUrl: null,
+      itemId: id, title: config.editorialMode === "automatic" ? "该条内容已不可用" : String(raw.title ?? ""), summary: null, sourceName: "", sourceUrl: "", sourceId: null, sourceIconUrl: null,
       firstParty: false, role: raw.role ?? null, storyPublicId: null, publishedAt: null, available: false,
     };
   }
@@ -266,7 +272,7 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
  */
 const INDEX_LIMIT = 400;
 const indexes = new Map<ReportKind, Cached<{ rows: Awaited<ReturnType<typeof reportIndexRows>>; gone: Set<string> }>>();
-export function reportIndex(kind: ReportKind) {
+export async function reportIndex(kind: ReportKind) {
   let entry = indexes.get(kind);
   if (!entry) {
     entry = cached(async () => {
@@ -275,7 +281,11 @@ export function reportIndex(kind: ReportKind) {
     }, { freshMs: 60_000, maxStaleMs: 10 * 60_000 });
     indexes.set(kind, entry);
   }
-  return entry.get();
+  const index = await entry.get();
+  // Recheck automatic citations even with warm directory metadata. No site-wide cache purge.
+  return config.editorialMode === "automatic"
+    ? { rows: index.rows, gone: await unavailableHeadlineIds(index.rows, kind === "daily" ? "daily" : "periodic") }
+    : index;
 }
 
 export async function listReports(kind: ReportKind, limit = INDEX_LIMIT): Promise<ReportIndexEntry[]> {

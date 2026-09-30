@@ -1,3 +1,4 @@
+import { AutomaticSourcePaused } from "../editorial/automatic-safety.ts";
 import { verifyAutomaticArticle, sweepAutomaticVerifications } from "../editorial/automatic-verification.ts";
 // Content processing: body extraction when the source needs it → analysis → publish → event grouping.
 // Every article reaches the queues through queueProcessing, which records when it was queued, so the
@@ -121,6 +122,10 @@ export async function processArticle(articleId: string, opts: { attemptTag?: str
     return { state: result.output.relevance };
   } catch (error) {
     if (error instanceof AnalysisInterruptedError || shutdownSignal.signal.aborted) throw error;
+    if (error instanceof AutomaticSourcePaused) {
+      await sql`UPDATE articles SET processing_retry_at=${error.until},processing_queued_at=NULL WHERE id=${articleId}`;
+      return { state: "source-paused" };
+    }
     if (error instanceof ReceiptUnknownError) {
       // The provider may have billed this request: stop; ops.recover releases it once and requeues the article.
       await sql`UPDATE articles SET processing_state = 'failed', processing_error = ${`receipt ${error.receiptId} outcome unknown`} WHERE id = ${articleId}`;
@@ -169,7 +174,7 @@ export async function registerContentJobs(boss: PgBoss, concurrency = Number(pro
     const { articleId, attemptTag } = job.data;
     try {
       const result = await processArticle(articleId, { attemptTag });
-      if (result.state !== "unknown-receipt") {
+      if (result.state !== "unknown-receipt" && result.state !== "source-paused") {
         await sql`UPDATE articles SET processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL WHERE id = ${articleId}`;
       }
       return result;

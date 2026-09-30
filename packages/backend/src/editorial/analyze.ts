@@ -16,6 +16,7 @@ import { SELECTION } from "@aihot/industry/selection";
 import { sql, type Tx } from "../db.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
 import { config, type EditorialMode } from "../config.ts";
+import { checkAutomaticSourcePause } from "./automatic-safety.ts";
 import { scoreAssessment } from "./automatic-policy.ts";
 import { publishArticleTx } from "../publication/publish.ts";
 import { AUTOMATIC_RULE_VERSION, queueAutomaticVerificationTx } from "./automatic-verification.ts";
@@ -202,6 +203,7 @@ const tagged = (attemptTag: string | undefined, step: string) => [attemptTag, st
 async function runPrefilter(a: AnalyzeInputArticle, opts: StepOpts): Promise<AnalysisRun["prefilter"]> {
   const model = await modelFor("prefilter");
   checkAnalysisRunning();
+  await checkAutomaticSourcePause(a.id);
   const res = await chatJson({
     model,
     purpose: "prefilter_article",
@@ -229,6 +231,7 @@ async function runScores(a: AnalyzeInputArticle, threshold: number, opts: StepOp
   // One after the other: the second call reuses the provider's cached prompt.
   for (let i = 0; i < SCORE_CALLS || scoreAssessment(values, threshold, config.editorialMode).needsAdditionalScore; i++) {
     checkAnalysisRunning();
+    await checkAutomaticSourcePause(a.id);
     try {
       const res = await chatJson({
         model, purpose: "score_article", subject: subjectOf(a), promptVersion: PROMPT_VERSIONS.score, system: SCORE_SYSTEM, user: input,
@@ -251,6 +254,7 @@ async function runScores(a: AnalyzeInputArticle, threshold: number, opts: StepOp
 async function runStructure(a: AnalyzeInputArticle, opts: StepOpts): Promise<NonNullable<AnalysisRun["structure"]>> {
   const model = await modelFor("structure");
   checkAnalysisRunning();
+  await checkAutomaticSourcePause(a.id);
   const res = await chatJson({
     model,
     purpose: "structure_article",
@@ -271,8 +275,9 @@ async function runStructure(a: AnalyzeInputArticle, opts: StepOpts): Promise<Non
 async function runUnderstand(a: AnalyzeInputArticle, opts: StepOpts): Promise<AnalysisRun["writing"]> {
   const model = await modelFor("understand");
   const text = understandUser(a);
-  const call = (image: ContentPart | null) => {
+  const call = async (image: ContentPart | null) => {
     checkAnalysisRunning();
+    await checkAutomaticSourcePause(a.id);
     return chatJson({
       model, purpose: "understand_article", subject: subjectOf(a), promptVersion: PROMPT_VERSIONS.understand, system: UNDERSTAND_SYSTEM,
       user: image ? [{ type: "text", text }, image] : text, schema: UnderstandSchema, temperature: 0.2, maxTokens: 16_384,
@@ -316,6 +321,7 @@ async function runSummarize(a: AnalyzeInputArticle, opts: StepOpts): Promise<Non
   if (!short && t.text.trim().length < 20) return { kind: "none", model: null, titleZh: looksZh(t.title) ? t.title : "", summaryZh: "", ...plain };
   const model = await modelFor("summarize");
   checkAnalysisRunning();
+  await checkAutomaticSourcePause(a.id);
   const res = await chatJson({
     model,
     purpose: "summarize_article",
@@ -496,6 +502,7 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
     });
     if (previous) return previous;
   }
+  await checkAutomaticSourcePause(articleId);
   const run = await runAnalysis(input, opts);
   const out = normalizeAnalysis(run);
   const receiptIds = [

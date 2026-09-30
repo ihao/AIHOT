@@ -1,8 +1,8 @@
 // Cron-style schedules (Asia/Shanghai). Each run is recorded in job_runs; missed slots run once.
 import type { PgBoss } from "pg-boss";
 import { FEATURES } from "@aihot/industry/features";
-import { credential } from "@aihot/backend/config";
-import { ensureQueue, recordRun } from "@aihot/backend/jobs/queue";
+import { config, credential } from "@aihot/backend/config";
+import { recordRun } from "@aihot/backend/jobs/queue";
 import { sweepUnprocessed } from "@aihot/backend/jobs/content";
 import { translatePending } from "@aihot/backend/editorial/translate";
 import { adaptIntervals, scheduleDueSources } from "@aihot/backend/sources/collect";
@@ -33,7 +33,15 @@ interface Scheduled {
 
 const collecting = process.env.COLLECT_ENABLED !== "false";
 
+const [dailyHour, dailyMinute] = config.automaticDailyTime.split(":").map(Number);
+
 export const SCHEDULES: Scheduled[] = [
+  ...(config.editorialMode === "automatic" ? [
+    { name: "reports.daily-automatic", cron: `${dailyMinute} ${dailyHour} * * *`, missed: "once" as const,
+      run: async () => (await import("@aihot/backend/reports/automatic")).publishAutomaticDaily() },
+    { name: "automatic.safety", cron: "* * * * *",
+      run: async () => (await import("@aihot/backend/editorial/automatic-safety")).refreshAutomaticSafety() },
+  ] : []),
   { name: "content.sweep", cron: "*/5 * * * *", run: sweepUnprocessed },
   // Full-text translations of newly selected items (model calls; off with MODEL_CALLS_ENABLED=false).
   { name: "content.translate", cron: "*/5 * * * *", run: () => translatePending() },
@@ -85,8 +93,11 @@ export const SCHEDULES: Scheduled[] = [
 export async function registerSchedules(boss: PgBoss) {
   for (const s of SCHEDULES) {
     const queue = `cron.${s.name}`;
-    await ensureQueue(queue, { policy: "singleton", retryLimit: 1, expireInSeconds: 3600 });
-    await boss.schedule(queue, s.cron, {}, { tz: "Asia/Shanghai", missed: s.missed ?? "skip" });
+    // Use this worker's boss (also permits an entirely offline registration check).
+    const options = { policy: "singleton" as const, retryLimit: 1, expireInSeconds: 3600 };
+    if (await boss.getQueue(queue)) await boss.updateQueue(queue, options);
+    else await boss.createQueue(queue, options);
+    await boss.schedule(queue, s.cron, {}, { tz: "Asia/Shanghai", missed: s.missed ?? "skip", retryLimit: 1 });
     // Schedules fire at minute boundaries; a 15 s pickup keeps them on time with a third of the polling.
     await boss.work(queue, { pollingIntervalSeconds: 15 }, async () => recordRun(s.name, s.run));
   }

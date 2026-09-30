@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { SELECTION } from '@aihot/industry/selection';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
+import { AutomaticSourcePaused, checkAutomaticSourcePause, refreshAutomaticSafety } from './automatic-safety.ts';
 import { config } from '../config.ts';
 import { sql, type Db, type Tx } from '../db.ts';
 import { sha256, stableJson } from '../lib/ids.ts';
@@ -285,6 +286,14 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   fetchMaterial?: (url: string) => Promise<Material | null>;
 } = {}) {
   if (config.editorialMode !== 'automatic') return;
+  try { await checkAutomaticSourcePause(articleId); }
+  catch (error) {
+    if (!(error instanceof AutomaticSourcePaused)) throw error;
+    await sql`UPDATE automatic_verifications SET status='waiting',retry_at=${error.until},reasons='["source_paused"]',
+      lease_token=NULL,lease_until=NULL WHERE article_id=${articleId} AND
+      (status IN ('queued','waiting') OR (status='running' AND lease_until<now()))`;
+    return;
+  }
   const token = randomUUID();
   const claimed = await sql.begin(async tx => {
     await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
@@ -312,6 +321,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   } = claimed;
   try {
     while (true) {
+      await checkAutomaticSourcePause(articleId);
       const tag = `automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:${r.stage}`;
       if (r.stage === 'evidence' && !r.evidence_fetched) {
         for (const url of originalPrimaryLinks(a.body_html, a.url)) {
@@ -349,6 +359,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         }
       }
       if (r.stage === 'rewrite' && !r.rewritten) {
+        await checkAutomaticSourcePause(articleId);
         const rewrite = await chatJson({
           model: await modelFor('understand'),
           purpose: 'rewrite_verified_summary',
@@ -409,6 +420,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       receipt_ids=${usageBefore.ids},reasons='["verification_request_limit"]',lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
         return;
       }
+      await checkAutomaticSourcePause(articleId);
       const response = await chatJson({
         model: r.verification_model,
         purpose: 'verify_summary',
@@ -471,18 +483,19 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         };
         return currentInput;
       });
+      if (terminal) await refreshAutomaticSafety();
       if (!saved || terminal) return;
     }
   } catch (error) {
-    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError;
+    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof AutomaticSourcePaused;
     const usage = await verificationUsage(r);
     const receiptId = error instanceof ModelOutputError || error instanceof ReceiptUnknownError ? error.receiptId : null;
     await sql`UPDATE automatic_verifications SET status=CASE WHEN ${usage.count >= 3} AND NOT ${waiting} THEN 'rejected' WHEN ${waiting} OR failures<2 THEN 'waiting' ELSE 'rejected' END,
    verification_count=${Math.min(3, usage.count)},
-   failures=failures+${waiting ? 0 : 1},retry_at=${new Date(Date.now() + (error instanceof BudgetExceededError ? error.retryAfterSeconds * 1000 : 60_000))},
+   failures=failures+${waiting ? 0 : 1},retry_at=${error instanceof AutomaticSourcePaused ? error.until : new Date(Date.now() + (error instanceof BudgetExceededError ? error.retryAfterSeconds * 1000 : 60_000))},
    reasons=${sql.json([String(error).slice(0, 1000)])},receipt_ids=${[...new Set([...r.receipt_ids, ...usage.ids, ...(receiptId === null ? [] : [receiptId])])]},
    lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
-    throw error;
+    if (!(error instanceof AutomaticSourcePaused)) throw error;
   }
 }
 /** Restart recovery only revisits unfinished rounds, never terminal counters. */
