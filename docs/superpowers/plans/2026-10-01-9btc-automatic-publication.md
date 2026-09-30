@@ -14,18 +14,18 @@
 
 Files: create `packages/backend/src/editorial/automatic-policy.ts`, `industry/prompts/verify-summary.md`, `tests/automatic-policy.test.ts`; modify `editorial/analyze.ts`, `editorial/models.ts`, `config.ts` and `.env.example`.
 
-- [ ] 写失败测试并运行 `node --test tests/automatic-policy.test.ts`：高分不能弥补伪造引文/缺证；两分跨门槛或差值>20 需第三次；全部分数≥门槛且极差≤20 才精选；人工模式仍两次平均分决定；不足次数不放行。
-- [ ] 实现 `EDITORIAL_MODE=manual|automatic`（错误值拒绝，默认 manual）；增加核验 capability。
-- [ ] 核验结构包含 verdict、风险标志、完整主张清单及每条材料 ID/摘录；材料和文案不可发出指令。纯函数验证全部核心主张 supported、材料 ID 存在、非空引文在已抓材料内、中文文案非空、数字/时间/阶段一致的模型检查通过；关键二手事实必须取得一手材料支持。模型自报置信分不直接放行。
-- [ ] 自动模式最多第三次评分，保留原五轴/门槛与人工模式；存 score range 和提示词版本。最小值/最大值明确不是统计置信区间。
-- [ ] 验证纯策略/评分相关测试与 typecheck；先 spec review，再质量 review，修正后记录提交。
+- [x] 写失败测试并运行 `node --test tests/automatic-policy.test.ts`：高分不能弥补伪造引文/缺证；两分跨门槛或差值>20 需第三次；全部分数≥门槛且极差≤20 才精选；人工模式仍两次平均分决定；不足次数不放行。
+- [x] 实现 `EDITORIAL_MODE=manual|automatic`（错误值拒绝，默认 manual）；增加核验 capability。
+- [x] 核验结构包含 verdict、风险标志、完整主张清单及每条材料 ID/摘录；材料和文案不可发出指令。纯函数验证全部核心主张 supported、材料 ID 存在、非空引文在已抓材料内、中文文案非空、数字/时间/阶段一致的模型检查通过；关键二手事实必须取得一手材料支持。模型自报置信分不直接放行。
+- [x] 自动模式最多第三次评分，保留原五轴/门槛与人工模式；存 score range 和提示词版本。最小值/最大值明确不是统计置信区间。
+- [x] 验证纯策略/评分相关测试与 typecheck；先 spec review，再质量 review，修正后记录提交。
 
 ## Task 2: 持久化核验、自动授权与事件一致性
 
 Files: create incremental migration `0043_automatic_verification.sql` and `editorial/automatic-verification.ts`; modify `editorial/analyze.ts`, `auto-publication.ts`, `review.ts`, `jobs/content.ts`, `jobs/queue.ts`, `publication/publish.ts`, `events/eligibility.ts`, `events/group.ts`, `events/merge.ts`, necessary event read/digest paths. Tests: `tests/automatic-verification.test.ts`, `tests/automatic-publication.test.ts` and existing editorial/events tests.
 
 - [ ] PG17 失败用例验证：相关性 UNKNOWN、未批准源、正文失败、缺失核验、伪造引文、过期 revision、错误中文金额均不公开；完整材料+独立核验可自动公开/精选且不需人工决定。
-- [ ] 新核验表按 analysis+policy version 唯一，保存原文/文案 hash、输入版本、receipt IDs、材料快照、阶段/次数/状态、决定理由；不可在重启后重置已消耗次数。并发分析/核验使用唯一轮次 claim；陈旧 claim 有限恢复，已保存回执可复用。禁止锁内等待模型。
+- [ ] 新核验轮次按 article revision+rule version 唯一，analysis 绑定不得重置同轮次数；保存原文/文案 hash、输入版本、receipt IDs、材料快照、阶段/次数/状态、决定理由；不可在重启后重置已消耗次数。并发分析/核验使用唯一轮次 claim；陈旧 claim 有限恢复，已保存回执可复用。禁止锁内等待模型。
 - [ ] 分析完成排队核验，核验使用项目 chatJson/paidRequest（usage/预算）。仅取得 verified 记录才调用纯策略并给当前指纹自动放行。补抓最多2个原文内 HTTPS 一手链接，遵守 fetch/extract 防 SSRF/大小/超时，最多1次补抓复核和1次重写复核，合计最多3次核验；终止状态不能由普通 sweep 重置。
 - [ ] 外链不是首批采集来源新增；只从文章实际链接中选取批准的一手域名，绝不请求模型虚构 URL。摘要重写结果需重新核验并绑定最终输出。错误继续使用现有有限队列重试与回执复用；每轮 attemptTag/identity 含 policy、analysis、round。
 - [ ] 自动授权沿用 auto_public 与 curation 状态，但必须有当前 verified 授权；未核验的旧狭窄 auto_public 不变成精选。管理员主动禁发/撤稿优先，自动模式不依赖人工审核流程。
@@ -52,9 +52,13 @@ Files: update `industry/site.ts` / public method text and affected admin labels 
 - [ ] `npm run typecheck`; 空 PG17 `_test` 库 `node scripts/migrate.ts && node scripts/seed.ts --topics-only && npm test`; Web build+16 tests；本机stub流程与 Docker smoke；git diff/check/secret hygiene。
 - [ ] 全体最终 review。选择性提交并推送到既有 `feat/9btc-web3` 和 PR1，完整 CI pass 后固定提交部署到EU；部署前本机备份，保留其他服务。
 - [ ] 没有真实模型凭据时部署代码可以完成，但 COLLECT/MODEL 调用和公共 Caddy保持关闭，不把 stub 通过称为真实新闻上线。独立测试库使用合成材料验证完整自动公开→事件→日报，不向业务库写合成新闻。
-- [ ] 下一项仅问用户模型资源：已有可用 OpenAI 兼容接口则复用；否则建议官方 DeepSeek。key写忽略的本机文件再安全送EU，绝不聊天发送；配置后按10/60/200调用熔断做限量真实验证。
+- [ ] 模型资源已提供：百炼目录和 Flash/Max 两次隔离真实调用成功，见 docs/model-9btc-pilot.md。安全送EU配置共同调用预算，再做真实内容验收，不再询问供应商或模型选择。
 - [ ] 最后启用已批准六源的独立自动策略和 `EDITORIAL_MODE=automatic`，验证12–18真实样本质量与费用；合格内容、自动日报和公开出口真实通过后开启9btc.com Caddy，完整业务状态验证。
 
 ## Completion boundary
 
 代码和私有部署完成不代表正式上线。真实模型接口缺失时继续完成所有独立工作，仅在需要用户提供模型资源处交回。用户日常不需要人工筛选或发布；模型配置是基础设施接入，不是内容审核。
+
+## Implementation evidence
+
+Task 1 completed at `ee75e04`: pure policy/preset 17 tests, scoring local-stub 7 integration tests, full typecheck and whitespace check passed; independent spec and quality reviews approved after fixing missing-evidence verdict classification. Task 2 is in progress. Bailian connectivity evidence is isolated synthetic integration, not public news or production acceptance.
