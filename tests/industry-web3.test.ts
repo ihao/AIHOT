@@ -6,6 +6,32 @@ import { FEATURES } from "@aihot/industry/features";
 import { CATEGORIES, CATEGORY_BY_ITEM_TYPE, CATEGORY_TAGS, ENTITIES, ENTITY_TAGS, IDENTITY_LEXICON, ITEM_TYPES, TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { enforceIdentity, matchEntityIds } from "@aihot/backend/editorial/writing";
 import { promptText } from "@aihot/backend/editorial/prompts";
+import { BatchSchema, PairSchema, SignalSchema } from "@aihot/backend/events/relate";
+import { PeriodSchema, periodPrompt } from "@aihot/backend/reports/compose";
+
+test("grouping prompts render shared guidance and provide examples accepted without schema fallbacks", () => {
+  for (const [name, schema] of [["group-pair", PairSchema], ["group-batch", BatchSchema], ["group-signal", SignalSchema]] as const) {
+    const rendered = promptText(name);
+    assert.doesNotMatch(rendered, /\{\{/);
+    for (const partial of ["group-definitions", "group-method"]) assert.ok(rendered.includes(promptText(partial)), `${name}: ${partial}`);
+    const examples = [...rendered.matchAll(/^\{.*\}$/gm)].map(([json]) => JSON.parse(json));
+    assert.ok(examples.length > 0, `${name}: parseable example required`);
+    for (const example of examples) assert.deepEqual(schema.parse(example), example, name);
+  }
+});
+
+test("period report runtime renders both periods and its example matches the production schema", () => {
+  for (const kind of ["weekly", "monthly"] as const) {
+    const { system, user } = periodPrompt(kind, "2026-09-01", "2026-09-07", []);
+    assert.equal(system, promptText("report-period", { kindName: kind === "weekly" ? "周报" : "月报", overviewLength: kind === "weekly" ? "150–300" : "200–400" }));
+    assert.doesNotMatch(system, /\{\{/);
+    assert.match(user, /2026-09-01 至 2026-09-07/);
+    const examples = [...system.matchAll(/^\{.*\}$/gm)].map(([json]) => JSON.parse(json));
+    assert.ok(examples.length > 0);
+    for (const example of examples) assert.deepEqual(PeriodSchema.parse(example), example);
+  }
+  for (const name of ["story-digest", "report-daily-lead", "translate-body", "translate-post"]) assert.doesNotMatch(promptText(name), /\{\{/);
+});
 
 test("content understanding enumerates the live item types and a compatible JSON example", () => {
   const prompt = promptText("content-understanding");
