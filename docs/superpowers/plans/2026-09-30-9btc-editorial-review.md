@@ -88,5 +88,6 @@
 ## Task 7 — Acceptance and evidence
 
 - [ ] **Step 1:** Run `npm run typecheck`, `npm run build -w @aihot/web`, Web/no-DB tests locally. On isolated PostgreSQL 17 in CI run `node scripts/migrate.ts`, `node scripts/seed.ts`, `npm test` and focused review regressions. Adapt legacy default-public fixtures with explicit test approvals, never by weakening public assertions.
+- [ ] **Step 1a:** The first exploratory full-suite run on local PostgreSQL 14 timed out at `tests/analyze-shutdown.test.ts` while its provider stub still infers AIHOT prompt stages; investigate that test separately after the Web3 prompt change. Do not interpret the interrupted run as a gate pass or a PostgreSQL 17 result.
 - [ ] **Step 2:** On a private running site, test nightly queue/report with synthetic Web3 fixtures and model/collection off. Then evaluate real samples under the source-study plan. Distinguish code tests, real-model sample checks and actual EU runtime evidence.
 - [ ] **Step 3:** Audit the final diff for secrets, bypasses and direct public queries. Do not push/deploy an intermediate gate. DNS cutover still requires source, legal, budget, backup and EU acceptance gates.
