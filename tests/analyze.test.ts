@@ -178,7 +178,7 @@ test("guards: a company the input does not name is not written in; long summarie
   const guarded = enforceIdentity(input, { titleZh: "Uniswap 公布升级", summaryZh: "某协议公布升级。" });
   assert.deepEqual([guarded.titleZh, guarded.summaryZh, guarded.identityGuard.outcome], ["某协议公布升级", "某协议公布升级。", "fallback"]);
   // An explicit English network name in the source supports its Chinese rendering; an asset ticker alone does not.
-  const ethereum = { title: "Ethereum ships a network upgrade", text: "Ethereum published the activation schedule.", sourceKind: "rss" };
+  const ethereum = { title: "Ethereum network ships an upgrade", text: "Ethereum network published the activation schedule.", sourceKind: "rss" };
   assert.equal(enforceIdentity(ethereum, { titleZh: "以太坊网络升级", summaryZh: "以太坊公布了激活时间。" }).identityGuard.outcome, "pass");
   const ticker = { title: "ETH market update", text: "ETH price changed today.", sourceKind: "rss" };
   assert.equal(enforceIdentity(ticker, { titleZh: "以太坊网络升级", summaryZh: "以太坊公布了激活时间。" }).identityGuard.outcome, "fallback");
