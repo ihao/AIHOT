@@ -1,7 +1,7 @@
 // Nightly editor queue. Reading the queue prepares only pending proposals; it never grants public
 // visibility. Every command still compares the displayed fingerprint/version inside its transaction.
 import { sql } from "../db.ts";
-import { proposeReview } from "../editorial/review.ts";
+import { getReviewProposal, proposeReview } from "../editorial/review.ts";
 
 type Candidate = {
   id: string; source: string; source_id: string; url: string; original_title: string;
@@ -39,24 +39,12 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         AND (r.article_id IS NULL OR r.status = 'pending')) AS pending,
       (SELECT count(*)::int FROM articles WHERE (processing_state = 'failed' OR processing_error IS NOT NULL)
         AND (${sourceId ?? null}::text IS NULL OR source_id = ${sourceId ?? null})) AS failures`;
-  const candidates = await sql<Candidate[]>`
-    SELECT a.id, s.name AS source, s.id AS source_id, a.url, a.title AS original_title,
-      a.body_text, a.excerpt, coalesce(o.fields->>'title', an.title_zh) AS title_zh,
-      coalesce(o.fields->>'summary', an.summary_zh) AS summary_zh, an.reason_zh,
-      coalesce(o.fields->>'category', an.category) AS category,
-      an.score, a.revision, a.discovered_at, a.processing_state, a.grouped_at,
-      (SELECT f.title FROM fact_articles fa JOIN facts f ON f.id = fa.fact_id
-        WHERE fa.article_id = a.id ORDER BY fa.created_at DESC LIMIT 1) AS fact_title,
-      tr.body_text AS translation, r.version AS review_version,
-      r.fingerprint AS review_fingerprint, (r.version > 1 OR EXISTS
-        (SELECT 1 FROM audit_log l WHERE l.subject = 'content:' || a.id AND l.action = 'content.review')) AS prior_review,
-      o.version AS override_version
+  const candidates = await sql<{ id: string }[]>`
+    SELECT a.id
     FROM articles a JOIN sources s ON s.id = a.source_id
     JOIN LATERAL (SELECT * FROM analyses WHERE article_id = a.id AND input_revision = a.revision
       ORDER BY id DESC LIMIT 1) an ON true
     LEFT JOIN editorial_reviews r ON r.article_id = a.id
-    LEFT JOIN editorial_overrides o ON o.article_id = a.id
-    LEFT JOIN translations tr ON tr.article_id = a.id AND tr.lang = 'zh' AND tr.revision >= a.revision
     WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
       AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
       AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
@@ -65,13 +53,39 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
       (a.title || ' ' || coalesce(a.body_text, '') || ' ' || an.summary_zh) ~* '(exploit|hack|cve-|stolen|yield|apy|apr|regulat|sec|监管|安全|被盗|资金|收益|漏洞)' DESC,
       a.discovered_at DESC LIMIT ${Math.max(bounded * 3, 100)}`;
   const rows = [];
-  for (const candidate of candidates) {
+  for (const { id } of candidates) {
     // Prepare the exact proposal for a new or changed item. This can only create a pending row.
-    const proposal = await proposeReview(candidate.id);
-    if (!proposal) continue;
-    const [review] = await sql<{ status: string; version: number; fingerprint: string }[]>`
-      SELECT status, version, fingerprint FROM editorial_reviews WHERE article_id = ${candidate.id}`;
-    if (review?.status !== "pending" || review.fingerprint !== proposal.fingerprint) continue;
+    if (!await proposeReview(id)) continue;
+    // Display and fingerprint must come from the same snapshot. Otherwise an edit between the list
+    // read and proposal refresh could pair old visible copy with a new approvable fingerprint.
+    const snapshot = await sql.begin(async (tx) => {
+      await tx`SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY`;
+      const [candidate] = await tx<Candidate[]>`
+        SELECT a.id, s.name AS source, s.id AS source_id, a.url, a.title AS original_title,
+          a.body_text, a.excerpt, coalesce(o.fields->>'title', an.title_zh) AS title_zh,
+          coalesce(o.fields->>'summary', an.summary_zh) AS summary_zh, an.reason_zh,
+          coalesce(o.fields->>'category', an.category) AS category,
+          an.score, a.revision, a.discovered_at, a.processing_state, a.grouped_at,
+          (SELECT f.title FROM fact_articles fa JOIN facts f ON f.id = fa.fact_id
+            WHERE fa.article_id = a.id ORDER BY fa.created_at DESC LIMIT 1) AS fact_title,
+          tr.body_text AS translation,
+          (r.version > 1 OR EXISTS (SELECT 1 FROM audit_log l WHERE l.subject = 'content:' || a.id AND l.action = 'content.review')) AS prior_review,
+          o.version AS override_version
+        FROM articles a JOIN sources s ON s.id = a.source_id
+        JOIN LATERAL (SELECT * FROM analyses WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
+        LEFT JOIN editorial_reviews r ON r.article_id = a.id
+        LEFT JOIN editorial_overrides o ON o.article_id = a.id
+        LEFT JOIN translations tr ON tr.article_id = a.id AND tr.lang = 'zh' AND tr.revision >= a.revision
+        WHERE a.id = ${id} AND a.processing_state = 'analyzed' AND an.relevance = 'pass'
+          AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL`;
+      const proposal = candidate ? await getReviewProposal(id, tx) : null;
+      const [review] = candidate ? await tx<{ status: string; version: number; fingerprint: string }[]>`
+        SELECT status, version, fingerprint FROM editorial_reviews WHERE article_id = ${id}` : [];
+      return candidate && proposal && review?.status === "pending" && review.fingerprint === proposal.fingerprint
+        ? { candidate, proposal, review } : null;
+    });
+    if (!snapshot) continue;
+    const { candidate, proposal, review } = snapshot;
     const flags = reasons(candidate);
     rows.push({
       id: candidate.id, source: candidate.source, sourceId: candidate.source_id,
