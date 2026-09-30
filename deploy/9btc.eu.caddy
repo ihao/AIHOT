@@ -13,3 +13,7 @@
         }
     }
 }
+
+www.9btc.com {
+    redir https://9btc.com{uri} permanent
+}
