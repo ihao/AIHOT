@@ -34,6 +34,13 @@ export async function dailyRetention(now = new Date()) {
   const files = await sql<{ key: string }[]>`DELETE FROM stored_files WHERE expires_at < ${now} RETURNING key`;
   for (const f of files) await unlink(path.join(config.dataDir, f.key)).catch(() => {});
   const monthMs = 30 * 86400_000;
+  // Screenshots are local when Feishu forwarding is off. Expire their references by feedback age,
+  // then prune old files by mtime. A fresh submission may share a content-hash filename with an
+  // older one; its recent write keeps that shared file until the newer submission expires too.
+  const expiredScreenshots = await sql`
+    UPDATE feedback SET screenshot_key = 'gone:expired', updated_at = now()
+    WHERE screenshot_key LIKE 'local:%' AND created_at < ${new Date(now.getTime() - monthMs)}`;
+  const prunedScreenshots = await pruneCache(path.join(config.dataDir, "feedback-screenshots"), monthMs, now.getTime());
   const prunedCache = (await pruneCache(path.join(config.dataDir, "imgcache"), monthMs, now.getTime())) + (await pruneCache(path.join(config.dataDir, "ogcache"), monthMs, now.getTime()));
-  return { deletedLeases: leases.count, deletedJobRuns: runs.count, deletedFiles: files.length, prunedCache };
+  return { deletedLeases: leases.count, deletedJobRuns: runs.count, deletedFiles: files.length, expiredScreenshots: expiredScreenshots.count, prunedScreenshots, prunedCache };
 }
