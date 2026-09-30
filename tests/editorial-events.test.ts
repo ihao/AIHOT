@@ -6,6 +6,7 @@ import { upsertMaterial } from "@aihot/backend/content/materials";
 import { proposeReview } from "@aihot/backend/editorial/review";
 import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { groupArticle } from "@aihot/backend/events/group";
+import { mergeStoryInto } from "@aihot/backend/events/merge";
 import { detachFromFact } from "@aihot/backend/admin/content";
 import { loadStoryDetail } from "@aihot/backend/publication/stories";
 import { loadDevelopments, loadGroupReports } from "@aihot/backend/publication/groups";
@@ -161,4 +162,23 @@ test("a public story derives text and counts only from curated reports, even if 
   const reports = await loadGroupReports({ ...common, factPublicId: ids!.fact });
   assert.equal(reports.kind, "ok");
   if (reports.kind === "ok") assert.deepEqual(reports.body.reports.map((r) => r.id), [reviewed.articleId]);
+});
+
+test("merging stories removes the moved reports' old curation before their new story is public", async () => {
+  const moving = await article("merge-moving");
+  const staying = await article("merge-staying");
+  const from = await groupArticle(moving.articleId);
+  const into = await groupArticle(staying.articleId);
+  assert.ok(from.storyId && into.storyId && from.storyId !== into.storyId);
+  await grant(moving.articleId, (await proposeReview(moving.articleId))!.fingerprint, true);
+  await grant(staying.articleId, (await proposeReview(staying.articleId))!.fingerprint, true);
+
+  const merged = await mergeStoryInto(from.storyId, into.storyId, "same event", "editor");
+  assert.ok(merged);
+  const moved = await state(moving.articleId);
+  assert.deepEqual([moved.visibility, moved.review_status, moved.selected, moved.curation_status, moved.story_id],
+    ["public", "approved", false, "pending", into.storyId]);
+  const detail = await loadStoryDetail(into.storyId);
+  assert.ok(detail);
+  assert.deepEqual(detail.timeline.map((r) => r.id), [staying.articleId]);
 });
