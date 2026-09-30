@@ -29,6 +29,8 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 私有验收后，站长把 `9btc.com` 的 A 记录改为 `62.171.163.77`。DNS 生效后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常；`www.9btc.com` 应跳转到根域。旧服务器无需改动。
 
+当前域名使用 GoDaddy 名称服务器。切换操作按 [GoDaddy 官方 A 记录说明](https://www.godaddy.com/en-uk/help/add-or-edit-an-a-record-42546)：进入 Domain Portfolio → 9btc.com → DNS，编辑名称为 `@` 的现有 A 记录，将 Value 改为 `62.171.163.77` 后保存；如启用域名保护，完成其身份验证。不要改 MX、TXT、NS 或 `www` 的 CNAME。保存后用权威 NS 和公共解析分别核对 A 记录，再检查 HTTPS；不能仅凭面板提示判断已生效。
+
 ## 备份和回退
 
 正式开放前实测数据库备份与**独立临时数据库**恢复；记录对象存储备份位置、保留期和告警。9BTC 运行故障时可以从 Caddy 撤掉 9BTC 站点或回退到前一个已验证镜像/提交，同时保留数据库卷；涉及迁移时先验证向后兼容性和备份可恢复性。DNS 切换后保留旧站不动，必要时由站长改回 A 记录。
