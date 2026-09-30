@@ -77,6 +77,19 @@ test("risk words in original material hold an otherwise routine model output", a
   }
 });
 
+test("a fresh safe model judgement can renew an earlier automatic grant", async () => {
+  const id = await analyzed();
+  assert.equal((await considerAndPublish(id)).granted, true);
+  await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output)
+    VALUES (${id},1,'model','pass','infrastructure','Bitcoin Core 30.1 例行软件版本发布',
+      'Bitcoin Core 发布了新的例行客户端软件版本，说明了更新范围。',35,false,
+      ${sql.json({ writer: "understand", itemType: "protocol_upgrade", authorRole: "principal" })})`;
+  assert.equal((await considerAndPublish(id)).granted, true);
+  const [row] = await sql<{ visibility: string; status: string }[]>`
+    SELECT p.visibility,r.status FROM publications p JOIN editorial_reviews r ON r.article_id=p.article_id WHERE p.article_id=${id}`;
+  assert.deepEqual([row!.visibility, row!.status], ["public", "auto_public"]);
+});
+
 test("a prior human rejection cannot turn into automatic publication after reanalysis", async () => {
   const id = await analyzed();
   const proposal = await proposeReview(id);

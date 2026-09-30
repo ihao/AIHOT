@@ -3,6 +3,7 @@
 import { config } from "../config.ts";
 import { sql } from "../db.ts";
 import { siteUrl } from "../publication/links.ts";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 const MAX_URLS = 10_000;
 
@@ -13,7 +14,11 @@ export async function submitIndexNow(now = new Date()) {
     SELECT article_id AS id FROM publications WHERE visibility = 'public' AND indexable AND updated_at > ${since} AND updated_at <= ${now}
     ORDER BY updated_at LIMIT ${MAX_URLS}`;
   const reports = await sql<{ kind: string; key: string }[]>`SELECT kind, key FROM published_reports WHERE generated_at > ${since} AND generated_at <= ${now}`;
-  const stories = await sql<{ public_id: string }[]>`SELECT public_id::text FROM stories WHERE merged_into IS NULL AND created_at > ${since} AND created_at <= ${now} LIMIT 500`;
+  const stories = await sql<{ public_id: string }[]>`
+    SELECT st.public_id::text FROM stories st
+    WHERE st.merged_into IS NULL AND st.created_at > ${since} AND st.created_at <= ${now}
+      AND EXISTS (SELECT 1 FROM publications p WHERE p.story_id=st.id AND ${curatedEvidence("p", now)})
+    LIMIT 500`;
   const urls = [
     ...items.map((i) => siteUrl(`/items/${i.id}`)),
     ...reports.map((r) => siteUrl(`/${r.kind}/${r.key}`)),

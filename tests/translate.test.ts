@@ -7,8 +7,9 @@ import { after, before, test } from "node:test";
 import { closeDb, sql } from "@aihot/backend/db";
 import { upsertMaterial } from "@aihot/backend/content/materials";
 import { translatePending } from "@aihot/backend/editorial/translate";
+import { proposeReview } from "@aihot/backend/editorial/review";
+import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { stopBoss } from "@aihot/backend/jobs/queue";
-import { publishArticle } from "@aihot/backend/publication/publish";
 import { buildApp } from "../apps/api/src/app.ts";
 
 const T = tag();
@@ -47,8 +48,19 @@ const app = await buildApp();
 const material = (price: string) =>
   upsertMaterial({
     sourceId: SOURCE, url: URL_, title: `Price update ${T}`, language: "en", bodyText: `The price is ${price} dollars (${T}).`,
-    bodyHtml: `<p>The price is ${price} dollars (${T}).</p>`, bodyStatus: "ok", via: "fetch", publishedAt: new Date(), discoveredAt: new Date(Date.now() + 600_000),
+    bodyHtml: `<p>The price is ${price} dollars (${T}).</p>`, bodyStatus: "ok", via: "fetch", publishedAt: new Date(Date.now() + 366 * 86_400_000), discoveredAt: new Date(Date.now() + 366 * 86_400_000),
   });
+
+async function approveSelected(id: string) {
+  await sql`UPDATE articles SET processing_state='analyzed',grouped_at=now() WHERE id=${id}`;
+  const proposal = await proposeReview(id);
+  assert.ok(proposal);
+  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id=${id}`;
+  await decideArticleReview(id, { status:'approved',curated:true,fingerprint:proposal.fingerprint,
+    version:review!.version,reason:'Checked source and translated copy' }, 'translation-test');
+  const [projection] = await sql<{ selected: boolean }[]>`SELECT selected FROM publications WHERE article_id=${id}`;
+  assert.equal(projection?.selected, true);
+}
 
 async function detail(id: string) {
   const res = await app.inject({ method: "GET", url: `/api/site/items/${id}` });
@@ -71,7 +83,7 @@ test("a text corrected while its translation was running is translated again, an
   const { articleId: id } = await material("ten");
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
             VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`价格更新-${T}`}, '摘要', '理由', 90, true)`;
-  await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
+  await approveSelected(id);
 
   // The model is asked about revision 1; the source corrects the price before it answers.
   hold = gate();
@@ -85,13 +97,17 @@ test("a text corrected while its translation was running is translated again, an
 
   const [attempt] = await sql<{ revision: number; outcome: string }[]>`SELECT revision, outcome FROM translation_attempts WHERE article_id = ${id}`;
   assert.deepEqual({ ...attempt }, { revision: 1, outcome: "translated" }, "the attempt is booked on the revision translated");
-  const stale = await detail(id);
-  assert.equal(stale.body.zh, null, "a translation of the old wording is not shown");
-  assert.ok(stale.body.original?.includes("twenty"));
+  const stale = await app.inject({ method: "GET", url: `/api/site/items/${id}` });
+  assert.equal(stale.statusCode, 404, "a revised item waits for a fresh human review");
+
+  await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,reason_zh,score,selected)
+    VALUES (${id},2,'rule','pass','ai-models',${`价格更新-${T}`},'已修订摘要','理由',90,true)`;
+  await approveSelected(id);
 
   await translatePending({ limit: 1 });
   const [tr] = await sql<{ revision: number }[]>`SELECT revision FROM translations WHERE article_id = ${id}`;
   assert.equal(tr?.revision, 2, "the corrected text is translated on the next run");
+  await approveSelected(id);
   const current = await detail(id);
   assert.ok(current.body.zh?.includes("二十美元") && current.body.complete, "the page shows the translation of the corrected text");
 });
@@ -102,11 +118,11 @@ test("links and images inside a paragraph survive the translation, or the paragr
     `<p>A paragraph the model <a href="https://example.com/kept">never keeps</a> whole ${T}.</p>`;
   const { articleId: id } = await upsertMaterial({
     sourceId: SOURCE, url: `${URL_}-links`, title: `Links ${T}`, language: "en", bodyText: `Explaining Neuroglancer. ${T}`, bodyHtml: html,
-    bodyStatus: "ok", via: "fetch", publishedAt: new Date(), discoveredAt: new Date(Date.now() + 1_200_000),
+    bodyStatus: "ok", via: "fetch", publishedAt: new Date(Date.now() + 366 * 86_400_000), discoveredAt: new Date(Date.now() + 366 * 86_400_000),
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
             VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`链接-${T}`}, '摘要', '理由', 90, true)`;
-  await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
+  await approveSelected(id);
   await translatePending({ limit: 1 });
   const [tr] = await sql<{ body_html: string; complete: boolean }[]>`SELECT body_html, complete FROM translations WHERE article_id = ${id}`;
   assert.ok(tr!.body_html.includes('<a href="https://neuroglancer.dev/docs">Neuroglancer</a>'), tr!.body_html);
@@ -119,16 +135,17 @@ test("the post a selected X post quotes is translated once and shown with the it
   const tweetId = `7${Date.now()}`;
   const { articleId: id } = await upsertMaterial({
     sourceId: SOURCE, url: `https://x.com/bcherny/status/8${Date.now()}`, title: `Sonnet ${T}`, language: "en", bodyText: "Try it!", bodyStatus: "ok",
-    via: "fetch", publishedAt: new Date(), discoveredAt: new Date(Date.now() + 1_800_000),
+    via: "fetch", publishedAt: new Date(Date.now() + 366 * 86_400_000), discoveredAt: new Date(Date.now() + 366 * 86_400_000),
     xPost: { tweetId: `8${Date.now()}`, authorName: "Boris", handle: "bcherny", text: "Try it!", quoted: { authorName: "Anthropic", handle: "AnthropicAI", text: `Introducing Claude Sonnet 5.5 ${T}`, url: `https://x.com/AnthropicAI/status/${tweetId}` } },
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
             VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`引用-${T}`}, '摘要', '理由', 90, true)`;
-  await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
+  await approveSelected(id);
   const run = await translatePending({ limit: 1 });
   assert.ok(run.quotes >= 1);
   const [q] = await sql<{ text_zh: string; origin: string }[]>`SELECT text_zh, origin FROM quote_translations WHERE tweet_id = ${tweetId}`;
   assert.deepEqual({ ...q }, { text_zh: "隆重推出 Sonnet 5.5。", origin: "model" });
+  await approveSelected(id);
   const res = await app.inject({ method: "GET", url: `/api/site/items/${id}` });
   const item = JSON.parse(res.body) as { x: { quoted: { text: string; translation: string | null } } };
   assert.deepEqual([item.x.quoted.text, item.x.quoted.translation], [`Introducing Claude Sonnet 5.5 ${T}`, "隆重推出 Sonnet 5.5。"]);

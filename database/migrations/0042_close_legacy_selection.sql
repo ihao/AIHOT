@@ -4,10 +4,11 @@
 UPDATE publications p SET selected=false,indexable=false,reason=NULL,
   selected_ready_at=NULL,visible_after=NULL,updated_at=now()
 WHERE p.selected AND NOT EXISTS (
-  SELECT 1 FROM editorial_reviews r JOIN editorial_curations c ON c.article_id=r.article_id
+  SELECT 1 FROM editorial_reviews r JOIN articles a ON a.id=r.article_id
+    JOIN editorial_curations c ON c.article_id=r.article_id
   WHERE r.article_id=p.article_id AND r.status='approved' AND c.status='approved'
     AND c.fingerprint=r.fingerprint AND c.review_version=r.version
-    AND r.article_revision=p.revision AND r.analysis_id=p.analysis_id
+    AND r.article_revision=a.revision AND r.analysis_id=p.analysis_id
 );
 
 DELETE FROM selected_ledger l

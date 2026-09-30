@@ -60,14 +60,9 @@ function roleOf(kind: string, firstParty: boolean): string {
 }
 
 function draftContent(rows: Row[], start: Date, cutoff: Date) {
-  const byFact = new Map<string, Row>();
-  for (const row of rows) {
-    const key = row.fact_id === null ? `a:${row.id}` : `f:${row.fact_id}`;
-    const prev = byFact.get(key);
-    if (!prev || Number(row.first_party) > Number(prev.first_party) ||
-        (row.first_party === prev.first_party && (row.score ?? 0) > (prev.score ?? 0))) byFact.set(key, row);
-  }
-  const sorted = [...byFact.values()].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  // Include every eligible article exactly once. A section cap or fact-level
+  // representative would silently drop uncited articles at the next cutoff.
+  const sorted = [...rows].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const perSection = new Map<string, Array<Record<string, unknown>>>();
   const flashes: Array<Record<string, unknown>> = [];
   for (const r of sorted) {
@@ -79,8 +74,7 @@ function draftContent(rows: Row[], start: Date, cutoff: Date) {
     };
     const label = SECTION_OF[r.category ?? ""] ?? DEFAULT_SECTION;
     const list = perSection.get(label) ?? [];
-    if (list.length < 8) list.push(entry);
-    else if (flashes.length < 12) flashes.push(entry);
+    list.push(entry);
     perSection.set(label, list);
   }
   const sections = SECTION_ORDER.filter((label) => perSection.get(label)?.length).map((label) => ({ label, items: perSection.get(label)! }));

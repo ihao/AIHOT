@@ -17,6 +17,8 @@ import { updateSource } from "@aihot/backend/admin/sources";
 import { upsertMaterial } from "@aihot/backend/content/materials";
 import { stopBoss } from "@aihot/backend/jobs/queue";
 import { publishArticle, republishSource } from "@aihot/backend/publication/publish";
+import { proposeReview } from "@aihot/backend/editorial/review";
+import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { computeHotRanking } from "@aihot/backend/events/hot";
 import { latestHotRanking } from "@aihot/backend/events/hot-read";
 import { effectiveWatermark } from "@aihot/backend/publication/v1";
@@ -50,7 +52,20 @@ async function article(): Promise<string> {
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
             VALUES (${articleId}, 1, 'rule', 'pass', 'ai-models', ${`标题${n}-${T}`}, ${`SUMMARY-${n}-${T}`}, '理由', 90, true)`;
+  await sql`UPDATE articles SET processing_state = 'analyzed' WHERE id = ${articleId}`;
   return articleId;
+}
+
+/** Human approval grants all-feed and curated exits; grouping opens selected sync immediately. */
+async function approveArticle(id: string, immediate = true): Promise<void> {
+  if (immediate) await sql`UPDATE articles SET grouped_at = now() WHERE id = ${id}`;
+  const proposal = await proposeReview(id);
+  assert.ok(proposal, "the fixture has a current editorial proposal");
+  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id = ${id}`;
+  await decideArticleReview(id, {
+    status: "approved", curated: true, fingerprint: proposal.fingerprint,
+    version: review!.version, reason: "publication exit test",
+  }, "test-editor");
 }
 
 async function storyFor(id: string, role: "report" | "mention" = "report"): Promise<string> {
@@ -63,7 +78,6 @@ async function storyFor(id: string, role: "report" | "mention" = "report"): Prom
   return publicId;
 }
 
-const released = () => ({ releasedAt: new Date(Date.now() - 60_000) });
 async function get(url: string, headers: Record<string, string> = {}) {
   const res = await app.inject({ method: "GET", url, headers });
   return { status: res.statusCode, body: res.body, etag: res.headers.etag as string | undefined };
@@ -73,7 +87,7 @@ test("site reading sends one language while exports retain both, including after
   const id = await article();
   await sql`UPDATE articles SET language = 'en', body_html = '<h2>Original heading</h2><p>Original full body</p>' WHERE id = ${id}`;
   await sql`INSERT INTO translations (article_id, revision, body_html, body_text, origin) VALUES (${id}, 1, '<h2>译文标题</h2><p>中文完整正文</p>', '中文完整正文', 'source')`;
-  await publishArticle(id, released());
+  await approveArticle(id);
   const normal = JSON.parse((await get(`/api/site/items/${id}`)).body);
   const original = JSON.parse((await get(`/api/site/items/${id}/original`)).body);
   assert.equal(normal.bodyLanguage, 'zh');
@@ -93,7 +107,7 @@ test("site reading sends one language while exports retain both, including after
 
 test("revoking a source's licence takes its articles off every exit", async () => {
   const id = await article();
-  await publishArticle(id, released());
+  await approveArticle(id);
   const story = await storyFor(id);
   assert.equal((await get(`/api/site/items/${id}`)).status, 200);
   assert.equal((await get(`/api/site/stories/${story}`)).status, 200);
@@ -103,11 +117,11 @@ test("revoking a source's licence takes its articles off every exit", async () =
   const [source] = await sql<{ updated_at: Date }[]>`SELECT updated_at FROM sources WHERE id = ${SOURCE}`;
   const patch = { participation_mode: "isolated", site_fulltext: false, syndicate_fulltext: false };
   await updateSource(SOURCE, { patch, version: source!.updated_at.toISOString(), reason: "test" }, "test");
+  assert.equal((await get(`/api/site/items/${id}`)).status, 404, "source isolation closes the public page in the admin transaction");
   const [queued] = await sql<{ value: { status: string } }[]>`SELECT value FROM settings WHERE key = ${`republish.source:${SOURCE}`}`;
   assert.equal(queued?.value.status, "queued", "the admin change queues a background republish");
 
-  const result = await republishSource(SOURCE); // what the queued job runs
-  assert.ok(result.reduced >= 1);
+  await republishSource(SOURCE); // the queued job may be a no-op after atomic revocation
   assert.equal((await get(`/api/site/items/${id}`)).status, 404);
   assert.equal((await get(`/items/${id}/markdown`)).status, 404);
   assert.equal((await get(`/api/site/stories/${story}`)).status, 404, "the story drops an isolated source's last report");
@@ -120,14 +134,24 @@ test("revoking a source's licence takes its articles off every exit", async () =
 
 test("a withdrawn item leaves every report exit", async () => {
   const id = await article();
-  await publishArticle(id, released());
+  await approveArticle(id);
+  const [review] = await sql<{ fingerprint: string }[]>`SELECT fingerprint FROM editorial_reviews WHERE article_id = ${id}`;
   const content = {
-    sections: [{ label: "模型", items: [{ itemId: id, title: `LEAD-${T}`, summary: `QUOTED-${T}`, sourceUrl: `https://example.com/original-${T}`, sourceName: "Test" }] }],
+    sections: [{ label: "模型", items: [{ itemId: id, approvedFingerprint: review!.fingerprint, title: `LEAD-${T}`, summary: `QUOTED-${T}`, sourceUrl: `https://example.com/original-${T}`, sourceName: "Test" }] }],
     flashes: [],
   };
-  await sql`INSERT INTO reports (kind, key, window_start, window_end, content, generated_at, origin)
+  const [report] = await sql<{ id: number }[]>`INSERT INTO reports (kind, key, window_start, window_end, content, generated_at, origin)
             VALUES ('daily', ${REPORT_KEY}, now() - interval '1 day', now(), ${sql.json(content as never)}, now(), 'manual')
-            ON CONFLICT (kind, key) DO UPDATE SET content = EXCLUDED.content`;
+            ON CONFLICT (kind, key) DO UPDATE SET content = EXCLUDED.content RETURNING id`;
+  assert.equal((await get(`/api/v1/dailies/${REPORT_KEY}`)).status, 404, "a legacy report identity is not public");
+  const [draft] = await sql<{ id: number }[]>`INSERT INTO report_drafts
+    (report_id, window_start, cutoff, content, candidate_set, candidate_hash, created_by)
+    VALUES (${report!.id}, now() - interval '1 day', now(), ${sql.json(content as never)}, '[]'::jsonb, 'test', 'test-editor') RETURNING id`;
+  const [version] = await sql<{ id: number }[]>`INSERT INTO report_versions
+    (report_id, version, draft_id, window_start, window_end, content, candidate_hash, citations, published_by, reason)
+    VALUES (${report!.id}, 1, ${draft!.id}, now() - interval '1 day', now(), ${sql.json(content as never)},
+      'test', ${sql.json([{ articleId: id, fingerprint: review!.fingerprint }] as never)}, 'test-editor', 'approved for exit test') RETURNING id`;
+  await sql`UPDATE reports SET active_version_id = ${version!.id} WHERE id = ${report!.id}`;
   assert.ok((await get(`/api/v1/dailies/${REPORT_KEY}`)).body.includes(`QUOTED-${T}`), "the report quotes the item before");
 
   await setVisibility(id, { visibility: "withdrawn", reason: "test", version: 0 }, "test");
@@ -145,10 +169,10 @@ test("a withdrawn item leaves every report exit", async () => {
 
 test("a withdrawal takes down only the stories citing it, including secondary memberships", async () => {
   const id = await article();
-  await publishArticle(id, released());
+  await approveArticle(id);
   const stories = [await storyFor(id), await storyFor(id, "mention")];
   const other = await article();
-  await publishArticle(other, released());
+  await approveArticle(other);
   const unrelated = await storyFor(other);
   for (const story of stories) {
     assert.ok((await get(`/api/site/stories/${story}`)).body.includes(id));
@@ -171,7 +195,7 @@ test("a withdrawn item leaves the hot board and the hot APIs at once, not at the
     await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${fact!.id}, ${id}, 'report')`;
     await sql`INSERT INTO story_signals (story_id, article_id, participant_key, source_id, kind, observed_at)
               VALUES (${story!.id}, ${id}, ${`participant-${id}`}, ${SOURCE}, 'editorial', now() - interval '1 hour')`;
-    await publishArticle(id, released());
+    await approveArticle(id);
   }
   await computeHotRanking();
   const rep = (await latestHotRanking())!.entries.find((e) => e.storyId === story!.id)?.representativeItemId;
@@ -183,13 +207,13 @@ test("a withdrawn item leaves the hot board and the hot APIs at once, not at the
   for (const url of exits) assert.ok(!(await get(url)).body.includes(rep!), `${url} still shows the withdrawn item`);
 });
 
-test("item pages follow the live rule: unsummarised editorial items keep one, hot_signal items have none", async () => {
+test("unreviewed editorial and hot_signal items have no detail or story exits", async () => {
   const SIGNAL = `${SOURCE}-signal`;
   await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, site_fulltext, syndicate_fulltext, next_fetch_at)
             VALUES (${SIGNAL}, 'Test signal', 'rss', 'T1', 'hot_signal', true, false, '2100-01-01')`;
   const material = (sourceId: string, name: string) =>
     upsertMaterial({ sourceId, url: `https://example.com/${T}-${name}`, title: `${name} ${T}`, bodyText: BODY, bodyHtml: `<p>${BODY}</p>`, bodyStatus: "ok", via: "fetch", publishedAt: new Date() });
-  // An editorial item the model never summarised, and a hot_signal item carrying an imported summary.
+  // Neither unsummarised editorial material nor an imported hot signal has a review grant.
   const { articleId: plain } = await material(SOURCE, "plain");
   await publishArticle(plain);
   const { articleId: signal } = await material(SIGNAL, "signal");
@@ -198,10 +222,8 @@ test("item pages follow the live rule: unsummarised editorial items keep one, ho
   await publishArticle(signal);
 
   const page = await get(`/api/site/items/${plain}`);
-  assert.equal(page.status, 200, "an unsummarised editorial item keeps its page");
-  const detail = JSON.parse(page.body) as { summary: string | null; indexable: boolean; markdownAvailable: boolean };
-  assert.deepEqual([detail.summary, detail.indexable, detail.markdownAvailable], [null, false, true], "noindex, with its body for export");
-  assert.equal((await get(`/items/${plain}/markdown`)).status, 200);
+  assert.equal(page.status, 404, "unreviewed material has no page");
+  assert.equal((await get(`/items/${plain}/markdown`)).status, 404);
   assert.equal((await get(`/api/site/items/${signal}`)).status, 404, "hot_signal material has no page");
   assert.equal((await get(`/items/${signal}/markdown`)).status, 404);
 
@@ -210,16 +232,14 @@ test("item pages follow the live rule: unsummarised editorial items keep one, ho
   const [fact] = await sql<{ id: number }[]>`INSERT INTO facts (public_id, story_id, title) VALUES (${`f-${T}`}, ${story!.id}, ${`事实-${T}`}) RETURNING id`;
   await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${fact!.id}, ${plain}, 'report'), (${fact!.id}, ${signal}, 'report')`;
   const storyPage = await get(`/api/site/stories/${publicId}`);
-  assert.equal(storyPage.status, 200, "a story whose only page is unsummarised still has a page");
-  assert.ok(storyPage.body.includes(plain), "it lists the unsummarised editorial report");
-  assert.ok(!storyPage.body.includes(signal) && !storyPage.body.includes(`SIGNAL-SUMMARY-${T}`), "and not the hot_signal one");
+  assert.equal(storyPage.status, 404, "unreviewed evidence cannot open an event page");
 });
 
 test("an early release keeps the selected ledger in order", async () => {
   const x = await article();
-  await publishArticle(x, released());
+  await approveArticle(x);
   const y = await article();
-  await publishArticle(y); // still behind the release gate
+  await approveArticle(y, false); // still behind the release gate
   await setVisibility(x, { visibility: "withdrawn", reason: "test", version: 0 }, "test");
   await sql`UPDATE articles SET grouped_at = now() WHERE id = ${y}`;
   await publishArticle(y); // grouped: released now
@@ -233,9 +253,9 @@ test("an early release keeps the selected ledger in order", async () => {
 
 test("a withdrawal waiting behind an unreleased item leaves new snapshots at once, and changes still carry both", async () => {
   const x = await article();
-  await publishArticle(x, released());
+  await approveArticle(x);
   const y = await article();
-  await publishArticle(y); // behind the release gate: the watermark stays before it
+  await approveArticle(y, false); // behind the release gate: the watermark stays before it
   await setVisibility(x, { visibility: "withdrawn", reason: "test", version: 0 }, "test");
 
   for (const url of ["/api/v1/selected/snapshot?fields=minimal&limit=1000"]) {
@@ -262,11 +282,11 @@ test("snapshots answer 304 to their own ETag", async () => {
   }
 });
 
-test("v1 story retains website content and fallback ordering without the website-only heat reads", async () => {
+test("v1 story matches the website's reviewed timeline and follows its release gate", async () => {
   const first = await article();
   const second = await article();
-  await publishArticle(first, released());
-  await publishArticle(second, released());
+  await approveArticle(first);
+  await approveArticle(second);
   const publicId = await storyFor(first);
   const [story] = await sql<{ id: number }[]>`SELECT id FROM stories WHERE public_id = ${publicId}`;
   const [fact] = await sql<{ id: number }[]>`INSERT INTO facts (public_id, story_id, title)
@@ -280,20 +300,20 @@ test("v1 story retains website content and fallback ordering without the website
     firstReportAt: v1.firstReportAt, latestAt: v1.latestAt, digest: v1.digest, digestUpdatedAt: v1.digestUpdatedAt },
   { publicId: site.publicId, title: site.title, sourceCount: site.sourceCount, reportCount: site.reportCount,
     firstReportAt: site.firstReportAt, latestAt: site.latestAt, digest: site.digest, digestUpdatedAt: site.digestUpdatedAt });
-  assert.equal(v1.latest, 'Latest development fallback');
+  assert.equal(v1.latest, site.timeline[0].title, "the latest development comes from visible reviewed evidence");
   assert.deepEqual(v1.reports, site.timeline.slice(0, 50).map((r: any) => ({ id: r.id, title: r.title, summary: r.summary,
     source: { name: r.source.name, firstParty: r.source.firstParty }, publishedAt: r.publishedAt,
     links: { aihot: `${config.siteUrl}/items/${r.id}`, original: r.originalUrl } })));
   await sql`UPDATE publications SET visible_after = now() + interval '1 day' WHERE article_id = ${second}`;
   const gated = JSON.parse((await get(`/api/v1/stories/${publicId}`)).body).story;
   assert.deepEqual(gated.reports.map((r: any) => r.id), [first]);
-  assert.equal(gated.latest, `FACT-${T}`);
+  assert.equal(gated.latest, gated.reports[0].title);
 });
 
 
-test("unchanged republishing preserves freshness, while URL-only changes still reach the projection and ledger", async () => {
+test("unchanged republishing preserves freshness, while URL changes revoke the grant and selected ledger", async () => {
   const id = await article();
-  await publishArticle(id, released());
+  await approveArticle(id);
   const state = async () => (await sql`SELECT xmin::text AS row_version, updated_at, revision, url FROM publications WHERE article_id = ${id}`)[0]!;
   const before = await state();
   const [ledger] = await sql`SELECT max(seq) AS seq FROM selected_ledger WHERE article_id = ${id}`;
@@ -306,18 +326,19 @@ test("unchanged republishing preserves freshness, while URL-only changes still r
   const url = `https://example.com/${T}-corrected`;
   await sql`UPDATE articles SET url = ${url} WHERE id = ${id}`;
   const result = await publishArticle(id);
-  assert.equal(result!.changed, false, "URL is deliberately outside the presentation fingerprint");
-  assert.equal(result!.ledger, "upsert", "the public URL change is still recorded for sync clients");
+  assert.equal(result!.changed, true, "an unreviewed URL change closes the projection");
+  assert.equal(result!.ledger, "remove", "sync clients remove the formerly selected item");
   const changed = await state();
   assert.equal(changed.url, url);
   assert.notEqual(changed.row_version, before.row_version);
   assert.ok(changed.updated_at >= before.updated_at);
-  assert.equal(changed.revision, before.revision);
+  assert.equal(changed.revision, before.revision + 1);
+  assert.equal((await get(`/api/site/items/${id}`)).status, 404);
 });
 
 test("share images keep detail metadata and access rules while conditional reads avoid body hydration", async () => {
   const id = await article();
-  await publishArticle(id, released());
+  await approveArticle(id);
   const d = JSON.parse((await get(`/api/site/items/${id}`)).body);
   const kicker = d.category ? CATEGORY_LABELS[d.category as keyof typeof CATEGORY_LABELS] : "AI 动态";
   const source = d.source.name.replace(/（[^）]*）\s*$/, "");
@@ -346,8 +367,8 @@ test("share images keep detail metadata and access rules while conditional reads
 
 test("minimal sync projection preserves snapshot fields, pagination bindings and ordered changes", async () => {
   const id = await article();
-  await publishArticle(id, released());
-  await publishArticle(await article(), released());
+  await approveArticle(id);
+  await approveArticle(await article());
   const full = JSON.parse((await get('/api/v1/selected/snapshot?fields=default&limit=1000')).body);
   const minimal = JSON.parse((await get('/api/v1/selected/snapshot?fields=minimal&limit=1000')).body);
   const project = (i: any) => ({ id: i.id, title: i.title, source: i.source, publishedAt: i.publishedAt,
@@ -370,7 +391,9 @@ test("minimal sync projection preserves snapshot fields, pagination bindings and
   assert.ok(firstPage.nextPage);
   assert.equal((await get(`/api/v1/selected/snapshot?fields=default&page=${encodeURIComponent(firstPage.nextPage)}`)).status, 400, 'page tokens stay bound to the requested projection');
   await sql`UPDATE analyses SET title_zh = 'Updated sync title', summary_zh = ${'large summary '.repeat(200)} WHERE article_id = ${id}`;
-  await publishArticle(id, released());
+  await publishArticle(id);
+  assert.equal((await get(`/api/site/items/${id}`)).status, 404, "edited analysis is withheld pending review");
+  await approveArticle(id);
   const getChanges = async (cursor: string) => {
     const response = await get(`/api/v1/selected/changes?cursor=${encodeURIComponent(cursor)}&limit=100`);
     assert.equal(response.status, 200, response.body);

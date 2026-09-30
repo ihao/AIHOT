@@ -4,6 +4,11 @@ import { randomUUID } from 'node:crypto';
 import { after, test } from 'node:test';
 import { closeDb, sql } from '@aihot/backend/db';
 import { loadHotStrip, rankingExtras, type HotEntry } from '@aihot/backend/events/hot-read';
+import { CURATED_HOT_RULE_VERSION } from '@aihot/backend/events/eligibility';
+import { upsertMaterial } from '@aihot/backend/content/materials';
+import { proposeReview } from '@aihot/backend/editorial/review';
+import { decideArticleReview } from '@aihot/backend/editorial/decision';
+import { stopBoss } from '@aihot/backend/jobs/queue';
 import { proxiedImage } from '@aihot/backend/media/imgproxy';
 
 const t = `hotfaces-${tag()}`;
@@ -31,6 +36,7 @@ after(async () => {
   if (storyIds.length) await sql`DELETE FROM stories WHERE id=ANY(${storyIds}::bigint[])`;
   await sql`DELETE FROM articles WHERE source_id LIKE ${t+'%'}`;
   await sql`DELETE FROM sources WHERE id LIKE ${t+'%'}`;
+  await stopBoss();
   await closeDb();
 });
 
@@ -38,11 +44,26 @@ test('faces are 精选组 sources by tier (T1, T1.5, T2), at most 6; 氛围组 o
   for (const [i, person] of inputs.entries()) {
     await sql`INSERT INTO sources (id,name,kind,tier,participation_mode,icon_url,next_fetch_at)
       VALUES (${sourceId(i)},${name(i)},'rss',${person.tier},${person.kind === 'editorial' ? 'editorial' : 'hot_signal'},${imageUrl(i)},'2100-01-01')`;
-    await sql`INSERT INTO articles (id,source_id,identity_key,url,title,discovered_at,timeline_at)
-      VALUES(${sourceId(i)},${sourceId(i)},${sourceId(i)},${'https://example.org/'+sourceId(i)},${name(i)},now(),now())`;
+    if (person.kind === 'signal') {
+      await sql`INSERT INTO articles (id,source_id,identity_key,url,title,discovered_at,timeline_at)
+        VALUES(${sourceId(i)},${sourceId(i)},${sourceId(i)},${'https://example.org/'+sourceId(i)},${name(i)},now(),now())`;
+      continue;
+    }
+    await upsertMaterial({ id:sourceId(i),sourceId:sourceId(i),url:`https://example.org/${sourceId(i)}`,
+      title:name(i),bodyText:`Reviewed report from ${name(i)} with verifiable source material.`,
+      bodyStatus:'ok',via:'fetch',publishedAt:new Date() });
+    await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected)
+      VALUES (${sourceId(i)},1,'rule','pass','infrastructure',${`已审核 ${name(i)}`},'人工核对的事件来源摘要。',80,true)`;
+    await sql`UPDATE articles SET processing_state='analyzed',grouped_at=now() - interval '1 minute'
+      WHERE id=${sourceId(i)}`;
+    const proposal=await proposeReview(sourceId(i));
+    assert.ok(proposal);
+    const [review]=await sql<{version:number}[]>`SELECT version FROM editorial_reviews WHERE article_id=${sourceId(i)}`;
+    await decideArticleReview(sourceId(i),{status:'approved',curated:true,fingerprint:proposal.fingerprint,
+      version:review!.version,reason:'Checked event evidence'},'hot-test');
   }
   const entries: HotEntry[] = [];
-  const at = new Date('2099-01-01T00:00:00Z');
+  const at = new Date();
   for (let i=0;i<3;i++) {
     const [story] = await sql<{id:number;public_id:string}[]>`INSERT INTO stories(public_id,title) VALUES(${randomUUID()},${t}) RETURNING id,public_id`;
     storyIds.push(story!.id);
@@ -53,9 +74,9 @@ test('faces are 精选组 sources by tier (T1, T1.5, T2), at most 6; 氛围组 o
       representativeItemId:null,representativeUrl:null,representativeSource:null,participants:inputs.map((p,n)=>({name:name(n),kind:p.kind,tier:p.tier})) });
   }
   const [saved] = await sql<{id:number}[]>`INSERT INTO hot_rankings(computed_at,rule_version,entries,published)
-    VALUES(${at},'test',${sql.json(entries as never)},true) RETURNING id`;
+    VALUES(${at},${CURATED_HOT_RULE_VERSION},${sql.json(entries as never)},true) RETURNING id`;
   rankingId=saved!.id;
-  const extras=await rankingExtras({id:rankingId,computedAt:at.toISOString(),ruleVersion:'test',entries,coverage:null});
+  const extras=await rankingExtras({id:rankingId,computedAt:at.toISOString(),ruleVersion:CURATED_HOT_RULE_VERSION,entries,coverage:null});
   const full=extras.participants(entries[0]!);
   const home=(await loadHotStrip())![0]!.participants;
 
@@ -63,7 +84,8 @@ test('faces are 精选组 sources by tier (T1, T1.5, T2), at most 6; 氛围组 o
   const order=[5,2,3,1,6,8,9,7,0,4];
   assert.deepEqual(full.map(p=>p.name),order.map(name));
   assert.deepEqual(home,full,'home and /hot show the same faces');
-  assert.deepEqual(full.map(p=>p.iconUrl),order.map(i=>proxiedImage(imageUrl(i),'avatar')),'every name keeps its icon for the tooltip');
+  assert.deepEqual(full.map(p=>p.iconUrl),order.map(i=>inputs[i]!.kind==='editorial' ? proxiedImage(imageUrl(i),'avatar') : null),
+    'only reviewed event evidence can supply a source avatar');
   // The six visible faces get responsive images (T1 without avatar shows an initial); the seventh 精选组 face does not.
   assert.deepEqual(full.filter(p=>p.iconSrcSet).map(p=>p.name),[5,3,1,6,8].map(name));
 });

@@ -5,7 +5,8 @@ import { after, before, test } from 'node:test';
 import { sql, closeDb } from '@aihot/backend/db';
 import { stopBoss } from '@aihot/backend/jobs/queue';
 import { upsertMaterial } from '@aihot/backend/content/materials';
-import { publishArticle } from '@aihot/backend/publication/publish';
+import { proposeReview } from '@aihot/backend/editorial/review';
+import { decideArticleReview } from '@aihot/backend/editorial/decision';
 
 const T = tag();
 const SOURCE = `test-translate-stop-${T}`;
@@ -53,10 +54,18 @@ for (const misaligned of [false, true]) test(`SIGTERM finishes the sent ${misali
   active = { asked: gate(), hold: gate(), calls: 0, misaligned };
   const first = misaligned ? `First paragraph ${T}.` : `First paragraph ${T}. ${'English text '.repeat(170)}`;
   const second = misaligned ? `Second paragraph ${T}.` : `Second paragraph ${T}. ${'More English '.repeat(170)}`;
-  const { articleId } = await upsertMaterial({ sourceId: SOURCE, url: `https://example.org/translation-shutdown-${T}/${misaligned}`, title: `Shutdown ${T}`, bodyHtml: `<p>${first}</p><p>${second}</p>`, bodyText: first + second, bodyStatus: 'ok', language: 'en', via: 'fetch', publishedAt: new Date(), discoveredAt: new Date(Date.now() + 86_400_000) });
+  const fixtureAt = new Date(Date.now() + 365 * 86_400_000);
+  const { articleId } = await upsertMaterial({ sourceId: SOURCE, url: `https://example.org/translation-shutdown-${T}/${misaligned}`, title: `Shutdown ${T}`, bodyHtml: `<p>${first}</p><p>${second}</p>`, bodyText: first + second, bodyStatus: 'ok', language: 'en', via: 'fetch', publishedAt: fixtureAt, discoveredAt: fixtureAt });
   await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,reason_zh,score,selected)
     VALUES (${articleId},1,'rule','pass','ai-models',${`终止测试${T}`},'摘要','理由',90,true)`;
-  await publishArticle(articleId, { releasedAt: new Date(Date.now() - 60_000) });
+  await sql`UPDATE articles SET processing_state='analyzed',grouped_at=now() WHERE id=${articleId}`;
+  const proposal = await proposeReview(articleId);
+  assert.ok(proposal);
+  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id=${articleId}`;
+  await decideArticleReview(articleId, { status:'approved',curated:true,fingerprint:proposal.fingerprint,
+    version:review!.version,reason:'Checked source and copy' }, 'translation-test');
+  const [projection] = await sql<{ selected: boolean }[]>`SELECT selected FROM publications WHERE article_id=${articleId}`;
+  assert.equal(projection?.selected, true);
   const interrupted = runTranslation();
   await Promise.race([active.asked.promise, interrupted.done.then(() => assert.fail('translation ended before a request'))]);
   interrupted.child.kill('SIGTERM');

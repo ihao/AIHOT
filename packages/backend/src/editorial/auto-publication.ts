@@ -58,7 +58,7 @@ export async function considerAutoPublicationTx(tx: Tx, articleId: string): Prom
   if (previous?.status === "auto_public" && previous.fingerprint === proposal.fingerprint) {
     return { ...held, granted: false };
   }
-  if (previous && previous.status !== "pending") {
+  if (previous && previous.status !== "pending" && previous.status !== "auto_public") {
     return { admit: false, granted: false, reason: "已有审核决定，转人工复审" };
   }
   await tx`INSERT INTO editorial_reviews (article_id,status,fingerprint,article_revision,analysis_id,override_version,

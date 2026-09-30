@@ -4,9 +4,9 @@ UPDATE publications p
 SET visibility='withdrawn', selected=false, eligible=false, indexable=false,
     selected_ready_at=NULL, visible_after=NULL, reason=NULL, updated_at=now()
 WHERE NOT EXISTS (
-  SELECT 1 FROM editorial_reviews r
+  SELECT 1 FROM editorial_reviews r JOIN articles a ON a.id=r.article_id
   WHERE r.article_id=p.article_id AND r.status IN ('approved','auto_public')
-    AND r.article_revision=p.revision AND r.analysis_id=p.analysis_id
+    AND r.article_revision=a.revision AND r.analysis_id=p.analysis_id
 );
 
 -- A prior selected sync watermark must not replay AIHOT titles after cutover.

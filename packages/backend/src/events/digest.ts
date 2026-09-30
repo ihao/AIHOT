@@ -8,6 +8,7 @@ import { chatJson } from "../providers/llm.ts";
 import { completeReceipt } from "../providers/receipts.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
 import { promptText, promptVersion } from "../editorial/prompts.ts";
+import { curatedEvidence } from "./eligibility.ts";
 
 export const DIGEST_PROMPT_VERSION = promptVersion("story-digest");
 
@@ -37,7 +38,7 @@ export async function composeStoryDigest(storyId: number, opts: { afterCorrectio
       coalesce(p.published_at, p.discovered_at) AS at
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     JOIN sources s ON s.id = p.source_id
-    WHERE f.story_id = ${storyId} AND p.visibility = 'public' AND p.eligible
+    WHERE f.story_id = ${storyId} AND ${curatedEvidence("p", new Date())}
     ORDER BY p.article_id`;
   if (reports.length === 0) return { updated: false };
   reports.sort((a, b) => a.at.getTime() - b.at.getTime());

@@ -12,6 +12,7 @@ import { escapeXml } from "../lib/text.ts";
 import { siteUrl } from "./links.ts";
 import { leaderboardUrls } from "../leaderboard/read.ts";
 import { topicPageCounts } from "./topics.ts";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 async function leaderboardDetailUrls(): Promise<string[]> {
   const fixed = new Set(["/leaderboard", "/leaderboard/sources", "/leaderboard/rules"]);
@@ -72,7 +73,7 @@ async function build(): Promise<string> {
   const stories = await sql<{ public_id: string; latest_at: Date | null }[]>`
     SELECT public_id::text, latest_at FROM stories WHERE merged_into IS NULL AND EXISTS (
       SELECT 1 FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
-      WHERE f.story_id = stories.id AND fa.role IN ('primary', 'report') AND p.visibility = 'public' AND p.eligible)
+      WHERE f.story_id = stories.id AND fa.role IN ('primary', 'report') AND ${curatedEvidence("p", new Date())})
     ORDER BY latest_at DESC NULLS LAST LIMIT 500`;
   for (const s of stories) entries.push({ loc: `/story/${s.public_id}`, lastmod: s.latest_at, changefreq: "daily", priority: 0.5 });
   // Model pages exist only for models on a public top-30 board; source pages for every registered source.
