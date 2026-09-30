@@ -119,33 +119,32 @@ test("another source reporting an imported article first does not set its baseli
   assert.deepEqual([(await state(id)).revision, (await state(id)).processing_state], [1, "analyzed"]);
 });
 
-test("a return to an earlier version is not a revision", async () => {
-  // One listing with two cards for one post ("Company Mistral and Mozilla…" / "Mistral and Mozilla…").
+test("a return to an earlier version is a new revision, while repeated current input is not", async () => {
+  // A source may restore an older rendering after an edit; the review target follows it.
   const url = `https://example.com/two-cards-${tag()}`;
   const a = { sourceId: SOURCE, url, title: "Company Mistral and Mozilla", excerpt: "card", via: "fetch" as const };
   const b = { ...a, title: "Mistral and Mozilla" };
   const first = await upsertMaterial(a);
   assert.equal((await upsertMaterial(b)).revised, true, "a version not seen before is a revision");
-  await sql`UPDATE articles SET processing_state = 'analyzed' WHERE id = ${first.articleId}`;
-  for (let i = 0; i < 3; i++) {
-    assert.equal((await upsertMaterial(a)).revised, false, "back to the first version");
-    assert.equal((await upsertMaterial(b)).revised, false, "and to the current one again");
-  }
+  assert.equal((await upsertMaterial(a)).revised, true, "back to the first version");
+  assert.equal((await upsertMaterial(a)).revised, false, "the current version is unchanged");
+  assert.equal((await upsertMaterial(b)).revised, true, "another return is another review target");
+  assert.equal((await upsertMaterial(b)).revised, false, "repeating the current version is unchanged");
   const s = await state(first.articleId);
-  assert.deepEqual([s.revision, s.title, s.processing_state], [2, "Mistral and Mozilla", "analyzed"], "nothing to analyse or publish again");
+  assert.deepEqual([s.revision, s.title, s.processing_state], [4, "Mistral and Mozilla", "new"]);
   assert.equal((await upsertMaterial({ ...a, title: "Mistral and Mozilla, updated" })).revised, true, "a new version still is");
-  assert.equal((await state(first.articleId)).revision, 3);
+  assert.equal((await state(first.articleId)).revision, 5);
 });
 
-test("an imported article that returns to its baseline is not revised again", async () => {
+test("an imported article that returns to its baseline records a new review target", async () => {
   // A page that rotates promotions: the baseline, another rendering, then the baseline again.
   const url = `https://example.com/rotating-${tag()}`;
   const id = await imported(url);
   const base = { sourceId: SOURCE, url, title: "Legacy title", bodyText: "Post text. PODCAST SERIES Ideas", via: "fetch" as const };
   assert.equal((await upsertMaterial(base)).revised, false, "baseline");
   assert.equal((await upsertMaterial({ ...base, bodyText: "Post text. Foundry Labs" })).revised, true);
-  assert.equal((await upsertMaterial(base)).revised, false, "the baseline version was seen before");
-  assert.equal((await state(id)).revision, 2);
+  assert.equal((await upsertMaterial(base)).revised, true, "the source restored its baseline");
+  assert.equal((await state(id)).revision, 3);
 });
 
 test("characters lost in transit are no revision, lost or restored", async () => {

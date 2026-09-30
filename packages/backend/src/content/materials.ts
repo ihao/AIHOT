@@ -173,25 +173,16 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
   if (existing!.content_hash === null) {
     // Imported history carries no hash of this form (its collectors normalised differently): the
     // first report here records the baseline instead of a revision, so an import does not send
-    // every article a source still lists back to paid analysis. The baseline joins the history, so
-    // a later return to it is recognised as a version seen before.
+    // every article a source still lists back to paid analysis. A later return to
+    // this baseline is a new revision, so the current review target stays truthful.
     await db`UPDATE articles SET content_hash = ${next}, excerpt = coalesce(excerpt, ${m.excerpt ?? null}) WHERE id = ${existing!.id}`;
     await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
              VALUES (${existing!.id}, ${existing!.revision}, ${next}, ${title}, ${bodyText}) ON CONFLICT DO NOTHING`;
     return unchanged;
   }
-  // Repeated versions from an unreviewed rotating listing are noise. Once the current
-  // version has a live grant, however, a return to an old rendering changes the
-  // source truth. It needs a fresh revision and review; otherwise a public B could
-  // remain visible while the source has reverted to A.
-  const [seen] = await db`SELECT 1 FROM article_revisions WHERE article_id = ${existing!.id} AND content_hash = ${next} LIMIT 1`;
-  if (seen) {
-    const [liveGrant] = await db`
-      SELECT 1 FROM publications p JOIN editorial_reviews r ON r.article_id = p.article_id
-      WHERE p.article_id = ${existing!.id} AND p.visibility = 'public' AND r.status IN ('approved', 'auto_public') LIMIT 1`;
-    if (!liveGrant) return unchanged;
-  }
-  // Nor is the stored version with other characters lost in transit, or with them restored.
+  // Returning to a historical rendering is still a new source change: the current
+  // review queue must show it, even when the intermediate revision was never public.
+  // Ignore only differences caused by characters lost in transit.
   if (sameBarringLoss(existing!.title, title) && sameBarringLoss(existing!.body_text, bodyText) && sameBarringLoss(existing!.excerpt, excerpt)) return unchanged;
 
   const [row] = await db<{ revision: number }[]>`

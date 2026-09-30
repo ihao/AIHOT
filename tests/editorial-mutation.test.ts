@@ -63,6 +63,22 @@ test("a revised source material closes public projection and selected ledger in 
   assert.equal((await app.inject({ method: "GET", url: `/api/site/items/${articleId}` })).statusCode, 404);
 });
 
+test("a source reverting while the intermediate revision is pending replaces the review target", async () => {
+  const { articleId, material } = await approvedFixture();
+  const intermediate = await upsertMaterial({ ...material, bodyText: "Intermediate unreviewed material" });
+  assert.equal(intermediate.revised, true);
+  assert.equal((await state(articleId)).review_status, "pending");
+
+  const reverted = await upsertMaterial(material);
+  assert.equal(reverted.revised, true, "returning to an older body is a new review target");
+  const [article] = await sql<{ revision: number; body_text: string }[]>`
+    SELECT revision, body_text FROM articles WHERE id = ${articleId}`;
+  assert.equal(article!.revision, 3);
+  assert.equal(article!.body_text, material.bodyText);
+  assert.equal((await state(articleId)).visibility, "withdrawn");
+  assert.equal((await app.inject({ method: "GET", url: `/api/site/items/${articleId}` })).statusCode, 404);
+});
+
 test("a publicly approved B reverting to previously seen A is a new revision and loses B's grant", async () => {
   const { articleId, material } = await approvedFixture();
   const changed = await upsertMaterial({ ...material, title: "Corrected release" });
