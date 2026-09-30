@@ -27,7 +27,7 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 ## 域名切换
 
-私有验收后，站长把 `9btc.com` 的 A 记录改为 EU 地址。DNS 生效后，在现有 `/etc/caddy/sites-enabled/` 中单独加入 9BTC 站点，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常。旧服务器无需改动。
+私有验收后，站长把 `9btc.com` 的 A 记录改为 EU 地址。DNS 生效后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常。旧服务器无需改动。
 
 ## 备份和回退
 
