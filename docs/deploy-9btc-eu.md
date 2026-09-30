@@ -1,6 +1,6 @@
 # 9BTC EU 上线手册
 
-这份手册只适用于 `62.171.163.77` 上的独立 9BTC 项目。现有 `9btc.com` 旧服务器不做任何变更；域名 A 记录由站长在新站验收后切换。EU 上的其他 Docker 项目和 Caddy 站点保持原样。
+这份手册只适用于 `62.171.163.77` 上的独立 9BTC 项目。站长已将 `9btc.com` 的 A 记录切到 EU；现有旧服务器不做任何变更。EU 上的其他 Docker 项目和 Caddy 站点保持原样。
 
 ## 上线门槛
 
@@ -25,11 +25,11 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 私有验收通过 SSH 隧道访问 `127.0.0.1:3109`，检查首页、`/admin`、健康接口、RSS、API、MCP、审核队列和日报草稿。验收数据使用合成样本，采集和模型调用仍关闭。公开出口必须对待审、驳回内容返回不可见。失败时停止 9BTC 项目即可，不能使用 `down -v` 删除卷。
 
-## 域名切换
+## 已切换域名后的发布
 
-私有验收后，站长把 `9btc.com` 的 A 记录改为 `62.171.163.77`。DNS 生效后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常；`www.9btc.com` 应跳转到根域。旧服务器无需改动。
+DNS 已先于应用发布完成切换。私有验收通过后，把已校验的 `deploy/9btc.eu.caddy` 单独安装到现有 `/etc/caddy/sites-enabled/9btc.com.caddy`，反向代理到 `127.0.0.1:3109`，保留现有站点配置；先备份 Caddy 配置，再运行 `caddy validate`，最后平滑重载。确认 `https://9btc.com` 证书、首页、管理登录、健康接口和公开出口均正常；`www.9btc.com` 应跳转到根域。旧服务器无需改动。
 
-当前域名使用 GoDaddy 名称服务器。切换操作按 [GoDaddy 官方 A 记录说明](https://www.godaddy.com/en-uk/help/add-or-edit-an-a-record-42546)：进入 Domain Portfolio → 9btc.com → DNS，编辑名称为 `@` 的现有 A 记录，将 Value 改为 `62.171.163.77` 后保存；如启用域名保护，完成其身份验证。不要改 MX、TXT、NS 或 `www` 的 CNAME。保存后用权威 NS 和公共解析分别核对 A 记录，再检查 HTTPS；不能仅凭面板提示判断已生效。
+2026-09-30 已向两台权威 NS 和 Google 公共 DNS 核对：根域 A 均返回 `62.171.163.77`；`www` 仍是指向根域的 CNAME。应用尚未部署时，HTTP 跳转到 HTTPS，而 HTTPS 握手失败；发布时必须把证书和站点访问一起验收。[GoDaddy 官方 A 记录说明](https://www.godaddy.com/en-uk/help/add-or-edit-an-a-record-42546) 留作必要时的回退参考。
 
 ## 备份和回退
 
@@ -39,4 +39,4 @@ docker compose --env-file .env -f deploy/eu.compose.yml ps
 
 Docker Compose v5.1.3 可用，现有 Caddy 管理 80/443，站点配置通过 `/etc/caddy/sites-enabled/*.caddy` 导入；本机 3000、3001、5432 已由其他服务使用，3109 空闲。以上是一次只读检查结果，执行部署前应重新确认。
 
-域名当前 NS 为 `ns43.domaincontrol.com` / `ns44.domaincontrol.com`；根域 A 为旧地址 `104.160.32.13`，`www` 是指向根域的 CNAME，未查到 AAAA 记录。切换前需再次查询，因为 DNS 状态可能变化。只替换根域 A 记录即可保留旧服务器原状。
+域名 NS 为 `ns43.domaincontrol.com` / `ns44.domaincontrol.com`；根域 A 已切到 `62.171.163.77`，`www` 是指向根域的 CNAME。部署前再次查询，避免依据过期的 DNS 状态操作。
