@@ -5,7 +5,7 @@ CREATE TABLE editorial_reviews (
   status                 text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'auto_public')),
   fingerprint            text,
   article_revision       integer,
-  analysis_id            bigint REFERENCES analyses (id) ON DELETE SET NULL,
+  analysis_id            bigint REFERENCES analyses (id) ON DELETE CASCADE,
   override_version       integer NOT NULL DEFAULT 0,
   source_policy_version  integer NOT NULL DEFAULT 0,
   version                integer NOT NULL DEFAULT 1 CHECK (version > 0),
