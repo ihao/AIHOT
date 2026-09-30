@@ -3,6 +3,7 @@
 // transaction in the next implementation slice.
 import { createHash } from "node:crypto";
 import { sql, type Db, type Tx } from "../db.ts";
+import { withLockedSourceArticles } from "./source-lock.ts";
 
 export const EDITORIAL_POLICY_VERSION = "9btc-web3-v1";
 
@@ -206,9 +207,8 @@ export async function setSourceAutoPublic(
   if (!input.reason.trim()) throw new Error("reason is required");
   if (!actor.trim()) throw new Error("actor is required");
   if (!Number.isInteger(input.version) || input.version < 0) throw new Error("invalid version");
-  return sql.begin(async (tx) => {
-    const [source] = await tx`SELECT id FROM sources WHERE id = ${sourceId} FOR UPDATE`;
-    if (!source) throw new Error("source not found");
+  return withLockedSourceArticles(sourceId, async (tx, articleIds, sourceExists) => {
+    if (!sourceExists) throw new Error("source not found");
     const [before] = await tx<{ enabled: boolean; version: number }[]>`
       SELECT enabled, version FROM source_auto_public_policies WHERE source_id = ${sourceId} FOR UPDATE`;
     if ((before?.version ?? 0) !== input.version) throw new StaleSourcePolicy();
@@ -223,6 +223,10 @@ export async function setSourceAutoPublic(
       VALUES (${actor}, 'source.auto_public', ${`source:${sourceId}`}, ${input.reason},
         ${tx.json({ enabled: before?.enabled ?? false, version: before?.version ?? 0 })},
         ${tx.json({ enabled: input.enabled, version })})`;
+    // Import lazily to keep the proposal/fingerprint module independent of its
+    // own publication consumer. The source and all affected articles stay locked.
+    const { publishArticleTx } = await import("../publication/publish.ts");
+    for (const articleId of articleIds) await publishArticleTx(tx, articleId);
     return { enabled: input.enabled, version };
   });
 }

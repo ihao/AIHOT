@@ -4,6 +4,8 @@ import { z } from "zod";
 import { sql } from "../db.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
 import { republishKey } from "../jobs/publication.ts";
+import { withLockedSourceArticles } from "../editorial/source-lock.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 import { normalizeUrl } from "../lib/url.ts";
 import { fetchJsonList } from "../sources/json-list.ts";
 import { fetchRss } from "../sources/rss.ts";
@@ -103,8 +105,9 @@ const EDITABLE = z
 
 export async function updateSource(id: string, input: { patch: unknown; version: string; reason?: string }, actor: string) {
   const patch = EDITABLE.parse(input.patch);
-  return sql.begin(async (tx) => {
-    const [before] = await tx`SELECT * FROM sources WHERE id = ${id} FOR UPDATE`;
+  return withLockedSourceArticles(id, async (tx, articleIds, sourceExists) => {
+    if (!sourceExists) return null;
+    const [before] = await tx`SELECT * FROM sources WHERE id = ${id}`;
     if (!before) return null;
     if (new Date(before.updated_at as Date).toISOString() !== input.version) throw new Conflict("信源已被其他操作修改，请刷新后再改");
     if (patch.config) assertSupportedConfig(before.kind as SourceRow["kind"], patch.config);
@@ -115,10 +118,14 @@ export async function updateSource(id: string, input: { patch: unknown; version:
       health = CASE WHEN ${patch.enabled ?? null}::boolean IS FALSE THEN 'paused' WHEN ${patch.enabled ?? null}::boolean IS TRUE AND health = 'paused' THEN 'unknown' ELSE health END,
       next_fetch_at = CASE WHEN ${patch.enabled ?? null}::boolean IS TRUE THEN now() ELSE next_fetch_at END
       WHERE id = ${id} RETURNING *`;
-    await audit(actor, "source.update", `source:${id}`, input.reason ?? null, Object.fromEntries(keys.map((k) => [k, before[k]])), patch);
-    // What public exits show for this source's articles is derived from these fields: re-derive them
-    // all (in the worker) so a revoked licence or an isolated source stops on every exit.
-    if (keys.some((k) => PUBLICATION_FIELDS.includes(k) && JSON.stringify(before[k]) !== JSON.stringify(patch[k]))) {
+    await tx`INSERT INTO audit_log (actor, action, subject, reason, before, after)
+      VALUES (${actor}, 'source.update', ${`source:${id}`}, ${input.reason ?? null},
+        ${tx.json(Object.fromEntries(keys.map((k) => [k, before[k]])) as never)}, ${tx.json(patch as never)})`;
+    // Source identity, attribution, licence and eligibility are part of every
+    // article's exact approval target. Revoke and reproject all existing rows
+    // while their article locks and this source lock are still held.
+    if (keys.some((k) => REVIEW_FIELDS.includes(k) && JSON.stringify(before[k]) !== JSON.stringify(patch[k]))) {
+      for (const articleId of articleIds) await publishArticleTx(tx, articleId);
       await tx`INSERT INTO settings (key, value, updated_by) VALUES (${republishKey(id)}, ${tx.json({ status: "queued", queuedAt: new Date().toISOString() })}, ${actor})
                ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_by = EXCLUDED.updated_by, updated_at = now()`;
       await enqueue(QUEUES.republishSource, { sourceId: id }, { singletonKey: id }, tx);
@@ -127,8 +134,8 @@ export async function updateSource(id: string, input: { patch: unknown; version:
   });
 }
 
-/** Source fields the public projection reads (publication/rules.ts and the v1 payload). */
-const PUBLICATION_FIELDS: string[] = ["participation_mode", "site_fulltext", "syndicate_fulltext", "tier", "name", "first_party"];
+/** Source fields used by the proposal fingerprint (including attribution and licences). */
+const REVIEW_FIELDS: string[] = ["name", "enabled", "tier", "participation_mode", "first_party", "owner_entity_id", "site_fulltext", "syndicate_fulltext", "tags", "config"];
 
 const CreateSchema = z
   .object({
