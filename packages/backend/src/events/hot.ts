@@ -3,8 +3,9 @@
 // 24-hour half-life, and the source time (not collection time) places evidence in the window.
 import { sql } from "../db.ts";
 import { tierRank, type HotEntry } from "./hot-read.ts";
+import { CURATED_HOT_RULE_VERSION, curatedEvidence } from "./eligibility.ts";
 
-export const HOT_RULE_VERSION = "heat-v1-48h-halflife24h";
+export const HOT_RULE_VERSION = CURATED_HOT_RULE_VERSION;
 const WINDOW_HOURS = 48;
 const HALF_LIFE_HOURS = 24;
 const MIN_PARTICIPANTS = 2;
@@ -58,13 +59,14 @@ async function heatRows(at: Date, behind: string[] = []): Promise<HeatRow[]> {
   const inPrevWindow = sql`last_prev IS NOT NULL AND last_prev > ${prev}::timestamptz - make_interval(hours => ${WINDOW_HOURS})`;
   return sql<HeatRow[]>`
     WITH obs AS (
-      SELECT story_id, participant_key, max(observed_at) AS last_at, min(observed_at) AS first_at,
-             bool_or(kind = 'editorial') AS editorial,
-             max(observed_at) FILTER (WHERE observed_at <= ${prev}) AS last_prev,
-             bool_or(source_id = ANY(${behind}::text[])) AS behind
-      FROM story_signals
-      WHERE observed_at > ${at}::timestamptz - make_interval(hours => ${WINDOW_HOURS}) AND observed_at <= ${at}
-      GROUP BY story_id, participant_key
+      SELECT ss.story_id, ss.participant_key, max(ss.observed_at) AS last_at, min(ss.observed_at) AS first_at,
+             bool_or(ss.kind = 'editorial') AS editorial,
+             max(ss.observed_at) FILTER (WHERE ss.observed_at <= ${prev}) AS last_prev,
+             bool_or(ss.source_id = ANY(${behind}::text[])) AS behind
+      FROM story_signals ss JOIN publications p ON p.article_id = ss.article_id
+      WHERE ${curatedEvidence("p", at)}
+        AND ss.observed_at > ${at}::timestamptz - make_interval(hours => ${WINDOW_HOURS}) AND ss.observed_at <= ${at}
+      GROUP BY ss.story_id, ss.participant_key
     ), agg AS (
       SELECT story_id,
         count(*) AS participants,
@@ -101,14 +103,16 @@ export async function computeHotRanking(at = new Date()): Promise<{ id: number; 
              coalesce(p.published_at, p.discovered_at) AS at
       FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
       JOIN sources s ON s.id = p.source_id
-      WHERE f.story_id = ${r.story_id} AND p.visibility = 'public' AND p.eligible AND (NOT p.selected OR p.visible_after <= ${at})
+      WHERE f.story_id = ${r.story_id} AND ${curatedEvidence("p", at)}
       ORDER BY p.article_id`;
     if (reports.length === 0) continue;
     const rep = [...reports].sort((x, y) => Number(y.first_party) - Number(x.first_party) || Number(y.selected) - Number(x.selected) || (Number(y.score ?? 0) - Number(x.score ?? 0)))[0]!;
     const participants = await sql<{ name: string; kind: "editorial" | "signal"; tier: string; at: Date }[]>`
       SELECT DISTINCT ON (ss.participant_key) s.name, ss.kind, s.tier, ss.observed_at AS at
       FROM story_signals ss JOIN sources s ON s.id = ss.source_id
-      WHERE ss.story_id = ${r.story_id} AND ss.observed_at > ${at}::timestamptz - make_interval(hours => ${WINDOW_HOURS}) AND ss.observed_at <= ${at}
+      JOIN publications p ON p.article_id = ss.article_id
+      WHERE ss.story_id = ${r.story_id} AND ${curatedEvidence("p", at)}
+        AND ss.observed_at > ${at}::timestamptz - make_interval(hours => ${WINDOW_HOURS}) AND ss.observed_at <= ${at}
       ORDER BY ss.participant_key, (ss.kind = 'editorial') DESC, ss.observed_at DESC`;
     // The reporting sources of the window, latest first (signal participants are counted separately).
     const reporting = participants.filter((p) => p.kind === "editorial").sort((x, y) => y.at.getTime() - x.at.getTime());
@@ -130,7 +134,7 @@ export async function computeHotRanking(at = new Date()): Promise<{ id: number; 
       rank: entries.length + 1,
       storyId: r.story_id,
       storyPublicId: r.public_id,
-      title: r.title,
+      title: rep.title,
       heat,
       trend: prevAll <= 0 ? "new" : pct === null ? "unknown" : pct > 0.1 ? "up" : pct < -0.1 ? "down" : "flat",
       trendPct: pct === null ? null : Math.round(pct * 1000) / 10,

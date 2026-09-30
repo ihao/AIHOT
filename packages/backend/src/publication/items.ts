@@ -57,7 +57,7 @@ export const ITEM_COLUMNS = sql`
   p.body_mode, p.syndicate, p.indexable, p.visible_after, p.backfill, p.fact_id, p.story_id,
   s.id AS source_id, s.name AS source_name, s.kind AS source_kind, s.participation_mode AS source_mode, s.icon_url AS source_icon,
   a.x_post, a.author, a.language,
-  st.public_id::text AS story_public_id, st.title AS story_title,
+  st.public_id::text AS story_public_id, CASE WHEN st.id IS NOT NULL THEN p.title END AS story_title,
   CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
 
 /** Public API listings never render article bodies, X media or story metadata. */
@@ -73,6 +73,10 @@ export const ITEM_FROM = sql`
   JOIN sources s ON s.id = p.source_id
   JOIN articles a ON a.id = p.article_id
   LEFT JOIN stories st ON st.id = p.story_id AND st.merged_into IS NULL
+    AND p.visibility = 'public' AND EXISTS (
+      SELECT 1 FROM editorial_reviews er JOIN editorial_curations ec ON ec.article_id = er.article_id
+      WHERE er.article_id = p.article_id AND er.status = 'approved' AND ec.status = 'approved'
+        AND ec.fingerprint = er.fingerprint AND ec.review_version = er.version)
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
 

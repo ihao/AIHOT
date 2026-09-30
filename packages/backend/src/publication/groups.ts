@@ -8,6 +8,7 @@ import { shortHash } from "../lib/ids.ts";
 import { proxiedImage } from "../media/imgproxy.ts";
 import { ITEM_COLUMNS, ITEM_FROM, categoryCondition, channelCondition, selectedCondition, tagCondition, toItemSummary, topicCondition, type ItemRow } from "./items.ts";
 import { pickRepresentative } from "./timeline.ts";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 export interface GroupReportsQuery {
   factPublicId: string;
@@ -36,8 +37,8 @@ export async function loadGroupReports(q: GroupReportsQuery, now = new Date()): 
     SELECT p.article_id AS id, p.title, p.summary, p.timeline_at, p.url, p.selected,
            s.id AS source_id, s.name AS source_name, s.kind AS source_kind, p.first_party, s.icon_url
     FROM publications p JOIN sources s ON s.id = p.source_id
-    WHERE p.article_id IN (SELECT article_id FROM fact_articles WHERE fact_id = ${fact.id}) AND p.visibility = 'public' AND p.eligible
-      AND (NOT p.selected OR p.visible_after <= ${now}) ${filters}
+    WHERE p.article_id IN (SELECT article_id FROM fact_articles WHERE fact_id = ${fact.id})
+      AND ${curatedEvidence("p", now)} ${filters}
     ORDER BY p.timeline_at DESC, p.article_id ASC`;
   if (members.length === 0) return { kind: "not_found" };
 
@@ -93,34 +94,35 @@ export type DevelopmentsResult = { kind: "ok"; body: DevelopmentsResponse } | { 
  */
 export async function loadDevelopments(q: DevelopmentsQuery, now = new Date()): Promise<DevelopmentsResult> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q.storyPublicId)) return { kind: "not_found" };
-  const [story] = await sql<{ id: number; public_id: string; title: string }[]>`
-    SELECT id, public_id::text, title FROM stories WHERE public_id = ${q.storyPublicId} AND merged_into IS NULL`;
+  const [story] = await sql<{ id: number; public_id: string }[]>`
+    SELECT id, public_id::text FROM stories WHERE public_id = ${q.storyPublicId} AND merged_into IS NULL`;
   if (!story) return { kind: "not_found" };
   const filters = sql`${channelCondition(q.channel)} ${categoryCondition(q.category)} ${tagCondition(q.tag)} ${topicCondition(q.topicTags)}`;
-  type Member = Pick<ItemRow, "id" | "fact_id" | "first_party" | "body_mode" | "score" | "timeline_at" | "sort_at">;
+  type Member = Pick<ItemRow, "id" | "fact_id" | "first_party" | "body_mode" | "score" | "timeline_at" | "sort_at" | "title">;
   const selected = await sql<Member[]>`
-    SELECT p.article_id AS id, p.fact_id, p.first_party, p.body_mode, p.score, p.timeline_at, p.sort_at
-    FROM publications p WHERE p.story_id = ${story.id} AND ${selectedCondition(now)} ${filters}`;
+    SELECT p.article_id AS id, p.fact_id, p.first_party, p.body_mode, p.score, p.timeline_at, p.sort_at, p.title
+    FROM publications p WHERE p.story_id = ${story.id} AND ${selectedCondition(now)}
+      AND ${curatedEvidence("p", now)} ${filters}`;
   if (selected.length === 0) return { kind: "not_found" };
   const counts = new Map(
     (await sql<{ fact_id: number; n: number }[]>`
       SELECT fa.fact_id, count(DISTINCT p.article_id)::int AS n
       FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
-      WHERE f.story_id = ${story.id} AND p.visibility = 'public' AND p.eligible AND (NOT p.selected OR p.visible_after <= ${now}) ${filters}
+      WHERE f.story_id = ${story.id} AND ${curatedEvidence("p", now)} ${filters}
       GROUP BY fa.fact_id`).map((c) => [c.fact_id, c.n]),
   );
   const byFact = new Map<number, Member[]>();
   for (const r of selected) if (r.fact_id !== null) byFact.set(r.fact_id, [...(byFact.get(r.fact_id) ?? []), r]);
   if (byFact.size === 0) return { kind: "not_found" };
-  const facts = await sql<{ id: number; public_id: string; title: string; occurred_at: Date | null }[]>`
-    SELECT id, public_id, title, occurred_at FROM facts WHERE id IN ${sql([...byFact.keys()])}`;
+  const facts = await sql<{ id: number; public_id: string; occurred_at: Date | null }[]>`
+    SELECT id, public_id, occurred_at FROM facts WHERE id IN ${sql([...byFact.keys()])}`;
   const list = facts
     .map((f) => {
       const rows = byFact.get(f.id)!;
       const rep = pickRepresentative(rows);
       return {
         first: Math.min(...rows.map((r) => (r.sort_at ?? r.timeline_at).getTime())),
-        development: { factId: f.public_id, title: f.title, occurredAt: f.occurred_at?.toISOString() ?? null, representativeId: rep.id, reportCount: counts.get(f.id) ?? rows.length },
+        development: { factId: f.public_id, title: rep.title, occurredAt: f.occurred_at?.toISOString() ?? null, representativeId: rep.id, reportCount: counts.get(f.id) ?? rows.length },
       };
     })
     .sort((a, b) => b.first - a.first || a.development.factId.localeCompare(b.development.factId))
@@ -149,6 +151,6 @@ export async function loadDevelopments(q: DevelopmentsQuery, now = new Date()): 
   });
   return {
     kind: "ok",
-    body: { story: { publicId: story.public_id, title: story.title }, revision, developments, nextCursor: next },
+    body: { story: { publicId: story.public_id, title: selected[0]!.title }, revision, developments, nextCursor: next },
   };
 }

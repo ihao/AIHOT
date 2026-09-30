@@ -10,6 +10,7 @@ import { queueProcessing } from "../jobs/content.ts";
 import { invalidateArticleReviewTx } from "../editorial/review.ts";
 import { normalizeUrl } from "../lib/url.ts";
 import { publishArticle, publishArticleTx } from "../publication/publish.ts";
+import { invalidateStoryCurationTx } from "../events/eligibility.ts";
 
 import { computeHotRanking } from "../events/hot.ts";
 import { mergeStoryInto } from "../events/merge.ts";
@@ -207,9 +208,10 @@ export async function detachFromFact(id: string, reason: string, actor: string) 
     await tx`INSERT INTO grouping_overrides (article_id, reason, actor) VALUES (${id}, ${reason}, ${actor})
              ON CONFLICT (article_id) DO UPDATE SET reason = EXCLUDED.reason, actor = EXCLUDED.actor, created_at = now()`;
     await tx`UPDATE articles SET grouped_at = now() WHERE id = ${id}`;
+    if (factIds.length) await invalidateStoryCurationTx(tx, id);
+    await publishArticleTx(tx, id);
     return { facts: factIds, stories: storyIds };
   });
-  await publishArticle(id);
   // The fact's other reports may take a new reading-group anchor.
   if (facts.length) {
     const others = await sql<{ article_id: string }[]>`SELECT DISTINCT article_id FROM fact_articles WHERE fact_id = ANY(${facts})`;
