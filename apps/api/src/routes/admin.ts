@@ -150,6 +150,7 @@ export function registerAdmin(app: FastifyInstance) {
                   WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
                 LEFT JOIN editorial_reviews r ON r.article_id = a.id
                 WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
+                  AND EXISTS (SELECT 1 FROM sources s WHERE s.id = a.source_id AND s.participation_mode = 'editorial')
                   AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
                   AND (r.article_id IS NULL OR r.status = 'pending')) AS review,
              (SELECT count(*)::int FROM feedback WHERE status = 'new') AS feedback,

@@ -34,6 +34,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
       LEFT JOIN editorial_reviews r ON r.article_id = a.id
       WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
+        AND EXISTS (SELECT 1 FROM sources s WHERE s.id = a.source_id AND s.participation_mode = 'editorial')
         AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
         AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
         AND (r.article_id IS NULL OR r.status = 'pending')) AS pending,
@@ -45,7 +46,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
     JOIN LATERAL (SELECT * FROM analyses WHERE article_id = a.id AND input_revision = a.revision
       ORDER BY id DESC LIMIT 1) an ON true
     LEFT JOIN editorial_reviews r ON r.article_id = a.id
-    WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
+    WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass' AND s.participation_mode = 'editorial'
       AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
       AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
       AND (r.article_id IS NULL OR r.status = 'pending')
@@ -62,7 +63,8 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
       await tx`SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY`;
       const [candidate] = await tx<Candidate[]>`
         SELECT a.id, s.name AS source, s.id AS source_id, a.url, a.title AS original_title,
-          a.body_text, a.excerpt, coalesce(o.fields->>'title', an.title_zh) AS title_zh,
+          coalesce(a.body_text, a.x_post->>'text') AS body_text, a.excerpt,
+          coalesce(o.fields->>'title', an.title_zh) AS title_zh,
           coalesce(o.fields->>'summary', an.summary_zh) AS summary_zh, an.reason_zh,
           coalesce(o.fields->>'category', an.category) AS category,
           an.score, a.revision, a.discovered_at, a.processing_state, a.grouped_at,
@@ -77,6 +79,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         LEFT JOIN editorial_overrides o ON o.article_id = a.id
         LEFT JOIN translations tr ON tr.article_id = a.id AND tr.lang = 'zh' AND tr.revision >= a.revision
         WHERE a.id = ${id} AND a.processing_state = 'analyzed' AND an.relevance = 'pass'
+          AND s.participation_mode = 'editorial'
           AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL`;
       const proposal = candidate ? await getReviewProposal(id, tx) : null;
       const [review] = candidate ? await tx<{ status: string; version: number; fingerprint: string }[]>`
