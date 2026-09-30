@@ -6,7 +6,7 @@ import { upsertMaterial } from "@aihot/backend/content/materials";
 import { getReviewProposal, proposeReview } from "@aihot/backend/editorial/review";
 import { decideArticleReview, decideArticleCuration, StaleReview } from "@aihot/backend/editorial/decision";
 import { publishArticle } from "@aihot/backend/publication/publish";
-import { stopBoss } from "@aihot/backend/jobs/queue";
+import { QUEUES, stopBoss } from "@aihot/backend/jobs/queue";
 import { tag } from "./setup.ts";
 import { buildApp } from "../apps/api/src/app.ts";
 
@@ -115,4 +115,23 @@ test("historical publish options cannot place a new human approval before its re
     SELECT selected_ready_at, visible_after FROM publications WHERE article_id = ${articleId}`;
   assert.ok(row?.selected_ready_at >= earliestApproval, "selected release cannot precede approval");
   assert.ok(row?.visible_after >= earliestApproval, "a report cutoff cannot see this item before approval");
+});
+
+test("a new selected grant queues notification and media despite an unreprojected old selected row", async () => {
+  const { articleId, proposal } = await fixture();
+  await decideArticleReview(articleId, { status: "approved", curated: true, fingerprint: proposal.fingerprint, version: 1, reason: "first approval" }, "editor");
+  assert.ok((await projection(articleId))?.selected_ready_at);
+  const queueNames = [QUEUES.notifySelected, QUEUES.prepareMedia];
+  const jobs = () => sql<{ name: string }[]>`
+    SELECT name FROM pgboss.job WHERE data->>'articleId' = ${articleId} AND name = ANY(${queueNames}::text[])`;
+  assert.deepEqual((await jobs()).map((j) => j.name).sort(), [...queueNames].sort());
+  // A completed first grant leaves no active singleton, while the old projection can
+  // still hold selected_ready_at until the new approval transaction reprojects it.
+  await sql`DELETE FROM pgboss.job WHERE data->>'articleId' = ${articleId} AND name = ANY(${queueNames}::text[])`;
+  await sql`UPDATE articles SET body_text = 'Second reviewed body' WHERE id = ${articleId}`;
+  const second = await proposeReview(articleId);
+  assert.ok(second && second.fingerprint !== proposal.fingerprint);
+  assert.equal((await projection(articleId))?.selected, true, "fixture keeps the old projection to exercise the race");
+  await decideArticleReview(articleId, { status: "approved", curated: true, fingerprint: second.fingerprint, version: 3, reason: "second approval" }, "editor");
+  assert.deepEqual((await jobs()).map((j) => j.name).sort(), [...queueNames].sort());
 });
