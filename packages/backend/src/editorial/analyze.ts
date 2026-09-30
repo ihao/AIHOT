@@ -2,7 +2,8 @@
 // (industry/prompts/):
 //   1. prefilter: does the material belong to this industry at all (wide recall). Only BLOCK stops an
 //      item; UNKNOWN goes on like PASS (a BLOCK given while material is missing counts as UNKNOWN);
-//   2. score: two independent scores against the source tier's threshold (industry/selection.ts) decide 精选;
+//   2. score: two independent scores against the source tier's threshold (industry/selection.ts);
+//      automatic mode adds a third for threshold-crossing or divergent scores;
 //   3. writing: the Chinese title, summary and reason by the content understanding for selected and
 //      near-selected items, by the cheaper title/summary prompts for the rest;
 //   4. structure (no reader-facing text): category, tags, subject companies and the fact frame the
@@ -13,6 +14,8 @@ import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
 import { CATEGORIES } from "@aihot/industry/taxonomy";
 import { SELECTION } from "@aihot/industry/selection";
 import { sql } from "../db.ts";
+import { config, type EditorialMode } from "../config.ts";
+import { scoreAssessment } from "./automatic-policy.ts";
 import { publishArticleTx } from "../publication/publish.ts";
 import { considerAutoPublicationTx } from "./auto-publication.ts";
 import { chatJson, MODELS, type ContentPart } from "../providers/llm.ts";
@@ -38,13 +41,14 @@ export const PROMPT_VERSIONS = {
   understand: promptVersion("understand"),
   summarize: promptVersion("summarize-article", "summarize-article-empty", "summarize-short-post", "summarize-short-post-quoted", "summarize-long-post", "summarize-long-post-quoted", "identity-context"),
   structure: promptVersion("structure"),
+  verification: promptVersion("verify-summary"),
 } as const;
 /** Every step's prompt, as stored on each judgement. */
 export const ANALYZE_PROMPT_VERSION = Object.values(PROMPT_VERSIONS).join("+");
 
 // ── Scoring ───────────────────────────────────────────────────────────────────────────────
 
-/** Independent score calls per article; their sum decides, their mean (floored) is shown. */
+/** Initial independent score calls per article; automatic mode may append exactly one. */
 export const SCORE_CALLS = 2;
 
 /**
@@ -221,7 +225,7 @@ async function runScores(a: AnalyzeInputArticle, threshold: number, opts: StepOp
   const receiptIds: number[] = [];
   let reused = true;
   // One after the other: the second call reuses the provider's cached prompt.
-  for (let i = 0; i < SCORE_CALLS; i++) {
+  for (let i = 0; i < SCORE_CALLS || scoreAssessment(values, threshold, config.editorialMode).needsAdditionalScore; i++) {
     checkAnalysisRunning();
     try {
       const res = await chatJson({
@@ -352,8 +356,8 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts & { sta
   const structure = runStructure(a, opts).then((value) => ({ value }), (error: unknown) => ({ error }));
   try {
     const scores = threshold === null ? null : await runScores(a, threshold, opts);
-    const sum = scores && !scores.refused && scores.values.length === SCORE_CALLS ? scores.values.reduce((total, v) => total + v, 0) : null;
-    const near = sum !== null && (sum >= scores!.threshold * SCORE_CALLS || sum > UNDERSTAND_FLOOR * SCORE_CALLS);
+    const assessment = scores && !scores.refused ? scoreAssessment(scores.values, scores.threshold, config.editorialMode) : null;
+    const near = assessment?.mean !== null && assessment?.mean !== undefined && (assessment.mean >= scores!.threshold || assessment.mean > UNDERSTAND_FLOOR);
     const writing = (near ? await runUnderstand(a, opts) : null) ?? (await runSummarize(a, opts));
     const s = await structure;
     if ("error" in s) throw s.error;
@@ -366,20 +370,21 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts & { sta
 }
 
 /** One judgement from the steps: the selection rule, the reader-facing copy and the structure. */
-export function normalizeAnalysis(run: AnalysisRun) {
+export function normalizeAnalysis(run: AnalysisRun, mode: EditorialMode = config.editorialMode) {
   const label = run.prefilter.label;
   const titleZh = collapseWhitespace(run.writing?.titleZh ?? "");
   const summaryZh = (run.writing?.summaryZh ?? "").trim();
   // Past the prefilter (PASS or UNKNOWN) an item is relevant, but without a usable Chinese title and
   // summary it cannot be published: it waits.
-  const relevance = label === "BLOCK" ? "block" : run.writing && (!titleZh || !summaryZh) ? "unknown" : "pass";
-  // Selected when the two scores add up to twice the tier threshold; the mean, floored,
-  // is the score shown (it never decides a half point on its own).
+  const relevance = label === "BLOCK" ? "block" : (mode === "automatic" && label !== "PASS") || run.writing && (!titleZh || !summaryZh) ? "unknown" : "pass";
+  // The unrounded mean decides manual selection; automatic selection requires every score
+  // at the threshold with limited variation. This observed range is not a confidence interval.
   const values = run.scores && !run.scores.refused ? run.scores.values : null;
-  const sum = values?.length === SCORE_CALLS ? values.reduce((total, v) => total + v, 0) : null;
-  const score = sum === null ? null : Math.floor(sum / SCORE_CALLS);
   const threshold = run.scores?.threshold ?? null;
-  const selected = relevance === "pass" && sum !== null && threshold !== null && sum >= threshold * SCORE_CALLS;
+  const assessment = scoreAssessment(values ?? [], threshold, mode);
+  const sufficient = mode === "manual" ? assessment.count === SCORE_CALLS : assessment.count >= SCORE_CALLS;
+  const score = sufficient && assessment.mean !== null ? Math.floor(assessment.mean) : null;
+  const selected = relevance === "pass" && assessment.selected;
   const subjects = run.structure?.subjects ?? [];
   const tags = [...(run.writing?.tags ?? run.structure?.tags ?? [])];
   for (const s of subjects) {
@@ -391,6 +396,7 @@ export function normalizeAnalysis(run: AnalysisRun) {
     selected,
     score,
     scores: values,
+    scoreRange: { count: assessment.count, min: assessment.min, max: assessment.max, mean: assessment.mean, stable: assessment.stable },
     scoreModel: run.scores?.model ?? null,
     scoreRefused: run.scores?.refused ?? false,
     threshold,
@@ -431,7 +437,7 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
   const w = run.writing;
   const detail = {
     prefilter: { label: run.prefilter.label, reason: run.prefilter.reason },
-    scores: out.scores, scoreModel: out.scoreModel, threshold: out.threshold, ...(out.scoreRefused ? { scoreRefused: true } : {}),
+    scores: out.scores, scoreRange: out.scoreRange, scoreModel: out.scoreModel, threshold: out.threshold, ...(out.scoreRefused ? { scoreRefused: true } : {}),
     ...(w ? { writer: w.kind, writerModel: w.model, itemType: w.itemType ?? null, authorRole: w.authorRole ?? null } : {}),
     ...(w?.identityGuard?.outcome === "fallback" ? { identityGuard: w.identityGuard } : {}),
     fact: out.fact,

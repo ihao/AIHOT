@@ -32,8 +32,16 @@ function bool(name: string, fallback: boolean): boolean {
   return value === "1" || value.toLowerCase() === "true";
 }
 
+export type EditorialMode = "manual" | "automatic";
+
+function editorialMode(): EditorialMode {
+  const value = env.EDITORIAL_MODE ?? "manual";
+  if (value !== "manual" && value !== "automatic") throw new Error("Environment variable EDITORIAL_MODE must be manual or automatic");
+  return value;
+}
 
 export const config = {
+  editorialMode: editorialMode(),
   databaseUrl: str("DATABASE_URL", "postgres://127.0.0.1:5432/aihot"),
   apiPort: int("API_PORT", 3001),
   webPort: int("WEB_PORT", 3000),
