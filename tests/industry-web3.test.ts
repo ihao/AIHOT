@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { ABOUT, SITE } from "@aihot/industry/site";
 import { FEATURES } from "@aihot/industry/features";
 import { CATEGORIES, CATEGORY_BY_ITEM_TYPE, CATEGORY_TAGS, ENTITIES, ENTITY_TAGS, IDENTITY_LEXICON, ITEM_TYPES, TOPIC_TAGS } from "@aihot/industry/taxonomy";
+import { enforceIdentity, matchEntityIds } from "@aihot/backend/editorial/writing";
 
 test("site uses the 9BTC Web3 identity and disables AI-only modules", () => {
   assert.equal(SITE.name, "9BTC");
@@ -15,6 +16,23 @@ test("site uses the 9BTC Web3 identity and disables AI-only modules", () => {
   assert.doesNotMatch(ABOUT.steps.publish, /\b\d{1,2}[:：]\d{2}\b|每天.{0,8}(?:早上|上午|下午|晚上)/);
   assert.equal(FEATURES.leaderboard, false);
   assert.equal(FEATURES.codexResetMonitor, false);
+});
+
+test("asset price mentions cannot authorize network identity claims", () => {
+  const cases = [
+    { asset: "Bitcoin", network: "Bitcoin network", zh: "比特币网络", id: "bitcoin" },
+    { asset: "Ethereum", network: "Ethereum network", zh: "以太坊网络", id: "ethereum" },
+  ];
+  for (const { asset, network, zh, id } of cases) {
+    assert.deepEqual(matchEntityIds([asset]), [], asset);
+    assert.deepEqual(matchEntityIds([network]), [id], network);
+    assert.deepEqual(matchEntityIds([zh]), [id], zh);
+    const draft = { titleZh: `${zh}完成升级`, summaryZh: `${zh}公布升级时间。` };
+    const market = { title: `${asset} price rises`, text: `${asset} market price changed today.`, sourceKind: "rss" };
+    assert.equal(enforceIdentity(market, draft).identityGuard.outcome, "fallback", asset);
+    const protocol = { title: `${network} upgrade`, text: `${network} published the activation schedule.`, sourceKind: "rss" };
+    assert.equal(enforceIdentity(protocol, draft).identityGuard.outcome, "pass", network);
+  }
 });
 
 test("Web3 categories and topic directory use one consistent vocabulary", () => {

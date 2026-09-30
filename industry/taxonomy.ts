@@ -42,8 +42,8 @@ export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
 
 /** 项目、网络与机构；BTC、ETH 是资产，不是这里的别名。 */
 export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[] }> = {
-  bitcoin: { name: "Bitcoin", displayTag: "Bitcoin", aliases: ["Bitcoin", "比特币", "Bitcoin network", "比特币网络"] },
-  ethereum: { name: "Ethereum", displayTag: "Ethereum", aliases: ["Ethereum", "以太坊", "Ethereum network", "以太坊网络"] },
+  bitcoin: { name: "Bitcoin", displayTag: "Bitcoin", aliases: ["Bitcoin network", "Bitcoin protocol", "Bitcoin Core", "比特币网络", "比特币协议"] },
+  ethereum: { name: "Ethereum", displayTag: "Ethereum", aliases: ["Ethereum network", "Ethereum protocol", "以太坊网络", "以太坊协议"] },
   solana: { name: "Solana", displayTag: "Solana", aliases: ["Solana", "索拉纳", "Solana network"] },
   uniswap: { name: "Uniswap", displayTag: "Uniswap", aliases: ["Uniswap"] },
   aave: { name: "Aave", displayTag: "Aave", aliases: ["Aave"] },
@@ -54,8 +54,8 @@ export const ENTITIES: Record<string, { name: string; displayTag: string | null;
 
 /** 标题摘要的身份保护只认明确名称，不用 BTC、ETH、SOL 或代币符号推断主体。 */
 export const IDENTITY_LEXICON: ReadonlyArray<{ id: string; name: string; patterns: RegExp[] }> = [
-  { id: "bitcoin", name: "Bitcoin", patterns: [/\bBitcoin\b|比特币/i] },
-  { id: "ethereum", name: "Ethereum", patterns: [/\bEthereum\b|以太坊/i] },
+  { id: "bitcoin", name: "Bitcoin", patterns: [/\bBitcoin\s+(?:network|protocol|Core)\b|比特币(?:网络|协议)/i] },
+  { id: "ethereum", name: "Ethereum", patterns: [/\bEthereum\s+(?:network|protocol)\b|以太坊(?:网络|协议)/i] },
   { id: "solana", name: "Solana", patterns: [/\bSolana\b|索拉纳/i] },
   { id: "uniswap", name: "Uniswap", patterns: [/\bUniswap\b/i] },
   { id: "aave", name: "Aave", patterns: [/\bAave\b/i] },
