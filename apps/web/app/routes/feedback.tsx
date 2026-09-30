@@ -156,7 +156,7 @@ export default function FeedbackPage() {
     <ReadingLayout aside={<FeedbackAside />}>
       <header>
         <h1 className="text-[24px] font-semibold leading-[1.3] text-ink">说说你的想法</h1>
-        <p className="mt-2 text-[14.5px] leading-relaxed text-ink-3">发现 bug、想要的功能、看不顺眼的地方，都可以告诉我，我都会看到。</p>
+        <p className="mt-2 text-[14.5px] leading-relaxed text-ink-3">发现事实错误、失效来源或页面问题，欢迎告诉我们并附上相关链接。</p>
       </header>
 
       <form
@@ -188,7 +188,7 @@ export default function FeedbackPage() {
                 maxLength={MAX_TEXT}
                 value={draft.content}
                 onChange={(e) => setDraft({ ...draft, content: e.target.value })}
-                placeholder="例如：我在搜索“OpenAI”时遇到……我原本想……"
+                placeholder="例如：某条安全事件的损失金额与原始公告不一致，来源链接是……"
                 className={`${field} block resize-y px-4 pb-8 pt-3.5 text-[14.5px] leading-relaxed`}
               />
               <span className="mono pointer-events-none absolute bottom-3 right-4 text-[11px] text-ink-4">
