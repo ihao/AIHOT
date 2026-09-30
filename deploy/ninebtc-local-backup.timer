@@ -1,10 +1,10 @@
 [Unit]
-Description=Daily 9BTC offsite backup
+Description=Daily local 9BTC backup on EU
 
 [Timer]
 OnCalendar=*-*-* 04:10:00 Asia/Shanghai
 Persistent=true
-Unit=ninebtc-backup.service
+Unit=ninebtc-local-backup.service
 
 [Install]
 WantedBy=timers.target

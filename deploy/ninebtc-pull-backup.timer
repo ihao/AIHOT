@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily 9BTC offsite backup pull on naban
+
+[Timer]
+OnCalendar=*-*-* 04:40:00 Asia/Shanghai
+Persistent=true
+Unit=ninebtc-pull-backup.service
+
+[Install]
+WantedBy=timers.target
