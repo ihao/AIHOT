@@ -10,6 +10,7 @@ const suffix = tag();
 const sourceId = `review-${suffix}`;
 const policySourceId = `review-policy-${suffix}`;
 let serial = 0;
+const quotedTweetId = `${Date.now()}${Math.floor(Math.random() * 100000)}`;
 
 before(async () => {
   await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, next_fetch_at)
@@ -100,9 +101,9 @@ test("proposal fingerprint changes with material, override and source attributio
   assert.notEqual(translated, closed);
   await sql`UPDATE translations SET body_text = '修改后的中文译文' WHERE article_id = ${id} AND lang = 'zh'`;
   assert.notEqual((await getReviewProposal(id))!.fingerprint, translated);
-  await sql`UPDATE articles SET x_post = ${sql.json({ quoted: { url: 'https://x.com/test/status/1234567890' } })} WHERE id = ${id}`;
+  await sql`UPDATE articles SET x_post = ${sql.json({ quoted: { url: `https://x.com/test/status/${quotedTweetId}` } })} WHERE id = ${id}`;
   const quoted = (await getReviewProposal(id))!.fingerprint;
-  await sql`INSERT INTO quote_translations (tweet_id, text_hash, text_zh) VALUES ('1234567890', 'hash1', '引用中文译文')`;
+  await sql`INSERT INTO quote_translations (tweet_id, text_hash, text_zh) VALUES (${quotedTweetId}, 'hash1', '引用中文译文')`;
   assert.notEqual((await getReviewProposal(id))!.fingerprint, quoted);
 });
 

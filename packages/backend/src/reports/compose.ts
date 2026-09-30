@@ -84,7 +84,7 @@ export async function candidates(start: Date, end: Date): Promise<Candidate[]> {
 /** Facts and items already covered by recent editions are not repeated. */
 async function recentlyCovered(kind: "daily", before: string, days = 7): Promise<Set<string>> {
   const rows = await sql<{ content: Record<string, any> }[]>`
-    SELECT content FROM reports WHERE kind = ${kind} AND key < ${before} AND key >= ${addDays(before, -days)}`;
+    SELECT content FROM published_reports WHERE kind = ${kind} AND key < ${before} AND key >= ${addDays(before, -days)}`;
   const out = new Set<string>();
   for (const r of rows) {
     for (const s of r.content.sections ?? []) for (const it of s.items ?? []) {
@@ -202,7 +202,7 @@ async function composePeriod(kind: "weekly" | "monthly", key: string, startDate:
   const end = beijingMidnight(addDays(endDateInclusive, 1));
   const all = await candidates(start, end);
   const top = all.slice(0, kind === "weekly" ? 40 : 60);
-  const dailyCount = (await sql<{ n: number }[]>`SELECT count(*) AS n FROM reports WHERE kind = 'daily' AND key >= ${startDate} AND key <= ${endDateInclusive}`)[0]?.n ?? 0;
+  const dailyCount = (await sql<{ n: number }[]>`SELECT count(*) AS n FROM published_reports WHERE kind = 'daily' AND key >= ${startDate} AND key <= ${endDateInclusive}`)[0]?.n ?? 0;
   let themes: Array<{ heading: string; summary: string; storyRefs: ReportEntry[] }> = [];
   let headline = "";
   let overview = "";

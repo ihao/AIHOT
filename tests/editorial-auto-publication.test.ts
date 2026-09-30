@@ -7,22 +7,25 @@ import { setSourceAutoPublic, proposeReview } from "@aihot/backend/editorial/rev
 import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { considerAutoPublicationTx } from "@aihot/backend/editorial/auto-publication";
 import { publishArticleTx } from "@aihot/backend/publication/publish";
+import { stopBoss } from "@aihot/backend/jobs/queue";
+import { buildApp } from "../apps/api/src/app.ts";
 import { tag } from "./setup.ts";
 
 const T = tag();
 const source = `auto-${T}`;
 let serial = 0;
 const BODY = "Bitcoin Core 30.1 is now available. This routine software release updates the desktop client and includes maintenance improvements for supported operating systems.";
+const app = await buildApp();
 
 before(async () => {
   await sql`INSERT INTO sources (id,name,kind,config,tier,participation_mode,first_party,owner_entity_id,next_fetch_at)
     VALUES (${source},'Official release','rss',${sql.json({ feedUrl: "https://bitcoin.example.org/rss" })},'T1','editorial',true,'bitcoin-core','2100-01-01')`;
   await setSourceAutoPublic(source, { enabled: true, version: 0, reason: "synthetic test source" }, "test-editor");
 });
-after(async () => { await closeDb(); });
+after(async () => { await app.close(); await stopBoss(); await closeDb(); });
 
 async function analyzed(title = "Bitcoin Core 30.1 released") {
-  const { articleId } = await upsertMaterial({ sourceId: source, url: `https://bitcoin.example.org/releases/30.1-${++serial}`,
+  const { articleId } = await upsertMaterial({ sourceId: source, url: `https://bitcoin.example.org/releases/30.1-${T}-${++serial}`,
     title, bodyText: BODY, bodyStatus: "ok", via: "fetch" });
   await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output)
     VALUES (${articleId},1,'model','pass','infrastructure','Bitcoin Core 30.1 软件版本发布',
@@ -51,6 +54,15 @@ test("a synthetic safe release is auto-public only in all-feed, with an audited 
   assert.deepEqual([row!.visibility, row!.selected, row!.review_status], ["public", false, "auto_public"]);
   const [audit] = await sql`SELECT reason FROM audit_log WHERE subject=${`content:${id}`} AND action='content.auto_public'`;
   assert.match(String(audit!.reason), /例行/);
+  for (const url of [`/api/site/items/${id}`, "/api/v1/items?mode=all&window=7d", "/feed/all.xml"]) {
+    const response = await app.inject({ method: "GET", url });
+    assert.equal(response.statusCode, 200, url);
+    assert.ok(response.body.includes(id), `${url} should include the auto-public item`);
+  }
+  for (const url of ["/api/v1/items?mode=selected&window=7d", "/feed.xml", "/api/site/timeline"]) {
+    const response = await app.inject({ method: "GET", url });
+    assert.ok(!response.body.includes(id), `${url} must exclude auto-public content from selection`);
+  }
 });
 
 test("risk words in original material hold an otherwise routine model output", async () => {
@@ -60,6 +72,9 @@ test("risk words in original material hold an otherwise routine model output", a
   assert.match(result.reason, /安全|人工审核/);
   const [row] = await sql<{ visibility: string }[]>`SELECT visibility FROM publications WHERE article_id=${id}`;
   assert.equal(row!.visibility, "withdrawn");
+  for (const url of [`/api/site/items/${id}`, `/items/${id}/markdown`]) {
+    assert.equal((await app.inject({ method: "GET", url })).statusCode, 404, url);
+  }
 });
 
 test("a prior human rejection cannot turn into automatic publication after reanalysis", async () => {

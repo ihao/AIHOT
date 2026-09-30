@@ -9,9 +9,9 @@ import { MCP_TOOLS } from "@aihot/contracts/mcp";
 /** Discovery only needs to know whether an entry exists, not count its entire history. */
 export async function loadLlmsAvailability() {
   const [row] = await sql<{ hasDailies: boolean; hasWeekly: boolean; hasMonthly: boolean; hasLeaderboard: boolean }[]>`
-    SELECT EXISTS (SELECT 1 FROM reports WHERE kind = 'daily') AS "hasDailies",
-           EXISTS (SELECT 1 FROM reports WHERE kind = 'weekly') AS "hasWeekly",
-           EXISTS (SELECT 1 FROM reports WHERE kind = 'monthly') AS "hasMonthly",
+    SELECT EXISTS (SELECT 1 FROM published_reports WHERE kind = 'daily') AS "hasDailies",
+           EXISTS (SELECT 1 FROM published_reports WHERE kind = 'weekly') AS "hasWeekly",
+           EXISTS (SELECT 1 FROM published_reports WHERE kind = 'monthly') AS "hasMonthly",
            EXISTS (SELECT 1 FROM lb_runs WHERE status = 'published') AS "hasLeaderboard"`;
   return row!;
 }

@@ -11,6 +11,8 @@ import { listReviewQueue } from "@aihot/backend/admin/review";
 import { contentChain, detachFromFact, mergeStories, overrideFields, rerun, searchContent, setSeoIndexed, setVisibility } from "@aihot/backend/admin/content";
 import { decideArticleCuration, decideArticleReview } from "@aihot/backend/editorial/decision";
 import { setSourceAutoPublic } from "@aihot/backend/editorial/review";
+import { createDailyDraft, dailyDraft, publishDailyDraft } from "@aihot/backend/reports/editorial";
+import { beijingDate } from "@aihot/contracts/time";
 import { banSource, eraseFeedback, feedbackScreenshot, listFeedback, unbanSource, updateFeedback } from "@aihot/backend/admin/feedback";
 import { listMonitorEvents, listMonitorPosts, relinkPost, resolveMonitorPost, reviewReceipt, setWithdrawn, updateMonitorEvent } from "@aihot/backend/admin/monitor";
 import { releaseReceipt, requeueFailedArticles, resolveDelivery, runsOverview } from "@aihot/backend/admin/runs";
@@ -37,6 +39,10 @@ function decodeImage(dataUrl: unknown): Buffer {
 
 export function registerAdmin(app: FastifyInstance) {
   app.get("/api/admin/review", adminHandler(async (req) => listReviewQueue(Number(q(req).limit) || 40, q(req).source)));
+  app.get("/api/admin/reports/daily", adminHandler(async () => ({ today: beijingDate(new Date()), draft: await dailyDraft(beijingDate(new Date())) })));
+  app.post("/api/admin/reports/daily/drafts", adminHandler(async (_req, _reply, admin) => createDailyDraft(actorOf(admin))));
+  app.post("/api/admin/reports/daily/drafts/:id/publish", adminHandler(async (req, _reply, admin) =>
+    publishDailyDraft(Number(param(req, "id")), actorOf(admin), String(body(req).reason ?? ""))));
   // Sources (F18)
   app.get("/api/admin/sources", adminHandler(async (req) => {
     const f = q(req);
