@@ -180,12 +180,17 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
              VALUES (${existing!.id}, ${existing!.revision}, ${next}, ${title}, ${bodyText}) ON CONFLICT DO NOTHING`;
     return unchanged;
   }
-  // A version this article already had is no new material (listings that alternate between two
-  // renderings, pages that rotate promotions): the current revision was analysed and published once
-  // already. Any earlier version counts, however long ago: a rotation with many variants would
-  // otherwise start over, and a real edit reverted later is rare and loses nothing.
+  // Repeated versions from an unreviewed rotating listing are noise. Once the current
+  // version has a live grant, however, a return to an old rendering changes the
+  // source truth. It needs a fresh revision and review; otherwise a public B could
+  // remain visible while the source has reverted to A.
   const [seen] = await db`SELECT 1 FROM article_revisions WHERE article_id = ${existing!.id} AND content_hash = ${next} LIMIT 1`;
-  if (seen) return unchanged;
+  if (seen) {
+    const [liveGrant] = await db`
+      SELECT 1 FROM publications p JOIN editorial_reviews r ON r.article_id = p.article_id
+      WHERE p.article_id = ${existing!.id} AND p.visibility = 'public' AND r.status IN ('approved', 'auto_public') LIMIT 1`;
+    if (!liveGrant) return unchanged;
+  }
   // Nor is the stored version with other characters lost in transit, or with them restored.
   if (sameBarringLoss(existing!.title, title) && sameBarringLoss(existing!.body_text, bodyText) && sameBarringLoss(existing!.excerpt, excerpt)) return unchanged;
 

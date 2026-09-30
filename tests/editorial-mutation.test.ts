@@ -62,6 +62,26 @@ test("a revised source material closes public projection and selected ledger in 
   assert.equal((await app.inject({ method: "GET", url: `/api/site/items/${articleId}` })).statusCode, 404);
 });
 
+test("a publicly approved B reverting to previously seen A is a new revision and loses B's grant", async () => {
+  const { articleId, material } = await approvedFixture();
+  const changed = await upsertMaterial({ ...material, title: "Corrected release" });
+  assert.equal(changed.revised, true);
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, score, selected)
+    VALUES (${articleId}, 2, 'rule', 'pass', 'industry', '修订发布', '修订摘要', 80, true)`;
+  await sql`UPDATE articles SET processing_state = 'analyzed' WHERE id = ${articleId}`;
+  const b = await proposeReview(articleId);
+  assert.ok(b);
+  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id = ${articleId}`;
+  await decideArticleReview(articleId, { status: "approved", curated: true, fingerprint: b.fingerprint, version: review!.version, reason: "B checked" }, "editor");
+  assert.equal((await state(articleId)).visibility, "public");
+
+  const reverted = await upsertMaterial(material);
+  assert.equal(reverted.revised, true);
+  const [article] = await sql<{ title: string; revision: number }[]>`SELECT title, revision FROM articles WHERE id = ${articleId}`;
+  assert.deepEqual([article?.title, article?.revision], [material.title, 3]);
+  assert.deepEqual([(await state(articleId)).visibility, (await state(articleId)).review_status], ["withdrawn", "pending"]);
+});
+
 test("new body translation and shared quote translation revoke their exact approved articles", async () => {
   const first = await approvedFixture();
   await storeTranslation(first.articleId, 1, "发布测试", "<p>新译文</p>", "新译文", true);
