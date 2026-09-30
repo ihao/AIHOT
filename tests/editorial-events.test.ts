@@ -14,6 +14,7 @@ import { latestHotRanking } from "@aihot/backend/events/hot-read";
 import { publishArticle } from "@aihot/backend/publication/publish";
 import { stopBoss } from "@aihot/backend/jobs/queue";
 import { stub, tag } from "./setup.ts";
+import { buildApp } from "../apps/api/src/app.ts";
 
 const suffix = tag();
 const sourceId = `event-review-${suffix}`;
@@ -27,12 +28,13 @@ const provider = await stub(async (_hit, req) => {
 });
 process.env.DEEPSEEK_BASE_URL = `${provider.url}/v1`;
 process.env.DEEPSEEK_API_KEY = "test-key";
+const app = await buildApp();
 
 before(async () => {
   await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, next_fetch_at)
     VALUES (${sourceId}, 'Event review fixture', 'rss', 'T1', 'editorial', '2100-01-01')`;
 });
-after(async () => { await provider.close(); await stopBoss(); await closeDb(); });
+after(async () => { await app.close(); await provider.close(); await stopBoss(); await closeDb(); });
 
 async function article(label: string) {
   const n = ++serial;
@@ -97,6 +99,8 @@ test("pending and auto-public evidence cannot create a public story or hot entry
   const grouped = await groupArticle(pending.articleId);
   assert.ok(grouped.storyId);
   assert.equal(await loadStoryDetail(grouped.storyId!), null);
+  const [pendingStory] = await sql<{ public_id: string }[]>`SELECT public_id::text FROM stories WHERE id = ${grouped.storyId}`;
+  assert.equal((await app.inject({ method: "GET", url: `/api/site/stories/${pendingStory!.public_id}` })).statusCode, 404);
 
   const automatic = await article("automatic-only");
   // The auto-policy implementation supplies this exact status. Keep this fixture narrow: no real
@@ -113,6 +117,7 @@ test("pending and auto-public evidence cannot create a public story or hot entry
   const latest = await latestHotRanking();
   assert.equal(rank.entries, 0);
   assert.deepEqual(latest?.entries ?? [], []);
+  assert.equal(JSON.parse((await app.inject({ method: "GET", url: "/api/site/hot" })).body).entries.length, 0);
 });
 
 test("a public story derives text and counts only from curated reports, even if stored event text came from pending evidence", async () => {
@@ -143,6 +148,9 @@ test("a public story derives text and counts only from curated reports, even if 
     SELECT st.public_id::text AS story, f.public_id AS fact FROM facts f JOIN stories st ON st.id = f.story_id
     WHERE f.id = ${grouped.factId}`;
   const common = { channel: "all" as const, category: null, tag: null, topicTags: null, cursor: null, take: 10, revision: null };
+  const siteResponse = await app.inject({ method: "GET", url: `/api/site/stories/${ids!.story}` });
+  assert.equal(siteResponse.statusCode, 200);
+  assert.ok(!siteResponse.body.includes("PENDING STORY") && !siteResponse.body.includes("PENDING FACT") && !siteResponse.body.includes(pending.articleId));
   const developments = await loadDevelopments({ ...common, storyPublicId: ids!.story });
   assert.equal(developments.kind, "ok");
   if (developments.kind === "ok") {
