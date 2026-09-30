@@ -33,6 +33,22 @@ test("period report runtime renders both periods and its example matches the pro
   for (const name of ["story-digest", "report-daily-lead", "translate-body", "translate-post"]) assert.doesNotMatch(promptText(name), /\{\{/);
 });
 
+test("report examples keep entry references in structured fields, not reader-facing prose", () => {
+  const systems = [promptText("report-daily-lead"), periodPrompt("weekly", "2026-09-01", "2026-09-07", []).system];
+  for (const system of systems) {
+    const examples = [...system.matchAll(/^\{.*\}$/gm)].map(([json]) => JSON.parse(json));
+    assert.ok(examples.length > 0);
+    for (const example of examples) {
+      const prose = [example.title, example.leadParagraph, example.headline, example.overview,
+        ...(example.themes ?? []).flatMap((theme: { heading: string; summary: string }) => [theme.heading, theme.summary])];
+      for (const text of prose.filter((value): value is string => typeof value === "string")) assert.doesNotMatch(text, /\[\d+\]/);
+      const refs = example.highlights ?? example.themes.flatMap((theme: { refs: number[] }) => theme.refs);
+      assert.ok(refs.length > 0);
+      assert.ok(refs.every((ref: number) => Number.isInteger(ref) && ref > 0));
+    }
+  }
+});
+
 test("content understanding enumerates the live item types and a compatible JSON example", () => {
   const prompt = promptText("content-understanding");
   const types = [...prompt.matchAll(/^- `([a-z_]+)`：/gm)].map((match) => match[1]!).filter((type) => !["principal", "observer", "relayer"].includes(type));
