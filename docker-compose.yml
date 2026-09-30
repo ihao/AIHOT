@@ -35,7 +35,8 @@ services:
       timeout: 5s
       retries: 30
 
-  # Applies the database migrations and seeds the topics and demo sources, then exits.
+  # Applies migrations and seeds topics plus any configured sources, then exits.
+  # The current 9BTC industry pack contains zero sources.
   setup:
     <<: *app
     restart: "no"
