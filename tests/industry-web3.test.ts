@@ -22,6 +22,7 @@ test("asset price mentions cannot authorize network identity claims", () => {
   const cases = [
     { asset: "Bitcoin", network: "Bitcoin network", zh: "比特币网络", id: "bitcoin" },
     { asset: "Ethereum", network: "Ethereum network", zh: "以太坊网络", id: "ethereum" },
+    { asset: "Solana", network: "Solana network", zh: "索拉纳网络", id: "solana" },
   ];
   for (const { asset, network, zh, id } of cases) {
     assert.deepEqual(matchEntityIds([asset]), [], asset);

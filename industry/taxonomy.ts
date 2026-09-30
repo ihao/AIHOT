@@ -40,11 +40,11 @@ export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
   research_analysis: "研究/数据",
 };
 
-/** 项目、网络与机构；BTC、ETH 是资产，不是这里的别名。 */
+/** 项目、网络与机构；BTC、ETH、SOL 是资产，不是这里的别名。 */
 export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[] }> = {
   bitcoin: { name: "Bitcoin", displayTag: "Bitcoin", aliases: ["Bitcoin network", "Bitcoin protocol", "Bitcoin Core", "比特币网络", "比特币协议"] },
   ethereum: { name: "Ethereum", displayTag: "Ethereum", aliases: ["Ethereum network", "Ethereum protocol", "以太坊网络", "以太坊协议"] },
-  solana: { name: "Solana", displayTag: "Solana", aliases: ["Solana", "索拉纳", "Solana network"] },
+  solana: { name: "Solana", displayTag: "Solana", aliases: ["Solana network", "Solana protocol", "索拉纳网络", "索拉纳协议"] },
   uniswap: { name: "Uniswap", displayTag: "Uniswap", aliases: ["Uniswap"] },
   aave: { name: "Aave", displayTag: "Aave", aliases: ["Aave"] },
   chainlink: { name: "Chainlink", displayTag: "Chainlink", aliases: ["Chainlink"] },
@@ -56,7 +56,7 @@ export const ENTITIES: Record<string, { name: string; displayTag: string | null;
 export const IDENTITY_LEXICON: ReadonlyArray<{ id: string; name: string; patterns: RegExp[] }> = [
   { id: "bitcoin", name: "Bitcoin", patterns: [/\bBitcoin\s+(?:network|protocol|Core)\b|比特币(?:网络|协议)/i] },
   { id: "ethereum", name: "Ethereum", patterns: [/\bEthereum\s+(?:network|protocol)\b|以太坊(?:网络|协议)/i] },
-  { id: "solana", name: "Solana", patterns: [/\bSolana\b|索拉纳/i] },
+  { id: "solana", name: "Solana", patterns: [/\bSolana\s+(?:network|protocol)\b|索拉纳(?:网络|协议)/i] },
   { id: "uniswap", name: "Uniswap", patterns: [/\bUniswap\b/i] },
   { id: "aave", name: "Aave", patterns: [/\bAave\b/i] },
   { id: "chainlink", name: "Chainlink", patterns: [/\bChainlink\b/i] },
