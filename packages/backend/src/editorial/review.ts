@@ -69,7 +69,7 @@ export async function getReviewProposal(articleId: string, db: Db = sql): Promis
              'source_updated_at', a.source_updated_at, 'content_hash', a.content_hash,
              'excerpt', a.excerpt, 'body_text', a.body_text, 'body_html', a.body_html,
              'body_status', a.body_status, 'media', a.media, 'x_post', a.x_post,
-             'x_article', a.x_article, 'raw', a.raw
+             'x_article', a.x_article, 'raw', a.raw #- '{dajiala,bodyRetry}'
            ) AS article,
            jsonb_build_object(
              'id', s.id, 'name', s.name, 'kind', s.kind, 'config', s.config,

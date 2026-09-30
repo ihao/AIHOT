@@ -3,11 +3,12 @@ import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { closeDb, sql } from "@aihot/backend/db";
 import { upsertMaterial } from "@aihot/backend/content/materials";
-import { proposeReview } from "@aihot/backend/editorial/review";
+import { getReviewProposal, proposeReview } from "@aihot/backend/editorial/review";
 import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { overrideFields, rerun, setVisibility } from "@aihot/backend/admin/content";
 import { stopBoss } from "@aihot/backend/jobs/queue";
 import { storeQuoteTranslation, storeTranslation } from "@aihot/backend/editorial/translate";
+import { markBodyUnconfirmed } from "@aihot/backend/content/extract";
 import { tag } from "./setup.ts";
 import { buildApp } from "../apps/api/src/app.ts";
 
@@ -22,9 +23,9 @@ before(async () => {
 });
 after(async () => { await app.close(); await stopBoss(); await closeDb(); });
 
-async function approvedFixture() {
+async function approvedFixture(raw?: unknown) {
   const url = `https://example.com/mutation-${runTag}-${++serial}`;
-  const material = { sourceId, url, title: `Release ${serial}`, bodyText: `Body ${serial}`, bodyStatus: "ok" as const, via: "fetch" as const };
+  const material = { sourceId, url, title: `Release ${serial}`, bodyText: `Body ${serial}`, bodyStatus: "ok" as const, via: "fetch" as const, raw };
   const { articleId } = await upsertMaterial(material);
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, score, selected)
     VALUES (${articleId}, 1, 'rule', 'pass', 'industry', '发布测试', '有证据的摘要', 80, true)`;
@@ -134,4 +135,33 @@ test("manual analysis and regroup retries revoke the old grant before queueing w
   const grouping = await approvedFixture();
   await rerun(grouping.articleId, "group", `regroup-${tag()}`, "editor");
   assert.deepEqual([(await state(grouping.articleId)).visibility, (await state(grouping.articleId)).review_status], ["withdrawn", "pending"]);
+});
+
+test("exhausted body extraction closes an approved pending-body item atomically", async () => {
+  const { articleId } = await upsertMaterial({
+    sourceId, url: `https://example.com/pending-body-${runTag}-${++serial}`, title: "Pending body release",
+    bodyText: "Original excerpt", bodyStatus: "pending", via: "fetch",
+  });
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, score, selected)
+    VALUES (${articleId}, 1, 'rule', 'pass', 'industry', '待正文发布', '有证据的摘要', 80, true)`;
+  await sql`UPDATE articles SET processing_state = 'analyzed', processing_attempts = 3 WHERE id = ${articleId}`;
+  const proposal = await proposeReview(articleId);
+  assert.ok(proposal);
+  await decideArticleReview(articleId, { status: "approved", curated: true, fingerprint: proposal.fingerprint, version: 1, reason: "checked" }, "editor");
+  await markBodyUnconfirmed(articleId, true);
+  const [article] = await sql<{ body_status: string; processing_attempts: number }[]>`
+    SELECT body_status, processing_attempts FROM articles WHERE id = ${articleId}`;
+  assert.deepEqual([article?.body_status, article?.processing_attempts], ["unconfirmed", 0]);
+  assert.deepEqual([(await state(articleId)).visibility, (await state(articleId)).review_status], ["withdrawn", "pending"]);
+  assert.equal((await app.inject({ method: "GET", url: `/api/site/items/${articleId}` })).statusCode, 404);
+});
+
+test("MP retry bookkeeping does not change the approved content fingerprint", async () => {
+  const { articleId, proposal } = await approvedFixture({ dajiala: { position: 1, bodyRetry: { attempts: 1, error: "temporary" } } });
+  await sql`UPDATE articles SET raw = jsonb_set(raw, '{dajiala,bodyRetry}', ${sql.json({ attempts: 2, error: "temporary" })})
+    WHERE id = ${articleId}`;
+  assert.equal((await getReviewProposal(articleId))?.fingerprint, proposal.fingerprint);
+  await sql`UPDATE articles SET raw = raw #- '{dajiala,bodyRetry}' WHERE id = ${articleId}`;
+  assert.equal((await getReviewProposal(articleId))?.fingerprint, proposal.fingerprint);
+  assert.equal((await state(articleId)).visibility, "public");
 });

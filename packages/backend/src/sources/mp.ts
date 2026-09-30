@@ -69,6 +69,8 @@ export async function checkMpAccount(sourceId: string, reason: "schedule" | "man
       // Without a body the post is listed anyway; analysis works from title and digest.
       const { body, passing } = await fetchBody(p.url, sourceId, p.sn ?? p.url);
       if (known && !body?.content) {
+        // `dajiala.bodyRetry` is collection bookkeeping, excluded from the exact
+        // editorial content fingerprint; it never changes reader-facing material.
         const retry = passing ? sql`jsonb_set(raw, '{dajiala,bodyRetry}', ${sql.json({ attempts: known.retry!.attempts + 1, error: passing })})` : sql`raw #- '{dajiala,bodyRetry}'`;
         await sql`UPDATE articles SET raw = ${retry} WHERE id = ${known.id}`;
         continue;

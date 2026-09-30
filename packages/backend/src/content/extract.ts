@@ -104,10 +104,14 @@ export function pageFetchable(url: string, sourceKind: string): boolean {
   }
 }
 
-async function markBodyUnconfirmed(articleId: string): Promise<void> {
+/** End body extraction without a verified body and close any approval in that commit. */
+export async function markBodyUnconfirmed(articleId: string, exhausted = false): Promise<void> {
   await sql.begin(async (tx) => {
     await tx`SELECT id FROM articles WHERE id = ${articleId} FOR UPDATE`;
-    const changed = await tx`UPDATE articles SET body_status = 'unconfirmed', updated_at = now()
+    const changed = await tx`UPDATE articles SET body_status = 'unconfirmed',
+      processing_attempts = CASE WHEN ${exhausted} THEN 0 ELSE processing_attempts END,
+      processing_retry_at = CASE WHEN ${exhausted} THEN NULL ELSE processing_retry_at END,
+      updated_at = now()
       WHERE id = ${articleId} AND body_status <> 'ok' AND body_status <> 'unconfirmed'`;
     if (changed.count) await publishArticleTx(tx, articleId);
   });

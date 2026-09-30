@@ -5,7 +5,7 @@
 // refusal or exhausted retries end in "failed", which the admin re-queues in bulk.
 import type { PgBoss } from "pg-boss";
 import { sql, type Db } from "../db.ts";
-import { extractArticleBody, pageFetchable } from "../content/extract.ts";
+import { extractArticleBody, markBodyUnconfirmed, pageFetchable } from "../content/extract.ts";
 import { analyzeArticle, AnalysisInterruptedError } from "../editorial/analyze.ts";
 import { isHistorical } from "../content/materials.ts";
 import { publishArticle } from "../publication/publish.ts";
@@ -194,7 +194,7 @@ export async function registerExtractionJobs(boss: PgBoss) {
           processing_queued_at = NULL, processing_retry_at = now() + interval '10 minutes'
         WHERE id = ${articleId} RETURNING processing_attempts`;
       if ((a?.processing_attempts ?? MAX_EXTRACT_FAILURES) < MAX_EXTRACT_FAILURES) return { state: "retrying" };
-      await sql`UPDATE articles SET body_status = 'unconfirmed', processing_attempts = 0, processing_retry_at = NULL WHERE id = ${articleId} AND body_status = 'pending'`;
+      await markBodyUnconfirmed(articleId, true);
       await queueProcessing(articleId, { step: "analyze" });
       return { state: "unconfirmed" };
     }
