@@ -1,7 +1,7 @@
 // Seeds a fresh site from the industry pack: topics (industry/topics.json, updated in place),
 // configured sources (industry/sources.json, only missing IDs, so admin edits are never undone) and,
 // with the leaderboard on, its model directory (only models and names not there yet).
-// The 9BTC industry pack currently has no sources; they require a separate study and approval.
+// The 9BTC industry pack contains the six RSS sources approved after the initial source study.
 // Re-runnable:  node --env-file=.env scripts/seed.ts   (--topics-only: just the topics, as the tests use)
 import { readFileSync } from "node:fs";
 import path from "node:path";

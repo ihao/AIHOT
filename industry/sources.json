@@ -1,4 +1,120 @@
 {
-  "$comment": "9BTC 暂不预置任何信源。Web3 信源须先完成专题调研、质量评估与人工确认，再另行入库。",
-  "sources": []
+  "$comment": "9BTC approved initial sources (2026-09-30). Each source allows collection; public full text stays off. Collection/model safety flags remain off until automatic publication acceptance and model setup.",
+  "sources": [
+    {
+      "id": "bitcoin-core-releases",
+      "name": "Bitcoin Core 版本说明",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://bitcoincore.org/en/releasesrss.xml",
+        "summaryIsBody": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ethereum-foundation",
+      "name": "Ethereum Foundation Blog",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://blog.ethereum.org/en/feed.xml",
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "coin-metrics",
+      "name": "Coin Metrics State of the Network",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://coinmetrics.substack.com/feed",
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "chainalysis",
+      "name": "Chainalysis 研究与安全",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.chainalysis.com/blog/feed/",
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "participation_mode": "editorial",
+      "interval_minutes": 180,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "panews-articles-zh",
+      "name": "PANews 中文文章",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "sec-press-releases",
+      "name": "SEC 新闻稿",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.sec.gov/news/pressreleases.rss",
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    }
+  ]
 }

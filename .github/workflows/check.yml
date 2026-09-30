@@ -96,8 +96,8 @@ jobs:
           docker compose ps
           docker compose run --rm --no-deps --entrypoint node setup scripts/smoke.ts --base http://web:3000
           source_count=$(docker compose exec -T db psql -U aihot -d aihot -Atc "select count(*) from sources")
-          if [ "$source_count" != "0" ]; then
-            echo "Expected zero seeded sources; Web3 sources require a separate source study and approval before import (found $source_count)." >&2
+          if [ "$source_count" != "6" ]; then
+            echo "Expected the six approved Web3 sources (found $source_count)." >&2
             exit 1
           fi
       - name: Logs
