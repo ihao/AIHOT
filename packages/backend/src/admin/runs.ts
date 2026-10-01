@@ -110,6 +110,16 @@ export async function runsOverview() {
   };
 }
 
+const ANALYSIS_PURPOSES = ['analyze_article', 'prefilter_article', 'score_article', 'structure_article', 'understand_article', 'summarize_article'];
+
+async function requeueReleasedAnalysis(id: number, purpose: string, subject: string | null) {
+  const article = ANALYSIS_PURPOSES.includes(purpose) ? /^article:([^@]+)@/.exec(subject ?? '')?.[1] : undefined;
+  if (!article) return false;
+  const [row] = await sql`UPDATE articles SET processing_state='new',processing_attempts=0,processing_retry_at=NULL,processing_error=NULL
+    WHERE id=${article} AND processing_state='failed' AND processing_error=${`receipt ${id} outcome unknown`} RETURNING id`;
+  return !!row && !!(await queueProcessing(article, { step: 'analyze' }));
+}
+
 /**
  * A receipt whose outcome is unknown is not re-sent by the request that lost it. Releasing it marks it
  * failed, so the next attempt calls again; an article that stopped on it goes straight back to
@@ -120,13 +130,7 @@ async function release(id: number, error: string, actor: string, note: string, b
     UPDATE receipts SET status = 'failed', error = ${error}, updated_at = now() WHERE id = ${id} AND status = 'unknown' RETURNING subject, purpose`;
   if (!before) return null;
   await sql`UPDATE receipt_attempts SET status = 'failed', error = ${error} WHERE receipt_id = ${id} AND status = 'unknown'`;
-  const article = before.purpose === "analyze_article" ? /^article:([^@]+)@/.exec(before.subject ?? "")?.[1] : undefined;
-  let requeued = false;
-  if (article) {
-    const [a] = await sql`UPDATE articles SET processing_state = 'new', processing_attempts = 0, processing_retry_at = NULL, processing_error = NULL
-                          WHERE id = ${article} AND processing_state = 'failed' RETURNING id`;
-    if (a) requeued = !!(await queueProcessing(article, { step: "analyze" }));
-  }
+  const requeued = await requeueReleasedAnalysis(id, before.purpose, before.subject);
   await audit(actor, "receipt.release", `receipt:${id}`, note, { status: "unknown" }, { status: "failed", billed, requeued });
   return { id, status: "failed", subject: before.subject, purpose: before.purpose, requeued };
 }
@@ -161,6 +165,19 @@ export async function autoReleaseUnknownReceipts(now = Date.now()) {
     const done = await release(r.id, AUTO_RELEASE_NOTE, "ops.recover", "结果未知，自动放行一次", null);
     if (done) released += 1;
     if (done?.requeued) requeued += 1;
+  }
+  // A crash or the old purpose mapping may have released the receipt without resuming its article.
+  const stranded = await sql<{ id: number; purpose: string; subject: string | null }[]>`
+    SELECT r.id,r.purpose,r.subject FROM receipts r JOIN articles a ON a.id=substring(r.subject FROM '^article:([^@]+)@')
+    WHERE r.status='failed' AND r.purpose IN ${sql(ANALYSIS_PURPOSES)} AND r.error LIKE ${AUTO_RELEASE_NOTE + '%'}
+      AND a.processing_state='failed' AND a.processing_error='receipt '||r.id||' outcome unknown'
+    ORDER BY r.id LIMIT 200`;
+  for (const r of stranded) {
+    if (await requeueReleasedAnalysis(r.id, r.purpose, r.subject)) {
+      requeued++;
+      await audit('ops.recover', 'receipt.requeue_after_release', `receipt:${r.id}`, '已按原有一次规则释放的回执，恢复遗漏的分析排队',
+        { status: 'failed', requeued: false }, { status: 'failed', requeued: true, billed: null });
+    }
   }
   return { released, requeued };
 }
