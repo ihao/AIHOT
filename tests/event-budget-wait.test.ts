@@ -54,3 +54,16 @@ test('actual grouping worker persists a budget wait, sweeps it once, and honors 
  assert.equal((await sql`SELECT 1 FROM event_group_waits WHERE article_id=${id}`).length,0);
  assert.equal(provider.hits(),0);
 });
+
+test('automatic verification uses normal two workers and permits a bounded temporary six-worker drain',async()=>{
+ const {registerContentJobs}=await import('../packages/backend/src/jobs/content.ts');
+ const old=process.env.AUTOMATIC_VERIFY_CONCURRENCY;
+ try {
+  for(const [setting,expected] of [[undefined,2],['6',6],['999',6]] as const){
+   if(setting===undefined)delete process.env.AUTOMATIC_VERIFY_CONCURRENCY;else process.env.AUTOMATIC_VERIFY_CONCURRENCY=setting;
+   const registrations=new Map<string,any>();
+   await registerContentJobs({work:async(name:string,options:unknown)=>registrations.set(name,options)} as unknown as PgBoss);
+   assert.equal(registrations.get(QUEUES.verifyAutomatic).localConcurrency,expected);
+  }
+ } finally {if(old===undefined)delete process.env.AUTOMATIC_VERIFY_CONCURRENCY;else process.env.AUTOMATIC_VERIFY_CONCURRENCY=old;}
+});
