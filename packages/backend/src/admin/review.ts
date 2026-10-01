@@ -28,7 +28,9 @@ function reasons(row: Candidate) {
 
 export async function listReviewQueue(limit = 40, sourceId?: string) {
   const bounded = Math.min(100, Math.max(1, Number.isFinite(limit) ? Math.floor(limit) : 40));
-  const [counts] = await sql<{ pending: number; failures: number }[]>`
+  // Budget exhaustion is an automatic wait, not a terminal content/provider failure.
+  const budgetWait = sql`processing_state = 'new' AND coalesce(processing_error ~ '^Budget for [a-zA-Z0-9_-]+ exhausted [(](minute|hour|day|stopped)[)]$', false)`;
+  const [counts] = await sql<{ pending: number; failures: number; budget_waits: number }[]>`
     SELECT (SELECT count(*)::int FROM articles a
       JOIN LATERAL (SELECT relevance, title_zh, summary_zh FROM analyses
         WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
@@ -39,7 +41,10 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
         AND (r.article_id IS NULL OR r.status = 'pending')) AS pending,
       (SELECT count(*)::int FROM articles WHERE (processing_state = 'failed' OR processing_error IS NOT NULL)
-        AND (${sourceId ?? null}::text IS NULL OR source_id = ${sourceId ?? null})) AS failures`;
+        AND NOT (${budgetWait})
+        AND (${sourceId ?? null}::text IS NULL OR source_id = ${sourceId ?? null})) AS failures,
+      (SELECT count(*)::int FROM articles WHERE ${budgetWait}
+        AND (${sourceId ?? null}::text IS NULL OR source_id = ${sourceId ?? null})) AS budget_waits`;
   const candidates = await sql<{ id: string }[]>`
     SELECT a.id
     FROM articles a JOIN sources s ON s.id = a.source_id
@@ -105,7 +110,14 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
     SELECT a.id, a.title, s.name AS source, a.processing_error AS error, a.discovered_at
     FROM articles a JOIN sources s ON s.id = a.source_id
     WHERE (a.processing_state = 'failed' OR a.processing_error IS NOT NULL)
+      AND NOT (${budgetWait})
       AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
     ORDER BY a.discovered_at DESC LIMIT 20`;
-  return { pendingCount: counts?.pending ?? 0, failureCount: counts?.failures ?? 0, rows: rows.slice(0, bounded), failures };
+  const budgetWaits = await sql`
+    SELECT a.id, a.title, s.name AS source, a.processing_error AS error, a.processing_retry_at AS retry_at, a.discovered_at
+    FROM articles a JOIN sources s ON s.id = a.source_id
+    WHERE ${budgetWait} AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
+    ORDER BY a.discovered_at DESC LIMIT 20`;
+  return { pendingCount: counts?.pending ?? 0, failureCount: counts?.failures ?? 0, budgetWaitCount: counts?.budget_waits ?? 0,
+    rows: rows.slice(0, bounded), failures, budgetWaits };
 }

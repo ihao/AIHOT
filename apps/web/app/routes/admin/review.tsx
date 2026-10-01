@@ -5,6 +5,7 @@ import { Link } from "react-router";
 import type { Route } from "./+types/review";
 import { adminGet } from "../../lib/admin.server";
 import { useAdminAction } from "../../features/admin/action";
+import { processingErrorLabel } from "../../features/admin/labels";
 import { AdminPage, Badge, Button, Card, Empty, Field, Input, ReasonDialog, Stat, Textarea, Time } from "../../features/admin/ui";
 
 type QueueRow = {
@@ -16,7 +17,8 @@ type QueueRow = {
   overrideVersion: number; riskReason: string; priority: number;
 };
 type Failure = { id: string; title: string; source: string; error: string | null; discovered_at: string };
-type Queue = { pendingCount: number; failureCount: number; rows: QueueRow[]; failures: Failure[] };
+type BudgetWait = Failure & { retry_at: string | null };
+type Queue = { pendingCount: number; failureCount: number; budgetWaitCount: number; rows: QueueRow[]; failures: Failure[]; budgetWaits: BudgetWait[] };
 type Action = "all" | "selected" | "reject" | "edit";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -26,7 +28,7 @@ export const meta: Route.MetaFunction = () => [{ title: `内容管理 · ${SITE.
 export const headers: Route.HeadersFunction = () => ({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
 
 export default function Review({ loaderData }: Route.ComponentProps) {
-  const { pendingCount, failureCount, rows, failures } = loaderData;
+  const { pendingCount, failureCount, budgetWaitCount, rows, failures, budgetWaits } = loaderData;
   const { run, pending } = useAdminAction();
   const [choice, setChoice] = useState<{ row: QueueRow; action: Action } | null>(null);
   const [edit, setEdit] = useState({ title: "", summary: "" });
@@ -52,10 +54,11 @@ export default function Review({ loaderData }: Route.ComponentProps) {
   };
   return (
     <AdminPage title="内容管理" subtitle="可在这里核对原文、修正内容或作出人工发布决定。自动模式由证据核验与发布规则持续处理内容，无需每晚人工审核；人工决定只对当前指纹与版本有效。">
-      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+      <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="待审核" value={pendingCount} hint="按风险与修订优先" tone={pendingCount ? "warn" : "ok"} />
         <Stat label="本页展示" value={rows.length} hint="每页最多 40 条" />
         <Stat label="采集或处理失败" value={failureCount} hint="与内容审核分开" tone={failureCount ? "bad" : undefined} />
+        <Stat label="等待调用额度" value={budgetWaitCount} hint="额度释放后自动重试" tone={budgetWaitCount ? "warn" : undefined} />
       </div>
       <div className="space-y-3">
         {rows.map((row) => (
@@ -96,6 +99,10 @@ export default function Review({ loaderData }: Route.ComponentProps) {
         ))}
         {!rows.length && <Card><Empty>当前没有可审核内容。采集或处理失败项在下方单独列出。</Empty></Card>}
       </div>
+      {budgetWaits.length > 0 && <Card className="mt-6" title={`等待调用额度（最近 ${budgetWaits.length} 条）`}>
+        <p className="mb-3 text-[13px] text-ink-3">这些材料尚在处理，尚未公开。日额度按滚动 24 小时计算；系统会自动重试，也可在<Link to="/admin/settings" className="text-accent hover:underline">设置</Link>中调整上限。</p>
+        <ul className="space-y-2 text-[13px]">{budgetWaits.map((f) => <li key={f.id} className="flex flex-wrap gap-2 border-b border-line pb-2 last:border-0"><Link className="text-accent hover:underline" to={`/admin/content/${encodeURIComponent(f.id)}`}>{f.title}</Link><span className="text-ink-3">{f.source}</span><span>{processingErrorLabel(f.error ?? "等待额度")}</span>{f.retry_at && <span className="text-ink-3">下次重试 <Time at={f.retry_at} /></span>}</li>)}</ul>
+      </Card>}
       {failures.length > 0 && <Card className="mt-6" title={`采集或处理失败（最近 ${failures.length} 条）`}>
         <ul className="space-y-2 text-[13px]">{failures.map((f) => <li key={f.id} className="flex flex-wrap gap-2 border-b border-line pb-2 last:border-0"><Link className="text-accent hover:underline" to={`/admin/content/${encodeURIComponent(f.id)}`}>{f.title}</Link><span className="text-ink-3">{f.source}</span><span className="text-hot">{f.error ?? "处理失败"}</span></li>)}</ul>
       </Card>}

@@ -6,7 +6,7 @@ import type { Route } from "./+types/content-item";
 import { adminGet } from "../../lib/admin.server";
 import { useAdminAction } from "../../features/admin/action";
 import { bj, money } from "../../features/admin/format";
-import { KIND_LABEL, MODE_LABEL, VISIBILITY_LABEL } from "../../features/admin/labels";
+import { KIND_LABEL, MODE_LABEL, VISIBILITY_LABEL, processingErrorLabel } from "../../features/admin/labels";
 import { AdminPage, Badge, Button, Card, Empty, Field, Input, Json, KV, ReasonDialog, Select, Textarea } from "../../features/admin/ui";
 
 type Row = Record<string, any>;
@@ -110,7 +110,7 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
         <Badge>处理 {a.processing_state}</Badge>
         {c.override && <Badge tone="info" title={c.override.reason ?? undefined}>有人工设置 v{c.override.version}</Badge>}
       </div>
-      {a.processing_error && <div className="mb-5 rounded-card bg-hot-soft px-4 py-3 text-[13px] text-hot ring-1 ring-hot/20">{a.processing_error}</div>}
+      {a.processing_error && <div className="mb-5 rounded-card bg-hot-soft px-4 py-3 text-[13px] text-hot ring-1 ring-hot/20">{processingErrorLabel(a.processing_error)}</div>}
 
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <Card title="处理链路">
