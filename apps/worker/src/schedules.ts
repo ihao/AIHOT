@@ -94,9 +94,10 @@ export async function registerSchedules(boss: PgBoss) {
   for (const s of SCHEDULES) {
     const queue = `cron.${s.name}`;
     // Use this worker's boss (also permits an entirely offline registration check).
-    const options = { policy: "singleton" as const, retryLimit: 1, expireInSeconds: 3600 };
+    // pg-boss fixes policy at creation; existing cron queues keep their original policy.
+    const options = { retryLimit: 1, expireInSeconds: 3600 };
     if (await boss.getQueue(queue)) await boss.updateQueue(queue, options);
-    else await boss.createQueue(queue, options);
+    else await boss.createQueue(queue, { policy: "singleton", ...options });
     await boss.schedule(queue, s.cron, {}, { tz: "Asia/Shanghai", missed: s.missed ?? "skip", retryLimit: 1 });
     // Schedules fire at minute boundaries; a 15 s pickup keeps them on time with a third of the polling.
     await boss.work(queue, { pollingIntervalSeconds: 15 }, async () => recordRun(s.name, s.run));
