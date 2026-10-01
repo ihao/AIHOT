@@ -31,6 +31,7 @@ import { processArticle } from '../packages/backend/src/jobs/content.ts';
 import { buildApp } from '../apps/api/src/app.ts';
 const T = tag(),
   source = `verify-${T}`;
+const PRE_AMOUNT_GUARD_RULE_VERSION = 'automatic-publication-v1:2212ca55bcc7250900bfebde';
 const body = 'Bitcoin Core 30.1 is available. This maintenance release updates the Bitcoin client. ' + 'Documentation describes software improvements and supported operating systems. '.repeat(5);
 let serial = 0,
   verdict = 'supported',
@@ -416,7 +417,7 @@ test('an obsolete accepted automatic rule closes every public exit before asynch
     assert.equal((await app.inject({ url: `/api/site/items/${id}` })).statusCode, 200);
     assert.ok(JSON.stringify(await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock())).includes(id));
     await app.inject({ url: '/api/site/timeline' }); // warm the grouped anchors before authority changes
-    await sql`UPDATE automatic_verifications SET automatic_rule_version=${`obsolete:${AUTOMATIC_RULE_VERSION}`} WHERE article_id=${id}`;
+    await sql`UPDATE automatic_verifications SET automatic_rule_version=${PRE_AMOUNT_GUARD_RULE_VERSION} WHERE article_id=${id}`;
     const [stored] = await sql`SELECT visibility,selected FROM publications WHERE article_id=${id}`;
     assert.equal(stored!.visibility, 'public');
     assert.equal(stored!.selected, true, 'the fixture intentionally retains its old public projection');
@@ -453,7 +454,7 @@ test('restart sweep queues ordinary current analysis and preserves old waiting a
   const prior = await selectedSnapshot({ limit: 5000, page: null }, priorAt);
   assert.ok(prior.items.some(item => item.id === id), 'the old grant was actually synchronized before its rule became obsolete');
   for (const articleId of [id, waiting]) {
-    await sql`UPDATE automatic_verifications SET automatic_rule_version=${`obsolete:${AUTOMATIC_RULE_VERSION}`} WHERE article_id=${articleId}`;
+    await sql`UPDATE automatic_verifications SET automatic_rule_version=${PRE_AMOUNT_GUARD_RULE_VERSION} WHERE article_id=${articleId}`;
     await sql`UPDATE analyses SET prompt_version='obsolete-score-and-writer-prompts' WHERE article_id=${articleId}`;
   }
   const old = await sql`SELECT id,status,verification_count,failures,stage,receipt_ids,decisions FROM automatic_verifications WHERE article_id IN (${id},${waiting}) ORDER BY id`;

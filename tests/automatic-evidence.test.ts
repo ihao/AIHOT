@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { approvedPrimaryUrl, originalPrimaryLinks, fetchPrimaryMaterial, requiresPrimaryEvidence, deterministicCopyConflicts } from '../packages/backend/src/editorial/automatic-verification.ts';
+import * as automaticVerification from '../packages/backend/src/editorial/automatic-verification.ts';
+test('the corrected currency guard has its own version and invalidates the previous deployed rule', () => {
+  assert.ok('AUTOMATIC_AMOUNT_GUARD_VERSION' in automaticVerification, 'deterministic amount semantics must be explicitly versioned');
+  assert.equal(automaticVerification.AUTOMATIC_AMOUNT_GUARD_VERSION, 'currency-amounts-v2');
+  assert.notEqual(automaticVerification.AUTOMATIC_RULE_VERSION, 'automatic-publication-v1:2212ca55bcc7250900bfebde');
+});
 test('only two literal original first-party HTTPS evidence links are admitted', () => {
   assert.deepEqual(originalPrimaryLinks(`<a href="https://github.com/ethereum/fake">fake</a><a href="https://ethereum.org/a">a</a><a href='https://sec.gov/b'>b</a><a href="https://aave.com/c">c</a>`, 'https://panews.example/'), ['https://ethereum.org/a', 'https://sec.gov/b']);
   for (const url of ['https://ethereum.org.evil.test/a', 'https://evil.ethereum.org/a', 'https://user:secret@ethereum.org/a', 'http://ethereum.org/a', 'https://ethereum.org:8000/a', 'https://test.substack.com/a']) assert.equal(approvedPrimaryUrl(url), false, url);
@@ -65,6 +71,21 @@ test('matching Chinese literal money quantities are allowed', () => assert.deepE
   bodyText: 'An estimated $1 million loss.',
   primary: true
 }]), []));
+test('spaces between a decimal coefficient and its Chinese currency scale preserve the exact amount', () => {
+  for (const [claimed, original, expected] of [
+    ['5938 亿美元', '$593.8 billion', []],
+    ['2525 亿美元', '$252.5 billion', []],
+    ['391 亿美元', '$39.1 billion', []],
+    ['5938 亿 美元', '$593.8 billion', []],
+    ['2 千万美元', '$20 million', []],
+    ['1.2 万亿元', 'CNY 1.2 trillion', []],
+    ['5939 亿美元', '$593.8 billion', ['copy_amount_conflict']],
+    ['2525 亿美元', '$252.5 million', ['copy_amount_conflict']],
+    ['391 亿元', '$39.1 billion', ['copy_amount_conflict']],
+  ] as const) assert.deepEqual(deterministicCopyConflicts({
+    titleZh: `研究估计${claimed}`, summaryZh: null, reasonZh: null, category: 'research',
+  }, [{ id: 'original', bodyText: original, primary: true }]), expected, `${claimed} against ${original}`);
+});
 test('mixed Arabic and Chinese compound currency quantities retain their coefficient', () => {
   for (const [claimed, original, expected] of [
     ['2千万美元', '$10 million', ['copy_amount_conflict']],

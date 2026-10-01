@@ -17,7 +17,9 @@ import { getReviewProposal } from './review.ts';
 import { promptText, promptVersion } from './prompts.ts';
 import { AUTOMATIC_POLICY_VERSION, VerificationSchema, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
 import { enqueue, QUEUES } from '../jobs/queue.ts';
+export const AUTOMATIC_AMOUNT_GUARD_VERSION = 'currency-amounts-v2';
 export const AUTOMATIC_RULE_VERSION = `${AUTOMATIC_POLICY_VERSION}:${sha256(stableJson({
+  amountGuard: AUTOMATIC_AMOUNT_GUARD_VERSION,
   selection: SELECTION,
   prefilter: promptVersion('prefilter'),
   score: promptVersion('selection-score'),
@@ -631,9 +633,9 @@ function chineseAmount(text: string): number | null {
 function currencyAmounts(text: string): Array<{ currency: string; value: number }> {
   const values: Array<{ currency: string; value: number }> = [];
   // Read the whole mixed quantity, so “2千万” cannot fall through to the “千万” suffix.
-  const quantity = '(?:[0-9][0-9,.]*[十百千万亿]*|[零〇一二两三四五六七八九十百千万亿]+)';
+  const quantity = '(?:[0-9][0-9,.]*(?:\\s*[十百千万亿]+)?|[零〇一二两三四五六七八九十百千万亿]+)';
   const add = (raw: string, currency: string, scale = '') => {
-    const numeric = /^([0-9][0-9,.]*)([十百千万亿]*)$/.exec(raw);
+    const numeric = /^([0-9][0-9,.]*)\s*([十百千万亿]*)$/.exec(raw);
     const n = numeric ? Number(numeric[1]!.replace(/,/g, '')) * (numeric[2] ? chineseAmount(`一${numeric[2]}`) ?? NaN : 1) : chineseAmount(raw);
     const multiplier = ({ thousand: 1e3, k: 1e3, million: 1e6, m: 1e6, billion: 1e9, b: 1e9, trillion: 1e12, t: 1e12 } as Record<string, number>)[scale.toLowerCase()] ?? 1;
     if (n !== null && Number.isFinite(n)) values.push({ currency, value: n * multiplier });
