@@ -6,6 +6,7 @@ import { SELECTION } from '@aihot/industry/selection';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
 import { AutomaticSourcePaused, checkAutomaticSourcePause, refreshAutomaticSafety } from './automatic-safety.ts';
 import { config } from '../config.ts';
+import { automaticFreshnessReason } from '../content/freshness.ts';
 import { sql, type Db, type Tx } from '../db.ts';
 import { sha256, stableJson } from '../lib/ids.ts';
 import { guardedFetch, type GuardedResponse } from '../lib/http-fetch.ts';
@@ -227,6 +228,7 @@ export async function fetchPrimaryMaterial(url: string, fetcher: typeof guardedF
 /** Persist once: a fresh analysis ID never resets a rejected/accepted round. */
 export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): Promise<void> {
   if (config.editorialMode !== 'automatic') return;
+  if (await automaticFreshnessReason(articleId, tx)) return;
   const a = await loadInput(tx, articleId);
   if (!a) return;
   const copy = copyOf(a),
@@ -332,6 +334,13 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   fetchMaterial?: (url: string) => Promise<Material | null>;
 } = {}) {
   if (config.editorialMode !== 'automatic') return;
+  const freshness = await automaticFreshnessReason(articleId);
+  if (freshness) {
+    await sql`UPDATE automatic_verifications SET status='rejected',reasons=${sql.json([`freshness:${freshness}`])},
+      lease_token=NULL,lease_until=NULL,retry_at=NULL,updated_at=now() WHERE article_id=${articleId}
+      AND (status IN ('queued','waiting') OR (status='running' AND lease_until<now()))`;
+    return;
+  }
   try { await checkAutomaticSourcePause(articleId); }
   catch (error) {
     if (!(error instanceof AutomaticSourcePaused)) throw error;

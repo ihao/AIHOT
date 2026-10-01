@@ -9,6 +9,7 @@ import type { PgBoss } from "pg-boss";
 import { sql, type Db } from "../db.ts";
 import { extractArticleBody, markBodyUnconfirmed, pageFetchable } from "../content/extract.ts";
 import { analyzeArticle, AnalysisInterruptedError } from "../editorial/analyze.ts";
+import { skipExpiredProcessing } from '../content/freshness.ts';
 import { isHistorical } from "../content/materials.ts";
 import { publishArticle } from "../publication/publish.ts";
 import { BudgetExceededError, ProviderRejectedError, ReceiptBusyError, ReceiptUnknownError } from "../providers/receipts.ts";
@@ -68,6 +69,7 @@ const PRIORITY = { live: 0, liveSignal: -1, history: -2 } as const;
  */
 export async function queueProcessing(articleId: string, opts: { step?: Step; attemptTag?: string; db?: Db } = {}): Promise<string | null> {
   const db = opts.db ?? sql;
+  if (!opts.attemptTag && await skipExpiredProcessing(articleId, db)) return null;
   const r = await route(articleId, db);
   if (!r) return null;
   const step = opts.step ?? r.step;
@@ -97,6 +99,7 @@ export async function settleNonEditorial(articleId: string): Promise<{ group: bo
 
 /** attemptTag makes an explicit re-evaluation a new (paid) request; the same tag reuses its receipt. */
 export async function processArticle(articleId: string, opts: { attemptTag?: string } = {}): Promise<{ state: string }> {
+  if (!opts.attemptTag && await skipExpiredProcessing(articleId)) return { state: 'skipped' };
   const [found] = await sql<{ participation_mode: string; processing_state: string; revision: number; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
     SELECT s.participation_mode, a.processing_state, a.revision, a.backfill, a.published_at, a.discovered_at FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
   if (!found) return { state: "missing" };
@@ -195,6 +198,7 @@ export async function registerExtractionJobs(boss: PgBoss) {
   await boss.work<{ articleId: string }>(QUEUES.extractBody, { localConcurrency: 4, pollingIntervalSeconds: 2 }, async ([job]) => {
     if (!job) return;
     const { articleId } = job.data;
+    if (await skipExpiredProcessing(articleId)) return { state: 'skipped' };
     try {
       const state = await extractArticleBody(articleId);
       await queueProcessing(articleId, { step: "analyze" });

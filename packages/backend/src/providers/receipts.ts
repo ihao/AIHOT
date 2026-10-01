@@ -82,8 +82,8 @@ interface ReceiptRow {
 }
 
 async function checkBudget(tx: Db, service: string): Promise<void> {
-  const [budget] = await tx<{ per_minute: number; per_hour: number; per_day: number }[]>`
-    SELECT per_minute, per_hour, per_day FROM budgets WHERE service = ${service}`;
+  const [budget] = await tx<{ per_minute: number; per_hour: number; per_day: number; usage_reset_at: Date | null }[]>`
+    SELECT per_minute, per_hour, per_day, usage_reset_at FROM budgets WHERE service = ${service}`;
   if (!budget) return; // default rows come with the migrations; a service an operator removed is unlimited
   // Every request sent counts, retries of the same logical request included.
   const [counts] = await tx<{ minute: number; hour: number; day: number }[]>`
@@ -92,7 +92,8 @@ async function checkBudget(tx: Db, service: string): Promise<void> {
       count(*) FILTER (WHERE started_at > now() - interval '1 hour') AS hour,
       count(*) AS day
     FROM receipt_attempts
-    WHERE service = ${service} AND origin = 'live' AND started_at > now() - interval '1 day'`;
+    WHERE service = ${service} AND origin = 'live' AND started_at > now() - interval '1 day'
+      AND (${budget.usage_reset_at}::timestamptz IS NULL OR started_at >= ${budget.usage_reset_at})`;
   const c = counts!;
   if (budget.per_minute <= 0 || budget.per_hour <= 0 || budget.per_day <= 0) {
     throw new BudgetExceededError(service, "stopped", 3600);
@@ -186,7 +187,7 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
 
 async function startAttempt(tx: Db, receiptId: number, attempt: number, req: ReceiptRequest): Promise<number> {
   const [row] = await tx<{ id: number }[]>`
-    INSERT INTO receipt_attempts (receipt_id, attempt, service, model, status) VALUES (${receiptId}, ${attempt}, ${req.service}, ${req.model ?? null}, 'pending')
+    INSERT INTO receipt_attempts (receipt_id, attempt, service, model, status, started_at) VALUES (${receiptId}, ${attempt}, ${req.service}, ${req.model ?? null}, 'pending', clock_timestamp())
     RETURNING id`;
   return row!.id;
 }

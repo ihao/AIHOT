@@ -199,7 +199,7 @@ async function article(opts: {
     bodyHtml: opts.bodyHtml,
     bodyStatus: (opts.bodyStatus ?? 'ok') as 'ok',
     via: 'fetch',
-    publishedAt: opts.publishedAt
+    publishedAt: opts.publishedAt ?? new Date()
   });
   await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output) VALUES(${id},1,'model',${opts.relevance ?? 'pass'},'infrastructure','Bitcoin Core 新软件版本发布',${opts.summary ?? 'Bitcoin Core 宣布新版客户端可用。'},75,${opts.selected??true},${sql.json({
     scores: opts.scores ?? [75, 76],
@@ -225,8 +225,21 @@ async function projection(id: string) {
   });
 }
 async function unanalyzedArticle(bodyHtml?: string) {
-  return (await upsertMaterial({ sourceId: source, url: `https://bitcoincore.org/${T}/${++serial}`, title: 'Bitcoin Core release', bodyText: body, bodyHtml, bodyStatus: 'ok', via: 'fetch' })).articleId;
+  return (await upsertMaterial({ sourceId: source, url: `https://bitcoincore.org/${T}/${++serial}`, title: 'Bitcoin Core release', bodyText: body, bodyHtml, bodyStatus: 'ok', via: 'fetch', publishedAt: new Date() })).articleId;
 }
+
+test('a queued verification that expires or loses its source date spends no paid attempt', async () => {
+  for (const date of [new Date(Date.now()-72*3600_000), null]) {
+    const id=await article();
+    await sql`UPDATE articles SET published_at=${date} WHERE id=${id}`;
+    const before=provider.hits();
+    await verifyAutomaticArticle(id);
+    assert.equal(provider.hits(),before);
+    const [round]=await sql`SELECT status,reasons FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(round.status,'rejected');
+    assert.deepEqual(round.reasons,[date?'freshness:expired':'freshness:undated']);
+  }
+});
 async function releasedLedgerClock() {
   const [latest] = await sql<{ at: Date | null }[]>`SELECT max(visible_at) AS at FROM selected_ledger`;
   return new Date(Math.max(Date.now(), latest?.at?.getTime() ?? 0) + 1);

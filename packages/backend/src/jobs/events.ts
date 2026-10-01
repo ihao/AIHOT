@@ -5,6 +5,7 @@ import { groupArticle } from "../events/group.ts";
 import { composeStoryDigest } from "../events/digest.ts";
 import { BudgetExceededError, ReceiptBusyError } from "../providers/receipts.ts";
 import { settleNonEditorial } from "./content.ts";
+import { automaticFreshnessReason } from '../content/freshness.ts';
 import { ensureQueue, enqueue, QUEUES } from "./queue.ts";
 
 export async function registerEventJobs(boss: PgBoss) {
@@ -12,6 +13,10 @@ export async function registerEventJobs(boss: PgBoss) {
   // Serial on purpose: two reports of the same new fact must not both create it.
   await boss.work<{ articleId: string; signalOnly?: boolean; force?: boolean }>(QUEUES.group, { localConcurrency: 1, pollingIntervalSeconds: 0.5 }, async ([job]) => {
     if (!job) return;
+    if (!job.data.force && await automaticFreshnessReason(job.data.articleId)) {
+      await sql`DELETE FROM event_group_waits WHERE article_id=${job.data.articleId}`;
+      return { verdict: 'skipped-expired' };
+    }
     try {
       // A discussion post comes here straight from collection: record it first (settleNonEditorial).
       if (job.data.signalOnly && !job.data.force && !(await settleNonEditorial(job.data.articleId)).group) {
