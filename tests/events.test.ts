@@ -28,10 +28,12 @@ let relation: Rel = "SAME_OCCURRENCE";
 let pairRelation: Rel | null = null;
 /** Answer every candidate of a batch prompt, not only the first. */
 let answerAll = false;
+let truncateIfShort = false;
 const provider = await stub(async (_hit, req) => {
   asked.open();
   await hold.promise;
-  const body = JSON.parse(req.body) as { messages: Array<{ content: string }> };
+  const body = JSON.parse(req.body) as { messages: Array<{ content: string }>; max_tokens: number };
+  if (truncateIfShort && !body.messages[1]!.content.includes("报道 A") && body.max_tokens < 1000) return {choices:[{message:{content:'{"decisions":['},finish_reason:"length"}],usage:{completion_tokens:body.max_tokens}};
   const user = body.messages[1]!.content;
   const pair = user.includes("报道 A");
   const ids = answerAll ? [...user.matchAll(/【候选 (C\d+)】/g)].map((m) => m[1]!) : ["C1"];
@@ -319,4 +321,15 @@ test("stories that reports keep tying together without merging list each other a
     pairRelation = null;
     answerAll = false;
   }
+});
+
+test("grouping permits enough output for valid candidate decisions instead of repeatedly truncating JSON",async()=>{
+  hold = gate();hold.open();truncateIfShort=true;
+  try {
+    const id=await report("output-capacity");
+    const result=await groupArticle(id);
+    assert.ok(["same-fact","new-fact-in-story","new-story"].includes(result.verdict));
+    const receipts=await sql`SELECT status FROM receipts WHERE purpose='group_article' AND subject=${`article:${id}`}`;
+    assert.ok(receipts.length>0);assert.ok(receipts.every(r=>r.status!=='failed'));
+  } finally {truncateIfShort=false;}
 });
