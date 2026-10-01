@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Sitemap from the same public metadata as pages: reports, topics and their pages,
 // the latest 500 stories, leaderboard pages and indexable items. Cached ~5 minutes and rebuilt in the
 // background after that (crawlers get the previous copy meanwhile); if the database fails, the last
@@ -34,7 +35,7 @@ interface Entry {
 
 async function build(): Promise<string> {
   const entries: Entry[] = [];
-  const [latestItem] = await sql<{ t: Date | null }[]>`SELECT max(timeline_at) AS t FROM publications WHERE visibility = 'public' AND selected`;
+  const [latestItem] = await sql<{ t: Date | null }[]>`SELECT max(p.timeline_at) AS t FROM publications p WHERE p.visibility = 'public' AND p.selected AND ${publicationAuthorityCondition('p')}`;
   const [latestDaily] = await sql<{ key: string | null; t: Date | null }[]>`SELECT max(key) AS key, max(generated_at) AS t FROM published_reports WHERE kind = 'daily'`;
   const now = latestItem?.t ?? new Date();
   entries.push(
@@ -79,7 +80,7 @@ async function build(): Promise<string> {
   // Model pages exist only for models on a public top-30 board; source pages for every registered source.
   if (FEATURES.leaderboard) for (const loc of await leaderboardDetailUrls()) entries.push({ loc, changefreq: "weekly", priority: 0.4 });
   const items = await sql<{ id: string; t: Date }[]>`
-    SELECT article_id AS id, updated_at AS t FROM publications WHERE visibility = 'public' AND indexable ORDER BY timeline_at DESC LIMIT ${MAX_URLS - entries.length}`;
+    SELECT p.article_id AS id, p.updated_at AS t FROM publications p WHERE p.visibility = 'public' AND p.indexable AND ${publicationAuthorityCondition('p')} ORDER BY p.timeline_at DESC LIMIT ${MAX_URLS - entries.length}`;
   for (const it of items) entries.push({ loc: `/items/${it.id}`, lastmod: it.t, changefreq: "monthly", priority: 0.5 });
 
   const body = entries

@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // v1 items and the selected sync (snapshot + changes), read from the same public read layer.
 import type { PublicApiCategoryKey } from "@aihot/contracts/taxonomy";
 import { sql, type Db } from "../db.ts";
@@ -124,6 +125,20 @@ export interface SnapshotQuery {
   page: string | null;
 }
 
+/** Historical automatic upserts must match the complete current canonical payload. Manual
+ * ledger history retains its existing ordered-change semantics. */
+function ledgerAuthorityCondition(payload: ReturnType<typeof sql>, now: Date) {
+  return sql`${publicationAuthorityCondition('p')} AND (
+    EXISTS(SELECT 1 FROM editorial_reviews manual WHERE manual.article_id=p.article_id AND manual.status='approved')
+    OR NOT EXISTS(SELECT 1 FROM automatic_verifications history WHERE history.article_id=p.article_id)
+    OR (p.visibility='public' AND p.selected AND p.visible_after<=${now} AND EXISTS (
+      SELECT 1 FROM selected_state current_state JOIN selected_ledger current_payload
+        ON current_payload.seq=current_state.last_seq AND current_payload.article_id=current_state.article_id
+      WHERE current_state.article_id=p.article_id AND current_state.in_set AND current_payload.op='upsert'
+        AND ${payload}=current_payload.payload))
+  )`;
+}
+
 export async function selectedSnapshot(q: SnapshotQuery, now = new Date()) {
   const epoch = await ledgerEpoch();
   let fields = q.fields ?? "default";
@@ -153,7 +168,8 @@ export async function selectedSnapshot(q: SnapshotQuery, now = new Date()) {
       ORDER BY article_id, seq DESC
     ) latest
     JOIN selected_state st ON st.article_id = latest.article_id AND st.in_set
-    WHERE latest.op = 'upsert'
+    JOIN publications p ON p.article_id=latest.article_id
+    WHERE latest.op = 'upsert' AND ${selectedCondition(now)} AND ${ledgerAuthorityCondition(sql`latest.payload`, now)}
     ORDER BY latest.article_id
     LIMIT ${q.limit + 1}`;
   const page = rows.slice(0, q.limit);
@@ -188,9 +204,12 @@ export async function selectedChanges(q: { cursor: string; limit: number }, now 
     if (c.w > Number(max?.m ?? 0)) throw new SnapshotRequiredError("watermark is ahead of this ledger");
   }
   const rows = await sql<{ seq: number; article_id: string; op: "upsert" | "remove"; changed_at: Date; payload: V1ItemPayload | null }[]>`
-    SELECT seq, article_id, op, changed_at, ${ledgerPayload(c.f === "minimal")} AS payload FROM selected_ledger
-    WHERE seq > ${c.w} AND seq <= ${w}
-    ORDER BY seq LIMIT ${q.limit + 1}`;
+    SELECT l.seq, l.article_id,
+      CASE WHEN l.op='upsert' AND NOT (${ledgerAuthorityCondition(sql`l.payload`, now)}) THEN 'remove' ELSE l.op END AS op,
+      l.changed_at, CASE WHEN ${ledgerAuthorityCondition(sql`l.payload`, now)} THEN ${ledgerPayload(c.f === "minimal", sql`l.payload`)} ELSE NULL END AS payload
+    FROM selected_ledger l LEFT JOIN publications p ON p.article_id=l.article_id
+    WHERE l.seq > ${c.w} AND l.seq <= ${w}
+    ORDER BY l.seq LIMIT ${q.limit + 1}`;
   const page = rows.slice(0, q.limit);
   const hasMore = rows.length > q.limit;
   const nextW = page.length ? page[page.length - 1]!.seq : Math.max(c.w, 0);

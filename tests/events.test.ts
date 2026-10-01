@@ -265,7 +265,15 @@ test("a story whose reports all moved away keeps its address: it redirects to wh
   const text = randomText();
   const old = await storyWithRoot(text, "moving");
   // A second report of the old story, about something no other report mentions.
-  const other = randomText();
+  const pool = await sql<{ text: string }[]>`SELECT title||coalesce(summary,'') AS text FROM publications`;
+  const used = new Set(pool.flatMap(row => [...row.text]));
+  const distinct: string[] = [];
+  for (let code = 0xE000; code <= 0xF8FF && distinct.length < 16; code++) {
+    const character = String.fromCodePoint(code);
+    if (!used.has(character)) distinct.push(character);
+  }
+  assert.equal(distinct.length, 16);
+  const other = distinct.join(''); // Private-use fixture characters share no bigrams with the recall pool.
   const staying = await report("staying", other, other);
   await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${old.factId}, ${staying}, 'report')`;
   const target = await storyWithRoot(text, "target");

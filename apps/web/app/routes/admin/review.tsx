@@ -22,7 +22,7 @@ type Action = "all" | "selected" | "reject" | "edit";
 export async function loader({ request }: Route.LoaderArgs) {
   return adminGet<Queue>(request, "/api/admin/review?limit=40");
 }
-export const meta: Route.MetaFunction = () => [{ title: `夜间审核 · ${SITE.name} 后台` }];
+export const meta: Route.MetaFunction = () => [{ title: `内容管理 · ${SITE.name} 后台` }];
 export const headers: Route.HeadersFunction = () => ({ "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" });
 
 export default function Review({ loaderData }: Route.ComponentProps) {
@@ -51,7 +51,7 @@ export default function Review({ loaderData }: Route.ComponentProps) {
     }, { label: `review:${row.id}`, success: action === "reject" ? "已驳回" : action === "selected" ? "已批准精选" : "已批准进入全部动态" });
   };
   return (
-    <AdminPage title="夜间内容审核" subtitle="先核对高风险和已公开内容的修订，再处理普通动态。每条决定对应当前版本；内容变化后必须重新审核。没有固定发布时间。">
+    <AdminPage title="内容管理" subtitle="可在这里核对原文、修正内容或作出人工发布决定。自动模式由证据核验与发布规则持续处理内容，无需每晚人工审核；人工决定只对当前指纹与版本有效。">
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
         <Stat label="待审核" value={pendingCount} hint="按风险与修订优先" tone={pendingCount ? "warn" : "ok"} />
         <Stat label="本页展示" value={rows.length} hint="每页最多 40 条" />

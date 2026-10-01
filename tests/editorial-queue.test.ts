@@ -8,6 +8,7 @@ const { closeDb, sql } = await import("@aihot/backend/db");
 const { upsertMaterial } = await import("@aihot/backend/content/materials");
 const { publishArticle } = await import("@aihot/backend/publication/publish");
 const { stopBoss } = await import("@aihot/backend/jobs/queue");
+const { config } = await import("@aihot/backend/config");
 const { buildApp } = await import("../apps/api/src/app.ts");
 const app = await buildApp();
 const T = tag();
@@ -32,6 +33,50 @@ async function item(title: string, category = "industry") {
   await publishArticle(articleId);
   return articleId;
 }
+
+test("daily report management exposes the configured mode and Shanghai schedule without changing report state", async () => {
+  const oldMode = config.editorialMode;
+  const oldTime = config.automaticDailyTime;
+  try {
+    for (const mode of ["automatic", "manual"] as const) {
+      config.editorialMode = mode;
+      config.automaticDailyTime = "20:45";
+      const before = await sql`SELECT count(*)::int AS n FROM report_drafts`;
+      const response = await app.inject({ method: "GET", url: "/api/admin/reports/daily" });
+      assert.equal(response.statusCode, 200);
+      const state = response.json();
+      assert.equal(state.editorialMode, mode);
+      assert.equal(state.automaticDailyTime, "20:45");
+      assert.match(state.today, /^\d{4}-\d{2}-\d{2}$/);
+      assert.ok("draft" in state);
+      assert.deepEqual(await sql`SELECT count(*)::int AS n FROM report_drafts`, before, "reading management state must not generate a draft");
+    }
+  } finally {
+    config.editorialMode = oldMode;
+    config.automaticDailyTime = oldTime;
+  }
+});
+
+test("daily RSS exposes automatic configured time and preserves manual-mode wording", async () => {
+  const oldMode = config.editorialMode;
+  const oldTime = config.automaticDailyTime;
+  try {
+    config.editorialMode = "automatic";
+    config.automaticDailyTime = "20:45";
+    const automatic = await app.inject({ method: "GET", url: "/feed/daily.xml" });
+    assert.equal(automatic.statusCode, 200);
+    assert.match(automatic.body, /20:45/);
+    assert.match(automatic.body, /自动/);
+    config.editorialMode = "manual";
+    const manual = await app.inject({ method: "GET", url: "/feed/daily.xml" });
+    assert.equal(manual.statusCode, 200);
+    assert.match(manual.body, /手动模式/);
+    assert.doesNotMatch(manual.body, /20:45/);
+  } finally {
+    config.editorialMode = oldMode;
+    config.automaticDailyTime = oldTime;
+  }
+});
 
 test("nightly queue shows prioritized evidence and keeps failures separate", async () => {
   const routine = await item("Routine release");

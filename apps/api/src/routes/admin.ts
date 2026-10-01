@@ -19,6 +19,7 @@ import { releaseReceipt, requeueFailedArticles, resolveDelivery, runsOverview } 
 import { listBudgets, listTargets, replaceContactQr, setTargetEnabled, updateBudget } from "@aihot/backend/admin/settings";
 import { createSource, fetchNow, listSources, previewSource, sourceDetail, updateSource } from "@aihot/backend/admin/sources";
 import { sql } from "@aihot/backend/db";
+import { config } from "@aihot/backend/config";
 import { loadContact } from "@aihot/backend/site/contact";
 import { sendProblem } from "../http/respond.ts";
 import { adminHandler } from "./admin-auth.ts";
@@ -39,7 +40,10 @@ function decodeImage(dataUrl: unknown): Buffer {
 
 export function registerAdmin(app: FastifyInstance) {
   app.get("/api/admin/review", adminHandler(async (req) => listReviewQueue(Number(q(req).limit) || 40, q(req).source)));
-  app.get("/api/admin/reports/daily", adminHandler(async () => ({ today: beijingDate(new Date()), draft: await dailyDraft(beijingDate(new Date())) })));
+  app.get("/api/admin/reports/daily", adminHandler(async () => {
+    const today = beijingDate(new Date());
+    return { today, draft: await dailyDraft(today), editorialMode: config.editorialMode, automaticDailyTime: config.automaticDailyTime };
+  }));
   app.post("/api/admin/reports/daily/drafts", adminHandler(async (_req, _reply, admin) => createDailyDraft(actorOf(admin))));
   app.post("/api/admin/reports/daily/drafts/:id/publish", adminHandler(async (req, _reply, admin) =>
     publishDailyDraft(Number(param(req, "id")), actorOf(admin), String(body(req).reason ?? ""))));

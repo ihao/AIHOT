@@ -5,6 +5,7 @@ import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
 import { siteUrl } from "./links.ts";
 import { sql } from "../db.ts";
 import { MCP_TOOLS } from "@aihot/contracts/mcp";
+import { config } from "../config.ts";
 
 /** Discovery only needs to know whether an entry exists, not count its entire history. */
 export async function loadLlmsAvailability() {
@@ -33,7 +34,12 @@ export function llmsTxt(opts: { hasDailies: boolean; hasWeekly: boolean; hasMont
   lines.push(`- [精选摘要 RSS](${u("/feed.xml")}): 最新 50 条精选摘要，保留标题、站内阅读与原文入口`);
   lines.push(`- [精选全文 RSS](${u("/feed/full.xml")}): 与精选摘要相同的最新 50 条；只对明确允许再分发的来源内联正文`);
   lines.push(`- [全部动态 RSS](${u("/feed/all.xml")}): 最近 7 天公开动态，按时间倒序`);
-  if (opts.hasDailies) lines.push(`- [${daily} RSS](${u("/feed/daily.xml")}): 计划在晚间内容审阅后出刊，实际发布时间以站点更新为准；保留最近 30 期`);
+  if (opts.hasDailies) {
+    const schedule = config.editorialMode === "automatic"
+      ? `每日北京时间 ${config.automaticDailyTime} 自动汇集符合条件的新精选；没有合格内容时不出空刊`
+      : "手动模式按实际发布时间出刊";
+    lines.push(`- [${daily} RSS](${u("/feed/daily.xml")}): ${schedule}；保留最近 30 期`);
+  }
   lines.push(`- [分类 RSS](${u(`/feed/category/${CATEGORY_KEYS[0]}.xml`)}): 按分类订阅精选，slug 支持 ${CATEGORY_KEYS.join(" / ")}`);
   lines.push(`- [公开 API v1 · 最近资讯](${u("/api/v1/items")}): JSON，支持 mode=selected/all、window=24h/7d、by=timeline/published、category、q、limit 与 cursor`);
   lines.push(`- [公开 API v1 · 当前热点](${u("/api/v1/hot-topics")}): 热点榜 Top 10；每条含从 1 开始的 rank，links.story 指向事件页`);

@@ -48,11 +48,11 @@ Files: modify `reports/editorial.ts`, `publication/reports.ts`, `apps/worker/src
 
 Files: update `industry/site.ts` / public method text and affected admin labels only where it falsely requires manual review; update `docs/deploy-9btc-eu.md`, `docs/model-9btc-pilot.md`, approved spec/plan status. Do not edit privacy pages.
 
-- [ ] 扫描页面文案，消除“每天等待人工审核”的错误承诺；说明 AI 评分与证据核验、原文链接、误差改进，不声称概率已校准。
-- [ ] `npm run typecheck`; 空 PG17 `_test` 库 `node scripts/migrate.ts && node scripts/seed.ts --topics-only && npm test`; Web build+16 tests；本机stub流程与 Docker smoke；git diff/check/secret hygiene。
+- [x] 扫描页面文案，消除“每天等待人工审核”的错误承诺；说明 AI 评分与证据核验、原文链接、误差改进，不声称概率已校准。
+- [x] `npm run typecheck`; 空 PG17 `_test` 库 `node scripts/migrate.ts && node scripts/seed.ts --topics-only && npm test`; Web build+16 tests；本机stub流程；git diff/check/secret hygiene。固定提交的 Docker smoke 另在下项 CI/私有部署验收。
 - [ ] 全体最终 review。选择性提交并推送到既有 `feat/9btc-web3` 和 PR1，完整 CI pass 后固定提交部署到EU；部署前本机备份，保留其他服务。
 - [ ] 没有真实模型凭据时部署代码可以完成，但 COLLECT/MODEL 调用和公共 Caddy保持关闭，不把 stub 通过称为真实新闻上线。独立测试库使用合成材料验证完整自动公开→事件→日报，不向业务库写合成新闻。
-- [ ] 模型资源已提供：百炼目录和 Flash/Max 两次隔离真实调用成功，见 docs/model-9btc-pilot.md。安全送EU配置共同调用预算，再做真实内容验收，不再询问供应商或模型选择。
+- [x] 模型资源已提供：百炼目录和 Flash/Max 两次隔离真实调用成功，见 docs/model-9btc-pilot.md。已安全送EU并配置共同调用预算；真实内容最终验收见下项，不再询问供应商或模型选择。
 - [ ] 最后启用已批准六源的独立自动策略和 `EDITORIAL_MODE=automatic`，验证12–18真实样本质量与费用；合格内容、自动日报和公开出口真实通过后开启9btc.com Caddy，完整业务状态验证。
 
 ## Completion boundary
@@ -64,3 +64,7 @@ Files: update `industry/site.ts` / public method text and affected admin labels 
 Task 1 completed at `ee75e04`: pure policy/preset 17 tests, scoring local-stub 7 integration tests, full typecheck and whitespace check passed; independent spec and quality reviews approved after fixing missing-evidence verdict classification. Task 2 is complete locally: isolated PG17 38/38 final analysis/verification regressions passed, prior publication/source/manual regressions passed, evidence pure tests 10/10 and full typecheck passed. Independent spec and quality reviews approved after fixing normal-job replay identity, actual automatic group retries and compound/token currency parsing. Production and real-content acceptance remain pending. Bailian connectivity evidence is isolated synthetic integration, not public news or production acceptance.
 
 Task 3 completed locally after independent spec and quality approval: PG17 automatic/manual report, queue and source regressions 15/15; final automatic report 5/5 including original source dates, no-date/history exclusion, warm-cache stale title redaction, and pause persisted during an in-flight prefilter. Three pure configuration/schedule/safety tests and full typecheck passed. Both review findings were reproduced RED before fixes. Public deployment and real-news acceptance are still pending.
+
+Task 4 in progress: real-pilot prompt defects were reproduced and corrected without lowering gates; dedicated rewrite receipt/version, runtime daily metadata and RSS tests each passed RED to GREEN. Full typecheck, Web build and 16 Web tests passed. A fresh PG17 run passed 274/275; the remaining test reproduced the static schedule inconsistency being corrected. Independent quality/integration review also reproduced three lifecycle regressions RED: obsolete accepted rules still exposed through item detail; restart lacked ordinary current-rule reanalysis; structured event dates were not independently verified. These fixes, their final reviews, full regression and fixed-version production acceptance remain required. EU/naban first scheduled backup/pull both succeeded with matching SHA-256, recorded in `docs/backup-ops-server.md`.
+
+Final local/isolated validation: fresh PostgreSQL 17 database `ninebtc_automatic_acceptance2_test`, 41 migrations and topics-only seed, passed **282/282 backend tests** (191.7 s). Full typecheck passed after the final changes. The old-rule/public-exit, ordinary restart recovery, canonical ledger payload/release time, structured occurrence date and terminal deterministic contradiction cases are fixed; release-time and contradiction-pause regressions were reproduced RED before repair. Spec, quality and final integration reviewers approved. Three full-suite fixture defects were corrected without changing production grouping or weakening publication authority: global release watermark timing, SQL metadata projection inspection and accidental random-text lexical collision. No synthetic news was written to the business database. Fixed-commit CI, EU deployment and real-public-content acceptance remain pending.

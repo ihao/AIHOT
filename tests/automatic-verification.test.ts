@@ -5,12 +5,13 @@ import { config } from '../packages/backend/src/config.ts';
 import { sql, closeDb } from '../packages/backend/src/db.ts';
 import { upsertMaterial } from '../packages/backend/src/content/materials.ts';
 import { setSourceAutoPublic } from '../packages/backend/src/editorial/review.ts';
-import { verifyAutomaticArticle, queueAutomaticVerificationTx } from '../packages/backend/src/editorial/automatic-verification.ts';
+import { AUTOMATIC_RULE_VERSION, verifyAutomaticArticle, queueAutomaticVerificationTx, sweepAutomaticVerifications } from '../packages/backend/src/editorial/automatic-verification.ts';
 import { considerAutoPublicationTx } from '../packages/backend/src/editorial/auto-publication.ts';
+import { refreshAutomaticSafety, sourcePauseUntil } from '../packages/backend/src/editorial/automatic-safety.ts';
 import { publishArticleTx } from '../packages/backend/src/publication/publish.ts';
 import { invalidateStoryCurationTx } from '../packages/backend/src/events/eligibility.ts';
 import { stopBoss, enqueue, QUEUES } from '../packages/backend/src/jobs/queue.ts';
-import { analyzeArticle } from '../packages/backend/src/editorial/analyze.ts';
+import { analyzeArticle, ANALYZE_PROMPT_VERSION } from '../packages/backend/src/editorial/analyze.ts';
 import { fetchItemsByIds } from '../packages/backend/src/publication/items.ts';
 import { groupArticle } from '../packages/backend/src/events/group.ts';
 import { mergeStoryInto } from '../packages/backend/src/events/merge.ts';
@@ -21,6 +22,13 @@ import { composeStoryDigest } from '../packages/backend/src/events/digest.ts';
 import { computeHotRanking } from '../packages/backend/src/events/hot.ts';
 import { randomUUID } from 'node:crypto';
 import { invalidateModelCache } from '../packages/backend/src/editorial/models.ts';
+import { promptText, promptVersion } from '../packages/backend/src/editorial/prompts.ts';
+import { sha256 } from '../packages/backend/src/lib/ids.ts';
+import { selectedSnapshot, selectedChanges } from '../packages/backend/src/publication/v1.ts';
+import { loadItemShare } from '../packages/backend/src/publication/og.ts';
+import { loadDevelopments } from '../packages/backend/src/publication/groups.ts';
+import { processArticle } from '../packages/backend/src/jobs/content.ts';
+import { buildApp } from '../apps/api/src/app.ts';
 const T = tag(),
   source = `verify-${T}`;
 const body = 'Bitcoin Core 30.1 is available. This maintenance release updates the Bitcoin client. ' + 'Documentation describes software improvements and supported operating systems. '.repeat(5);
@@ -29,6 +37,7 @@ let serial = 0,
   quote = body.slice(0, 35),
   invalidJson = false;
 let scoreAnswers: number[] = [];
+let rewriteSummary: string | null = null;
 const checks = {
   claimsComplete: true,
   chineseCopyFaithful: true,
@@ -59,7 +68,7 @@ const provider = await stub(async (_n, req) => {
       message: {
         content: JSON.stringify({
           titleZh: 'Bitcoin Core 新软件版本发布',
-          summaryZh: 'Bitcoin Core 发布了常规客户端软件版本。',
+          summaryZh: rewriteSummary ?? 'Bitcoin Core 发布了常规客户端软件版本。',
           reasonZh: null,
           category: 'infrastructure'
         })
@@ -177,6 +186,7 @@ async function article(opts: {
   sourceId?: string;
   title?: string;
   summary?: string;
+  publishedAt?: Date;
 } = {}) {
   const {
     articleId: id
@@ -187,7 +197,8 @@ async function article(opts: {
     bodyText: body,
     bodyHtml: opts.bodyHtml,
     bodyStatus: (opts.bodyStatus ?? 'ok') as 'ok',
-    via: 'fetch'
+    via: 'fetch',
+    publishedAt: opts.publishedAt
   });
   await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output) VALUES(${id},1,'model',${opts.relevance ?? 'pass'},'infrastructure','Bitcoin Core 新软件版本发布',${opts.summary ?? 'Bitcoin Core 宣布新版客户端可用。'},75,${opts.selected??true},${sql.json({
     scores: opts.scores ?? [75, 76],
@@ -214,6 +225,10 @@ async function projection(id: string) {
 }
 async function unanalyzedArticle(bodyHtml?: string) {
   return (await upsertMaterial({ sourceId: source, url: `https://bitcoincore.org/${T}/${++serial}`, title: 'Bitcoin Core release', bodyText: body, bodyHtml, bodyStatus: 'ok', via: 'fetch' })).articleId;
+}
+async function releasedLedgerClock() {
+  const [latest] = await sql<{ at: Date | null }[]>`SELECT max(visible_at) AS at FROM selected_ledger`;
+  return new Date(Math.max(Date.now(), latest?.at?.getTime() ?? 0) + 1);
 }
 test('normal analysis replay preserves accepted authority and its analysis identity', async () => {
   const id = await unanalyzedArticle();
@@ -271,6 +286,12 @@ test('normal analysis replay never overwrites the verified rewritten final copy'
   assert.equal(latest!.summary_zh, 'Bitcoin Core 发布了常规客户端软件版本。');
   assert.equal(replay!.output!.summaryZh, latest!.summary_zh);
   assert.equal((await projection(id)).visibility, 'public');
+  const receipts = await sql<{ request: { promptVersion: string; systemHash: string } }[]>`
+    SELECT request FROM receipts WHERE purpose='rewrite_verified_summary' AND subject=${`article:${id}@1`}`;
+  assert.equal(receipts.length, 1, 'only one rewrite is allowed for this round');
+  assert.match(receipts[0]!.request.promptVersion, /^rewrite-verified-summary@/);
+  assert.equal(receipts[0]!.request.promptVersion, promptVersion('rewrite-verified-summary'));
+  assert.equal(receipts[0]!.request.systemHash, sha256(promptText('rewrite-verified-summary')));
 });
 test('an explicit analysis attempt still creates a new result and closes old authority', async () => {
   const id = await unanalyzedArticle();
@@ -383,6 +404,192 @@ test('source policy context or original-body edits cannot regrant an old verifie
   await sql`UPDATE articles SET body_text=body_text||' Changed unversioned original fact.' WHERE id=${other}`;
   assert.equal((await projection(other)).visibility, 'withdrawn');
 });
+
+test('an obsolete accepted automatic rule closes every public exit before asynchronous recovery', async () => {
+  const snapshotBefore = await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock());
+  const id = await article();
+  await verifyAutomaticArticle(id);
+  const grouped = await groupArticle(id);
+  const [story] = await sql<{ public_id: string }[]>`SELECT public_id::text FROM stories WHERE id=${grouped.storyId!}`;
+  const app = await buildApp();
+  try {
+    assert.equal((await app.inject({ url: `/api/site/items/${id}` })).statusCode, 200);
+    assert.ok(JSON.stringify(await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock())).includes(id));
+    await app.inject({ url: '/api/site/timeline' }); // warm the grouped anchors before authority changes
+    await sql`UPDATE automatic_verifications SET automatic_rule_version=${`obsolete:${AUTOMATIC_RULE_VERSION}`} WHERE article_id=${id}`;
+    const [stored] = await sql`SELECT visibility,selected FROM publications WHERE article_id=${id}`;
+    assert.equal(stored!.visibility, 'public');
+    assert.equal(stored!.selected, true, 'the fixture intentionally retains its old public projection');
+    const hits = provider.hits();
+    await sql`UPDATE editorial_reviews SET status='pending' WHERE article_id=${id}`;
+    assert.equal((await app.inject({ url: `/api/site/items/${id}` })).statusCode, 404, 'pending review does not erase automatic provenance');
+    await sql`UPDATE editorial_reviews SET status='auto_public' WHERE article_id=${id}`;
+    for (const path of [`/api/site/items/${id}`, `/api/site/items/${id}/original`, `/items/${id}/markdown`, `/og/items/${id}.png`, `/og/posters/${id}.png`, `/api/site/stories/${story!.public_id}`, `/api/site/stories/${story!.public_id}/developments`]) {
+      assert.equal((await app.inject({ url: path })).statusCode, 404, path);
+    }
+    assert.equal(await loadItemShare(id), null);
+    const availability = (await app.inject({ url: `/api/site/items/availability?ids=${id}` })).json();
+    assert.equal(availability[id], 'unavailable');
+    for (const path of ['/api/site/timeline', '/api/site/pool', '/api/v1/items?mode=all', '/api/v1/items?mode=selected', '/feed.xml', '/feed/full.xml', '/feed/all.xml', '/api/v1/selected/snapshot']) {
+      assert.ok(!(await app.inject({ url: path })).body.includes(id), path);
+    }
+    const changes = await selectedChanges({ cursor: snapshotBefore.cursor, limit: 5000 }, await releasedLedgerClock());
+    assert.ok(!changes.changes.some(change => change.op === 'upsert' && change.item.id === id), 'obsolete ledger upserts cannot export old copy');
+    assert.equal(await v1Story(grouped.storyId!), null, 'the shared MCP event reader also denies old authority');
+    assert.equal(provider.hits(), hits, 'public reads never request model work');
+  } finally { await app.close(); }
+});
+
+test('restart sweep queues ordinary current analysis and preserves old waiting and terminal attempt history', async () => {
+  const id = await unanalyzedArticle();
+  await sql`UPDATE articles SET grouped_at=now() WHERE id=${id}`;
+  await analyzeArticle(id);
+  await verifyAutomaticArticle(id);
+  const waiting = await unanalyzedArticle();
+  await sql`UPDATE articles SET grouped_at=now() WHERE id=${waiting}`;
+  await analyzeArticle(waiting);
+  await sql`UPDATE automatic_verifications SET status='waiting',verification_count=2,failures=1,stage='evidence' WHERE article_id=${waiting}`;
+  const priorAt = await releasedLedgerClock();
+  const prior = await selectedSnapshot({ limit: 5000, page: null }, priorAt);
+  assert.ok(prior.items.some(item => item.id === id), 'the old grant was actually synchronized before its rule became obsolete');
+  for (const articleId of [id, waiting]) {
+    await sql`UPDATE automatic_verifications SET automatic_rule_version=${`obsolete:${AUTOMATIC_RULE_VERSION}`} WHERE article_id=${articleId}`;
+    await sql`UPDATE analyses SET prompt_version='obsolete-score-and-writer-prompts' WHERE article_id=${articleId}`;
+  }
+  const old = await sql`SELECT id,status,verification_count,failures,stage,receipt_ids,decisions FROM automatic_verifications WHERE article_id IN (${id},${waiting}) ORDER BY id`;
+  const hits = provider.hits();
+  await sweepAutomaticVerifications();
+  await sweepAutomaticVerifications();
+  assert.equal(provider.hits(), hits, 'sweeping queues work without model requests');
+  const removed = await selectedChanges({ cursor: prior.cursor, limit: 5000 }, await releasedLedgerClock());
+  assert.ok(removed.changes.some(change => change.op === 'remove' && change.id === id), 'recovery informs already-synchronized clients before any new analysis');
+  const [withdrawn] = await sql`SELECT visibility FROM publications WHERE article_id=${id}`;
+  assert.equal(withdrawn!.visibility, 'withdrawn');
+  for (const articleId of [id, waiting]) {
+    const jobs = await sql<{ data: { articleId: string; attemptTag?: string } }[]>`SELECT data FROM pgboss.job
+      WHERE name=${QUEUES.analyze} AND data->>'articleId'=${articleId} AND state IN ('created','active','retry')`;
+    assert.equal(jobs.length, 1, 'repeated recovery uses the ordinary singleton analysis queue');
+    assert.equal(jobs[0]!.data.attemptTag, undefined, 'recovery must reuse step receipts rather than force paid re-evaluation');
+    const [premature] = await sql`SELECT id FROM automatic_verifications WHERE article_id=${articleId} AND automatic_rule_version=${AUTOMATIC_RULE_VERSION}`;
+    assert.equal(premature, undefined, 'old scores and writer output are not rebound as current before normal analysis');
+    await processArticle(articleId);
+    const [analysis] = await sql`SELECT prompt_version FROM analyses WHERE article_id=${articleId} ORDER BY id DESC LIMIT 1`;
+    assert.equal(analysis!.prompt_version, ANALYZE_PROMPT_VERSION);
+    const [fresh] = await sql`SELECT status,verification_count FROM automatic_verifications WHERE article_id=${articleId} AND automatic_rule_version=${AUTOMATIC_RULE_VERSION}`;
+    assert.ok(fresh);
+    assert.equal(fresh!.verification_count, 0);
+    await verifyAutomaticArticle(articleId);
+    assert.equal((await projection(articleId)).visibility, 'public', 'new current-rule acceptance restores normal publication');
+  }
+  assert.deepEqual(await sql`SELECT id,status,verification_count,failures,stage,receipt_ids,decisions FROM automatic_verifications WHERE id IN ${sql(old.map(row => row.id))} ORDER BY id`, old);
+});
+
+test('automatic sync rejects old ledger metadata after accepting the same verified copy again', async () => {
+  const before = await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock());
+  const ids = [await unanalyzedArticle(), await unanalyzedArticle()].sort();
+  for (const articleId of ids) {
+    await sql`UPDATE articles SET grouped_at=now() WHERE id=${articleId}`;
+    await analyzeArticle(articleId);
+    await verifyAutomaticArticle(articleId);
+  }
+  const id = ids[1]!;
+  const [old] = await sql<{ payload: { title: string; summary: string | null; reason: string | null; score: number } }[]>`
+    SELECT payload FROM selected_ledger WHERE article_id=${id} AND op='upsert' ORDER BY seq DESC LIMIT 1`;
+  const firstPage = await selectedSnapshot({ limit: 1, page: null }, await releasedLedgerClock());
+  assert.ok(firstPage.nextPage, 'the retained snapshot watermark has a continuation');
+  assert.ok(!firstPage.items.some(item => item.id === id), 'the target remains on a later snapshot page');
+  await sql`UPDATE automatic_verifications SET automatic_rule_version=${`obsolete:${AUTOMATIC_RULE_VERSION}`} WHERE article_id=${id}`;
+  await sql`UPDATE analyses SET prompt_version='obsolete-score-and-writer-prompts' WHERE article_id=${id}`;
+  await sweepAutomaticVerifications();
+  const [material] = await sql<{ url: string }[]>`SELECT url FROM articles WHERE id=${id}`;
+  await upsertMaterial({ sourceId: source, url: material!.url, title: 'Bitcoin Core release',
+    bodyText: body + ' Synthetic revision note for this isolated test.', bodyStatus: 'ok', via: 'fetch' });
+  scoreAnswers = [84, 85];
+  await processArticle(id);
+  await verifyAutomaticArticle(id);
+  const [current] = await sql<{ payload: typeof old.payload }[]>`
+    SELECT payload FROM selected_ledger WHERE article_id=${id} AND op='upsert' ORDER BY seq DESC LIMIT 1`;
+  assert.deepEqual([current!.payload.title, current!.payload.summary, current!.payload.reason],
+    [old!.payload.title, old!.payload.summary, old!.payload.reason], 'the verified Chinese copy is identical across grants');
+  assert.notEqual(current!.payload.score, old!.payload.score, 'normal current analysis produces different public score metadata');
+  const changes = await selectedChanges({ cursor: before.cursor, limit: 5000 });
+  assert.ok(!changes.changes.some(change => change.op === 'upsert' && change.item.id === id && change.item.score === old!.payload.score),
+    'identical verified copy cannot authorize obsolete ledger metadata');
+  const releasedAt = await releasedLedgerClock();
+  const releasedChanges = await selectedChanges({ cursor: before.cursor, limit: 5000 }, releasedAt);
+  assert.ok(!releasedChanges.changes.some(change => change.op === 'upsert' && change.item.id === id && change.item.score === old!.payload.score),
+    'obsolete metadata stays hidden after the current payload releases');
+  assert.ok(releasedChanges.changes.some(change => change.op === 'upsert' && change.item.id === id && change.item.score === current!.payload.score),
+    'the accepted current canonical payload remains available');
+  const continuation = await selectedSnapshot({ limit: 5000, page: firstPage.nextPage }, releasedAt);
+  assert.ok(!continuation.items.some(item => item.id === id), 'an old paginated snapshot cannot export the old payload after the grant changes');
+});
+
+test('automatic sync keeps an identical reaccepted canonical payload behind its new release gate', async () => {
+  const before = await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock());
+  const id = await unanalyzedArticle();
+  await analyzeArticle(id);
+  await verifyAutomaticArticle(id);
+  const [old] = await sql<{ payload: Record<string, unknown> }[]>`
+    SELECT payload FROM selected_ledger WHERE article_id=${id} AND op='upsert' ORDER BY seq DESC LIMIT 1`;
+  const synchronized = await selectedSnapshot({ limit: 5000, page: null }, await releasedLedgerClock());
+  assert.ok(synchronized.items.some(item => item.id === id), 'the previous automatic grant was released and synchronized');
+  const [material] = await sql<{ url: string }[]>`SELECT url FROM articles WHERE id=${id}`;
+  await upsertMaterial({ sourceId: source, url: material!.url, title: 'Bitcoin Core release',
+    bodyText: body + ' Another synthetic revision note for this isolated test.', bodyStatus: 'ok', via: 'fetch' });
+  const withdrawn = await sql<{ op: string }[]>`SELECT op FROM selected_ledger WHERE article_id=${id} ORDER BY seq DESC LIMIT 1`;
+  assert.equal(withdrawn[0]!.op, 'remove', 'the real source revision withdraws the old grant before reanalysis');
+  await processArticle(id);
+  await verifyAutomaticArticle(id);
+  const [current] = await sql<{ payload: Record<string, unknown>; visible_at: Date }[]>`
+    SELECT payload,visible_at FROM selected_ledger WHERE article_id=${id} AND op='upsert' ORDER BY seq DESC LIMIT 1`;
+  assert.deepEqual(current!.payload, old!.payload, 'normal current analysis and verification recreate the identical complete canonical payload');
+  assert.ok(current!.visible_at > new Date(), 'the new grant waits for the normal 180-second release gate');
+  const early = await selectedChanges({ cursor: before.cursor, limit: 1 }, new Date(current!.visible_at.getTime() - 1));
+  assert.equal(early.count, 1, 'the already released historical entry is reachable before the later release watermark');
+  assert.equal(early.changes[0]!.op, 'remove', 'identical current copy does not release a historical upsert early');
+  const released = await selectedChanges({ cursor: before.cursor, limit: 5000 }, await releasedLedgerClock());
+  assert.ok(released.changes.some(change => change.op === 'upsert' && change.item.id === id),
+    'the current canonical payload becomes available after its own release');
+});
+
+test('automatic event outputs suppress an unverified structured occurrence date while preserving source dates and manual behavior', async () => {
+  const sourceDate = new Date(Date.now() - 3600_000);
+  const id = await article({ publishedAt: sourceDate });
+  await verifyAutomaticArticle(id);
+  const grouped = await groupArticle(id);
+  await sql`UPDATE facts SET occurred_at='2099-01-01' WHERE story_id=${grouped.storyId!}`;
+  const [story] = await sql<{ public_id: string }[]>`SELECT public_id::text FROM stories WHERE id=${grouped.storyId!}`;
+  const query = { storyPublicId: story!.public_id, channel: 'all' as const, category: null, tag: null, topicTags: null, cursor: null, take: 10, revision: null };
+  const detail = await loadStoryDetail(grouped.storyId!);
+  assert.ok(detail);
+  assert.ok(detail.developments.every(development => development.occurredAt === null));
+  assert.ok(detail.developments.every(development => development.firstReportAt !== '2099-01-01T00:00:00.000Z'));
+  assert.equal(detail.firstReportAt, sourceDate.toISOString());
+  const developments = await loadDevelopments(query);
+  assert.equal(developments.kind, 'ok');
+  if (developments.kind === 'ok') assert.ok(developments.body.developments.every(development => development.occurredAt === null));
+  assert.ok(!JSON.stringify(await v1Story(grouped.storyId!)).includes('2099-01-01'));
+  const app = await buildApp();
+  try {
+    for (const path of [`/api/site/stories/${story!.public_id}`, `/api/site/stories/${story!.public_id}/developments`, `/api/v1/stories/${story!.public_id}`]) {
+      const response = await app.inject({ url: path });
+      assert.equal(response.statusCode, 200, path);
+      assert.ok(!response.body.includes('2099-01-01'), path);
+    }
+  } finally { await app.close(); }
+  const proposal = await getReviewProposal(id);
+  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id=${id}`;
+  await decideArticleReview(id, { status: 'approved', curated: true, fingerprint: proposal!.fingerprint, version: review!.version, reason: 'manual source-date compatibility fixture' }, 'test');
+  config.editorialMode = 'manual';
+  try {
+    const manual = await loadStoryDetail(grouped.storyId!);
+    assert.ok(manual!.developments.some(development => development.occurredAt === '2099-01-01T00:00:00.000Z'));
+    const manualDevelopments = await loadDevelopments(query);
+    if (manualDevelopments.kind === 'ok') assert.ok(manualDevelopments.body.developments.some(development => development.occurredAt === '2099-01-01T00:00:00.000Z'));
+    else assert.fail('manual developments remain available');
+  } finally { config.editorialMode = 'automatic'; }
+});
 test('first grouping, forced regroup and merge restore automatic selection; reader event text uses verified copy', async () => {
   const id = await article();
   await verifyAutomaticArticle(id);
@@ -451,6 +658,52 @@ test('evidence then contradiction rewrite consume three verifier requests and pr
   assert.equal(r!.final_copy.summaryZh, 'Bitcoin Core 发布了常规客户端软件版本。');
   assert.equal((await getReviewProposal(id))!.fingerprint, r!.final_fingerprint);
   assert.equal((await projection(id)).selected, true);
+  const [safety] = await sql<{ value: { streak: number } }[]>`SELECT value FROM settings WHERE key=${`automatic.source-safety.${source}`}`;
+  assert.equal(safety!.value.streak, 0, 'an accepted rewrite resets safety despite its intermediate contradiction');
+});
+test('five terminal deterministic amount contradictions pause a source despite raw supported verifier responses', async () => {
+  const isolatedSource = `${source}-amount-conflicts`;
+  await sql`INSERT INTO sources(id,name,kind,config,tier,participation_mode,first_party,next_fetch_at)
+    VALUES(${isolatedSource},'Synthetic deterministic conflicts','rss',${sql.json({ feedUrl: 'https://bitcoincore.org/rss' })},
+      'T1','editorial',true,'2100-01-01')`;
+  await setSourceAutoPublic(isolatedSource, { enabled: true, version: 0, reason: 'synthetic safety test' }, 'test');
+  rewriteSummary = 'Bitcoin Core 宣布新版客户端可用，开发成本为9亿美元。';
+  try {
+    for (let i = 0; i < 5; i++) {
+      const id = await article({ sourceId: isolatedSource, summary: rewriteSummary });
+      await verifyAutomaticArticle(id);
+      const [round] = await sql<{
+        status: string; verification: { verdict: string };
+        decisions: Array<{ decision: { verificationVerdict: string } }>;
+      }[]>`SELECT status,verification,decisions FROM automatic_verifications WHERE article_id=${id}`;
+      assert.equal(round!.status, 'rejected');
+      assert.equal(round!.verification.verdict, 'supported');
+      assert.equal(round!.decisions.at(-1)!.decision.verificationVerdict, 'contradicted');
+      if (i < 4) assert.equal(await sourcePauseUntil(isolatedSource), null);
+    }
+    const until = await sourcePauseUntil(isolatedSource);
+    assert.ok(until && until > new Date(), 'five final contradictions must pause new paid work for this source');
+    await refreshAutomaticSafety();
+    assert.equal((await sourcePauseUntil(isolatedSource))!.getTime(), until!.getTime(), 'consumed terminal rounds do not trigger another pause');
+    const [audits] = await sql<{ count: number }[]>`SELECT count(*)::int AS count FROM audit_log
+      WHERE action='automatic.source-pause' AND subject=${`source:${isolatedSource}`}`;
+    assert.equal(audits!.count, 1);
+  } finally { rewriteSummary = null; }
+});
+test('legacy rejected rounds without final decisions retain raw contradiction safety fallback', async () => {
+  const legacySource = `${source}-legacy-conflicts`;
+  await sql`INSERT INTO sources(id,name,kind,config,tier,participation_mode,first_party,next_fetch_at)
+    VALUES(${legacySource},'Synthetic legacy contradictions','rss',${sql.json({ feedUrl: 'https://bitcoincore.org/rss' })},
+      'T1','editorial',true,'2100-01-01')`;
+  await setSourceAutoPublic(legacySource, { enabled: true, version: 0, reason: 'synthetic legacy safety test' }, 'test');
+  for (let i = 0; i < 5; i++) {
+    const id = await article({ sourceId: legacySource });
+    await sql`UPDATE automatic_verifications SET status='rejected',decisions='[]'::jsonb,
+      verification=${sql.json({ verdict: 'contradicted' })},updated_at=now() WHERE article_id=${id}`;
+  }
+  await refreshAutomaticSafety();
+  const until = await sourcePauseUntil(legacySource);
+  assert.ok(until && until > new Date(), 'historical terminal contradictions remain effective without decision history');
 });
 test('concurrent workers share a persisted claim and never duplicate a verifier request', async () => {
   const id = await article();

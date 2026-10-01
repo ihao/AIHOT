@@ -357,7 +357,12 @@ test("share images keep detail metadata and access rules while conditional reads
       assert.equal(response.etag, etag);
     }
     assert.equal(queries.length, 2);
-    assert.ok(queries.every((q) => !/body_html|body_text|translations|fact_articles/.test(q)), "cards only load their public metadata");
+    assert.ok(queries.every((q) => {
+      const projection = q.match(/^\s*SELECT\s+([\s\S]*?)\s+FROM\s+publications\s+p\b/i)?.[1];
+      // Authority may compare the current raw body inside SQL; the returned row never hydrates it.
+      return !!projection && !/\*|body_html|body_text|translations|fact_articles/.test(projection)
+        && !/body_html|translations|fact_articles/.test(q);
+    }), "cards only return public metadata while checking current authority in the database");
   } finally { sql.options.debug = previous; }
   await sql`UPDATE publications SET visibility = 'summary-only' WHERE article_id = ${id}`;
   assert.equal((await get(paths[0]![0]!, { "if-none-match": paths[0]![1]! })).status, 304, "summary-only pages keep the same allowed share summary");

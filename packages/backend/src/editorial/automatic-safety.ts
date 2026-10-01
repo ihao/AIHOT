@@ -24,7 +24,8 @@ export async function refreshAutomaticSafety(now = new Date()) {
   return sql.begin(async tx => {
     await tx`SELECT pg_advisory_xact_lock(hashtext('automatic_source_safety'))`;
     const rows = await tx<{ id: number; source_id: string; verdict: string | null }[]>`
-      SELECT av.id,a.source_id,CASE WHEN av.status='rejected' THEN av.verification->>'verdict' END AS verdict
+      SELECT av.id,a.source_id,CASE WHEN av.status='rejected' THEN
+        coalesce(av.decisions->-1->'decision'->>'verificationVerdict',av.verification->>'verdict') END AS verdict
       FROM automatic_verifications av JOIN articles a ON a.id=av.article_id
       WHERE av.status IN ('accepted','rejected','stale') AND av.safety_processed_at IS NULL
       ORDER BY av.updated_at,av.id LIMIT 500`;

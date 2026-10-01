@@ -8,7 +8,7 @@ import { dailyUrl, itemUrl, siteUrl } from "./links.ts";
 import { SITE, withSubject } from "@aihot/industry/site";
 import { config } from "../config.ts";
 import { getReviewProposal } from "../editorial/review.ts";
-import { currentAutomaticDecision } from "../editorial/automatic-verification.ts";
+import { currentAutomaticDecision, publicationAuthorityCondition } from "../editorial/automatic-verification.ts";
 import { curatedEvidence } from "../events/eligibility.ts";
 
 export type { ReportKind };
@@ -66,8 +66,8 @@ export async function unavailableIds(ids: string[]): Promise<Set<string>> {
   const unique = [...new Set(ids.filter(Boolean))];
   if (!unique.length) return new Set();
   const rows = await sql<{ id: string }[]>`
-    SELECT article_id AS id FROM publications
-    WHERE article_id = ANY(${unique}::text[]) AND (visibility <> 'public' OR NOT eligible)`;
+    SELECT p.article_id AS id FROM publications p
+    WHERE p.article_id = ANY(${unique}::text[]) AND (p.visibility <> 'public' OR NOT p.eligible OR NOT ${publicationAuthorityCondition('p')})`;
   return new Set(rows.map((r) => r.id));
 }
 

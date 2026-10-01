@@ -1,3 +1,4 @@
+import { config } from '../config.ts';
 // Reading-group expansions: the reports behind "另有 N 家信源报道" and the developments behind
 // "展开 N 条进展". Members must pass the same visibility, pool eligibility and parent-page filters.
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
@@ -122,7 +123,7 @@ export async function loadDevelopments(q: DevelopmentsQuery, now = new Date()): 
       const rep = pickRepresentative(rows);
       return {
         first: Math.min(...rows.map((r) => (r.sort_at ?? r.timeline_at).getTime())),
-        development: { factId: f.public_id, title: rep.title, occurredAt: f.occurred_at?.toISOString() ?? null, representativeId: rep.id, reportCount: counts.get(f.id) ?? rows.length },
+        development: { factId: f.public_id, title: rep.title, occurredAt: config.editorialMode === 'automatic' ? null : f.occurred_at?.toISOString() ?? null, representativeId: rep.id, reportCount: counts.get(f.id) ?? rows.length },
       };
     })
     .sort((a, b) => b.first - a.first || a.development.factId.localeCompare(b.development.factId))

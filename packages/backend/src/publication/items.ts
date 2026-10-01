@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Public read layer, item level. Every exit (site API, v1, RSS, MCP, sitemap) reads
 // items through these functions; visibility, release gate and body licences are applied here.
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
@@ -82,12 +83,12 @@ export const ITEM_FROM = sql`
 
 /** Listed items: public, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND (NOT p.selected OR p.visible_after <= ${now})`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND p.selected AND p.visible_after <= ${now}`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {
@@ -200,6 +201,6 @@ export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
 
 export async function fetchItemsByIds(ids: string[], db: Db = sql): Promise<Map<string, ItemRow>> {
   if (ids.length === 0) return new Map();
-  const rows = await db<ItemRow[]>`SELECT ${ITEM_COLUMNS} ${ITEM_FROM} WHERE p.article_id IN ${db(ids)}`;
+  const rows = await db<ItemRow[]>`SELECT ${ITEM_COLUMNS} ${ITEM_FROM} WHERE p.article_id IN ${db(ids)} AND ${publicationAuthorityCondition('p')}`;
   return new Map(rows.map((r) => [r.id, r]));
 }

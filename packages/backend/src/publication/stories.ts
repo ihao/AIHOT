@@ -1,3 +1,4 @@
+import { config } from '../config.ts';
 // Stories (events) and the hot ranking through the public read layer. The website sees heat values;
 // v1 / MCP / Skill only see ranks and counts.
 import type { HeatPoint, HotResponse, StoryDetail, StoryReportView } from "@aihot/contracts/site";
@@ -99,7 +100,7 @@ async function storyContent(storyId: number, now: Date) {
       const members = byFact.get(f.id)!;
       const rep = [...members].sort((a, b) => Number(b.first_party) - Number(a.first_party) || Number(b.selected) - Number(a.selected) || a.at.getTime() - b.at.getTime())[0]!;
       const first = members.reduce((m, r) => (r.at < m ? r.at : m), members[0]!.at);
-      return { factId: f.public_id, title: rep.title, occurredAt: f.occurred_at?.toISOString() ?? null, firstReportAt: first.toISOString(), reportCount: members.length, representative: rep };
+      return { factId: f.public_id, title: rep.title, occurredAt: config.editorialMode === 'automatic' ? null : f.occurred_at?.toISOString() ?? null, firstReportAt: first.toISOString(), reportCount: members.length, representative: rep };
     })
     .sort((a, b) => Date.parse(b.firstReportAt) - Date.parse(a.firstReportAt));
 

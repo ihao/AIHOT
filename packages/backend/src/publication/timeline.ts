@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Home timeline: selected items folded into reading groups (reference SELECTED_READING):
 // one card per story, per fact outside a story, or per standalone article. A card sits at its latest
 // development's first appearance, so a new development brings it back up while a representative swap
@@ -205,6 +206,6 @@ export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineRespo
 export async function nextRelease(q: TimelineQuery, now: Date): Promise<string | null> {
   const [row] = await sql<{ t: Date | null }[]>`
     SELECT min(p.visible_after) AS t FROM publications p
-    WHERE p.visibility = 'public' AND p.selected AND p.visible_after > ${now} ${filterSql(q)}`;
+    WHERE p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND p.selected AND p.visible_after > ${now} ${filterSql(q)}`;
   return row?.t ? row.t.toISOString() : null;
 }

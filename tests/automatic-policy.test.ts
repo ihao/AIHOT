@@ -139,6 +139,42 @@ test("false checks deny publication without inventing a contradiction for missin
   }
 });
 
+test("regional research without a chain claim can pass; an unsupported added chain remains denied", () => {
+  const research = input();
+  const quote = "Chainalysis reports regional adoption declined 6.8% from July 2025 to June 2026.";
+  research.copy = { titleZh: "Chainalysis 报告区域采用情况", summaryZh: "Chainalysis 报告称，2025年7月至2026年6月区域采用指标下降6.8%。", reasonZh: null, category: "research" };
+  research.materials = [{ id: "original", bodyText: quote, primary: true }];
+  research.verification.claims = [{ claim: research.copy.summaryZh!, verdict: "supported", evidence: [{ materialId: "original", exactQuote: quote }], reason: "保留机构归属、指标与统计区间，文案未主张任何链" }];
+  assert.equal(policy().evaluateAutomaticPublication(research).public, true, "a dimension absent from the copy has no claim conflict");
+  for (const verdict of ["needs_evidence", "contradicted"] as const) {
+    const unsupported = { ...research, copy: { ...research.copy, summaryZh: "Chainalysis 报告称，以太坊链采用指标下降6.8%。" },
+      verification: { ...research.verification, verdict, checks: { ...checks, chain: false },
+        claims: [{ ...research.verification.claims[0]!, claim: "以太坊链采用指标下降6.8%", verdict, reason: "材料未指明以太坊链，不能支持新增的链范围" }] } };
+    const result = policy().evaluateAutomaticPublication(unsupported);
+    assert.equal(result.public, false);
+    assert.equal(result.verificationVerdict, verdict);
+    assert.ok(result.reasons.includes("check_chain_failed"));
+  }
+  const falsePositive = { ...research, verification: { ...research.verification, checks: { ...checks, chain: false } } };
+  assert.equal(policy().evaluateAutomaticPublication(falsePositive).public, false, "the caller must never automatically repair a model's false check");
+});
+
+test("evidence quotes preserve punctuation, case and Unicode quotation marks", () => {
+  const original = 'The report calls it “Institutional Adoption”: 6.8%.';
+  const exact = input();
+  exact.copy = { titleZh: "报告披露机构采用指标", summaryZh: "报告将该指标称为“机构采用”，数值为6.8%。", reasonZh: null, category: "research" };
+  exact.materials[0]!.bodyText = original;
+  exact.verification.claims[0]!.claim = exact.copy.summaryZh!;
+  exact.verification.claims[0]!.evidence = [{ materialId: "original", exactQuote: '“Institutional Adoption”: 6.8%' }];
+  assert.equal(policy().evaluateAutomaticPublication(exact).public, true);
+  for (const quote of ['"Institutional Adoption": 6.8%', '“institutional Adoption”: 6.8%', '“Institutional Adoption” 6.8%', '“Institutional Adoption”: approximately 6.8%']) {
+    exact.verification.claims[0]!.evidence[0]!.exactQuote = quote;
+    const result = policy().evaluateAutomaticPublication(exact);
+    assert.equal(result.public, false, quote);
+    assert.ok(result.reasons.includes("claim_0_quote_invalid"));
+  }
+});
+
 test("an explicit overall or claim contradiction remains contradicted when checks are also false", () => {
   const overall = policy().evaluateAutomaticPublication({
     ...input(), verification: { ...verification(), verdict: "contradicted", checks: { ...checks, time: false } },

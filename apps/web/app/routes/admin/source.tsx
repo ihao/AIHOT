@@ -269,8 +269,8 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className="space-y-5">
-          <Card title="全部动态自动发布">
-            <p className="text-[13px] text-ink-3">仅供已核实的一手官方 RSS 例行软件版本发布使用。开启后，仍须逐条通过内容规则；精选、事件和日报继续人工审核。</p>
+          <Card title="信源自动发布授权">
+            <p className="text-[13px] text-ink-3">自动模式中，此设置授权信源参与自动发布；每条内容仍须通过评分、证据核验与发布规则，精选和日报按各自条件自动处理。手动模式保留仅限一手官方 RSS 常规软件版本更新的自动动态规则，其余内容由人工决定。</p>
             <div className="mt-3 flex items-center justify-between gap-3">
               <Badge tone={autoPolicy.enabled ? "warn" : "muted"}>{autoPolicy.enabled ? "已允许" : "关闭"}</Badge>
               <Button tone={autoPolicy.enabled ? "danger" : "primary"} onClick={() => setDialog("auto-public")}>{autoPolicy.enabled ? "关闭自动发布" : "允许自动发布"}</Button>
@@ -332,7 +332,7 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
       <ReasonDialog
         open={dialog === "auto-public"}
         title={autoPolicy.enabled ? "关闭自动发布" : "允许此信源自动发布"}
-        description="逐条规则仍会拦截高风险或证据不足的内容；此设置变更会重新核验该信源已有内容。"
+        description="自动模式仍须逐条通过证据核验与发布规则；手动模式按限定的常规更新规则处理。此设置变更会重新评估该信源已有内容。"
         danger={autoPolicy.enabled}
         confirmLabel={autoPolicy.enabled ? "关闭" : "允许"}
         busy={pending === "auto-public"}
