@@ -166,7 +166,7 @@ async function afterFailure(articleId: string, error: unknown): Promise<{ state:
 export async function registerContentJobs(boss: PgBoss, concurrency = Number(process.env.ANALYZE_CONCURRENCY || 6)) {
   await ensureQueue(QUEUES.verifyAutomatic);
   // A sealed maintenance batch may temporarily drain faster; normal operation remains two.
-  const verificationConcurrency = Math.max(1, Math.min(6, Math.floor(Number(process.env.AUTOMATIC_VERIFY_CONCURRENCY) || 2)));
+  const verificationConcurrency = Math.max(1, Math.min(12, Math.floor(Number(process.env.AUTOMATIC_VERIFY_CONCURRENCY) || 2)));
   await boss.work<{ articleId: string }>(QUEUES.verifyAutomatic, { localConcurrency: verificationConcurrency, pollingIntervalSeconds: 2 }, async ([job]) => {
     if (job) await verifyAutomaticArticle(job.data.articleId);
   });
