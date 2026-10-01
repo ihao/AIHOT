@@ -3,6 +3,7 @@ import type { PgBoss } from "pg-boss";
 import { FEATURES } from "@aihot/industry/features";
 import { config, credential } from "@aihot/backend/config";
 import { recordRun } from "@aihot/backend/jobs/queue";
+import { sweepGroupWaits } from "@aihot/backend/jobs/events";
 import { sweepUnprocessed } from "@aihot/backend/jobs/content";
 import { translatePending } from "@aihot/backend/editorial/translate";
 import { adaptIntervals, scheduleDueSources } from "@aihot/backend/sources/collect";
@@ -39,9 +40,12 @@ export const SCHEDULES: Scheduled[] = [
   ...(config.editorialMode === "automatic" ? [
     { name: "reports.daily-automatic", cron: `${dailyMinute} ${dailyHour} * * *`, missed: "once" as const,
       run: async () => (await import("@aihot/backend/reports/automatic")).publishAutomaticDaily() },
+    { name: "reports.daily-catchup", cron: "*/5 * * * *",
+      run: async () => (await import("@aihot/backend/reports/automatic")).catchUpAutomaticDaily() },
     { name: "automatic.safety", cron: "* * * * *",
       run: async () => (await import("@aihot/backend/editorial/automatic-safety")).refreshAutomaticSafety() },
   ] : []),
+  { name: "events.sweep", cron: "*/5 * * * *", run: sweepGroupWaits },
   { name: "content.sweep", cron: "*/5 * * * *", run: sweepUnprocessed },
   // Full-text translations of newly selected items (model calls; off with MODEL_CALLS_ENABLED=false).
   { name: "content.translate", cron: "*/5 * * * *", run: () => translatePending() },

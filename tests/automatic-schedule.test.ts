@@ -18,6 +18,8 @@ test('actual registration installs Shanghai daily automatic only, missed once, b
   assert.equal(daily.cron,'30 21 * * *');assert.equal(daily.options.tz,'Asia/Shanghai');assert.equal(daily.options.missed,'once');
   assert.ok(auto.queues.find((s:any)=>s.name===daily.name).options.retryLimit<=2);
   assert.ok(auto.scheduled.some((s:any)=>s.name==='cron.automatic.safety'));
+  assert.equal(auto.scheduled.find((s:any)=>s.name==='cron.reports.daily-catchup').cron,'*/5 * * * *');
+  assert.ok(auto.scheduled.some((s:any)=>s.name==='cron.events.sweep'));
   assert.ok(!auto.scheduled.some((s:any)=>/reports\.(weekly|monthly)/.test(s.name)));
   assert.ok(auto.removed.includes('cron.reports.daily-old'));
   assert.ok(!registration('manual').scheduled.some((s:any)=>s.name==='cron.reports.daily-automatic'||s.name==='cron.automatic.safety'));

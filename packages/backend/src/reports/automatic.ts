@@ -1,6 +1,6 @@
 // Deterministic daily composition: only current verified titles, summaries and original links.
 // Preparing and publishing have separate transactions; the latter rechecks the exact snapshot.
-import { beijingDate } from '@aihot/contracts/time';
+import { beijingDate, beijingTime } from '@aihot/contracts/time';
 import { config } from '../config.ts';
 import { sql } from '../db.ts';
 import { createDailyDraft, publishDailyDraft, StaleReportDraft } from './editorial.ts';
@@ -35,4 +35,12 @@ export async function publishAutomaticDaily(cutoff = new Date()) {
     }
   }
   return { status: 'skipped' as const, key, reason: 'candidate_changed' };
+}
+
+/** A skipped empty slot can be filled by a later verified selection on the same Beijing day. */
+export async function catchUpAutomaticDaily(cutoff = new Date()) {
+  if (beijingTime(cutoff) < config.automaticDailyTime) {
+    return { status: 'skipped' as const, key: beijingDate(cutoff), reason: 'before_schedule' };
+  }
+  return publishAutomaticDaily(cutoff);
 }

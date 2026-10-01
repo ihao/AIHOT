@@ -126,6 +126,25 @@ test('empty automatic window is skipped without creating an empty public report'
   assert.equal((await (await automatic()).publishAutomaticDaily()).status,'skipped');
   assert.equal(await loadReport('daily',key),null);
 });
+test('daily catchup waits for the scheduled time, then publishes late verified selections exactly once without AI',async()=>{
+  const reports=await automatic(),oldTime=config.automaticDailyTime;
+  try {
+    config.automaticDailyTime='23:59';
+    const before=await reports.catchUpAutomaticDaily(new Date(`${key}T00:01:00+08:00`));
+    assert.equal(before.reason,'before_schedule');assert.equal(await loadReport('daily',key),null);
+    config.automaticDailyTime='00:00';
+    assert.equal((await reports.catchUpAutomaticDaily()).reason,'empty_window');
+    await sql`UPDATE settings SET value=${sql.json({at:new Date().toISOString()})} WHERE key='report_launch_start'`;
+    const late=await article({source:other});const hits=provider.hits();
+    assert.equal((await reports.catchUpAutomaticDaily(new Date(Date.now()+1000))).status,'published');
+    [{id:reportId}]=await sql`SELECT id FROM reports WHERE kind='daily' AND key=${key}` as any;
+    assert.ok((await loadReport('daily',key))!.sections.flatMap(s=>s.items).some(i=>i.itemId===late));
+    assert.equal((await reports.catchUpAutomaticDaily()).reason,'already_published');
+    assert.equal(provider.hits(),hits);
+    const [versions]=await sql`SELECT count(*)::int AS n FROM report_versions WHERE report_id=${reportId!}`;
+    assert.equal(versions!.n,1);
+  } finally {config.automaticDailyTime=oldTime;}
+});
 test('five terminal explicit contradictions persist one source pause; restart/TTL do not retrigger old rows, other source continues and no attempts are spent while paused',async()=>{
   verdict='contradicted';
   for(let i=0;i<5;i++) await article();
