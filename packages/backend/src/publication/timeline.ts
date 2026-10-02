@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Home timeline: selected items folded into reading groups (reference SELECTED_READING):
 // one card per story, per fact outside a story, or per standalone article. A card sits at its latest
 // development's first appearance, so a new development brings it back up while a representative swap
@@ -6,6 +7,7 @@ import type { GroupInfo, TimelineCard, TimelineFilters, TimelineResponse } from 
 import { beijingDate } from "@aihot/contracts/time";
 import { sql } from "../db.ts";
 import { decodeCursor, encodeCursor, InvalidCursorError, queryBinding } from "../lib/cursor.ts";
+import { curatedEvidence } from "../events/eligibility.ts";
 import {
   ITEM_COLUMNS, ITEM_FROM, categoryCondition, channelCondition, selectedCondition, tagCondition, toFeedItemSummary, topicCondition,
   type ItemRow,
@@ -54,7 +56,7 @@ async function groupPool(q: TimelineQuery, now: Date, storyIds: number[], factId
     SELECT DISTINCT f.story_id, f.id AS fact_id, p.article_id, p.source_id, p.timeline_at AS at
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     WHERE (f.story_id IN ${sql(storyIds.length ? storyIds : [0])} OR f.id IN ${sql(factIds.length ? factIds : [0])})
-      AND p.visibility = 'public' AND p.eligible AND (NOT p.selected OR p.visible_after <= ${now}) ${filterSql(q)}`;
+      AND ${curatedEvidence("p", now)} ${filterSql(q)}`;
 }
 
 /**
@@ -119,11 +121,11 @@ export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineRespo
   const factIds = page.filter((g) => g.gk.startsWith("f")).map((g) => Number(g.gk.slice(1)));
 
   // Read only ranking fields for the whole group; bodies, media and translations are hydrated for this page's representatives.
-  type Member = RepresentativeRow & Pick<ItemRow, "id" | "sort_at"> & { story_id: number | null; fact_id: number };
+  type Member = RepresentativeRow & Pick<ItemRow, "id" | "sort_at" | "title"> & { story_id: number | null; fact_id: number };
   const [members, pool] = await Promise.all([
     storyIds.length || factIds.length
       ? sql<Member[]>`
-        SELECT p.story_id, p.fact_id, p.article_id AS id, p.first_party, p.body_mode, p.score, p.timeline_at, p.sort_at FROM publications p
+        SELECT p.story_id, p.fact_id, p.article_id AS id, p.first_party, p.body_mode, p.score, p.timeline_at, p.sort_at, p.title FROM publications p
         WHERE (p.story_id IN ${sql(storyIds.length ? storyIds : [0])} OR (p.story_id IS NULL AND p.fact_id IN ${sql(factIds.length ? factIds : [0])}))
           AND ${selectedCondition(now)} ${filterSql(q)}`
       : Promise.resolve([] as Member[]),
@@ -131,7 +133,7 @@ export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineRespo
   ]);
   const groupFactIds = [...new Set([...members.map((m) => m.fact_id), ...pool.map((r) => r.fact_id)])];
   const factInfo = new Map(
-    groupFactIds.length ? (await sql<{ id: number; public_id: string; title: string }[]>`SELECT id, public_id, title FROM facts WHERE id IN ${sql(groupFactIds)}`).map((f) => [f.id, f]) : [],
+    groupFactIds.length ? (await sql<{ id: number; public_id: string }[]>`SELECT id, public_id FROM facts WHERE id IN ${sql(groupFactIds)}`).map((f) => [f.id, f]) : [],
   );
   const firstSeen = (list: Member[]) => Math.min(...list.map((r) => (r.sort_at ?? r.timeline_at).getTime()));
 
@@ -167,7 +169,7 @@ export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineRespo
       // Reports of the facts that have a selected report (the developments), counted once each.
       reportCount: new Set(reports.filter((r) => byFact.has(r.fact_id)).map((r) => r.article_id)).size,
       developmentCount: byFact.size,
-      latestDevelopment: newest ? { factId: newest.public_id, title: newest.title, at: new Date(firstSeen(newestRows)).toISOString() } : null,
+      latestDevelopment: newest ? { factId: newest.public_id, title: pickRepresentative(newestRows).title, at: new Date(firstSeen(newestRows)).toISOString() } : null,
     };
     const showGroup = group.reportCount > 1 || group.developmentCount > 1;
     planned.push({ key: g.gk, anchorAt: g.anchor_at.toISOString(), id: rep.id, group: showGroup ? group : null });
@@ -204,6 +206,6 @@ export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineRespo
 export async function nextRelease(q: TimelineQuery, now: Date): Promise<string | null> {
   const [row] = await sql<{ t: Date | null }[]>`
     SELECT min(p.visible_after) AS t FROM publications p
-    WHERE p.visibility = 'public' AND p.selected AND p.visible_after > ${now} ${filterSql(q)}`;
+    WHERE p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND p.selected AND p.visible_after > ${now} ${filterSql(q)}`;
   return row?.t ? row.t.toISOString() : null;
 }

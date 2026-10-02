@@ -11,6 +11,8 @@ import { AdminPage, Badge, Button, Card, DataTable, Dot, Empty, Field, Json, Rea
 type Row = Record<string, any>;
 interface Runs {
   checkedAt: string;
+  automatic?: { counts: Record<string,number>; acceptanceRate: number | null; failed: number; missingEvidence: number;
+    disagreement: number; reasons: Row[]; recent: Row[]; sourcePauses: Row[] };
   processes: Array<{ role: string; pid: number; host: string; release: string; startedAt: string; at: string; alive: boolean }>;
   jobs: Row[];
   timeline: Row[];
@@ -70,6 +72,32 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
         <Stat label="回执结果未知" value={num(r.receipts.issues.filter((x) => x.status === "unknown").length)} tone={r.receipts.issues.some((x) => x.status === "unknown") ? "bad" : "ok"} hint={`7 天 ${num(Object.values(r.receipts.counts).reduce((a, b) => a + b, 0))} 次付费请求`} />
         <Stat label="投递待核实" value={num(r.deliveries.filter((d) => d.status === "unknown").length)} tone={r.deliveries.some((d) => d.status === "unknown") ? "bad" : "ok"} />
       </div>
+
+      {r.automatic && <Card title="自动核验 · 最近24小时">
+        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Stat label="接受比例" value={r.automatic.acceptanceRate === null ? "—" : `${Math.round(r.automatic.acceptanceRate * 100)}%`} hint={`接受 ${r.automatic.counts.accepted ?? 0} · 拒绝 ${r.automatic.counts.rejected ?? 0} · 等待 ${r.automatic.counts.waiting ?? 0}`} />
+          <Stat label="缺少证据" value={num(r.automatic.missingEvidence)} />
+          <Stat label="评分分歧" value={num(r.automatic.disagreement)} />
+          <Stat label="请求失败" value={num(r.automatic.failed)} />
+        </div>
+        <p className="mb-3 text-sm text-ink-3">连续五条终止核验明确矛盾时，该来源的新分析与核验暂停30分钟；已核验公开内容继续可读。</p>
+        <DataTable dense rows={r.automatic.sourcePauses} rowKey={s=>s.source_id} empty="来源尚无异常暂停记录" columns={[
+          {key:"source",label:"来源",render:s=>s.source_name},
+          {key:"state",label:"自动处理",render:s=><Badge tone={s.paused ? "warn" : "ok"}>{s.paused ? "暂时暂停" : "运行"}</Badge>},
+          {key:"until",label:"暂停截止",render:s=><Time at={s.until} />},
+          {key:"streak",label:"连续明确矛盾",render:s=>s.streak},
+        ]} />
+        <details className="mt-4"><summary className="cursor-pointer text-sm">最近20条决定与原因</summary>
+          <DataTable dense rows={r.automatic.recent} rowKey={d=>d.id} columns={[
+            {key:"article",label:"内容",render:d=><Link to={`/admin/content/${d.article_id}`} className="font-mono text-xs">{d.article_id}</Link>},
+            {key:"status",label:"结果",render:d=>`${d.status} · ${d.verdict ?? "未终止"}`},
+            {key:"reasons",label:"原因",render:d=>d.reasons.join(" · ") || "核验通过"},
+            {key:"scores",label:"注意力评分",render:d=>(d.scores ?? []).join(" / ")},
+            {key:"usage",label:"核验请求",render:d=>d.verification_count},
+          ]} />
+          <p className="mt-3 text-xs text-ink-3">原因计数：{r.automatic.reasons.map(d=>`${d.reason} ${d.n}`).join(" · ") || "暂无"}</p>
+        </details>
+      </Card>}
 
       <div className="grid gap-5 xl:grid-cols-2">
         <Card title="队列" pad={false}>

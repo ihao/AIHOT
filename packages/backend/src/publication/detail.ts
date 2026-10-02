@@ -1,13 +1,15 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Item detail and Markdown export, both behind the same visibility and licence rules.
 import type { ItemDetail, SiteItemDetail, OutlineEntry, StoryRef } from "@aihot/contracts/site";
 import TurndownService from "turndown";
 import { sql } from "../db.ts";
 import { proxyBodyImages } from "../media/imgproxy.ts";
 import { textToHtml } from "../content/sanitize.ts";
-import { ITEM_COLUMNS, ITEM_FROM, selectedCondition, toItemSummary, xView, type ItemRow } from "./items.ts";
+import { ITEM_COLUMNS, ITEM_FROM, toItemSummary, xView, type ItemRow } from "./items.ts";
 import { itemUrl } from "./links.ts";
 import { hasItemPage } from "./rules.ts";
 import { SITE } from "@aihot/industry/site";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 interface DetailRow extends ItemRow {
   body_html: string | null;
@@ -39,7 +41,7 @@ async function loadRow(id: string): Promise<DetailRow | null> {
   const [row] = await sql<DetailRow[]>`
     SELECT ${ITEM_COLUMNS}, a.body_html, a.body_text, a.body_status, tr.body_html AS tr_html, tr.complete AS tr_complete
     ${ITEM_FROM}
-    WHERE p.article_id = ${id}`;
+    WHERE p.article_id = ${id} AND ${publicationAuthorityCondition('p')}`;
   return row ?? null;
 }
 
@@ -73,9 +75,11 @@ export async function loadItemDetail(id: string, now = new Date()): Promise<Deta
   }
 
   const related = await sql<StoryRef[]>`
-    SELECT DISTINCT st.public_id::text AS "publicId", st.title
+    SELECT DISTINCT st.public_id::text AS "publicId", p.title
     FROM fact_articles fa JOIN facts f ON f.id = fa.fact_id JOIN stories st ON st.id = f.story_id
+    JOIN publications p ON p.article_id = fa.article_id
     WHERE fa.article_id = ${id} AND fa.role <> 'mention' AND st.merged_into IS NULL
+      AND ${curatedEvidence("p", now)}
     LIMIT 6`;
 
   let body: ItemDetail["body"] = null;
@@ -107,13 +111,13 @@ export async function loadItemDetail(id: string, now = new Date()): Promise<Deta
     const [g] = await sql<{ public_id: string; reports: number; sources: number }[]>`
       SELECT f.public_id, count(p.article_id) AS reports, count(DISTINCT p.source_id) AS sources
       FROM facts f JOIN publications p ON p.fact_id = f.id
-      WHERE f.id = ${row.fact_id} AND p.visibility = 'public' AND p.eligible AND (NOT p.selected OR p.visible_after <= ${now})
+      WHERE f.id = ${row.fact_id} AND ${curatedEvidence("p", now)}
       GROUP BY f.public_id`;
     const [dev] = await sql<{ n: number }[]>`
       SELECT count(DISTINCT other.id) AS n FROM facts f
       JOIN facts other ON other.story_id = f.story_id AND other.id <> f.id
       JOIN publications p ON p.fact_id = other.id
-      WHERE f.id = ${row.fact_id} AND f.story_id IS NOT NULL AND ${selectedCondition(now)}`;
+      WHERE f.id = ${row.fact_id} AND f.story_id IS NOT NULL AND ${curatedEvidence("p", now)}`;
     if (g) {
       group = {
         factId: g.public_id,
@@ -176,7 +180,7 @@ export async function exportMarkdown(id: string): Promise<{ filename: string; bo
     if (!isZh && row.tr_html && row.tr_complete) lines.push("## 正文 · 中文译文", "", turndown.turndown(row.tr_html), "");
     lines.push(isZh ? "## 正文" : "## 正文 · 原文", "", turndown.turndown(row.body_html), "");
   }
-  return { filename: `aihot-${row.id}.md`, body: lines.join("\n").replace(/\n{3,}/g, "\n\n") };
+  return { filename: `9btc-${row.id}.md`, body: lines.join("\n").replace(/\n{3,}/g, "\n\n") };
 }
 
 /** Site reading projection: default text remains SSR, a second language has its own readable URL. */

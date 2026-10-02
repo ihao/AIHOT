@@ -7,6 +7,8 @@ import { config } from "../config.ts";
 import { one, sql, type Tx } from "../db.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
 import { collapseWhitespace } from "../lib/text.ts";
+import { currentAutomaticDecision } from "../editorial/automatic-verification.ts";
+import { getReviewProposal } from "../editorial/review.ts";
 import { itemUrl } from "./links.ts";
 import { enqueue, QUEUES, shutdownSignal } from "../jobs/queue.ts";
 import {
@@ -68,6 +70,7 @@ interface PublicationRow {
   indexable: boolean;
   seo_indexed_at: Date | null;
   seo_excluded_at: Date | null;
+  updated_at: Date;
 }
 
 export interface V1ItemPayload {
@@ -88,7 +91,7 @@ export interface V1ItemPayload {
 
 export interface PublishOptions {
   now?: Date;
-  /** Historical import: the item was already public, so it is released at its discovery time. */
+  /** Legacy historical import hint; never releases a 9BTC approval before the approval transaction. */
   releasedAt?: Date | null;
 }
 
@@ -156,8 +159,33 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   await tx`SELECT pg_advisory_xact_lock_shared(hashtext('report_candidates'))`;
   const now = options.now ?? new Date(); // sample after both locks, which may span a report cutoff
   const [source] = await tx<SourceFacts[]>`
-    SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext FROM sources WHERE id = ${article.source_id}`;
+    SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext
+    FROM sources WHERE id = ${article.source_id} FOR SHARE`;
   if (!source) return null;
+  // Lock order is article -> report candidates -> source -> review/curation. A legacy
+  // public projection is never authority: only this exact current proposal may be shown.
+  const proposal = await getReviewProposal(articleId, tx);
+  const [review] = await tx<{ status: string; fingerprint: string | null; version: number; reviewed_at: Date | null }[]>`
+    SELECT status, fingerprint, version, reviewed_at FROM editorial_reviews WHERE article_id = ${articleId} FOR UPDATE`;
+  const current = !!proposal && review?.fingerprint === proposal.fingerprint;
+  if (review && !current && (review.status !== "pending" || review.fingerprint !== proposal?.fingerprint)) {
+    await tx`UPDATE editorial_reviews SET status = 'pending', fingerprint = ${proposal?.fingerprint ?? null},
+      article_revision = ${proposal?.articleRevision ?? null}, analysis_id = ${proposal?.analysisId ?? null},
+      override_version = ${proposal?.overrideVersion ?? 0}, source_policy_version = ${proposal?.sourcePolicyVersion ?? 0},
+      version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+      WHERE article_id = ${articleId}`;
+    await tx`UPDATE editorial_curations SET status = 'pending', fingerprint = NULL, review_version = NULL,
+      version = version + 1, reviewed_by = NULL, reason = NULL, reviewed_at = NULL, updated_at = now()
+      WHERE article_id = ${articleId}`;
+  }
+  const automatic = config.editorialMode === "automatic" ? await currentAutomaticDecision(tx, articleId) : null;
+  const approved = current && (review!.status === "approved" || (review!.status === "auto_public" && (config.editorialMode === "manual" || !!automatic)));
+  const [curation] = approved && (review!.status === "approved" || !!automatic)
+    ? await tx<{ status: string; fingerprint: string | null; review_version: number | null }[]>`
+      SELECT status, fingerprint, review_version FROM editorial_curations WHERE article_id = ${articleId}`
+    : [];
+  const curated = !!curation && curation.status === "approved" &&
+    curation.fingerprint === proposal?.fingerprint && curation.review_version === review?.version;
   const [analysis] = await tx<AnalysisRow[]>`
     SELECT id, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected
     FROM analyses WHERE article_id = ${articleId} ORDER BY input_revision DESC, id DESC LIMIT 1`;
@@ -180,29 +208,39 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(analysis?.subjects ?? []).map((s) => `entity:${s}`)])];
   const score = typeof f.score === "number" ? f.score : analysis?.score ?? null;
   const relevance = typeof f.relevance === "string" ? (f.relevance as string) : analysis?.relevance ?? null;
-  const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
+  const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean)
+    : review?.status === "auto_public" && automatic ? automatic.selected : analysis?.selected ?? null;
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  const visibility = source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  const visibility = !approved || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
   const eligible = isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
-  const selected = isSelectable(eligible, judgedSelected, source.tier);
+  const selected = visibility === "public" && curated && isSelectable(eligible, judgedSelected, source.tier);
   const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const hasXPost = !!article.x_post;
   const channel = channelOf(source.kind, hasXPost);
-  const bodyMode = bodyModeOf(source, article.body_status, !!article.body_text && article.body_text.length > 0);
+  // The automatic verifier authorizes the Chinese card, never a generated or original full body.
+  const bodyMode = config.editorialMode === "automatic" ? "summary"
+    : bodyModeOf(source, article.body_status, !!article.body_text && article.body_text.length > 0);
   const syndicate = mayRedistribute(source, bodyMode);
   const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);
 
   // Release gate: first time the item met the selected conditions, released after grouping or 180 s.
-  let selectedReadyAt = previous?.selected_ready_at ?? null;
-  let visibleAfter = previous?.visible_after ?? null;
+  // A new exact approval has a new release time even if an old selected projection
+  // was not rebuilt during a short invalidation interval.
+  const sameGrant = !!previous?.selected && !!review?.reviewed_at && previous.updated_at >= review.reviewed_at;
+  let selectedReadyAt = sameGrant && selected ? previous!.selected_ready_at : null;
+  let visibleAfter = sameGrant && selected ? previous!.visible_after : null;
   if (selected && !selectedReadyAt) {
-    selectedReadyAt = options.releasedAt ?? now;
+    // The report lock was acquired before this clock sample. Even callers replaying a
+    // historical import or supplying a simulated `now` cannot backdate a new grant
+    // across a report cutoff that preceded its human approval.
+    const releaseFloor = new Date(Math.max(Date.now(), now.getTime(), review!.reviewed_at!.getTime()));
+    selectedReadyAt = releaseFloor;
     visibleAfter = options.releasedAt
-      ? options.releasedAt
-      : article.grouped_at && article.grouped_at <= now
-        ? now
-        : new Date(now.getTime() + config.selectedVisibleAfterSeconds * 1000);
+      ? new Date(Math.max(options.releasedAt.getTime(), releaseFloor.getTime()))
+      : article.grouped_at && article.grouped_at <= releaseFloor
+        ? releaseFloor
+        : new Date(releaseFloor.getTime() + config.selectedVisibleAfterSeconds * 1000);
   } else if (selected && visibleAfter && visibleAfter > now && article.grouped_at && article.grouped_at <= now) {
     const earliest = new Date(Math.max(selectedReadyAt!.getTime(), article.grouped_at.getTime()));
     if (earliest < visibleAfter) {
@@ -213,7 +251,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     }
   }
 
-  const indexable = isIndexable({
+  const indexable = (review?.status !== "auto_public" || !!automatic?.selected) && isIndexable({
     visibility, hasSummary: !!summary, selected, seoIndexedAt: previous?.seo_indexed_at ?? null, seoExcludedAt: previous?.seo_excluded_at ?? null,
   });
   const searchText = collapseWhitespace(
@@ -281,7 +319,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
         EXCLUDED.sort_at)`;
 
   // The pool search row follows eligibility; its body part only covers full text the site may show.
-  if (eligible) {
+  if (eligible && visibility === "public") {
     const body = bodyMode === "full" ? (article.body_text ?? "").slice(0, 12000).toLowerCase() : "";
     await tx`INSERT INTO pool_search (article_id, direct, body) VALUES (${articleId}, ${searchText}, ${body})
              ON CONFLICT (article_id) DO UPDATE SET direct = EXCLUDED.direct, body = EXCLUDED.body
@@ -292,7 +330,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
 
   // Content-group push: once, for an item that arrives live and becomes selected (never for imports,
   // backfill or stale-on-discovery material); it runs after the release gate opens.
-  if (selected && !previous?.selected_ready_at && !options.releasedAt && !article.backfill && visibility === "public") {
+  if (selected && !sameGrant && !options.releasedAt && !article.backfill && visibility === "public") {
     const at = visibleAfter && visibleAfter > now ? visibleAfter : now;
     await enqueue(QUEUES.notifySelected, { articleId }, { singletonKey: `selected:${articleId}`, startAfter: new Date(at.getTime() + 5_000) }, tx);
     // Its images are fetched and resized now, before the release gate lets readers in.

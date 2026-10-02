@@ -11,6 +11,7 @@ import { getArticle } from "../providers/socialdata.ts";
 import { onlyXArticleLink, xArticleText } from "../sources/x.ts";
 import { sanitizeBody, trimTrailingChrome } from "./sanitize.ts";
 import { contentHash } from "./materials.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 
 export interface ExtractedBody {
   html: string;
@@ -103,6 +104,19 @@ export function pageFetchable(url: string, sourceKind: string): boolean {
   }
 }
 
+/** End body extraction without a verified body and close any approval in that commit. */
+export async function markBodyUnconfirmed(articleId: string, exhausted = false): Promise<void> {
+  await sql.begin(async (tx) => {
+    await tx`SELECT id FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    const changed = await tx`UPDATE articles SET body_status = 'unconfirmed',
+      processing_attempts = CASE WHEN ${exhausted} THEN 0 ELSE processing_attempts END,
+      processing_retry_at = CASE WHEN ${exhausted} THEN NULL ELSE processing_retry_at END,
+      updated_at = now()
+      WHERE id = ${articleId} AND body_status <> 'ok' AND body_status <> 'unconfirmed'`;
+    if (changed.count) await publishArticleTx(tx, articleId);
+  });
+}
+
 /** Fetches and stores the body of one article. Unconfirmed bodies are recorded as such. */
 export async function extractArticleBody(articleId: string, allowJina = process.env.JINA_BODY_FALLBACK !== "false"): Promise<"ok" | "unconfirmed" | "skipped"> {
   const [a] = await sql<{ id: string; url: string; body_status: string; revision: number; x_post: { tweetId?: string } | null }[]>`
@@ -111,7 +125,7 @@ export async function extractArticleBody(articleId: string, allowJina = process.
   if (a.x_post?.tweetId) return extractXArticle(a.id, a.x_post.tweetId);
   const got = await extractFromUrl(a.url, { allowJina, subject: `article:${a.id}` });
   if (!got) {
-    await sql`UPDATE articles SET body_status = 'unconfirmed', updated_at = now() WHERE id = ${articleId} AND body_status <> 'ok'`;
+    await markBodyUnconfirmed(articleId);
     return "unconfirmed";
   }
   // The body is new content: a new revision, so an analysis of the body-less input counts as stale.
@@ -126,6 +140,7 @@ export async function extractArticleBody(articleId: string, allowJina = process.
       WHERE id = ${articleId} RETURNING revision`;
     await tx`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
              VALUES (${articleId}, ${r!.revision}, ${hash}, ${row.title}, ${got.text})`;
+    await publishArticleTx(tx, articleId);
   });
   return "ok";
 }
@@ -140,7 +155,7 @@ async function extractXArticle(articleId: string, tweetId: string): Promise<"ok"
   const found = await getArticle(tweetId, { purpose: "x_article", subject: `article:${articleId}` });
   const got = found ? xArticleText(found) : null;
   if (!got) {
-    await sql`UPDATE articles SET body_status = 'unconfirmed', updated_at = now() WHERE id = ${articleId} AND body_status <> 'ok'`;
+    await markBodyUnconfirmed(articleId);
     return "unconfirmed";
   }
   await sql.begin(async (tx) => {
@@ -156,6 +171,7 @@ async function extractXArticle(articleId: string, tweetId: string): Promise<"ok"
       WHERE id = ${articleId} RETURNING revision`;
     await tx`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
              VALUES (${articleId}, ${r!.revision}, ${hash}, ${title}, ${bodyText})`;
+    await publishArticleTx(tx, articleId);
   });
   return "ok";
 }

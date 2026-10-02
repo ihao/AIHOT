@@ -1,5 +1,7 @@
 // Collection run for one source: fetch listing → filter → store material → enqueue processing.
 // A failed fetch never advances the success cursor; the source's health reflects consecutive failures.
+import { config } from '../config.ts';
+import { freshnessReason } from '../content/freshness.ts';
 import { sql } from "../db.ts";
 import { identityKeyFor, upsertMaterial } from "../content/materials.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
@@ -51,10 +53,10 @@ async function loadSource(id: string): Promise<SourceRow | null> {
 }
 
 /** Titles of the articles already stored under these URLs. */
-async function storedTitles(urls: string[]): Promise<Map<string, string>> {
+async function storedTitles(urls: string[]): Promise<Map<string, {title: string; published_at: Date | null}>> {
   if (urls.length === 0) return new Map();
-  const rows = await sql<{ url: string; title: string }[]>`SELECT url, title FROM articles WHERE url IN ${sql(urls)}`;
-  return new Map(rows.map((r) => [r.url, r.title]));
+  const rows = await sql<{ url: string; title: string; published_at: Date | null }[]>`SELECT url, title, published_at FROM articles WHERE url IN ${sql(urls)}`;
+  return new Map(rows.map((r) => [r.url, {title:r.title,published_at:r.published_at}]));
 }
 
 const DAY_MS = 86_400_000;
@@ -66,6 +68,7 @@ async function store(sourceId: string, candidates: Candidate[], backfill: string
   let revised = 0;
   const seen = new Set<string>();
   for (const c of candidates) {
+    if (config.editorialMode === 'automatic' && freshnessReason(c.publishedAt)) continue;
     const material = { ...c, sourceId, via: "fetch" as const, backfill };
     // A listing that names one article twice (a featured card and its list entry, a feed repeating an
     // item) stores its first entry only; the later ones would otherwise revise it on every fetch.
@@ -148,7 +151,8 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       const stored = known.get(c.url);
       if (stored !== undefined) {
         // The title came from the detail page: the listing's own rendering must not revise it back.
-        if (d?.titleSelector || d?.titleRegex) c.title = stored;
+        if (d?.titleSelector || d?.titleRegex) c.title = stored.title;
+        if (!c.publishedAt) c.publishedAt = stored.published_at;
         continue;
       }
       if (!d || detailUsed >= detailBudget) continue;
@@ -177,6 +181,16 @@ export async function collectSource(sourceId: string, opts: { force?: boolean } 
       } catch {
         // detail is best effort
       }
+    }
+
+    if (config.editorialMode === 'automatic') {
+      const skipped: Record<string, number> = {expired:0,undated:0,future:0};
+      candidates = candidates.filter(c => {
+        const reason = freshnessReason(c.publishedAt);
+        if (reason) skipped[reason]++;
+        return !reason;
+      });
+      detail = {...detail, freshness:{windowHours:48,accepted:candidates.length,skipped}};
     }
 
     ({ created, revised } = await store(sourceId, candidates, firstImport ? "first-import" : null));

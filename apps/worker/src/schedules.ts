@@ -1,8 +1,9 @@
 // Cron-style schedules (Asia/Shanghai). Each run is recorded in job_runs; missed slots run once.
 import type { PgBoss } from "pg-boss";
 import { FEATURES } from "@aihot/industry/features";
-import { credential } from "@aihot/backend/config";
-import { ensureQueue, recordRun } from "@aihot/backend/jobs/queue";
+import { config, credential } from "@aihot/backend/config";
+import { recordRun } from "@aihot/backend/jobs/queue";
+import { sweepGroupWaits } from "@aihot/backend/jobs/events";
 import { sweepUnprocessed } from "@aihot/backend/jobs/content";
 import { translatePending } from "@aihot/backend/editorial/translate";
 import { adaptIntervals, scheduleDueSources } from "@aihot/backend/sources/collect";
@@ -11,8 +12,6 @@ import { refreshSourceIcons } from "@aihot/backend/sources/icons";
 import { computeHotRanking, snapshotHeat } from "@aihot/backend/events/hot";
 import { refreshStoryStatuses } from "@aihot/backend/events/digest";
 import { linkRelatedStories } from "@aihot/backend/events/group";
-import { catchUpReports, composeDaily, composeMonthly, composeWeekly } from "@aihot/backend/reports/compose";
-import { addDays, beijingDate, isoWeekLabel } from "@aihot/contracts/time";
 import { runLeaderboardRound } from "@aihot/backend/leaderboard/method/run";
 import { refreshLeaderboard } from "@aihot/backend/leaderboard/fetch/refresh";
 import { monitorTick } from "@aihot/backend/monitor/scan";
@@ -35,7 +34,18 @@ interface Scheduled {
 
 const collecting = process.env.COLLECT_ENABLED !== "false";
 
+const [dailyHour, dailyMinute] = config.automaticDailyTime.split(":").map(Number);
+
 export const SCHEDULES: Scheduled[] = [
+  ...(config.editorialMode === "automatic" ? [
+    { name: "reports.daily-automatic", cron: `${dailyMinute} ${dailyHour} * * *`, missed: "once" as const,
+      run: async () => (await import("@aihot/backend/reports/automatic")).publishAutomaticDaily() },
+    { name: "reports.daily-catchup", cron: "*/5 * * * *",
+      run: async () => (await import("@aihot/backend/reports/automatic")).catchUpAutomaticDaily() },
+    { name: "automatic.safety", cron: "* * * * *",
+      run: async () => (await import("@aihot/backend/editorial/automatic-safety")).refreshAutomaticSafety() },
+  ] : []),
+  { name: "events.sweep", cron: "*/5 * * * *", run: sweepGroupWaits },
   { name: "content.sweep", cron: "*/5 * * * *", run: sweepUnprocessed },
   // Full-text translations of newly selected items (model calls; off with MODEL_CALLS_ENABLED=false).
   { name: "content.translate", cron: "*/5 * * * *", run: () => translatePending() },
@@ -43,18 +53,6 @@ export const SCHEDULES: Scheduled[] = [
   { name: "hot.snapshot", cron: "2 * * * *", run: () => snapshotHeat() },
   { name: "stories.status", cron: "7 * * * *", run: refreshStoryStatuses },
   { name: "stories.links", cron: "12 * * * *", run: linkRelatedStories },
-  { name: "reports.daily", cron: "0 8 * * *", missed: "once", run: () => composeDaily(beijingDate(Date.now())) },
-  { name: "reports.weekly", cron: "0 10 * * 1", missed: "once", run: () => composeWeekly(isoWeekLabel(addDays(beijingDate(Date.now()), -7))) },
-  {
-    name: "reports.monthly",
-    cron: "30 10 1 * *",
-    missed: "once",
-    run: () => {
-      const [y, m] = beijingDate(Date.now()).split("-").map(Number) as [number, number];
-      return composeMonthly(m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`);
-    },
-  },
-  { name: "reports.catch-up", cron: "15 * * * *", run: () => catchUpReports() },
   { name: "ops.retention", cron: "30 3 * * *", missed: "once", run: () => dailyRetention() },
   { name: "sources.icons", cron: "40 4 * * *", missed: "once", run: () => refreshSourceIcons() },
   // IndexNow for new indexable pages (off unless INDEXNOW_SUBMIT_ENABLED).
@@ -99,8 +97,12 @@ export const SCHEDULES: Scheduled[] = [
 export async function registerSchedules(boss: PgBoss) {
   for (const s of SCHEDULES) {
     const queue = `cron.${s.name}`;
-    await ensureQueue(queue, { policy: "singleton", retryLimit: 1, expireInSeconds: 3600 });
-    await boss.schedule(queue, s.cron, {}, { tz: "Asia/Shanghai", missed: s.missed ?? "skip" });
+    // Use this worker's boss (also permits an entirely offline registration check).
+    // pg-boss fixes policy at creation; existing cron queues keep their original policy.
+    const options = { retryLimit: 1, expireInSeconds: 3600 };
+    if (await boss.getQueue(queue)) await boss.updateQueue(queue, options);
+    else await boss.createQueue(queue, { policy: "singleton", ...options });
+    await boss.schedule(queue, s.cron, {}, { tz: "Asia/Shanghai", missed: s.missed ?? "skip", retryLimit: 1 });
     // Schedules fire at minute boundaries; a 15 s pickup keeps them on time with a third of the polling.
     await boss.work(queue, { pollingIntervalSeconds: 15 }, async () => recordRun(s.name, s.run));
   }

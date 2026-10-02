@@ -9,7 +9,7 @@ import type { AdminMe } from "../../features/admin/action";
 import { Toaster } from "../../features/admin/toast";
 import { adminGet } from "../../lib/admin.server";
 
-type Counts = Partial<Record<"feedback" | "sources" | "runs" | "monitor", number>>;
+type Counts = Partial<Record<"review" | "feedback" | "sources" | "runs" | "monitor", number>>;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [me, counts] = await Promise.all([adminGet<AdminMe>(request, "/api/admin/me"), adminGet<Counts>(request, "/api/admin/nav-counts").catch(() => ({}) as Counts)]);
@@ -27,6 +27,8 @@ const NAV: Array<{ group: string; items: Array<{ to: string; label: string; coun
   {
     group: "内容",
     items: [
+      { to: "/admin/review", label: "内容管理", count: "review", tone: "accent" },
+      { to: "/admin/reports/daily", label: "日报管理" },
       { to: "/admin/content", label: "内容诊断" },
       { to: "/admin/sources", label: "信源", count: "sources", tone: "bad" },
       ...(FEATURES.codexResetMonitor ? [{ to: "/admin/monitor", label: "Codex 重置", count: "monitor" as const, tone: "accent" as const }] : []),

@@ -44,6 +44,8 @@ export interface GuardedFetchOptions {
   maxBytes?: number;
   /** Follow redirects manually so every hop passes the SSRF guard. */
   maxRedirects?: number;
+  /** false lets an evidence caller inspect and authorize each redirect before fetching it. */
+  followRedirects?: boolean;
   /** "egress" by default; see EgressRoute. */
   route?: EgressRoute;
 }
@@ -79,7 +81,7 @@ export async function guardedFetch(input: string, opts: GuardedFetchOptions = {}
       dispatcher: dispatcherFor(proxied(url, route)),
       signal,
     });
-    if (res.status >= 300 && res.status < 400 && res.headers.get("location")) {
+    if (opts.followRedirects !== false && res.status >= 300 && res.status < 400 && res.headers.get("location")) {
       // Release the connection even when the next URL is refused or the redirect limit is reached.
       await res.body?.cancel();
       if (hop >= maxRedirects) throw new Error(`Too many redirects for ${input}`);

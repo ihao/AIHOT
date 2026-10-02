@@ -52,9 +52,9 @@ export async function setTargetEnabled(key: string, enabled: boolean, reason: st
 
 export async function listBudgets() {
   return sql`
-    SELECT b.service, b.per_minute, b.per_hour, b.per_day, b.note, b.updated_at,
-           (SELECT count(*)::int FROM receipt_attempts a WHERE a.service = b.service AND a.origin = 'live' AND a.started_at > now() - interval '1 day') AS used_day,
-           (SELECT count(*)::int FROM receipt_attempts a WHERE a.service = b.service AND a.origin = 'live' AND a.started_at > now() - interval '1 hour') AS used_hour
+    SELECT b.service, b.per_minute, b.per_hour, b.per_day, b.note, b.updated_at, b.usage_reset_at,
+           (SELECT count(*)::int FROM receipt_attempts a WHERE a.service = b.service AND a.origin = 'live' AND a.started_at > now() - interval '1 day' AND (b.usage_reset_at IS NULL OR a.started_at >= b.usage_reset_at)) AS used_day,
+           (SELECT count(*)::int FROM receipt_attempts a WHERE a.service = b.service AND a.origin = 'live' AND a.started_at > now() - interval '1 hour' AND (b.usage_reset_at IS NULL OR a.started_at >= b.usage_reset_at)) AS used_hour
     FROM budgets b ORDER BY b.service`;
 }
 
@@ -68,4 +68,21 @@ export async function updateBudget(service: string, input: { perMinute: number; 
     RETURNING service, per_minute, per_hour, per_day`;
   await audit(actor, "budget.update", `budget:${service}`, input.reason, before ?? null, after);
   return after;
+}
+
+/** Idempotent one-time reset, serialized with paid admission; retain every receipt. */
+export async function resetBudgetUsage(service: string, reason: string, actor: string, requestId: string) {
+  if (!reason.trim() || !requestId.trim()) throw new Error('reason and requestId are required');
+  return sql.begin(async tx => {
+    await tx`SELECT pg_advisory_xact_lock(hashtext(${`budget:${service}`}))`;
+    const [prior] = await tx`SELECT after FROM audit_log WHERE action='budget.reset_usage' AND subject=${`budget:${service}`} AND request_id=${requestId}`;
+    if (prior) return prior.after;
+    const [before] = await tx`SELECT service,per_minute,per_hour,per_day,usage_reset_at FROM budgets WHERE service=${service} FOR UPDATE`;
+    if (!before) throw new Error('unknown budget service');
+    const [after] = await tx`UPDATE budgets SET usage_reset_at=clock_timestamp(),updated_at=now() WHERE service=${service}
+      RETURNING service,per_minute,per_hour,per_day,usage_reset_at`;
+    await tx`INSERT INTO audit_log(actor,action,subject,reason,before,after,request_id)
+      VALUES(${actor},'budget.reset_usage',${`budget:${service}`},${reason},${tx.json(before as never)},${tx.json(after as never)},${requestId})`;
+    return after;
+  });
 }

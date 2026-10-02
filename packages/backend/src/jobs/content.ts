@@ -1,3 +1,5 @@
+import { AutomaticSourcePaused } from "../editorial/automatic-safety.ts";
+import { verifyAutomaticArticle, sweepAutomaticVerifications } from "../editorial/automatic-verification.ts";
 // Content processing: body extraction when the source needs it → analysis → publish → event grouping.
 // Every article reaches the queues through queueProcessing, which records when it was queued, so the
 // safety net only picks up articles nothing is working on and sends those still waiting for a body to
@@ -5,8 +7,9 @@
 // refusal or exhausted retries end in "failed", which the admin re-queues in bulk.
 import type { PgBoss } from "pg-boss";
 import { sql, type Db } from "../db.ts";
-import { extractArticleBody, pageFetchable } from "../content/extract.ts";
+import { extractArticleBody, markBodyUnconfirmed, pageFetchable } from "../content/extract.ts";
 import { analyzeArticle, AnalysisInterruptedError } from "../editorial/analyze.ts";
+import { skipExpiredProcessing, skipPausedProcessing } from '../content/freshness.ts';
 import { isHistorical } from "../content/materials.ts";
 import { publishArticle } from "../publication/publish.ts";
 import { BudgetExceededError, ProviderRejectedError, ReceiptBusyError, ReceiptUnknownError } from "../providers/receipts.ts";
@@ -66,6 +69,8 @@ const PRIORITY = { live: 0, liveSignal: -1, history: -2 } as const;
  */
 export async function queueProcessing(articleId: string, opts: { step?: Step; attemptTag?: string; db?: Db } = {}): Promise<string | null> {
   const db = opts.db ?? sql;
+  if(await skipPausedProcessing(articleId,db)) return null;
+  if (!opts.attemptTag && await skipExpiredProcessing(articleId, db)) return null;
   const r = await route(articleId, db);
   if (!r) return null;
   const step = opts.step ?? r.step;
@@ -95,6 +100,8 @@ export async function settleNonEditorial(articleId: string): Promise<{ group: bo
 
 /** attemptTag makes an explicit re-evaluation a new (paid) request; the same tag reuses its receipt. */
 export async function processArticle(articleId: string, opts: { attemptTag?: string } = {}): Promise<{ state: string }> {
+  if(await skipPausedProcessing(articleId)) return {state:'skipped'};
+  if (!opts.attemptTag && await skipExpiredProcessing(articleId)) return { state: 'skipped' };
   const [found] = await sql<{ participation_mode: string; processing_state: string; revision: number; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
     SELECT s.participation_mode, a.processing_state, a.revision, a.backfill, a.published_at, a.discovered_at FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
   if (!found) return { state: "missing" };
@@ -120,6 +127,10 @@ export async function processArticle(articleId: string, opts: { attemptTag?: str
     return { state: result.output.relevance };
   } catch (error) {
     if (error instanceof AnalysisInterruptedError || shutdownSignal.signal.aborted) throw error;
+    if (error instanceof AutomaticSourcePaused) {
+      await sql`UPDATE articles SET processing_retry_at=${error.until},processing_queued_at=NULL WHERE id=${articleId}`;
+      return { state: "source-paused" };
+    }
     if (error instanceof ReceiptUnknownError) {
       // The provider may have billed this request: stop; ops.recover releases it once and requeues the article.
       await sql`UPDATE articles SET processing_state = 'failed', processing_error = ${`receipt ${error.receiptId} outcome unknown`} WHERE id = ${articleId}`;
@@ -158,13 +169,19 @@ async function afterFailure(articleId: string, error: unknown): Promise<{ state:
 }
 
 export async function registerContentJobs(boss: PgBoss, concurrency = Number(process.env.ANALYZE_CONCURRENCY || 6)) {
+  await ensureQueue(QUEUES.verifyAutomatic);
+  // A sealed maintenance batch may temporarily drain faster; normal operation remains two.
+  const verificationConcurrency = Math.max(1, Math.min(12, Math.floor(Number(process.env.AUTOMATIC_VERIFY_CONCURRENCY) || 2)));
+  await boss.work<{ articleId: string }>(QUEUES.verifyAutomatic, { localConcurrency: verificationConcurrency, pollingIntervalSeconds: 2 }, async ([job]) => {
+    if (job) await verifyAutomaticArticle(job.data.articleId);
+  });
   await ensureQueue(QUEUES.analyze);
   await boss.work<{ articleId: string; attemptTag?: string }>(QUEUES.analyze, { localConcurrency: concurrency, pollingIntervalSeconds: 2 }, async ([job]) => {
     if (!job) return;
     const { articleId, attemptTag } = job.data;
     try {
       const result = await processArticle(articleId, { attemptTag });
-      if (result.state !== "unknown-receipt") {
+      if (result.state !== "unknown-receipt" && result.state !== "source-paused") {
         await sql`UPDATE articles SET processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL WHERE id = ${articleId}`;
       }
       return result;
@@ -183,6 +200,8 @@ export async function registerExtractionJobs(boss: PgBoss) {
   await boss.work<{ articleId: string }>(QUEUES.extractBody, { localConcurrency: 4, pollingIntervalSeconds: 2 }, async ([job]) => {
     if (!job) return;
     const { articleId } = job.data;
+    if(await skipPausedProcessing(articleId)) return {state:'skipped'};
+    if (await skipExpiredProcessing(articleId)) return { state: 'skipped' };
     try {
       const state = await extractArticleBody(articleId);
       await queueProcessing(articleId, { step: "analyze" });
@@ -194,7 +213,7 @@ export async function registerExtractionJobs(boss: PgBoss) {
           processing_queued_at = NULL, processing_retry_at = now() + interval '10 minutes'
         WHERE id = ${articleId} RETURNING processing_attempts`;
       if ((a?.processing_attempts ?? MAX_EXTRACT_FAILURES) < MAX_EXTRACT_FAILURES) return { state: "retrying" };
-      await sql`UPDATE articles SET body_status = 'unconfirmed', processing_attempts = 0, processing_retry_at = NULL WHERE id = ${articleId} AND body_status = 'pending'`;
+      await markBodyUnconfirmed(articleId, true);
       await queueProcessing(articleId, { step: "analyze" });
       return { state: "unconfirmed" };
     }
@@ -213,7 +232,8 @@ export async function sweepUnprocessed(): Promise<{ enqueued: number }> {
       AND (processing_queued_at IS NULL OR processing_queued_at < now() - ${QUEUED_STALE}::interval)
     ORDER BY discovered_at DESC LIMIT 500`;
   for (const r of rows) await queueProcessing(r.id);
-  return { enqueued: rows.length };
+  const verificationEnqueued = await sweepAutomaticVerifications();
+  return { enqueued: rows.length + verificationEnqueued };
 }
 
 /** How the runs page groups failures: the message with ids and numbers masked. */

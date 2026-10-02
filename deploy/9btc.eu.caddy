@@ -1,0 +1,19 @@
+# Install as /etc/caddy/sites-enabled/9btc.com.caddy only after private
+# acceptance and the root A record points at the EU host.
+9btc.com {
+    import security_headers
+    encode gzip zstd
+    reverse_proxy 127.0.0.1:3109
+
+    log {
+        output file /var/log/caddy/9btc.com.access.log {
+            roll_size 20MiB
+            roll_keep 10
+            roll_keep_for 720h
+        }
+    }
+}
+
+www.9btc.com {
+    redir https://9btc.com{uri} permanent
+}

@@ -1,7 +1,9 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 // Public read layer, item level. Every exit (site API, v1, RSS, MCP, sitemap) reads
 // items through these functions; visibility, release gate and body licences are applied here.
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
 import type { FeedItemSummary, ItemSummary, MediaView, SourceKind, XPostView } from "@aihot/contracts/site";
+import { curatedEvidence } from "../events/eligibility.ts";
 import { sql, type Db } from "../db.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { displayTags } from "./rules.ts";
@@ -57,7 +59,7 @@ export const ITEM_COLUMNS = sql`
   p.body_mode, p.syndicate, p.indexable, p.visible_after, p.backfill, p.fact_id, p.story_id,
   s.id AS source_id, s.name AS source_name, s.kind AS source_kind, s.participation_mode AS source_mode, s.icon_url AS source_icon,
   a.x_post, a.author, a.language,
-  st.public_id::text AS story_public_id, st.title AS story_title,
+  st.public_id::text AS story_public_id, CASE WHEN st.id IS NOT NULL THEN p.title END AS story_title,
   CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
 
 /** Public API listings never render article bodies, X media or story metadata. */
@@ -67,23 +69,26 @@ export const API_ITEM_COLUMNS = sql`
   p.published_at, p.discovered_at, p.category, p.score, p.selected, p.reason`;
 export const API_ITEM_FROM = sql`FROM publications p JOIN sources s ON s.id = p.source_id`;
 
-/** A translation of an older revision is left out: the original changed after it (the worker translates it again). */
+/** Story metadata recognizes stored verified automatic grants independently of import-time mode;
+ * the publication projection and listing conditions retain their mode/release gates.
+ * A translation of an older revision is left out: the original changed after it (the worker translates it again). */
 export const ITEM_FROM = sql`
   FROM publications p
   JOIN sources s ON s.id = p.source_id
   JOIN articles a ON a.id = p.article_id
   LEFT JOIN stories st ON st.id = p.story_id AND st.merged_into IS NULL
+    AND ${curatedEvidence("p", null, true)}
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
 
 /** Listed items: public, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND (NOT p.selected OR p.visible_after <= ${now})`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public' AND ${publicationAuthorityCondition('p')} AND p.selected AND p.visible_after <= ${now}`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {
@@ -92,10 +97,8 @@ export function channelCondition(channel: ChannelKey | null | undefined) {
   return sql`AND p.channel = ${channel}`;
 }
 
-export function categoryCondition(category: CategoryKey | null | undefined, v1 = false) {
+export function categoryCondition(category: CategoryKey | null | undefined, _v1 = false) {
   if (!category) return sql``;
-  // v1 and RSS publish opinion as tip.
-  if (v1 && category === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
   return sql`AND p.category = ${category}`;
 }
 
@@ -198,6 +201,6 @@ export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
 
 export async function fetchItemsByIds(ids: string[], db: Db = sql): Promise<Map<string, ItemRow>> {
   if (ids.length === 0) return new Map();
-  const rows = await db<ItemRow[]>`SELECT ${ITEM_COLUMNS} ${ITEM_FROM} WHERE p.article_id IN ${db(ids)}`;
+  const rows = await db<ItemRow[]>`SELECT ${ITEM_COLUMNS} ${ITEM_FROM} WHERE p.article_id IN ${db(ids)} AND ${publicationAuthorityCondition('p')}`;
   return new Map(rows.map((r) => [r.id, r]));
 }

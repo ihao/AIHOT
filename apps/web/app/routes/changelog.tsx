@@ -128,6 +128,7 @@ export default function ChangelogPage() {
         <p className="mt-1.5 text-[13px] text-ink-3">新功能、调整、下线，都写在这里。</p>
       </header>
       <div className="space-y-4">
+        {data.releases.length === 0 && <p className="card px-5 py-8 text-[14px] text-ink-3">还没有更新记录。正式发布后，功能调整会记录在这里。</p>}
         {[...groups.entries()].map(([date, releases]) => {
           const h = dateHeading(date);
           const plain = releases;

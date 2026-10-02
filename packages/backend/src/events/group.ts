@@ -22,7 +22,8 @@ import { BudgetExceededError, ReceiptBusyError, completeReceipt } from "../provi
 import { embeddingsAvailable, ensureEmbeddings } from "../providers/embeddings.ts";
 import { isHistorical, STALE_ON_DISCOVERY_MS } from "../content/materials.ts";
 import { enqueue, QUEUES } from "../jobs/queue.ts";
-import { publishArticle } from "../publication/publish.ts";
+import { publishArticleTx } from "../publication/publish.ts";
+import { invalidateStoryCurationTx } from "./eligibility.ts";
 import { mergeStoryInto } from "./merge.ts";
 import {
   BATCH_SYSTEM, BatchSchema, PAIR_SYSTEM, PairSchema, RELATE_PROMPT_VERSION, SIGNAL_SYSTEM, STORY_REVIEW_MIN_CONFIDENCE, SignalSchema, TIE_MIN_CONFIDENCE,
@@ -279,7 +280,7 @@ async function candidateViews(recalled: Recalled[]): Promise<CandidateView[]> {
 async function judgeBatch(articleId: string, query: ReportView, cands: CandidateView[]): Promise<{ verdicts: Map<number, Verdict>; receiptId: number }> {
   const res = await chatJson({
     model: await modelFor("group"), purpose: "group_article", subject: `article:${articleId}`, promptVersion: RELATE_PROMPT_VERSION,
-    system: BATCH_SYSTEM, user: batchUser(query, cands), schema: BatchSchema, temperature: 0, maxTokens: 200 + 90 * cands.length,
+    system: BATCH_SYSTEM, user: batchUser(query, cands), schema: BatchSchema, temperature: 0, maxTokens: 800 + 250 * cands.length,
   });
   return { verdicts: verdictsByFact(res.data.decisions, cands), receiptId: res.receiptId };
 }
@@ -365,8 +366,10 @@ async function resetAutomatic(articleId: string): Promise<number[]> {
     const left = await tx<{ story_id: number }[]>`
       SELECT DISTINCT f.story_id FROM fact_articles fa JOIN facts f ON f.id = fa.fact_id
       WHERE fa.article_id = ${articleId} AND NOT fa.manual AND fa.role IN ('primary', 'report') AND f.story_id IS NOT NULL`;
-    await tx`DELETE FROM fact_articles WHERE article_id = ${articleId} AND NOT manual`;
+    const removed = await tx`DELETE FROM fact_articles WHERE article_id = ${articleId} AND NOT manual`;
     await tx`DELETE FROM story_signals WHERE article_id = ${articleId}`;
+    if (removed.count) await invalidateStoryCurationTx(tx, articleId);
+    await publishArticleTx(tx, articleId);
     return left.map((r) => Number(r.story_id));
   });
 }
@@ -389,7 +392,11 @@ async function redirectEmptiedStories(articleId: string, left: number[], storyId
 }
 
 async function markGrouped(articleId: string) {
-  await sql`UPDATE articles SET grouped_at = coalesce(grouped_at, now()) WHERE id = ${articleId}`;
+  await sql.begin(async (tx) => {
+    await tx`SELECT 1 FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    await tx`UPDATE articles SET grouped_at = coalesce(grouped_at, now()) WHERE id = ${articleId}`;
+    await publishArticleTx(tx, articleId);
+  });
 }
 
 /** The live fact another report of the same page, or the X post this one replies to or quotes, belongs to. */
@@ -616,7 +623,6 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
   const manual = await manualDecision(sql, articleId);
   if (manual) {
     await markGrouped(articleId);
-    await publishArticle(articleId);
     return { verdict: "manual", factId: manual.factId };
   }
   const left = opts.force || a.regroup_pending ? await resetAutomatic(articleId) : [];
@@ -624,7 +630,6 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
   // History founds no event and adds no heat (isHistorical); a regroup takes it out of any it joined.
   if (isHistorical(a)) {
     await markGrouped(articleId);
-    await publishArticle(articleId);
     return { verdict: "historical" };
   }
 
@@ -633,7 +638,6 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
   const kept = await currentMembership(articleId);
   if (kept) {
     await markGrouped(articleId);
-    await publishArticle(articleId);
     return { verdict: "kept", factId: kept.factId, storyId: kept.storyId };
   }
 
@@ -642,7 +646,6 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
   const frame = (an?.output?.fact ?? null) as Record<string, any> | null;
   if (!an || an.relevance !== "pass") {
     await markGrouped(articleId);
-    await publishArticle(articleId);
     return { verdict: "standalone" };
   }
   const title = an.title_zh || a.title;
@@ -703,7 +706,6 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
     } catch (error) {
       // A failed identity call must not block publication: the report stays standalone for now.
       await markGrouped(articleId);
-      await publishArticle(articleId);
       throw error;
     }
   }
@@ -720,6 +722,7 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
     const late = await manualDecision(tx, articleId);
     if (late) {
       await tx`UPDATE articles SET grouped_at = coalesce(grouped_at, now()) WHERE id = ${articleId}`;
+      await publishArticleTx(tx, articleId);
       return { manual: late, factId: null, storyId: null };
     }
     const story = storyId ?? (await createStory(tx, newTitle, observedAt));
@@ -730,10 +733,11 @@ async function decide(articleId: string, opts: GroupOptions): Promise<GroupResul
     await recordSignal(tx, story, articleId, source, "editorial", observedAt);
     await recordDecision(tx, articleId, fact, story, verdict, decisionCandidates, receipts[0] ?? null);
     await tx`UPDATE articles SET grouped_at = coalesce(grouped_at, now()) WHERE id = ${articleId}`;
+    await invalidateStoryCurationTx(tx, articleId);
+    await publishArticleTx(tx, articleId);
     return { manual: null, factId: fact, storyId: story };
   });
   for (const id of receipts) await completeReceipt(sql, id);
-  await publishArticle(articleId);
   if (written.manual) return { verdict: "manual", factId: written.manual.factId };
   const result: GroupResult = { verdict, factId: written.factId!, storyId: written.storyId! };
 

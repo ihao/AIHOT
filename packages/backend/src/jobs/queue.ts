@@ -8,6 +8,7 @@ let starting: Promise<PgBoss> | null = null;
 
 export const QUEUES = {
   analyze: "content.analyze",
+  verifyAutomatic: "content.verify-automatic",
   translate: "content.translate",
   extractBody: "content.extract-body",
   group: "events.group",
@@ -26,6 +27,7 @@ type QueueOptions = NonNullable<Parameters<PgBoss["createQueue"]>[1]>;
 
 /** Queue definitions in one place; created on first use by any process. */
 export const QUEUE_OPTIONS: Record<string, QueueOptions> = {
+  [QUEUES.verifyAutomatic]: { policy: "short", retryLimit: 2, retryDelay: 60, expireInSeconds: 900 },
   [QUEUES.analyze]: { policy: "short", retryLimit: 4, retryDelay: 30, retryBackoff: true, expireInSeconds: 600 },
   [QUEUES.translate]: { policy: "short", retryLimit: 3, retryDelay: 60, retryBackoff: true, expireInSeconds: 900 },
   [QUEUES.extractBody]: { policy: "short", retryLimit: 2, retryDelay: 120, expireInSeconds: 300 },
@@ -81,6 +83,8 @@ export async function ensureQueue(name: string, options: QueueOptions = QUEUE_OP
 export async function enqueue(name: string, data: object, options: SendOptions = {}, tx?: Db): Promise<string | null> {
   await ensureQueue(name);
   const b = await getBoss();
+  // Send explicitly: an existing queue may still have the older/manual four-retry default.
+  if (name === QUEUES.group) options = { ...options, retryLimit: config.editorialMode === 'automatic' ? 2 : 4 };
   if (tx) {
     const db = { executeSql: async (text: string, values?: unknown[]) => ({ rows: await tx.unsafe(text, (values ?? []) as never[]) }) };
     return b.send(name, data, { ...options, db });

@@ -1,0 +1,82 @@
+# 9BTC on the shared EU host. Run with:
+# docker compose --env-file .env -f deploy/eu.compose.yml up -d --build
+# The existing host Caddy is configured separately after private acceptance.
+name: ninebtc
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: Dockerfile
+  image: ninebtc-app
+  env_file: ../.env
+  restart: unless-stopped
+  environment: &app-env
+    NODE_ENV: production
+    DATABASE_URL: postgres://ninebtc:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/ninebtc
+    AIHOT_DATA_DIR: /data
+    API_BASE_URL: http://api:3001
+    LOCAL_ROUTER_URL: http://web:3000
+    COLLECT_ENABLED: ${COLLECT_ENABLED:-false}
+    MODEL_CALLS_ENABLED: ${MODEL_CALLS_ENABLED:-false}
+  volumes:
+    - data:/data
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ninebtc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ninebtc
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ninebtc -d ninebtc"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  setup:
+    <<: *app
+    restart: "no"
+    command: ["sh", "-c", "node scripts/migrate.ts && node scripts/seed.ts"]
+
+  api:
+    <<: *app
+    command: ["node", "apps/api/src/main.ts"]
+    environment:
+      <<: *app-env
+      API_HOST: 0.0.0.0
+      API_PORT: "3001"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app
+    command: ["node", "apps/worker/src/main.ts"]
+    stop_grace_period: 210s
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+
+  web:
+    <<: *app
+    command: ["node", "apps/web/server.ts"]
+    environment:
+      <<: *app-env
+      WEB_HOST: 0.0.0.0
+      WEB_PORT: "3000"
+    ports:
+      - "127.0.0.1:3109:3000"
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  db: {}
+  data: {}

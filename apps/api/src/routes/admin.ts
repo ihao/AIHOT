@@ -6,14 +6,20 @@ import { actorOf } from "@aihot/backend/admin/auth";
 
 import { importSelectBenchRun, listSelectBenchRuns, selectBenchRun } from "@aihot/backend/admin/selectbench";
 import { modelsOverview, switchModel } from "@aihot/backend/admin/models";
+import { listReviewQueue } from "@aihot/backend/admin/review";
 
 import { contentChain, detachFromFact, mergeStories, overrideFields, rerun, searchContent, setSeoIndexed, setVisibility } from "@aihot/backend/admin/content";
+import { decideArticleCuration, decideArticleReview } from "@aihot/backend/editorial/decision";
+import { setSourceAutoPublic } from "@aihot/backend/editorial/review";
+import { createDailyDraft, dailyDraft, publishDailyDraft } from "@aihot/backend/reports/editorial";
+import { beijingDate } from "@aihot/contracts/time";
 import { banSource, eraseFeedback, feedbackScreenshot, listFeedback, unbanSource, updateFeedback } from "@aihot/backend/admin/feedback";
 import { listMonitorEvents, listMonitorPosts, relinkPost, resolveMonitorPost, reviewReceipt, setWithdrawn, updateMonitorEvent } from "@aihot/backend/admin/monitor";
 import { releaseReceipt, requeueFailedArticles, resolveDelivery, runsOverview } from "@aihot/backend/admin/runs";
 import { listBudgets, listTargets, replaceContactQr, setTargetEnabled, updateBudget } from "@aihot/backend/admin/settings";
 import { createSource, fetchNow, listSources, previewSource, sourceDetail, updateSource } from "@aihot/backend/admin/sources";
 import { sql } from "@aihot/backend/db";
+import { config } from "@aihot/backend/config";
 import { loadContact } from "@aihot/backend/site/contact";
 import { sendProblem } from "../http/respond.ts";
 import { adminHandler } from "./admin-auth.ts";
@@ -33,6 +39,14 @@ function decodeImage(dataUrl: unknown): Buffer {
 }
 
 export function registerAdmin(app: FastifyInstance) {
+  app.get("/api/admin/review", adminHandler(async (req) => listReviewQueue(Number(q(req).limit) || 40, q(req).source, q(req).view)));
+  app.get("/api/admin/reports/daily", adminHandler(async () => {
+    const today = beijingDate(new Date());
+    return { today, draft: await dailyDraft(today), editorialMode: config.editorialMode, automaticDailyTime: config.automaticDailyTime };
+  }));
+  app.post("/api/admin/reports/daily/drafts", adminHandler(async (_req, _reply, admin) => createDailyDraft(actorOf(admin))));
+  app.post("/api/admin/reports/daily/drafts/:id/publish", adminHandler(async (req, _reply, admin) =>
+    publishDailyDraft(Number(param(req, "id")), actorOf(admin), String(body(req).reason ?? ""))));
   // Sources (F18)
   app.get("/api/admin/sources", adminHandler(async (req) => {
     const f = q(req);
@@ -45,6 +59,13 @@ export function registerAdmin(app: FastifyInstance) {
     const b = body<{ patch: unknown; version: string; reason?: string }>(req);
     return orNotFound(req, reply, await updateSource(param(req, "id"), b, actorOf(admin)));
   }));
+  app.post("/api/admin/sources/:id/auto-public", adminHandler(async (req, _reply, admin) => {
+    const b = body<{ enabled: boolean; version: number; reason: string }>(req);
+    if (typeof b.enabled !== "boolean" || !Number.isInteger(b.version) || typeof b.reason !== "string" || !b.reason.trim()) {
+      throw Object.assign(new Error("需要启用状态、当前版本和原因"), { statusCode: 400 });
+    }
+    return setSourceAutoPublic(param(req, "id"), b, actorOf(admin));
+  }));
   app.post("/api/admin/sources/:id/preview", adminHandler(async (req, reply) => {
     const [s] = await sql`SELECT * FROM sources WHERE id = ${param(req, "id")}`;
     return s ? previewSource(s as never) : notFound(req, reply);
@@ -54,6 +75,10 @@ export function registerAdmin(app: FastifyInstance) {
   // Content and events (F19)
   app.get("/api/admin/content", adminHandler(async (req) => ({ rows: await searchContent(q(req).q ?? "") })));
   app.get("/api/admin/content/:id", adminHandler(async (req, reply) => orNotFound(req, reply, await contentChain(param(req, "id")))));
+  app.post("/api/admin/content/:id/review", adminHandler(async (req, reply, admin) =>
+    orNotFound(req, reply, await decideArticleReview(param(req, "id"), body(req), actorOf(admin)))));
+  app.post("/api/admin/content/:id/curation", adminHandler(async (req, reply, admin) =>
+    orNotFound(req, reply, await decideArticleCuration(param(req, "id"), body(req), actorOf(admin)))));
   app.post("/api/admin/content/:id/visibility", adminHandler(async (req, _reply, admin) => setVisibility(param(req, "id"), body(req) as never, actorOf(admin))));
   app.post("/api/admin/content/:id/seo", adminHandler(async (req, reply, admin) => orNotFound(req, reply, await setSeoIndexed(param(req, "id"), body(req) as never, actorOf(admin)))));
   app.post("/api/admin/content/:id/override", adminHandler(async (req, _reply, admin) => overrideFields(param(req, "id"), body(req) as never, actorOf(admin))));
@@ -138,7 +163,15 @@ export function registerAdmin(app: FastifyInstance) {
   // Attention counts for the navigation.
   app.get("/api/admin/nav-counts", adminHandler(async () => {
     const [c] = await sql<Record<string, number>[]>`
-      SELECT (SELECT count(*)::int FROM feedback WHERE status = 'new') AS feedback,
+      SELECT CASE WHEN ${config.editorialMode === 'automatic'} THEN 0 ELSE (SELECT count(*)::int FROM articles a
+                JOIN LATERAL (SELECT relevance, title_zh, summary_zh FROM analyses
+                  WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
+                LEFT JOIN editorial_reviews r ON r.article_id = a.id
+                WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
+                  AND EXISTS (SELECT 1 FROM sources s WHERE s.id = a.source_id AND s.enabled AND s.participation_mode = 'editorial')
+                  AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
+                  AND (r.article_id IS NULL OR r.status = 'pending')) END AS review,
+             (SELECT count(*)::int FROM feedback WHERE status = 'new') AS feedback,
              (SELECT count(*)::int FROM sources WHERE enabled AND health = 'failing') AS sources,
              (SELECT count(*)::int FROM receipts WHERE status = 'unknown') + (SELECT count(*)::int FROM deliveries WHERE status = 'unknown') AS runs,
              (SELECT count(*)::int FROM monitor_posts WHERE (recognition->>'needsReview')::boolean IS TRUE AND (recognition->>'reviewed')::boolean IS NOT TRUE AND processed_at > now() - interval '7 days')

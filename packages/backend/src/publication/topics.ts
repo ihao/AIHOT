@@ -1,3 +1,4 @@
+import { publicationAuthorityCondition } from '../editorial/automatic-verification.ts';
 import type { FeedItemSummary } from "@aihot/contracts/site";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -81,7 +82,7 @@ export function topicPageCounts(): Promise<TopicCount[]> {
 async function queryTopicCounts(): Promise<TopicCount[]> {
   const [topics, items] = await Promise.all([
     sql<Array<Pick<TopicRow, "slug" | "entity_id" | "tags">>>`SELECT slug, entity_id, tags FROM topics ORDER BY position`,
-    sql<{ tags: string[]; timeline_at: Date }[]>`SELECT p.tags, p.timeline_at FROM publications p WHERE p.visibility = 'public' AND p.selected`,
+    sql<{ tags: string[]; timeline_at: Date }[]>`SELECT p.tags, p.timeline_at FROM publications p WHERE p.visibility = 'public' AND p.selected AND ${publicationAuthorityCondition('p')}`,
   ]);
   const recentFrom = Date.now() - 30 * 86400_000;
   return topics.map((t) => {

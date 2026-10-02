@@ -1,3 +1,4 @@
+import { config } from '../config.ts';
 // Stories (events) and the hot ranking through the public read layer. The website sees heat values;
 // v1 / MCP / Skill only see ranks and counts.
 import type { HeatPoint, HotResponse, StoryDetail, StoryReportView } from "@aihot/contracts/site";
@@ -8,6 +9,7 @@ import { behindSources, sourceClocks } from "../events/hot.ts";
 import { storyStatusFor } from "../events/digest.ts";
 import { itemUrl, storyApiUrl, storyUrl } from "./links.ts";
 import { SITE } from "@aihot/industry/site";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 export type StoryLookup = { kind: "found"; storyId: number; publicId: string } | { kind: "merged"; target: string } | { kind: "not_found" };
 
@@ -63,8 +65,7 @@ async function storyReports(storyId: number, now: Date): Promise<ReportRow[]> {
       p.first_party, s.icon_url, f.public_id AS fact_public_id, f.id AS fact_id
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     JOIN sources s ON s.id = p.source_id
-    WHERE f.story_id = ${storyId} AND p.visibility = 'public' AND s.participation_mode = 'editorial'
-      AND (NOT p.selected OR p.visible_after <= ${now})
+    WHERE f.story_id = ${storyId} AND ${curatedEvidence("p", now)} AND s.participation_mode = 'editorial'
     ORDER BY p.article_id, (fa.role = 'primary') DESC`;
 }
 
@@ -99,17 +100,23 @@ async function storyContent(storyId: number, now: Date) {
       const members = byFact.get(f.id)!;
       const rep = [...members].sort((a, b) => Number(b.first_party) - Number(a.first_party) || Number(b.selected) - Number(a.selected) || a.at.getTime() - b.at.getTime())[0]!;
       const first = members.reduce((m, r) => (r.at < m ? r.at : m), members[0]!.at);
-      return { factId: f.public_id, title: f.title, occurredAt: f.occurred_at?.toISOString() ?? null, firstReportAt: first.toISOString(), reportCount: members.length, representative: rep };
+      return { factId: f.public_id, title: rep.title, occurredAt: config.editorialMode === 'automatic' ? null : f.occurred_at?.toISOString() ?? null, firstReportAt: first.toISOString(), reportCount: members.length, representative: rep };
     })
     .sort((a, b) => Date.parse(b.firstReportAt) - Date.parse(a.firstReportAt));
 
-  return { s, reports, developments };
+  const origin = developments[developments.length - 1]?.representative ?? reports[reports.length - 1]!;
+  return { s: { ...s, title: origin.title, summary: origin.summary, digest: null, digest_updated_at: null,
+    latest: reports[0]!.title, first_report_at: reports[reports.length - 1]!.at, latest_at: reports[0]!.at }, reports, developments };
 }
 
 async function relatedStories(storyId: number) {
   return sql<{ public_id: string; title: string; relation: "storyline" | "related"; latest_at: Date | null }[]>`
-    SELECT st.public_id::text, st.title, l.relation, st.latest_at FROM story_links l JOIN stories st ON st.id = l.other_id
-    WHERE l.story_id = ${storyId} AND st.merged_into IS NULL ORDER BY st.latest_at DESC NULLS LAST LIMIT 8`;
+    SELECT DISTINCT ON (st.id) st.public_id::text, p.title, l.relation,
+      coalesce(p.published_at, p.discovered_at) AS latest_at
+    FROM story_links l JOIN stories st ON st.id = l.other_id
+    JOIN publications p ON p.story_id = st.id
+    WHERE l.story_id = ${storyId} AND st.merged_into IS NULL AND ${curatedEvidence("p", new Date())}
+    ORDER BY st.id, coalesce(p.published_at, p.discovered_at) DESC LIMIT 8`;
 }
 
 export async function loadStoryDetail(storyId: number, now = new Date()): Promise<StoryDetail | null> {
@@ -117,11 +124,12 @@ export async function loadStoryDetail(storyId: number, now = new Date()): Promis
   if (!content) return null;
   const { s, reports, developments } = content;
   const [why] = await sql<{ p48: number; p6: number; r24: number }[]>`
-    SELECT count(DISTINCT participant_key) FILTER (WHERE observed_at > ${now}::timestamptz - interval '48 hours') AS p48,
-           count(DISTINCT participant_key) FILTER (WHERE observed_at > ${now}::timestamptz - interval '6 hours'
-             AND participant_key NOT IN (SELECT participant_key FROM story_signals x WHERE x.story_id = ${storyId} AND x.observed_at <= ${now}::timestamptz - interval '6 hours')) AS p6,
-           count(*) FILTER (WHERE kind = 'editorial' AND observed_at > ${now}::timestamptz - interval '24 hours') AS r24
-    FROM story_signals WHERE story_id = ${storyId} AND observed_at <= ${now}`;
+    SELECT count(DISTINCT ss.participant_key) FILTER (WHERE ss.observed_at > ${now}::timestamptz - interval '48 hours') AS p48,
+           count(DISTINCT ss.participant_key) FILTER (WHERE ss.observed_at > ${now}::timestamptz - interval '6 hours'
+             AND ss.participant_key NOT IN (SELECT x.participant_key FROM story_signals x WHERE x.story_id = ${storyId} AND x.observed_at <= ${now}::timestamptz - interval '6 hours')) AS p6,
+           count(*) FILTER (WHERE ss.kind = 'editorial' AND ss.observed_at > ${now}::timestamptz - interval '24 hours') AS r24
+    FROM story_signals ss JOIN publications p ON p.article_id = ss.article_id
+    WHERE ss.story_id = ${storyId} AND ss.observed_at <= ${now} AND ${curatedEvidence("p", now)}`;
   const ranking = await latestHotRanking();
   const entry = ranking?.entries.find((e) => e.storyId === storyId) ?? null;
   // Only hours observed in full are drawn (the chart leaves a gap otherwise).
@@ -130,8 +138,9 @@ export async function loadStoryDetail(storyId: number, now = new Date()): Promis
   // Complete when none of the sources behind the last 48 hours' participants is behind on collection.
   const behind = behindSources(await sourceClocks(), now.getTime(), true);
   const [partial] = behind.length
-    ? await sql<{ n: number }[]>`SELECT count(*)::int AS n FROM story_signals WHERE story_id = ${storyId} AND source_id = ANY(${behind}::text[])
-                                  AND observed_at > ${now}::timestamptz - interval '48 hours' AND observed_at <= ${now}`
+    ? await sql<{ n: number }[]>`SELECT count(*)::int AS n FROM story_signals ss JOIN publications p ON p.article_id = ss.article_id
+      WHERE ss.story_id = ${storyId} AND ss.source_id = ANY(${behind}::text[]) AND ${curatedEvidence("p", now)}
+        AND ss.observed_at > ${now}::timestamptz - interval '48 hours' AND ss.observed_at <= ${now}`
     : [{ n: 0 }];
   const related = await relatedStories(storyId);
   const latestAt = s.latest_at ?? reports[0]!.at;
@@ -146,7 +155,7 @@ export async function loadStoryDetail(storyId: number, now = new Date()): Promis
     firstReportAt: (s.first_report_at ?? reports[reports.length - 1]!.at).toISOString(),
     latestAt: latestAt.toISOString(),
     digest: s.digest,
-    digestUpdatedAt: s.digest_updated_at?.toISOString() ?? null,
+    digestUpdatedAt: null,
     summary: s.summary,
     excerpt: !s.digest && !s.summary && origin?.summary ? { text: origin.summary, sourceName: origin.source_name } : null,
     latest: s.latest,
@@ -215,8 +224,7 @@ async function queryHotCovers(entries: Array<{ storyId: number; representativeIt
       SELECT m FROM jsonb_array_elements(coalesce(a.media, '[]'::jsonb)) m
       WHERE m->>'kind' = 'image' AND coalesce((m->>'width')::numeric, 800) >= 480 LIMIT 1
     ) img
-    WHERE p.story_id = ANY(${ids}::bigint[]) AND p.visibility = 'public' AND p.eligible AND p.body_mode <> 'summary'
-      AND (NOT p.selected OR p.visible_after <= ${at})
+    WHERE p.story_id = ANY(${ids}::bigint[]) AND ${curatedEvidence("p", at)} AND p.body_mode <> 'summary'
     ORDER BY p.story_id, (p.article_id::text = ANY(${reps}::text[])) DESC, p.first_party DESC, p.selected DESC, coalesce(p.score, 0) DESC, p.article_id`;
   const covers = new Map(rows.map((c) => [Number(c.story_id), { url: c.m.url, width: typeof c.m.width === "number" ? c.m.width : null, height: typeof c.m.height === "number" ? c.m.height : null }]));
   return covers;
@@ -311,7 +319,7 @@ export async function v1Story(storyId: number) {
       latestAt: latestAt.toISOString(),
       latest: s.latest ?? developments[0]?.title ?? s.title,
       digest: s.digest,
-      digestUpdatedAt: s.digest_updated_at?.toISOString() ?? null,
+      digestUpdatedAt: null,
       links: { aihot: storyUrl(s.public_id) },
       reports: reports.slice(0, 50).map((r) => ({
         id: r.id,

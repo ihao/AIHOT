@@ -6,6 +6,10 @@ import { cached, type Cached } from "../lib/cache.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { dailyUrl, itemUrl, siteUrl } from "./links.ts";
 import { SITE, withSubject } from "@aihot/industry/site";
+import { config } from "../config.ts";
+import { getReviewProposal } from "../editorial/review.ts";
+import { currentAutomaticDecision, publicationAuthorityCondition } from "../editorial/automatic-verification.ts";
+import { curatedEvidence } from "../events/eligibility.ts";
 
 export type { ReportKind };
 
@@ -21,6 +25,7 @@ interface ReportRow {
 
 interface Availability {
   available: boolean;
+  fingerprint: string | null;
   firstParty: boolean;
   sourceId: string | null;
   sourceIcon: string | null;
@@ -31,14 +36,21 @@ interface Availability {
 async function availability(ids: string[]): Promise<Map<string, Availability>> {
   const out = new Map<string, Availability>();
   if (ids.length === 0) return out;
-  const rows = await sql<{ id: string; visibility: string; eligible: boolean; first_party: boolean; source_id: string; icon_url: string | null; story_public_id: string | null; at: Date | null }[]>`
-    SELECT p.article_id AS id, p.visibility, p.eligible, p.first_party, p.source_id, s.icon_url, st.public_id::text AS story_public_id,
+  const rows = await sql<{ id: string; visibility: string; eligible: boolean; selected: boolean; fingerprint: string | null; review_status: string; first_party: boolean; source_id: string; icon_url: string | null; story_public_id: string | null; at: Date | null }[]>`
+    SELECT p.article_id AS id, p.visibility, p.eligible, p.selected, r.fingerprint, r.status AS review_status, p.first_party, p.source_id, s.icon_url, st.public_id::text AS story_public_id,
       coalesce(p.published_at, p.discovered_at) AS at
     FROM publications p LEFT JOIN sources s ON s.id = p.source_id LEFT JOIN stories st ON st.id = p.story_id
-    WHERE p.article_id IN ${sql(ids)}`;
+    LEFT JOIN editorial_reviews r ON r.article_id=p.article_id
+    LEFT JOIN editorial_curations c ON c.article_id=p.article_id AND c.status='approved'
+      AND c.fingerprint=r.fingerprint AND c.review_version=r.version
+    WHERE p.article_id IN ${sql(ids)} AND p.selected AND ${curatedEvidence("p", new Date())} AND c.article_id IS NOT NULL`;
   for (const r of rows) {
+    const proposal = await getReviewProposal(r.id);
+    if (!proposal || proposal.fingerprint !== r.fingerprint) continue;
+    if (r.review_status === "auto_public" && !(await currentAutomaticDecision(sql, r.id))?.selected) continue;
     out.set(r.id, {
-      available: r.visibility === "public" && r.eligible,
+      available: r.visibility === "public" && r.eligible && r.selected,
+      fingerprint: r.fingerprint,
       firstParty: r.first_party,
       sourceId: r.source_id,
       sourceIcon: r.icon_url,
@@ -54,8 +66,8 @@ export async function unavailableIds(ids: string[]): Promise<Set<string>> {
   const unique = [...new Set(ids.filter(Boolean))];
   if (!unique.length) return new Set();
   const rows = await sql<{ id: string }[]>`
-    SELECT article_id AS id FROM publications
-    WHERE article_id = ANY(${unique}::text[]) AND (visibility <> 'public' OR NOT eligible)`;
+    SELECT p.article_id AS id FROM publications p
+    WHERE p.article_id = ANY(${unique}::text[]) AND (p.visibility <> 'public' OR NOT p.eligible OR NOT ${publicationAuthorityCondition('p')})`;
   return new Set(rows.map((r) => r.id));
 }
 
@@ -66,11 +78,12 @@ export async function reportIndexRows(kind: ReportKind, limit: number) {
       'lead', content->'lead', 'headline', content->'headline', 'title', content->'title',
       CASE WHEN kind = 'daily' THEN 'sections' ELSE 'themes' END,
       jsonb_build_array(jsonb_build_object(CASE WHEN kind = 'daily' THEN 'items' ELSE 'storyRefs' END,
-        (SELECT coalesce(jsonb_agg(jsonb_build_object('itemId', item->'itemId', 'title', item->'title') ORDER BY ord), '[]'::jsonb)
+        (SELECT coalesce(jsonb_agg(jsonb_build_object('itemId', item->'itemId', 'title', item->'title',
+          'approvedFingerprint', item->'approvedFingerprint') ORDER BY ord), '[]'::jsonb)
          FROM jsonb_array_elements(jsonb_path_query_array(content,
            CASE WHEN kind = 'daily' THEN '$.sections[*].items[*]'::jsonpath ELSE '$.themes[*].storyRefs[*]'::jsonpath END
          )) WITH ORDINALITY AS cited(item, ord))))) AS content
-    FROM reports WHERE kind = ${kind} ORDER BY key DESC LIMIT ${limit}`;
+    FROM published_reports WHERE kind = ${kind} ORDER BY key DESC LIMIT ${limit}`;
 }
 
 /**
@@ -81,7 +94,7 @@ export function reportHeadline(content: Record<string, any>, kind: "daily" | "pe
   if (kind === "daily" && content.lead?.title) return String(content.lead.title);
   if (kind === "periodic" && periodicHeadline(content)) return periodicHeadline(content);
   const items: Array<Record<string, any>> = kind === "daily" ? (content.sections ?? []).flatMap((s: any) => s.items ?? []) : (content.themes ?? []).flatMap((t: any) => t.storyRefs ?? []);
-  const first = items.find((i) => !i.itemId || !gone.has(i.itemId));
+  const first = items.find((i) => !i.itemId || !gone.has(`${i.itemId}:${i.approvedFingerprint ?? ""}`));
   return first?.title ?? null;
 }
 
@@ -98,26 +111,27 @@ export async function unavailableHeadlineIds(rows: Array<{ content: Record<strin
     .map((r): Array<{ itemId?: string | null }> => kind === "daily"
       ? (r.content.sections ?? []).flatMap((s: any) => s.items ?? [])
       : (r.content.themes ?? []).flatMap((t: any) => t.storyRefs ?? []));
+  const all = reports.flat().filter((i): i is { itemId: string; approvedFingerprint?: string | null } => !!i.itemId);
+  const avail = await availability([...new Set(all.map((i) => i.itemId))]);
   const gone = new Set<string>();
-  const checked = new Set<string>();
-  while (true) {
-    const candidates = reports.map((items) => items.find((i) => !i.itemId || !gone.has(i.itemId))?.itemId)
-      .filter((id): id is string => !!id && !checked.has(id));
-    if (!candidates.length) return gone;
-    for (const id of await unavailableIds(candidates)) gone.add(id);
-    for (const id of candidates) checked.add(id);
+  for (const item of all) {
+    const current = avail.get(item.itemId);
+    if (!current?.available || (item.approvedFingerprint && current.fingerprint !== item.approvedFingerprint)) {
+      gone.add(`${item.itemId}:${item.approvedFingerprint ?? ""}`);
+    }
   }
+  return gone;
 }
 
 function citationFrom(raw: Record<string, any>, avail: Map<string, Availability>): ReportCitation {
   const id = raw.itemId ?? null;
   const a = id ? avail.get(id) : undefined;
   // Items absent from this database (older than the imported window) stay cited as they were published.
-  const available = id ? (a ? a.available : true) : true;
+  const available = id ? !!a?.available && (!raw.approvedFingerprint || raw.approvedFingerprint === a.fingerprint) : true;
   if (!available) {
-    // Withdrawn since: the reader sees a marked title; the summary and links are not sent at all.
+    // Automatic citations expose a neutral withdrawal marker; stale copy and links are withheld.
     return {
-      itemId: id, title: String(raw.title ?? ""), summary: null, sourceName: "", sourceUrl: "", sourceId: null, sourceIconUrl: null,
+      itemId: id, title: config.editorialMode === "automatic" ? "该条内容已不可用" : String(raw.title ?? ""), summary: null, sourceName: "", sourceUrl: "", sourceId: null, sourceIconUrl: null,
       firstParty: false, role: raw.role ?? null, storyPublicId: null, publishedAt: null, available: false,
     };
   }
@@ -175,7 +189,7 @@ async function leadCover(itemId: string): Promise<{ url: string; srcSet?: string
       WHERE m->>'kind' = 'image' AND coalesce((m->>'width')::numeric, 800) >= 480 LIMIT 1
     ) img
     WHERE (p.article_id = ${itemId} OR p.story_id = (SELECT story_id FROM publications WHERE article_id = ${itemId}))
-      AND p.visibility = 'public' AND p.eligible AND p.body_mode <> 'summary'
+      AND ${curatedEvidence("p", new Date())} AND p.body_mode <> 'summary'
     ORDER BY (p.article_id = ${itemId}) DESC, p.first_party DESC, coalesce(p.score, 0) DESC, p.article_id
     LIMIT 1`;
   if (!row) return null;
@@ -190,13 +204,13 @@ function readingMinutes(text: string): number {
 
 async function neighbors(kind: ReportKind, key: string): Promise<{ prev: string | null; next: string | null }> {
   const [row] = await sql<{ prev: string | null; next: string | null }[]>`
-    SELECT (SELECT key FROM reports WHERE kind = ${kind} AND key < ${key} ORDER BY key DESC LIMIT 1) AS prev,
-      (SELECT key FROM reports WHERE kind = ${kind} AND key > ${key} ORDER BY key ASC LIMIT 1) AS next`;
+    SELECT (SELECT key FROM published_reports WHERE kind = ${kind} AND key < ${key} ORDER BY key DESC LIMIT 1) AS prev,
+      (SELECT key FROM published_reports WHERE kind = ${kind} AND key > ${key} ORDER BY key ASC LIMIT 1) AS next`;
   return { prev: row?.prev ?? null, next: row?.next ?? null };
 }
 
 export async function loadReport(kind: ReportKind, key: string): Promise<ReportDetail | null> {
-  const [r] = await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM reports WHERE kind = ${kind} AND key = ${key}`;
+  const [r] = await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM published_reports WHERE kind = ${kind} AND key = ${key}`;
   if (!r) return null;
   const c = r.content;
   const rawItems: Array<Record<string, any>> = [
@@ -258,7 +272,7 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
  */
 const INDEX_LIMIT = 400;
 const indexes = new Map<ReportKind, Cached<{ rows: Awaited<ReturnType<typeof reportIndexRows>>; gone: Set<string> }>>();
-export function reportIndex(kind: ReportKind) {
+export async function reportIndex(kind: ReportKind) {
   let entry = indexes.get(kind);
   if (!entry) {
     entry = cached(async () => {
@@ -267,7 +281,11 @@ export function reportIndex(kind: ReportKind) {
     }, { freshMs: 60_000, maxStaleMs: 10 * 60_000 });
     indexes.set(kind, entry);
   }
-  return entry.get();
+  const index = await entry.get();
+  // Recheck automatic citations even with warm directory metadata. No site-wide cache purge.
+  return config.editorialMode === "automatic"
+    ? { rows: index.rows, gone: await unavailableHeadlineIds(index.rows, kind === "daily" ? "daily" : "periodic") }
+    : index;
 }
 
 export async function listReports(kind: ReportKind, limit = INDEX_LIMIT): Promise<ReportIndexEntry[]> {
@@ -312,13 +330,14 @@ export async function v1Dailies(limit: number) {
 
 export async function v1Daily(date: string | "latest") {
   const [r] = date === "latest"
-    ? await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM reports WHERE kind = 'daily' ORDER BY key DESC LIMIT 1`
-    : await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM reports WHERE kind = 'daily' AND key = ${date}`;
+    ? await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM published_reports WHERE kind = 'daily' ORDER BY key DESC LIMIT 1`
+    : await sql<ReportRow[]>`SELECT kind, key, window_start, window_end, content, generated_at, revision FROM published_reports WHERE kind = 'daily' AND key = ${date}`;
   if (!r) return null;
   const c = r.content;
   const raw = [...(c.sections ?? []).flatMap((s: any) => s.items ?? []), ...(c.flashes ?? [])];
   const avail = await availability([...new Set(raw.map((i: any) => i.itemId).filter(Boolean))] as string[]);
-  const ok = (i: any) => !i.itemId || (avail.get(i.itemId)?.available ?? true);
+  const ok = (i: any) => !i.itemId || (!!avail.get(i.itemId)?.available &&
+    (!i.approvedFingerprint || avail.get(i.itemId)?.fingerprint === i.approvedFingerprint));
   const links = (i: any) => ({ aihot: i.itemId ? itemUrl(i.itemId) : null, original: String(i.sourceUrl ?? "") });
   const url = dailyUrl(r.key);
   return {

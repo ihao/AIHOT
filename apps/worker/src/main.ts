@@ -8,6 +8,7 @@ import { registerSourceJobs } from "@aihot/backend/jobs/sources";
 import { registerEventJobs } from "@aihot/backend/jobs/events";
 import { registerNotifyJobs } from "@aihot/backend/jobs/notify";
 import { registerPublicationJobs } from "@aihot/backend/jobs/publication";
+import { sweepAutomaticVerifications } from "@aihot/backend/editorial/automatic-verification";
 import { registerSchedules } from "./schedules.ts";
 import { ensureContentTargets } from "@aihot/backend/notify/deliver";
 import { startHeartbeat } from "@aihot/backend/operations/heartbeat";
@@ -22,6 +23,7 @@ await registerEventJobs(boss);
 await registerNotifyJobs(boss);
 await registerPublicationJobs(boss);
 await registerSchedules(boss);
+await sweepAutomaticVerifications();
 // A new site has no leaderboard until the first scheduled round: compute one now.
 if (FEATURES.leaderboard) {
   const [published] = await sql`SELECT 1 FROM lb_runs WHERE status = 'published' LIMIT 1`;

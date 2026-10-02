@@ -13,6 +13,8 @@
   <a href="https://aihot.news"><img src="https://img.shields.io/badge/demo-aihot.news-202a30?style=flat-square" alt="aihot.news"></a>
 </p>
 
+> **9BTC 分支说明：** 本分支已改为 Web3 主题，`industry/sources.json` 目前为空。新数据库首次启动会导入主题，但不会导入信源或自动产生资讯；信源须经专题调研、质量评估和人工确认后再加入。下文保留的第一人称开源故事属于 AIHOT 原作者；AIHOT 性能数据和截图也仅是上游框架示例，不代表 9BTC 的运行结果。9BTC 的发布审核与 EU 部署仍在建设中。
+
 <p align="center">
   <b>一个自己找热点、自己写日报的网站框架。</b><br>
   把信源换成你的，把精选标准换成你的 KnowHow，它就是你的行业热点站。
@@ -47,7 +49,7 @@
 
 - **我不是专业的开发者。** 我是设计师出身，半年前还看不太懂代码。这套代码是我和 AI 一起重写的，比以前干净了很多，但一定还有写得不好的地方。发现问题欢迎提 Issue，我不一定能很快回复，先说声抱歉。
 - **这是一份快照。** 它来自 AIHOT 正在线上跑的代码，不是精心打磨的通用框架。以后 AIHOT 的更新，我会尽量同步过来，但没法保证每一次都同步。
-- **里面没有 AIHOT 的信源名单和运营数据。** 仓库带了 18 个公开的海外 AI 资讯源做示范，够你跑起来看效果；真正的信源，要换成你自己行业的。
+- **9BTC 分支没有预置信源。** 原框架的 18 个 AI 演示信源已移除；新数据库启动后不会自动出现内容。
 - **请不要用 AIHOT 的名字和 Logo。** 换上你自己的名字，它就是你的站。
 
 ## 它是怎么工作的
@@ -77,7 +79,9 @@
   <img src="docs/assets/perf-light.png" alt="AIHOT 线上实测：页面中位数 10 毫秒，95% 在 50 毫秒内；接口中位数 6 毫秒，95% 在 12 毫秒内；文章页 95% 在 14 毫秒内" width="100%">
 </picture>
 
-## 你会得到什么
+## 上游框架提供的能力
+
+下表介绍框架能力。9BTC 已关闭 AI 专属模块；审核发布流程、Web3 信源与公开上线仍需完成，不应把下表视为当前 9BTC 的线上运营状态。
 
 | | |
 |---|---|
@@ -86,8 +90,8 @@
 | **写作** | 中文标题、答案先行的摘要、推荐理由、标签，外文全文翻译；防止模型把原文没提到的公司写进标题 |
 | **聚簇** | 不同来源报道的同一件事聚成一个事件，后续进展挂在同一个事件下，事件页有综述；人工改过的归属不会被覆盖 |
 | **热点** | 按事件算热度：独立来源越多越靠前，X 上的讨论也算进来；和 6 小时前比，涨得快的标上升，新出现的标“新” |
-| **日报、周报、月报** | 每天 08:00 出日报，每周一出周报，每月 1 日出月报，按分类分节，带导语 |
-| **主题与搜索** | 公司、方向、内容形态三类主题页；标题摘要搜索和全文相关搜索 |
+| **日报、周报、月报** | 上游默认每天 08:00 自动出日报；9BTC 将改为晚间审阅后按实际时间发布，周报和月报同样须经过发布审核 |
+| **主题与搜索** | 上游示例使用公司、方向、内容形态三类主题；9BTC 已调整为项目与机构、领域、内容形式，保留标题摘要与相关搜索能力 |
 | **给 Agent 用** | RSS（精选、全部、全文、日报）、公开 API、MCP、`llms.txt`，同一份内容给人看也给 Agent 用 |
 | **后台** | 信源管理与试抓、内容诊断、精选评测、每一步单独换模型、付费服务的预算熔断、运行记录与告警 |
 | **AI 专属模块** | 模型榜（汇总多家公开评测，方法公开）和 Codex 重置监控。别的行业一个开关关掉 |
@@ -104,20 +108,19 @@
   <img src="docs/assets/board-light.png" alt="模型榜" width="100%">
 </picture>
 
-<p align="center"><sub>截图来自用示范信源跑起来的本地站，站名是默认的 MyHOT。</sub></p>
+<p align="center"><sub>截图为 AIHOT 上游框架使用原演示信源生成的 MyHOT 示例，并非当前 9BTC 页面或内容。</sub></p>
 
 ## 跑起来
 
-需要 [Docker](https://docs.docker.com/get-docker/)，和一个 OpenAI 兼容的模型 API Key（DeepSeek、千问、智谱都可以）。
+以下仅用于独立测试环境，不是 9btc.com 的 EU 服务器部署步骤；EU 部署将采用单独的方案。需要 [Docker](https://docs.docker.com/get-docker/)，处理内容时还需要一个 OpenAI 兼容的模型 API Key（DeepSeek、千问、智谱都可以）。
 
 ```bash
-git clone https://github.com/KKKKhazix/AIHOT.git myhot
-cd myhot
+# 在已取得的 9BTC 分支源码目录中执行
 node scripts/init-env.ts --llm-key <你的模型 API Key>
 docker compose up -d --build
 ```
 
-打开 <http://localhost:3000>。后台在 `/admin`，管理员密码在 `.env` 的 `ADMIN_PASSWORD` 里。一两分钟后开始有内容，第一次导入的资料大约半小时处理完。
+打开 <http://localhost:3000>。后台在 `/admin`，管理员密码在 `.env` 的 `ADMIN_PASSWORD` 里。当前配置首次启动后信源数为 0，页面不会自动出现资讯。
 
 机器上没有 Node、服务器在中国大陆、要配域名和 HTTPS，见 [部署](docs/deploy.md)。
 
@@ -136,7 +139,7 @@ docker compose up -d --build
 |---|---|
 | `site.ts` | 站名、行业词、首页文案、关于页 |
 | `taxonomy.ts`、`topics.json` | 分类、标签、主题 |
-| `sources.json` | 首次启动时导入的信源 |
+| `sources.json` | 初始化时可导入的信源；当前 9BTC 配置为空 |
 | `prompts/` | 精选标准和写作要求。**你的行业 KnowHow，就写在这里** |
 | `selection.ts` | 入选门槛 |
 | `features.ts` | 模型榜、Codex 重置监控的开关 |
@@ -152,7 +155,7 @@ docker compose up -d --build
 | [信源](docs/sources.md) | 六种信源怎么配，分级和全文，外部推送接口 |
 | [精选与校准](docs/selection.md) | 一条资料怎么变成精选，怎么用自己的样本校准 |
 | [事件归组与关系评测](docs/grouping.md) | 事件关系怎么判断，怎么用自己的 pairwise gold set 评测 |
-| [部署](docs/deploy.md) | Docker、域名和 HTTPS、中国大陆、更新、备份、花多少钱 |
+| [部署](docs/deploy.md) | 框架通用 Docker、域名和 HTTPS 示例；不是 9BTC EU 部署方案 |
 | [架构](docs/architecture.md) | 三个进程、几条不变的规则、目录、对外出口 |
 | [模型榜与 Codex 重置监控](docs/leaderboard.md) | 两个 AI 专属模块 |
 

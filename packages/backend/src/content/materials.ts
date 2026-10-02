@@ -1,9 +1,10 @@
 // The single entrance for new material from every channel (collectors, external reports, imports).
 // It owns identity, revisions and the timeline rule, so no entrance can bypass them.
-import { sql, type Db } from "../db.ts";
+import { sql, type Db, type Tx } from "../db.ts";
 import { newArticleId, sha256 } from "../lib/ids.ts";
 import { identityKeyForUrl } from "../lib/url.ts";
 import { collapseWhitespace } from "../lib/text.ts";
+import { publishArticleTx } from "../publication/publish.ts";
 
 export interface MediaItem {
   kind: "image" | "video";
@@ -155,8 +156,9 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
     return { articleId: newId, created: true, revised: false, backfill: t.backfill };
   }
 
-  const [existing] = await db<{ id: string; source_id: string; revision: number; content_hash: string | null; backfill: boolean; title: string; body_text: string | null; excerpt: string | null }[]>`
-    SELECT id, source_id, revision, content_hash, backfill, title, body_text, excerpt FROM articles WHERE identity_key = ${identityKey} FOR UPDATE`;
+  const [existing] = await db<{ id: string; source_id: string; revision: number; content_hash: string | null; backfill: boolean; title: string; body_text: string | null; excerpt: string | null; x_post: { text?: string; quoted?: { text?: string } } | null; x_article: unknown | null }[]>`
+    SELECT id, source_id, revision, content_hash, backfill, title, body_text, excerpt, x_post, x_article
+    FROM articles WHERE identity_key = ${identityKey} FOR UPDATE`;
   await db`INSERT INTO article_discoveries (article_id, source_id, via, discovered_at)
            VALUES (${existing!.id}, ${m.sourceId}, ${m.via}, ${discoveredAt}) ON CONFLICT DO NOTHING`;
   const unchanged: MaterialResult = { articleId: existing!.id, created: false, revised: false, backfill: existing!.backfill };
@@ -164,6 +166,10 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
   // discovery only: its title and summary are its own rendering, and taking them made the article flip
   // between the two sources' versions on every fetch. Only the article's own source revises it.
   if (existing!.source_id !== m.sourceId) return unchanged;
+  // The listing still contains only the link after its X Article was extracted. Do not
+  // replace the richer article title/body with that unchanged short post on every search.
+  if (existing!.x_article && m.xPost && existing!.x_post?.text === m.xPost.text &&
+      existing!.x_post?.quoted?.text === m.xPost.quoted?.text) return unchanged;
   // What the row will hold after this report: a listing without body keeps the stored (extracted) body.
   const bodyText = m.bodyText ?? existing!.body_text;
   const excerpt = m.excerpt ?? existing!.excerpt;
@@ -172,20 +178,16 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
   if (existing!.content_hash === null) {
     // Imported history carries no hash of this form (its collectors normalised differently): the
     // first report here records the baseline instead of a revision, so an import does not send
-    // every article a source still lists back to paid analysis. The baseline joins the history, so
-    // a later return to it is recognised as a version seen before.
+    // every article a source still lists back to paid analysis. A later return to
+    // this baseline is a new revision, so the current review target stays truthful.
     await db`UPDATE articles SET content_hash = ${next}, excerpt = coalesce(excerpt, ${m.excerpt ?? null}) WHERE id = ${existing!.id}`;
     await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
              VALUES (${existing!.id}, ${existing!.revision}, ${next}, ${title}, ${bodyText}) ON CONFLICT DO NOTHING`;
     return unchanged;
   }
-  // A version this article already had is no new material (listings that alternate between two
-  // renderings, pages that rotate promotions): the current revision was analysed and published once
-  // already. Any earlier version counts, however long ago: a rotation with many variants would
-  // otherwise start over, and a real edit reverted later is rare and loses nothing.
-  const [seen] = await db`SELECT 1 FROM article_revisions WHERE article_id = ${existing!.id} AND content_hash = ${next} LIMIT 1`;
-  if (seen) return unchanged;
-  // Nor is the stored version with other characters lost in transit, or with them restored.
+  // Returning to a historical rendering is still a new source change: the current
+  // review queue must show it, even when the intermediate revision was never public.
+  // Ignore only differences caused by characters lost in transit.
   if (sameBarringLoss(existing!.title, title) && sameBarringLoss(existing!.body_text, bodyText) && sameBarringLoss(existing!.excerpt, excerpt)) return unchanged;
 
   const [row] = await db<{ revision: number }[]>`
@@ -201,5 +203,8 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
     RETURNING revision`;
   await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
            VALUES (${existing!.id}, ${row!.revision}, ${next}, ${title}, ${bodyText})`;
+  // The article row is already locked. Revocation, selected-ledger removal and the
+  // material revision must become visible in the same commit, before any worker reruns.
+  await publishArticleTx(db as Tx, existing!.id);
   return { articleId: existing!.id, created: false, revised: true, backfill: existing!.backfill };
 }
