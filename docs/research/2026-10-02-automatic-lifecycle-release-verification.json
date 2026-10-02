@@ -1,0 +1,465 @@
+{
+  "deployment": {
+    "commit": "df7e45ea2fffbf2f88e026863ae5f88cf05d576b",
+    "deployedAt": "2026-10-02T11:59:48.493Z",
+    "checkedAt": "2026-10-02T12:08:40.829Z",
+    "image": "ninebtc-app:automatic-lifecycle-df7e45e",
+    "imageDigest": "sha256:12899635a83ac1ed45badd1065210da37768071c3b3a26e59e5b1ae340192f16",
+    "rollbackImage": "ninebtc-app:pre-automatic-lifecycle-20261002",
+    "rollbackDigest": "sha256:4356ea445fb26b4b53d0876e91e02fb18badace3fc5a5d56560c35832957e75b",
+    "rollbackCommit": "6c606f1670c9d6a9a08d7fc357ab33d07e95c7dd",
+    "backupService": "ninebtc-local-backup.service",
+    "backupResult": "success",
+    "backupExitStatus": 0,
+    "apiWorkerWebRestarts": 0,
+    "matchedSourceFiles": {
+      "apps/api/src/routes/admin.ts": "b3e9551a995be26b9cce958a9ce9be0c6e2ebdf9291568363eacad3d53d2cd11",
+      "apps/web/app/features/admin/automatic-content.tsx": "1cbbe39c4438bc6e2db02b2bfc6e517d2b7c35b7b10f089cd04ed0899c4bc8df",
+      "apps/web/app/routes/admin/content-item.tsx": "f450ed6dbd08daa065753db0ea41ff6c99569e421f317a010ee488728abfcb46",
+      "apps/web/app/routes/admin/review.tsx": "24aca86468b8aa0f3af811a8e7b24be983df0e54026f264cd0abb6b7010c2310",
+      "industry/evidence.ts": "8802c72d177d99ac127eaef903fa368e925e04085e61bb00a1949b3538fa8df1",
+      "packages/backend/src/admin/automatic-content.ts": "94e2a10377c975e32e0f18d1829ddbecf817290391825acb3c55b6f9193f2272",
+      "packages/backend/src/admin/content.ts": "51fb06b5a782a9229e49a3a2a373f151415218cc7f005561069fdde28499e841",
+      "packages/backend/src/admin/review.ts": "4205a5ee50e35bbd2004db77c00a8f53015e2825f9a4b5f684ed5ca667b3050c",
+      "packages/backend/src/content/freshness.ts": "09bff55655d2d417a650e562829da10bb7a4d014e53b70b17b27c21a8e73489b",
+      "packages/backend/src/editorial/automatic-verification.ts": "ede1ddcb9445eb2de889705221b43579869ba7da61a0d0f3f2ba1aaefbfe622f",
+      "packages/backend/src/jobs/content.ts": "0ee7bf8fc3205ff1a2f21493e00c7bb5b401473a43ddacf9573d59b58059b5ea",
+      "packages/contracts/src/automatic-content.ts": "3c66046594aa029fc821330c36ab4474d6d99648f5b735c1e4513c5286489774",
+      "tests/automatic-content-labels.test.ts": "8e0af5c75ff269124a0bf8e28fffde51f67e46930aebcbd2405c07c22e9a8a8c",
+      "tests/automatic-content-management.test.ts": "a6351d109b322d2f5e05fe708e2bd5e5f70c83d90fa5a2455943c30b60277201",
+      "tests/automatic-evidence.test.ts": "101043ae029bb364ea4a399c3efe5b7cee8eb5938b6228b9f9beba8f283e1f04"
+    },
+    "temporaryTestContainersDatabaseNetworkRemoved": true
+  },
+  "verification": {
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "backend": {
+      "node": "24.21.0",
+      "postgresql": 17,
+      "freshDatabase": true,
+      "externalNetworkBlocked": true,
+      "tests": 311,
+      "passed": 311,
+      "failed": 0
+    },
+    "webTests": {
+      "tests": 16,
+      "passed": 16
+    },
+    "previewSmokeChecks": 30,
+    "publicProductionSmokeChecks": 30,
+    "ci": {
+      "commit": "df7e45ea2fffbf2f88e026863ae5f88cf05d576b",
+      "run": 37003708565,
+      "jobs": [
+        {
+          "id": 110826976956,
+          "name": "check",
+          "conclusion": "success"
+        },
+        {
+          "id": 110826977171,
+          "name": "docker",
+          "conclusion": "success"
+        }
+      ],
+      "url": "https://github.com/ihao/AIHOT/actions/runs/37003708565"
+    }
+  },
+  "business": {
+    "runtime": {
+      "mode": "automatic",
+      "collect": true,
+      "modelCalls": true,
+      "dailyTime": "21:30"
+    },
+    "mandatoryPending": 0,
+    "oldPending": {
+      "total": 179,
+      "paused": 176,
+      "automaticUnpublished": 3
+    },
+    "allHistoryStatusCounts": {
+      "processing": 0,
+      "published": 1518,
+      "unpublished": 120,
+      "paused": 395,
+      "failed": 0,
+      "manual": 242,
+      "budgetWait": 0
+    },
+    "sources": {
+      "total": 94,
+      "enabled": 80
+    },
+    "publicCount": {
+      "n": 1518
+    },
+    "reports": [
+      {
+        "kind": "daily",
+        "key": "2026-10-01",
+        "active_version_id": 5
+      },
+      {
+        "kind": "daily",
+        "key": "2026-10-02",
+        "active_version_id": 6
+      }
+    ],
+    "automaticRule": "automatic-publication-v1:5c0e3a85b0b01eeb31df0874",
+    "normalReadsPrepareNoManualProposals": true,
+    "terminalRecoverySpendsNoRepeatRequest": true,
+    "authenticatedChecks": [
+      {
+        "path": "/api/admin/nav-counts",
+        "status": 200,
+        "mandatoryPending": 0
+      },
+      {
+        "path": "/api/admin/review",
+        "status": 200,
+        "mandatoryPending": 0,
+        "view": "all"
+      },
+      {
+        "path": "/api/admin/review?view=paused",
+        "status": 200,
+        "mandatoryPending": 0,
+        "view": "paused"
+      },
+      {
+        "path": "/api/admin/review?view=unpublished",
+        "status": 200,
+        "mandatoryPending": 0,
+        "view": "unpublished"
+      },
+      {
+        "path": "/api/admin/review?view=processing",
+        "status": 200,
+        "mandatoryPending": 0,
+        "view": "processing"
+      },
+      {
+        "path": "/admin/review",
+        "status": 200,
+        "automaticView": true,
+        "mandatoryReviewLabel": false
+      },
+      {
+        "path": "/admin/review?view=paused",
+        "status": 200,
+        "automaticView": true,
+        "mandatoryReviewLabel": false
+      },
+      {
+        "path": "/admin/review?view=unpublished",
+        "status": 200,
+        "automaticView": true,
+        "mandatoryReviewLabel": false
+      },
+      {
+        "path": "/admin/content/c8l8i56l6xjvyv1ec97nnj50b",
+        "status": 200,
+        "evidenceAndReasonVisible": true
+      }
+    ],
+    "publicAcceptedRejectedSamples": [
+      {
+        "id": "aogy1eackjkw1yu1z9yjf98h8",
+        "path": "/items/aogy1eackjkw1yu1z9yjf98h8",
+        "status": 200
+      },
+      {
+        "id": "aogy1eackjkw1yu1z9yjf98h8",
+        "path": "/api/site/items/aogy1eackjkw1yu1z9yjf98h8",
+        "status": 200
+      },
+      {
+        "id": "aogy1eackjkw1yu1z9yjf98h8",
+        "path": "/items/aogy1eackjkw1yu1z9yjf98h8/markdown",
+        "status": 200
+      },
+      {
+        "id": "p3g7f3xc2oqppydzexfk0in3w",
+        "path": "/items/p3g7f3xc2oqppydzexfk0in3w",
+        "status": 200
+      },
+      {
+        "id": "p3g7f3xc2oqppydzexfk0in3w",
+        "path": "/api/site/items/p3g7f3xc2oqppydzexfk0in3w",
+        "status": 200
+      },
+      {
+        "id": "p3g7f3xc2oqppydzexfk0in3w",
+        "path": "/items/p3g7f3xc2oqppydzexfk0in3w/markdown",
+        "status": 200
+      },
+      {
+        "id": "kbh1k5kk13b2tj8hps24vuabd",
+        "path": "/items/kbh1k5kk13b2tj8hps24vuabd",
+        "status": 200
+      },
+      {
+        "id": "kbh1k5kk13b2tj8hps24vuabd",
+        "path": "/api/site/items/kbh1k5kk13b2tj8hps24vuabd",
+        "status": 200
+      },
+      {
+        "id": "kbh1k5kk13b2tj8hps24vuabd",
+        "path": "/items/kbh1k5kk13b2tj8hps24vuabd/markdown",
+        "status": 200
+      },
+      {
+        "id": "c8l8i56l6xjvyv1ec97nnj50b",
+        "path": "/items/c8l8i56l6xjvyv1ec97nnj50b",
+        "status": 404
+      },
+      {
+        "id": "c8l8i56l6xjvyv1ec97nnj50b",
+        "path": "/api/site/items/c8l8i56l6xjvyv1ec97nnj50b",
+        "status": 404
+      },
+      {
+        "id": "c8l8i56l6xjvyv1ec97nnj50b",
+        "path": "/items/c8l8i56l6xjvyv1ec97nnj50b/markdown",
+        "status": 404
+      },
+      {
+        "id": "jceq03mzmepqmaesfl1yz9eyl",
+        "path": "/items/jceq03mzmepqmaesfl1yz9eyl",
+        "status": 404
+      },
+      {
+        "id": "jceq03mzmepqmaesfl1yz9eyl",
+        "path": "/api/site/items/jceq03mzmepqmaesfl1yz9eyl",
+        "status": 404
+      },
+      {
+        "id": "jceq03mzmepqmaesfl1yz9eyl",
+        "path": "/items/jceq03mzmepqmaesfl1yz9eyl/markdown",
+        "status": 404
+      },
+      {
+        "id": "v6klnik94knj1zs8rp5szb27q",
+        "path": "/items/v6klnik94knj1zs8rp5szb27q",
+        "status": 404
+      },
+      {
+        "id": "v6klnik94knj1zs8rp5szb27q",
+        "path": "/api/site/items/v6klnik94knj1zs8rp5szb27q",
+        "status": 404
+      },
+      {
+        "id": "v6klnik94knj1zs8rp5szb27q",
+        "path": "/items/v6klnik94knj1zs8rp5szb27q/markdown",
+        "status": 404
+      }
+    ],
+    "publicExits": {
+      "at": "2026-10-02T12:05:06.283Z",
+      "privateSampleCount": 179,
+      "checks": [
+        {
+          "exit": "public_v1_all",
+          "status": 200,
+          "count": 30,
+          "oldPendingExcluded": true
+        },
+        {
+          "exit": "rss_all",
+          "status": 200,
+          "oldPendingExcluded": true
+        },
+        {
+          "exit": "mcp_latest_all",
+          "status": 200,
+          "count": 30,
+          "sameItemsAsPublicApi": true,
+          "oldPendingExcluded": true
+        },
+        {
+          "exit": "daily/2026-10-01",
+          "status": 200
+        },
+        {
+          "exit": "daily/2026-10-02",
+          "status": 200
+        }
+      ]
+    },
+    "collection": {
+      "startedAt": "2026-10-02T12:02:44.961Z",
+      "at": "2026-10-02T12:02:48.768Z",
+      "pausedSourceRecoveryNoQueueOrVerificationChange": true,
+      "results": [
+        {
+          "sourceId": "bitcoin-core-releases",
+          "status": "ok",
+          "found": 0,
+          "created": 0,
+          "revised": 0
+        },
+        {
+          "sourceId": "arbitrum-gov",
+          "status": "ok",
+          "found": 30,
+          "created": 0,
+          "revised": 0
+        },
+        {
+          "sourceId": "compound-gov",
+          "status": "ok",
+          "found": 30,
+          "created": 0,
+          "revised": 0
+        },
+        {
+          "sourceId": "sec-press-releases",
+          "status": "ok",
+          "found": 0,
+          "created": 0,
+          "revised": 0
+        }
+      ],
+      "fresh": []
+    },
+    "budgets": [
+      {
+        "service": "dajiala",
+        "per_minute": 5,
+        "per_hour": 60,
+        "per_day": 500
+      },
+      {
+        "service": "dashscope",
+        "per_minute": 20,
+        "per_hour": 300,
+        "per_day": 2000
+      },
+      {
+        "service": "deepseek",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      },
+      {
+        "service": "embedding",
+        "per_minute": 300,
+        "per_hour": 6000,
+        "per_day": 40000
+      },
+      {
+        "service": "jina",
+        "per_minute": 5,
+        "per_hour": 50,
+        "per_day": 300
+      },
+      {
+        "service": "llm",
+        "per_minute": 0,
+        "per_hour": 0,
+        "per_day": 0
+      },
+      {
+        "service": "mimo",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      },
+      {
+        "service": "socialdata",
+        "per_minute": 10,
+        "per_hour": 100,
+        "per_day": 1000
+      },
+      {
+        "service": "zhipu",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      }
+    ],
+    "jobsAfterDeploy": [
+      {
+        "name": "__pgboss__send-it",
+        "state": "completed",
+        "n": 34
+      },
+      {
+        "name": "cron.automatic.safety",
+        "state": "completed",
+        "n": 9
+      },
+      {
+        "name": "cron.content.sweep",
+        "state": "completed",
+        "n": 2
+      },
+      {
+        "name": "cron.content.translate",
+        "state": "completed",
+        "n": 2
+      },
+      {
+        "name": "cron.events.sweep",
+        "state": "completed",
+        "n": 2
+      },
+      {
+        "name": "cron.feedback.forward",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "cron.hot.rank",
+        "state": "completed",
+        "n": 2
+      },
+      {
+        "name": "cron.hot.snapshot",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "cron.ops.alerts",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "cron.ops.recover",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "cron.reports.daily-catchup",
+        "state": "completed",
+        "n": 2
+      },
+      {
+        "name": "cron.sources.mp-reconcile",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "cron.sources.schedule",
+        "state": "completed",
+        "n": 9
+      },
+      {
+        "name": "cron.stories.status",
+        "state": "completed",
+        "n": 1
+      },
+      {
+        "name": "sources.fetch",
+        "state": "completed",
+        "n": 4
+      }
+    ],
+    "liveAttemptsAfterDeploy": 0,
+    "newAutomaticResultsAfterDeploy": [],
+    "boundary": "Real RSS collection found no new or revised material. Existing real automatic accept/refusal results and terminal recovery were verified; no claim of a newly processed post after deployment."
+  }
+}
