@@ -11,6 +11,23 @@ test('only two literal original first-party HTTPS evidence links are admitted', 
   assert.deepEqual(originalPrimaryLinks(`<a href="https://github.com/ethereum/fake">fake</a><a href="https://ethereum.org/a">a</a><a href='https://sec.gov/b'>b</a><a href="https://aave.com/c">c</a>`, 'https://panews.example/'), ['https://ethereum.org/a', 'https://sec.gov/b']);
   for (const url of ['https://ethereum.org.evil.test/a', 'https://evil.ethereum.org/a', 'https://user:secret@ethereum.org/a', 'http://ethereum.org/a', 'https://ethereum.org:8000/a', 'https://test.substack.com/a']) assert.equal(approvedPrimaryUrl(url), false, url);
 });
+test('approved protocol official evidence endpoints are exact hosts with bounded literal links', () => {
+  for (const url of ['https://blog.chain.link/security-update','https://docs.compound.finance/v2/','https://www.fincen.gov/news','https://blog.celestia.org/fibre/']) {
+    assert.equal(approvedPrimaryUrl(url),true,url);
+  }
+  for (const url of ['https://forum.compound.finance/thread','https://evil.docs.compound.finance/a','https://docs.compound.finance.evil.test/a','https://github.com/attacker/repo','https://medium.com/@attacker/a']) assert.equal(approvedPrimaryUrl(url),false,url);
+  assert.deepEqual(originalPrimaryLinks('<a href=https://docs.compound.finance/v2/?a=1&amp;b=2>docs</a><a href="https://blog.chain.link/a">link</a><a href="https://www.fincen.gov/third">third</a>','https://example.com/'),
+    ['https://docs.compound.finance/v2/?a=1&b=2','https://blog.chain.link/a']);
+});
+test('Compound official documentation migration admits its exact new host at each redirect hop',async () => {
+  const requested:string[]=[];
+  const fetcher=async(url:string)=>{
+    requested.push(url);
+    return {status:302,url,headers:new Headers({location:url.includes('compound.finance')?'https://docs.compound.xyz/v2/':'https://evil.example/a'}),body:Buffer.alloc(0),text:()=>''};
+  };
+  assert.equal(await fetchPrimaryMaterial('https://docs.compound.finance/v2/',fetcher),null);
+  assert.deepEqual(requested,['https://docs.compound.finance/v2/','https://docs.compound.xyz/v2/']);
+});
 test('redirect outside approved first-party host is refused before it is fetched', async () => {
   const requested: string[] = [];
   const fetcher = async (url: string) => {

@@ -3,6 +3,8 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { SELECTION } from '@aihot/industry/selection';
+import { PRIMARY_EVIDENCE_HOSTS } from '@aihot/industry/evidence';
+import { load } from 'cheerio';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
 import { AutomaticSourcePaused, checkAutomaticSourcePause, refreshAutomaticSafety } from './automatic-safety.ts';
 import { config } from '../config.ts';
@@ -176,11 +178,10 @@ export function requiresPrimaryEvidence(a: {
 }) {
   return !a.first_party && (['security', 'policy', 'regulation', 'governance'].includes(a.category ?? '') || /security|policy|regulat|governance|hack|exploit|attack|loss|enforcement/i.test(String(a.output.itemType ?? '')) || /\b(?:hack(?:ed|ing)?|exploit|attack|breach|loss(?:es)?|stolen|drain(?:ed)?|SEC|CFTC|regulat(?:ion|ory|or)|lawsuit|court|governance|proposal|vote|executed)\b|攻击|漏洞|被盗|损失|监管|起诉|法院|治理|提案|投票|执行/i.test(`${a.title}\n${a.body_text ?? ''}`));
 }
-const PRIMARY_DOMAINS = ['ethereum.org', 'blog.ethereum.org', 'bitcoincore.org', 'chainalysis.com', 'coinmetrics.io', 'sec.gov', 'aave.com', 'uniswap.org', 'blog.uniswap.org'] as const;
 export function approvedPrimaryUrl(value: string) {
   try {
     const u = new URL(value);
-    return u.protocol === 'https:' && !u.username && !u.password && (!u.port || u.port === '443') && PRIMARY_DOMAINS.some(d => u.hostname === d || u.hostname === `www.${d}`);
+    return u.protocol === 'https:' && !u.username && !u.password && (!u.port || u.port === '443') && PRIMARY_EVIDENCE_HOSTS.some(d => u.hostname === d || u.hostname === `www.${d}`);
   } catch {
     return false;
   }
@@ -188,9 +189,10 @@ export function approvedPrimaryUrl(value: string) {
 /** Only literal links in the fetched original body; model supplied links are never read. */
 export function originalPrimaryLinks(bodyHtml: string | null, originalUrl: string): string[] {
   const urls: string[] = [];
-  for (const m of (bodyHtml ?? '').matchAll(/<a\b[^>]*\bhref\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
+  const $=load(bodyHtml ?? '');
+  for (const anchor of $('a[href]').toArray()) {
     try {
-      const url = new URL((m[1] ?? m[2] ?? '').replace(/&amp;/g, '&'), originalUrl).toString();
+      const url = new URL($(anchor).attr('href')!, originalUrl).toString();
       if (approvedPrimaryUrl(url) && !urls.includes(url)) urls.push(url);
     } catch {}
     if (urls.length === 2) break;
@@ -230,7 +232,7 @@ export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): P
   if (config.editorialMode !== 'automatic') return;
   if (await automaticFreshnessReason(articleId, tx)) return;
   const a = await loadInput(tx, articleId);
-  if (!a) return;
+  if (!a || !a.source_enabled || !a.auto_enabled || a.participation_mode !== 'editorial') return;
   const copy = copyOf(a),
     hash = automaticCopyHash(copy);
   const proposal = await getReviewProposal(articleId, tx);
@@ -336,9 +338,13 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   if (config.editorialMode !== 'automatic') return;
   const freshness = await automaticFreshnessReason(articleId);
   if (freshness) {
-    await sql`UPDATE automatic_verifications SET status='rejected',reasons=${sql.json([`freshness:${freshness}`])},
-      lease_token=NULL,lease_until=NULL,retry_at=NULL,updated_at=now() WHERE article_id=${articleId}
-      AND (status IN ('queued','waiting') OR (status='running' AND lease_until<now()))`;
+    await sql.begin(async tx=>{
+      await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
+      const changed=await tx`UPDATE automatic_verifications SET status='rejected',reasons=${tx.json([`freshness:${freshness}`])},
+        selected=false,lease_token=NULL,lease_until=NULL,retry_at=NULL,updated_at=now() WHERE article_id=${articleId}
+        AND (status IN ('queued','waiting') OR (status='running' AND lease_until<now()))`;
+      if(changed.count) {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
+    });
     return;
   }
   try { await checkAutomaticSourcePause(articleId); }
@@ -361,7 +367,9 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
     if (!r) return null;
     const proposal = await getReviewProposal(articleId, tx);
     if (!proposal || proposal.fingerprint !== r.final_fingerprint || r.verification_config_hash !== verificationConfigHash(r.verification_model) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a)) || (await manuallyHeld(tx, articleId))) {
-      await tx`UPDATE automatic_verifications SET status='stale',reasons='["input_changed_or_manual_hold"]',lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+      await tx`UPDATE automatic_verifications SET status='stale',selected=false,retry_at=NULL,reasons='["input_changed_or_manual_hold"]',lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+      const {publishArticleTx}=await import('../publication/publish.ts');
+      await publishArticleTx(tx,articleId);
       return null;
     }
     return {
@@ -409,7 +417,12 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         };
         await sql`UPDATE automatic_verifications SET evidence_fetched=true,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
         if (r.materials.length === 1) {
-          await sql`UPDATE automatic_verifications SET status='rejected',reasons='["no_new_primary_evidence"]',lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+          await sql.begin(async tx=>{
+            await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
+            const changed=await tx`UPDATE automatic_verifications SET status='rejected',selected=false,retry_at=NULL,
+              reasons='["no_new_primary_evidence"]',lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+            if(changed.count) {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
+          });
           return;
         }
       }
@@ -471,8 +484,13 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       const [settled] = await sql`SELECT 1 FROM receipts WHERE purpose='verify_summary'
      AND logical_key LIKE ${`%:${tag}`} AND status IN ('received','completed')`;
       if (usageBefore.count >= 3 && !settled) {
-        await sql`UPDATE automatic_verifications SET status='rejected',verification_count=${Math.min(3, usageBefore.count)},
-      receipt_ids=${usageBefore.ids},reasons='["verification_request_limit"]',lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+        await sql.begin(async tx=>{
+          await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
+          const changed=await tx`UPDATE automatic_verifications SET status='rejected',selected=false,retry_at=NULL,
+            verification_count=${Math.min(3,usageBefore.count)},receipt_ids=${usageBefore.ids},reasons='["verification_request_limit"]',
+            lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+          if(changed.count) {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
+        });
         return;
       }
       await checkAutomaticSourcePause(articleId);
@@ -516,7 +534,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         }];
         const updated = await tx`UPDATE automatic_verifications SET verification=${tx.json(response.data as never)},verification_count=${r.verification_count},
      receipt_ids=${r.receipt_ids},reasons=${tx.json(d.reasons)},decisions=${tx.json(history as never)},selected=${currentInput && d.selected},status=${status},
-     stage=${nextStage ?? r.stage},lease_token=${terminal || !currentInput ? null : token},lease_until=${terminal || !currentInput ? null : new Date(Date.now() + LEASE_MS)},updated_at=now()
+     stage=${nextStage ?? r.stage},retry_at=NULL,lease_token=${terminal || !currentInput ? null : token},lease_until=${terminal || !currentInput ? null : new Date(Date.now() + LEASE_MS)},updated_at=now()
      WHERE id=${r.id} AND lease_token=${token}`;
         if (!updated.count) return false;
         await completeReceipt(tx, response.receiptId);
@@ -545,11 +563,16 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
     const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof AutomaticSourcePaused;
     const usage = await verificationUsage(r);
     const receiptId = error instanceof ModelOutputError || error instanceof ReceiptUnknownError ? error.receiptId : null;
-    await sql`UPDATE automatic_verifications SET status=CASE WHEN ${usage.count >= 3} AND NOT ${waiting} THEN 'rejected' WHEN ${waiting} OR failures<2 THEN 'waiting' ELSE 'rejected' END,
+    await sql.begin(async tx=>{
+      await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
+      const [settled]=await tx`UPDATE automatic_verifications SET status=CASE WHEN ${usage.count >= 3} AND NOT ${waiting} THEN 'rejected' WHEN ${waiting} OR failures<2 THEN 'waiting' ELSE 'rejected' END,
    verification_count=${Math.min(3, usage.count)},
-   failures=failures+${waiting ? 0 : 1},retry_at=${error instanceof AutomaticSourcePaused ? error.until : new Date(Date.now() + (error instanceof BudgetExceededError ? error.retryAfterSeconds * 1000 : 60_000))},
+   selected=false,failures=failures+${waiting ? 0 : 1},retry_at=CASE WHEN ${waiting} OR (${usage.count < 3} AND failures<2)
+     THEN ${error instanceof AutomaticSourcePaused ? error.until : new Date(Date.now() + (error instanceof BudgetExceededError ? error.retryAfterSeconds * 1000 : 60_000))} ELSE NULL END,
    reasons=${sql.json([String(error).slice(0, 1000)])},receipt_ids=${[...new Set([...r.receipt_ids, ...usage.ids, ...(receiptId === null ? [] : [receiptId])])]},
-   lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+   lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token} RETURNING status`;
+      if(settled?.status==='rejected') {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
+    });
     if (!(error instanceof AutomaticSourcePaused)) throw error;
   }
 }

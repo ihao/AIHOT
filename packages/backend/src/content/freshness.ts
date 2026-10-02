@@ -23,3 +23,13 @@ export async function skipExpiredProcessing(articleId: string, db: Db = sql): Pr
     processing_retry_at=NULL,processing_queued_at=NULL WHERE id=${articleId} AND processing_state IN ('new','failed')`;
   return true;
 }
+
+/** A source pause also applies to already queued work and restart recovery. */
+export async function skipPausedProcessing(articleId:string,db:Db=sql):Promise<boolean> {
+  if(config.editorialMode!=='automatic') return false;
+  const [source]=await db<{enabled:boolean}[]>`SELECT s.enabled FROM sources s JOIN articles a ON a.source_id=s.id WHERE a.id=${articleId}`;
+  if(!source || source.enabled) return false;
+  await db`UPDATE articles SET processing_state='skipped',processing_error='source_disabled',processing_retry_at=NULL,
+    processing_queued_at=NULL WHERE id=${articleId} AND processing_state IN ('new','failed')`;
+  return true;
+}

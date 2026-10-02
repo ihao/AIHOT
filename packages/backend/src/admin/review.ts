@@ -2,6 +2,9 @@
 // visibility. Every command still compares the displayed fingerprint/version inside its transaction.
 import { sql } from "../db.ts";
 import { getReviewProposal, proposeReview } from "../editorial/review.ts";
+import { config } from "../config.ts";
+import { automaticContentOverview } from "./automatic-content.ts";
+import type { AutomaticContentOverview } from "@aihot/contracts/automatic-content";
 
 type Candidate = {
   id: string; source: string; source_id: string; url: string; original_title: string;
@@ -26,8 +29,13 @@ function reasons(row: Candidate) {
   return flags.length ? flags : ["普通待审核内容"];
 }
 
-export async function listReviewQueue(limit = 40, sourceId?: string) {
+export async function listReviewQueue(limit = 40, sourceId?: string, view?: string) {
   const bounded = Math.min(100, Math.max(1, Number.isFinite(limit) ? Math.floor(limit) : 40));
+  if (config.editorialMode === "automatic" && view !== "intervention") {
+    const automation=await automaticContentOverview(bounded,sourceId,view);
+    return {mode:"automatic" as const,manualIntervention:false,pendingCount:0,failureCount:automation.counts.failed,budgetWaitCount:automation.counts.budgetWait,
+      rows:[],failures:[],budgetWaits:[],automation};
+  }
   // Budget exhaustion is an automatic wait, not a terminal content/provider failure.
   const budgetWait = sql`processing_state = 'new' AND coalesce(processing_error ~ '^Budget for [a-zA-Z0-9_-]+ exhausted [(](minute|hour|day|stopped)[)]$', false)`;
   const [counts] = await sql<{ pending: number; failures: number; budget_waits: number }[]>`
@@ -36,7 +44,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1) an ON true
       LEFT JOIN editorial_reviews r ON r.article_id = a.id
       WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass'
-        AND EXISTS (SELECT 1 FROM sources s WHERE s.id = a.source_id AND s.participation_mode = 'editorial')
+        AND EXISTS (SELECT 1 FROM sources s WHERE s.id = a.source_id AND s.enabled AND s.participation_mode = 'editorial')
         AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
         AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
         AND (r.article_id IS NULL OR r.status = 'pending')) AS pending,
@@ -51,7 +59,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
     JOIN LATERAL (SELECT * FROM analyses WHERE article_id = a.id AND input_revision = a.revision
       ORDER BY id DESC LIMIT 1) an ON true
     LEFT JOIN editorial_reviews r ON r.article_id = a.id
-    WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass' AND s.participation_mode = 'editorial'
+    WHERE a.processing_state = 'analyzed' AND an.relevance = 'pass' AND s.enabled AND s.participation_mode = 'editorial'
       AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
       AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL
       AND (r.article_id IS NULL OR r.status = 'pending')
@@ -84,7 +92,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
         LEFT JOIN editorial_overrides o ON o.article_id = a.id
         LEFT JOIN translations tr ON tr.article_id = a.id AND tr.lang = 'zh' AND tr.revision >= a.revision
         WHERE a.id = ${id} AND a.processing_state = 'analyzed' AND an.relevance = 'pass'
-          AND s.participation_mode = 'editorial'
+          AND s.enabled AND s.participation_mode = 'editorial'
           AND an.title_zh IS NOT NULL AND an.summary_zh IS NOT NULL`;
       const proposal = candidate ? await getReviewProposal(id, tx) : null;
       const [review] = candidate ? await tx<{ status: string; version: number; fingerprint: string }[]>`
@@ -118,6 +126,6 @@ export async function listReviewQueue(limit = 40, sourceId?: string) {
     FROM articles a JOIN sources s ON s.id = a.source_id
     WHERE ${budgetWait} AND (${sourceId ?? null}::text IS NULL OR a.source_id = ${sourceId ?? null})
     ORDER BY a.discovered_at DESC LIMIT 20`;
-  return { pendingCount: counts?.pending ?? 0, failureCount: counts?.failures ?? 0, budgetWaitCount: counts?.budget_waits ?? 0,
+  return { mode:config.editorialMode,manualIntervention:config.editorialMode==="automatic",automation:null as AutomaticContentOverview|null,pendingCount: counts?.pending ?? 0, failureCount: counts?.failures ?? 0, budgetWaitCount: counts?.budget_waits ?? 0,
     rows: rows.slice(0, bounded), failures, budgetWaits };
 }

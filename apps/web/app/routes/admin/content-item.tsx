@@ -8,8 +8,10 @@ import { useAdminAction } from "../../features/admin/action";
 import { bj, money } from "../../features/admin/format";
 import { KIND_LABEL, MODE_LABEL, VISIBILITY_LABEL, processingErrorLabel } from "../../features/admin/labels";
 import { AdminPage, Badge, Button, Card, Empty, Field, Input, Json, KV, ReasonDialog, Select, Textarea } from "../../features/admin/ui";
+import { automaticReasonLabel } from "@aihot/contracts/automatic-content";
 
 type Row = Record<string, any>;
+const VERIFICATION_LABELS:Record<string,string>={queued:'待自动核验',running:'核验中',waiting:'等待自动恢复',accepted:'核验通过',rejected:'已自动结束',stale:'核验已失效'};
 interface Chain {
   article: Row;
   discoveries: Row[];
@@ -22,6 +24,7 @@ interface Chain {
   decisions: Row[];
   deliveries: Row[];
   history: Row[];
+  automaticVerifications: Row[];
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
@@ -180,6 +183,24 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
               ) : (
                 <span className="text-ink-4">{a.participation_mode === "editorial" ? "还没有判断（等待队列或失败）" : "氛围信源不做编辑判断"}</span>
               )}
+            </Step>
+            <Step title="自动证据核验" meta={`${c.automaticVerifications.length} 轮记录`} tone={c.automaticVerifications.length ? "accent" : "muted"}>
+              <div className="space-y-3">{c.automaticVerifications.map(v=><div key={v.id} className="rounded-control bg-bg-sunk/60 p-3 ring-1 ring-line">
+                <div className="flex flex-wrap gap-2 text-[12px]">
+                  <Badge tone={v.status==='accepted'?'ok':'muted'}>{VERIFICATION_LABELS[v.status]??v.status}</Badge>
+                  <span>输入 v{v.article_revision} · 核验 {v.verification_count}/3 次 · 故障 {v.failures} 次 · {bj(v.updated_at)}</span>
+                </div>
+                <p className="mt-2 text-[12px] text-ink-3">{(v.reasons as string[]).map(automaticReasonLabel).join('；')||'证据核验已完成，公开资格仍以当前版本和来源授权为准。'}</p>
+                {v.status==='waiting' && v.retry_at && <p className="mt-1 text-[12px] text-ink-3">下次自动恢复 {bj(v.retry_at,true)}</p>}
+                <details className="mt-2 text-[12px]"><summary className="cursor-pointer text-ink-3">查看证据与核验主张</summary>
+                  {(v.materials as Row[]).map(m=><div key={m.id} className="mt-2">
+                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="break-all text-accent hover:underline">{m.primary?'一手材料':'原始报道'}：{m.url}</a>
+                    <p className="mt-1 whitespace-pre-wrap">{m.excerpt}</p>
+                  </div>)}
+                  <Json value={{rule:v.automatic_rule_version,verification:v.verification,receiptIds:v.receipt_ids}}/>
+                </details>
+              </div>)}</div>
+              {!c.automaticVerifications.length && <span className="text-ink-4">该内容没有自动核验记录。</span>}
             </Step>
             <Step title="公开" tone={p ? (p.visibility === "withdrawn" ? "bad" : "accent") : "muted"} meta={p ? `更新于 ${bj(p.updated_at, true)}` : undefined}>
               {p ? (

@@ -17,6 +17,8 @@ import { mergeStoryInto } from "../events/merge.ts";
 import { latestHotRanking } from "../events/hot-read.ts";
 import { audit } from "./auth.ts";
 import { Conflict } from "./sources.ts";
+import { automaticReasonCode } from "@aihot/contracts/automatic-content";
+type AutomaticVerificationHistory = {id:number;status:string;reasons:string[]} & Record<string,unknown>;
 
 export async function searchContent(q: string) {
   const term = q.trim();
@@ -40,7 +42,7 @@ export async function contentChain(id: string) {
            s.name AS source_name, s.kind AS source_kind, s.tier, s.participation_mode, s.site_fulltext, s.syndicate_fulltext
     FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${id}`;
   if (!article) return null;
-  const [discoveries, revisions, analyses, publication, override, ledger, membership, decisions, deliveries, history] = await Promise.all([
+  const [discoveries, revisions, analyses, publication, override, ledger, membership, decisions, deliveries, history, automaticVerifications] = await Promise.all([
     sql`SELECT source_id, via, discovered_at FROM article_discoveries WHERE article_id = ${id} ORDER BY discovered_at`,
     sql`SELECT revision, title, content_hash, created_at FROM article_revisions WHERE article_id = ${id} ORDER BY revision DESC LIMIT 10`,
     sql`
@@ -58,8 +60,14 @@ export async function contentChain(id: string) {
     sql`SELECT verdict, fact_id, story_id, receipt_id, candidates, created_at FROM grouping_decisions WHERE article_id = ${id} ORDER BY created_at DESC LIMIT 5`,
     sql`SELECT target_key, dedupe_key, status, attempts, response, created_at, sent_at FROM deliveries WHERE subject_id = ${id} ORDER BY created_at DESC`,
     sql`SELECT created_at, actor, action, reason, before, after FROM audit_log WHERE subject = ${`content:${id}`} ORDER BY created_at DESC LIMIT 20`,
+    sql<AutomaticVerificationHistory[]>`SELECT id,article_revision,analysis_id,automatic_rule_version,status,stage,reasons,verification_count,failures,evidence_fetched,rewritten,
+      retry_at,selected,verification,evidence_links,receipt_ids,created_at,updated_at,
+      (SELECT coalesce(jsonb_agg(jsonb_build_object('id',m->>'id','url',m->>'url','primary',m->'primary','excerpt',left(m->>'bodyText',2000))),'[]')
+        FROM jsonb_array_elements(materials) m) AS materials
+      FROM automatic_verifications WHERE article_id=${id} ORDER BY id DESC LIMIT 10`,
   ]);
-  return { article, discoveries, revisions, analyses, publication: publication[0] ?? null, override: override[0] ?? null, ledger, membership, decisions, deliveries, history };
+  return { article, discoveries, revisions, analyses, publication: publication[0] ?? null, override: override[0] ?? null, ledger, membership, decisions, deliveries, history,
+    automaticVerifications:automaticVerifications.map(r=>({...r,reasons:(r.reasons as string[]).map(automaticReasonCode)})) };
 }
 
 
