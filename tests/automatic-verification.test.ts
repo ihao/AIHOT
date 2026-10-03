@@ -23,7 +23,10 @@ import { computeHotRanking } from '../packages/backend/src/events/hot.ts';
 import { randomUUID } from 'node:crypto';
 import { invalidateModelCache } from '../packages/backend/src/editorial/models.ts';
 import { promptText, promptVersion } from '../packages/backend/src/editorial/prompts.ts';
-import { sha256 } from '../packages/backend/src/lib/ids.ts';
+import { sha256, stableJson } from '../packages/backend/src/lib/ids.ts';
+import { chatJson } from '../packages/backend/src/providers/llm.ts';
+import { VerificationSchema } from '../packages/backend/src/editorial/automatic-policy.ts';
+import { promptMaterials } from '../packages/backend/src/editorial/evidence-materials.ts';
 import { selectedSnapshot, selectedChanges } from '../packages/backend/src/publication/v1.ts';
 import { loadItemShare } from '../packages/backend/src/publication/og.ts';
 import { loadDevelopments } from '../packages/backend/src/publication/groups.ts';
@@ -193,6 +196,8 @@ async function article(opts: {
   bodyHtml?: string;
   sourceId?: string;
   title?: string;
+  titleZh?: string;
+  bodyText?: string;
   summary?: string;
   publishedAt?: Date;
 } = {}) {
@@ -202,13 +207,13 @@ async function article(opts: {
     sourceId: opts.sourceId ?? source,
     url: `https://bitcoincore.org/${T}/${++serial}`,
     title: opts.title ?? 'Bitcoin Core release',
-    bodyText: body,
+    bodyText: opts.bodyText ?? body,
     bodyHtml: opts.bodyHtml,
     bodyStatus: (opts.bodyStatus ?? 'ok') as 'ok',
     via: 'fetch',
     publishedAt: opts.publishedAt ?? new Date()
   });
-  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output) VALUES(${id},1,'model',${opts.relevance ?? 'pass'},'infrastructure','Bitcoin Core 新软件版本发布',${opts.summary ?? 'Bitcoin Core 宣布新版客户端可用。'},75,${opts.selected??true},${sql.json({
+  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output) VALUES(${id},1,'model',${opts.relevance ?? 'pass'},'infrastructure',${opts.titleZh ?? 'Bitcoin Core 新软件版本发布'},${opts.summary ?? 'Bitcoin Core 宣布新版客户端可用。'},75,${opts.selected??true},${sql.json({
     scores: opts.scores ?? [75, 76],
     threshold: 60,
     itemType: 'protocol_upgrade',
@@ -246,6 +251,80 @@ test('a queued verification that expires or loses its source date spends no paid
     assert.equal(round.status,'rejected');
     assert.deepEqual(round.reasons,[date?'freshness:expired':'freshness:undated']);
   }
+});
+
+async function costSecondarySource() {
+ const sid=`${source}-cost-${++serial}`;
+ await sql`INSERT INTO sources(id,name,kind,config,tier,participation_mode,first_party,next_fetch_at) VALUES(${sid},'Synthetic secondary','rss','{}','T1','editorial',false,'2100-01-01')`;
+ await setSourceAutoPublic(sid,{enabled:true,version:0,reason:'synthetic cost test'},'test');
+ return sid;
+}
+test('official evidence is prepared before the first paid verifier when the core requires primary proof',async()=>{
+ const legal='SEC proposes crypto custody rules. The agency published a proposal for consultation.';
+ const id=await article({sourceId:await costSecondarySource(),title:'SEC proposes crypto custody rules',titleZh:'SEC 提出加密托管规则提案',summary:'SEC 发布托管规则提案。',bodyText:legal,bodyHtml:'<a href="https://sec.gov/proposal">custody proposal</a>'});
+ const hits=provider.hits();let fetched=0,hitsAtFetch=-1;const oldQuote=quote;quote=legal;verdict='supported';verdicts=[];
+ try {
+  await verifyAutomaticArticle(id,{fetchMaterial:async url=>{fetched++;hitsAtFetch=provider.hits();return {id:'official-cost',url,bodyText:legal,primary:true};}});
+  assert.equal(fetched,1);assert.equal(hitsAtFetch,hits,'fetch precedes the first paid request');assert.equal(provider.hits()-hits,1);
+  const [r]=await sql`SELECT status,verification_count,evidence_fetched FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'accepted');assert.equal(r.verification_count,1);assert.equal(r.evidence_fetched,true);
+  assert.equal((await projection(id)).selected,true);
+ }finally{quote=oldQuote;}
+});
+test('missing primary proof for an immutable critical core stops before a useless paid rewrite',async()=>{
+ const id=await article({sourceId:await costSecondarySource(),title:'SEC proposes crypto custody rules',titleZh:'SEC 提出加密托管规则提案',summary:'SEC 发布托管规则提案。'});
+ const hits=provider.hits();verdict='supported';verdicts=[];
+ await verifyAutomaticArticle(id,{fetchMaterial:async()=>null});
+ const [r]=await sql`SELECT status,rewritten,verification_count,reasons FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(provider.hits()-hits,1);assert.equal(r.status,'rejected');assert.equal(r.rewritten,false);assert.equal(r.verification_count,1);
+ assert.ok(r.reasons.some((s:string)=>s.includes('primary_evidence_missing')));
+ await verifyAutomaticArticle(id);assert.equal(provider.hits()-hits,1,'terminal recovery never buys the same input again');
+ assert.equal((await projection(id)).visibility,'withdrawn');
+});
+test('oversized verification input is rejected before sending a paid request',async()=>{
+ const id=await article({bodyText:body+'\n\n'+'Oversized source material. '.repeat(5000)});
+ const hits=provider.hits();verdict='supported';verdicts=[];
+ await verifyAutomaticArticle(id);
+ assert.equal(provider.hits(),hits);
+ const [r]=await sql`SELECT status,reasons,verification_count FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'rejected');assert.deepEqual(r.reasons,['verification_input_budget_exceeded']);assert.equal(r.verification_count,0);
+ await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);
+ assert.equal((await projection(id)).visibility,'withdrawn');
+});
+async function preCostOversizedReceipt(id:string) {
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+ return chatJson({model:r.verification_model,purpose:'verify_summary',subject:`article:${id}@1`,promptVersion:promptVersion('verify-summary'),system:promptText('verify-summary'),
+  user:stableJson({copy:r.final_copy,requiresPrimaryEvidence:false,primaryEvidenceScope:'claims',rewritten:false,original_copy:r.original_copy,originalTitle:'Bitcoin Core release',materials:promptMaterials(r.materials)}),
+  schema:VerificationSchema,temperature:0,maxTokens:16384,attemptTag:`automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:initial`});
+}
+test('oversized input reuses an exact successful receipt sent before the cost guard existed',async()=>{
+ const id=await article({bodyText:body+'\n\n'+'Prior large material. '.repeat(5000)});verdict='supported';verdicts=[];
+ const raw=await preCostOversizedReceipt(id);const hits=provider.hits();await verifyAutomaticArticle(id);
+ assert.equal(provider.hits(),hits);assert.equal((await projection(id)).selected,true);
+ const [r]=await sql`SELECT status,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'accepted');assert.ok(r.receipt_ids.map(Number).includes(raw.receiptId));
+});
+test('oversized input with an unknown sent receipt waits for resolution without buying or discarding it',async()=>{
+ const id=await article({bodyText:body+'\n\n'+'Prior unresolved material. '.repeat(5000)});verdict='supported';verdicts=[];
+ const raw=await preCostOversizedReceipt(id);await sql`UPDATE receipts SET status='unknown' WHERE id=${raw.receiptId}`;
+ const hits=provider.hits();
+ for(let i=0;i<3;i++) {await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;await assert.rejects(verifyAutomaticArticle(id),/unknown/i);assert.equal(provider.hits(),hits);}
+ const [r]=await sql`SELECT status,failures FROM automatic_verifications WHERE article_id=${id}`;assert.equal(r.status,'waiting');assert.equal(r.failures,0);
+});
+test('cost rejection reconciles prior failed paid attempts instead of reporting zero requests',async()=>{
+ const id=await article({bodyText:body+'\n\n'+'Prior failed material. '.repeat(5000)});verdict='supported';verdicts=[];
+ const raw=await preCostOversizedReceipt(id);await sql`UPDATE receipts SET status='failed' WHERE id=${raw.receiptId}`;
+ const hits=provider.hits();await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);
+ const [r]=await sql`SELECT status,verification_count,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'rejected');assert.equal(r.verification_count,1);assert.ok(r.receipt_ids.map(Number).includes(raw.receiptId));
+});
+test('a secondary report can still rewrite unsupported ancillary claims when its core is repairable',async()=>{
+ const id=await article({sourceId:await costSecondarySource(),summary:'Bitcoin Core 发布新版。SEC 对交易所实施制裁。'});
+ const hits=provider.hits();verdict='supported';verdicts=[];
+ await verifyAutomaticArticle(id,{fetchMaterial:async()=>null});
+ const [r]=await sql`SELECT status,rewritten,verification_count FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'accepted');assert.equal(r.rewritten,true);assert.equal(r.verification_count,2);assert.equal(provider.hits()-hits,3);
+ assert.equal((await projection(id)).selected,true);
 });
 async function releasedLedgerClock() {
   const [latest] = await sql<{ at: Date | null }[]>`SELECT max(visible_at) AS at FROM selected_ledger`;

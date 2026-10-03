@@ -321,14 +321,24 @@ async function stageUsage(r: Round, purpose: string, expectedKey?: string) {
   return {count:usage?.count??0,id:receipt?.id??null,status:receipt?.status??null,success:receipt?.status==='received'||receipt?.status==='completed'};
 }
 async function rejectRound(r:Round, token:string, reason:string) {
+  const usage=await verificationUsage(r);
   await sql.begin(async tx=>{
     await tx`SELECT id FROM articles WHERE id=${r.article_id} FOR UPDATE`;
     const changed=await tx`UPDATE automatic_verifications SET status='rejected',selected=false,retry_at=NULL,
-      reasons=${tx.json([reason])},lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+      reasons=${tx.json([reason])},verification_count=${Math.min(3,usage.count)},receipt_ids=${[...new Set([...r.receipt_ids,...usage.ids])]},
+      lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
     if(changed.count){const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,r.article_id);}
   });
 }
 const LEASE_MS = 10 * 60_000;
+// Execution cost controls do not change factual authority or replay accepted history.
+export const VERIFICATION_COST_POLICY_VERSION = 'primary-first-bounded-input-v1';
+export const MAX_AUTOMATIC_STAGE_INPUT_CHARS = 60_000;
+function missingCriticalCoreProof(a:Input,r:Round) {
+  return criticalClaimFlags(`${a.title}\n${r.original_copy.titleZh??''}`).length>0
+    && !r.materials.some(m=>m.primary)
+    && r.reasons.some(reason=>/^claim_\d+_primary_evidence_missing$/.test(reason));
+}
 /** Claim/restart a stage using a durable lease; never hold a database lock while awaiting AI. */
 export async function verifyAutomaticArticle(articleId: string, opts: {
   fetchMaterial?: (url: string) => Promise<Material | null>;
@@ -380,11 +390,16 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
     a,
     r
   } = claimed;
+  let preparedEvidenceDiagnostics: Array<{url:string;reason:string}> | undefined;
   try {
     while (true) {
       await checkAutomaticSourcePause(articleId);
       const tag = `automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:${r.stage}`;
-      if (r.stage === 'evidence' && !r.evidence_fetched) {
+      // Only a never-sent initial verifier may have its evidence prepared early. A sent raw
+      // receipt must retain its exact input for crash recovery, including unknown outcomes.
+      const prepareFirst = r.stage==='initial' && !r.evidence_fetched && requiresPrimaryEvidence(a)
+        && (await verificationUsage(r)).count===0;
+      if ((r.stage === 'evidence' || prepareFirst) && !r.evidence_fetched) {
         const fetchDiagnostics: Array<{url:string;reason:string}> = [];
         const materialCountBefore = r.materials.length;
         for (const url of [...(approvedEvidenceCandidate(a.url) && !approvedPrimaryUrl(a.url) ? [a.url] : []), ...originalPrimaryLinks(a.body_html, a.url, {title:a.title,copy:r.original_copy})].slice(0,2)) {
@@ -419,10 +434,11 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         };
         await sql`UPDATE automatic_verifications SET evidence_fetched=true,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
         if (!fetchDiagnostics.length) fetchDiagnostics.push({url:a.url,reason:'unsupported_entry'});
+        if (prepareFirst) preparedEvidenceDiagnostics=fetchDiagnostics;
         // Add diagnostics to the verifier decision, preserving consumers' history shape.
         if (r.decisions.length) r.decisions = r.decisions.map((entry,index)=>index===r.decisions.length-1 ? {...entry as object,evidenceFetch:fetchDiagnostics} : entry);
         await sql`UPDATE automatic_verifications SET decisions=${sql.json(r.decisions as never)} WHERE id=${r.id} AND lease_token=${token}`;
-        if (r.materials.length === materialCountBefore) {
+        if (!prepareFirst && r.materials.length === materialCountBefore) {
           r={...r,stage:'rewrite'};
           await sql`UPDATE automatic_verifications SET stage='rewrite' WHERE id=${r.id} AND lease_token=${token}`;
           continue;
@@ -438,6 +454,14 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
           if (rewriteUsage.status === 'pending') throw new ReceiptBusyError('rewrite receipt is in flight');
           if (rewriteUsage.status === 'unknown') throw new ReceiptUnknownError(rewriteUsage.id!, 'rewrite outcome unknown; no additional paid attempt is allowed');
           await rejectRound(r, token, 'rewrite_request_limit');
+          return;
+        }
+        if (!rewriteUsage.success && missingCriticalCoreProof(a,r)) {
+          await rejectRound(r,token,'critical_core_primary_evidence_missing');
+          return;
+        }
+        if (!rewriteUsage.success && rewriteUser.length>MAX_AUTOMATIC_STAGE_INPUT_CHARS) {
+          await rejectRound(r,token,'rewrite_input_budget_exceeded');
           return;
         }
         const rewrite = await chatJson({
@@ -491,8 +515,15 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       const usageBefore = await verificationUsage(r);
       const verificationUser=stableJson({copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),primaryEvidenceScope:'claims',rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:promptMaterials(r.materials)});
       const verificationKey=stageReceiptKey(r.verification_model,'verify_summary','verify-summary',verificationUser,0,16_384,tag);
-      const [settled] = await sql`SELECT 1 FROM receipts WHERE purpose='verify_summary'
-        AND logical_key=${verificationKey} AND status IN ('received','completed')`;
+      const [verifierReceipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary'
+        AND logical_key=${verificationKey}`;
+      const settled = verifierReceipt && ['received','completed'].includes(verifierReceipt.status);
+      if (verifierReceipt?.status==='pending') throw new ReceiptBusyError('verifier receipt is in flight');
+      if (verifierReceipt?.status==='unknown') throw new ReceiptUnknownError(verifierReceipt.id,'verifier outcome unknown; wait for trusted resolution');
+      if (!settled && verificationUser.length>MAX_AUTOMATIC_STAGE_INPUT_CHARS) {
+        await rejectRound(r,token,'verification_input_budget_exceeded');
+        return;
+      }
       if (usageBefore.count >= 3 && !settled) {
         await sql.begin(async tx=>{
           await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
@@ -536,7 +567,8 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
           stage: r.stage,
           verifier: response.data,
           decision: d,
-          receiptId: response.receiptId
+          receiptId: response.receiptId,
+          ...(preparedEvidenceDiagnostics ? {evidenceFetch:preparedEvidenceDiagnostics} : {})
         }];
         const updated = await tx`UPDATE automatic_verifications SET verification=${tx.json(response.data as never)},verification_count=${r.verification_count},
      receipt_ids=${r.receipt_ids},reasons=${tx.json(d.reasons)},decisions=${tx.json(history as never)},selected=${currentInput && d.selected},status=${status},
@@ -557,18 +589,20 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         r = {
           ...r,
           decisions: history,
+          reasons: d.reasons,
           stage: nextStage ?? r.stage,
           status
         };
         return currentInput;
       });
+      preparedEvidenceDiagnostics=undefined;
       if (terminal) await refreshAutomaticSafety();
       if (!saved || terminal) return;
     }
   } catch (error) {
     const rewriteUsage = r.stage === 'rewrite' && !r.rewritten ? await stageUsage(r, 'rewrite_verified_summary') : null;
     const exhaustedRewrite = !!rewriteUsage?.count && !rewriteUsage.success && rewriteUsage.status === 'failed';
-    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof AutomaticSourcePaused || (!!rewriteUsage?.count && rewriteUsage.status === 'unknown');
+    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof ReceiptUnknownError || error instanceof AutomaticSourcePaused || (!!rewriteUsage?.count && rewriteUsage.status === 'unknown');
     const usage = await verificationUsage(r);
     const receiptId = error instanceof ModelOutputError || error instanceof ReceiptUnknownError ? error.receiptId : null;
     await sql.begin(async tx=>{

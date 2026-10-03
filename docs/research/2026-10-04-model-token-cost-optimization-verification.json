@@ -1,0 +1,678 @@
+{
+  "status": "local_verified_production_pending",
+  "audit": {
+    "at": "2026-10-03T16:46:38.261Z",
+    "rule": "automatic-publication-v1:743f241ab8a474544fda3e20",
+    "models": {
+      "prefilter": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "score": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "verification": {
+        "model": "qwen3.8-max",
+        "source": "env"
+      },
+      "understand": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "summarize": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "structure": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "group": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "groupReview": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "digest": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "report": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "translate": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "monitor": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      }
+    },
+    "budgets": [
+      {
+        "service": "dajiala",
+        "per_minute": 5,
+        "per_hour": 60,
+        "per_day": 500,
+        "usage_reset_at": null
+      },
+      {
+        "service": "dashscope",
+        "per_minute": 20,
+        "per_hour": 300,
+        "per_day": 2000,
+        "usage_reset_at": "2026-10-01T17:32:45.035Z"
+      },
+      {
+        "service": "deepseek",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000,
+        "usage_reset_at": null
+      },
+      {
+        "service": "embedding",
+        "per_minute": 300,
+        "per_hour": 6000,
+        "per_day": 40000,
+        "usage_reset_at": null
+      },
+      {
+        "service": "jina",
+        "per_minute": 5,
+        "per_hour": 50,
+        "per_day": 300,
+        "usage_reset_at": null
+      },
+      {
+        "service": "llm",
+        "per_minute": 0,
+        "per_hour": 0,
+        "per_day": 0,
+        "usage_reset_at": null
+      },
+      {
+        "service": "mimo",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000,
+        "usage_reset_at": null
+      },
+      {
+        "service": "socialdata",
+        "per_minute": 10,
+        "per_hour": 100,
+        "per_day": 1000,
+        "usage_reset_at": null
+      },
+      {
+        "service": "zhipu",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000,
+        "usage_reset_at": null
+      }
+    ],
+    "prices": [],
+    "total": [
+      {
+        "key": "all",
+        "calls": 2000,
+        "received": 1993,
+        "failed": 7,
+        "unknown": 0,
+        "missingUsage": 7,
+        "input": 5850446,
+        "output": 523271,
+        "cached": 1803776,
+        "inputP50": 2456,
+        "inputP95": 6257,
+        "outputP95": 1040,
+        "charsP95": 26350,
+        "maxChars": 486264
+      }
+    ],
+    "usageByPurposeModel": [
+      {
+        "key": "verify_summary/qwen3.8-max",
+        "calls": 410,
+        "received": 405,
+        "failed": 5,
+        "unknown": 0,
+        "missingUsage": 5,
+        "input": 1412834,
+        "output": 338871,
+        "cached": 228992,
+        "inputP50": 2281,
+        "inputP95": 7193,
+        "outputP95": 1295,
+        "charsP95": 23868,
+        "maxChars": 486264
+      },
+      {
+        "key": "score_article/qwen3.8-flash",
+        "calls": 323,
+        "received": 323,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 1150600,
+        "output": 3013,
+        "cached": 768768,
+        "inputP50": 3056,
+        "inputP95": 6755,
+        "outputP95": 12,
+        "charsP95": 13078,
+        "maxChars": 28144
+      },
+      {
+        "key": "understand_article/qwen3.8-flash",
+        "calls": 129,
+        "received": 129,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 797564,
+        "output": 27460,
+        "cached": 376832,
+        "inputP50": 5418,
+        "inputP95": 10629,
+        "outputP95": 270,
+        "charsP95": 99065,
+        "maxChars": 138790
+      },
+      {
+        "key": "prefilter_article/qwen3.8-flash",
+        "calls": 326,
+        "received": 326,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 709096,
+        "output": 6491,
+        "cached": 0,
+        "inputP50": 1701,
+        "inputP95": 5314,
+        "outputP95": 29,
+        "charsP95": 12244,
+        "maxChars": 28276
+      },
+      {
+        "key": "structure_article/qwen3.8-flash",
+        "calls": 268,
+        "received": 268,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 630096,
+        "output": 44468,
+        "cached": 140288,
+        "inputP50": 2093,
+        "inputP95": 4673,
+        "outputP95": 222,
+        "charsP95": 7232,
+        "maxChars": 7352
+      },
+      {
+        "key": "summarize_article/qwen3.8-flash",
+        "calls": 153,
+        "received": 153,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 595947,
+        "output": 16939,
+        "cached": 252928,
+        "inputP50": 3705,
+        "inputP95": 6122,
+        "outputP95": 149,
+        "charsP95": 10754,
+        "maxChars": 10792
+      },
+      {
+        "key": "group_article/qwen3.8-flash",
+        "calls": 134,
+        "received": 134,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 308274,
+        "output": 70047,
+        "cached": 0,
+        "inputP50": 2096,
+        "inputP95": 3603,
+        "outputP95": 1116,
+        "charsP95": 4748,
+        "maxChars": 4916
+      },
+      {
+        "key": "rewrite_verified_summary/qwen3.8-flash",
+        "calls": 62,
+        "received": 62,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 182393,
+        "output": 7884,
+        "cached": 33792,
+        "inputP50": 2498,
+        "inputP95": 6983,
+        "outputP95": 236,
+        "charsP95": 26350,
+        "maxChars": 34655
+      },
+      {
+        "key": "group_review/qwen3.8-flash",
+        "calls": 19,
+        "received": 19,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 23950,
+        "output": 3268,
+        "cached": 0,
+        "inputP50": 1239,
+        "inputP95": 1435,
+        "outputP95": 248,
+        "charsP95": 1022,
+        "maxChars": 1022
+      },
+      {
+        "key": "embedding/text-embedding-v4",
+        "calls": 155,
+        "received": 155,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 21274,
+        "output": 0,
+        "cached": 0,
+        "inputP50": 113,
+        "inputP95": 158,
+        "outputP95": 0,
+        "charsP95": 0,
+        "maxChars": 0
+      },
+      {
+        "key": "group_story/qwen3.8-flash",
+        "calls": 10,
+        "received": 10,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 12872,
+        "output": 1761,
+        "cached": 1024,
+        "inputP50": 1293,
+        "inputP95": 1342,
+        "outputP95": 239,
+        "charsP95": 866,
+        "maxChars": 866
+      },
+      {
+        "key": "group_story_review/qwen3.8-flash",
+        "calls": 2,
+        "received": 2,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 2590,
+        "output": 369,
+        "cached": 1024,
+        "inputP50": 1254,
+        "inputP95": 1336,
+        "outputP95": 207,
+        "charsP95": 866,
+        "maxChars": 866
+      },
+      {
+        "key": "model_compatibility_probe/kimi-k3",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 460,
+        "output": 1208,
+        "cached": 0,
+        "inputP50": 460,
+        "inputP95": 460,
+        "outputP95": 1208,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/MiniMax/MiniMax-M3",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 522,
+        "output": 239,
+        "cached": 128,
+        "inputP50": 522,
+        "inputP95": 522,
+        "outputP95": 239,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/qwen3.8-flash",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 402,
+        "output": 312,
+        "cached": 0,
+        "inputP50": 402,
+        "inputP95": 402,
+        "outputP95": 312,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/qwen3.7-flash",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 402,
+        "output": 246,
+        "cached": 0,
+        "inputP50": 402,
+        "inputP95": 402,
+        "outputP95": 246,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/glm-5.3",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 387,
+        "output": 241,
+        "cached": 0,
+        "inputP50": 387,
+        "inputP95": 387,
+        "outputP95": 241,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/deepseek-v4.1-flash",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 381,
+        "output": 243,
+        "cached": 0,
+        "inputP50": 381,
+        "inputP95": 381,
+        "outputP95": 243,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/qwen3.8-max",
+        "calls": 1,
+        "received": 1,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 402,
+        "output": 211,
+        "cached": 0,
+        "inputP50": 402,
+        "inputP95": 402,
+        "outputP95": 211,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/stepfun/step-3.7-flash",
+        "calls": 1,
+        "received": 0,
+        "failed": 1,
+        "unknown": 0,
+        "missingUsage": 1,
+        "input": 0,
+        "output": 0,
+        "cached": 0,
+        "inputP50": 0,
+        "inputP95": 0,
+        "outputP95": 0,
+        "charsP95": 864,
+        "maxChars": 864
+      },
+      {
+        "key": "model_compatibility_probe/ZHIPU/GLM-5.3-Flash",
+        "calls": 1,
+        "received": 0,
+        "failed": 1,
+        "unknown": 0,
+        "missingUsage": 1,
+        "input": 0,
+        "output": 0,
+        "cached": 0,
+        "inputP50": 0,
+        "inputP95": 0,
+        "outputP95": 0,
+        "charsP95": 864,
+        "maxChars": 864
+      }
+    ],
+    "afterDeploy": [
+      {
+        "key": "verify_summary/qwen3.8-max",
+        "calls": 86,
+        "received": 86,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 308035,
+        "output": 65991,
+        "cached": 132608,
+        "inputP50": 2953,
+        "inputP95": 7822,
+        "outputP95": 1144,
+        "charsP95": 29082,
+        "maxChars": 32976
+      },
+      {
+        "key": "rewrite_verified_summary/qwen3.8-flash",
+        "calls": 25,
+        "received": 25,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 99902,
+        "output": 3974,
+        "cached": 24576,
+        "inputP50": 3379,
+        "inputP95": 8282,
+        "outputP95": 197,
+        "charsP95": 31348,
+        "maxChars": 34655
+      },
+      {
+        "key": "summarize_article/qwen3.8-flash",
+        "calls": 12,
+        "received": 12,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 48085,
+        "output": 1351,
+        "cached": 22528,
+        "inputP50": 3526,
+        "inputP95": 6257,
+        "outputP95": 156,
+        "charsP95": 10734,
+        "maxChars": 10734
+      }
+    ],
+    "currentRuleOutcomes": [
+      {
+        "key": "rejected/ordinary/nonpublic",
+        "calls": 52,
+        "received": 52,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 163555,
+        "output": 28754,
+        "cached": 64512,
+        "inputP50": 2953,
+        "inputP95": 4848,
+        "outputP95": 1107,
+        "charsP95": 8019,
+        "maxChars": 8366
+      },
+      {
+        "key": "rejected/score_selected/nonpublic",
+        "calls": 18,
+        "received": 18,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 109288,
+        "output": 11491,
+        "cached": 45568,
+        "inputP50": 6419,
+        "inputP95": 8466,
+        "outputP95": 1144,
+        "charsP95": 34655,
+        "maxChars": 34655
+      },
+      {
+        "key": "accepted/ordinary/public",
+        "calls": 28,
+        "received": 28,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 88948,
+        "output": 19830,
+        "cached": 29696,
+        "inputP50": 2730,
+        "inputP95": 4344,
+        "outputP95": 1084,
+        "charsP95": 14002,
+        "maxChars": 19131
+      },
+      {
+        "key": "accepted/score_selected/public",
+        "calls": 11,
+        "received": 11,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 41622,
+        "output": 8844,
+        "cached": 15360,
+        "inputP50": 3609,
+        "inputP95": 7950,
+        "outputP95": 1200,
+        "charsP95": 28448,
+        "maxChars": 28448
+      },
+      {
+        "key": "waiting/ordinary/nonpublic",
+        "calls": 2,
+        "received": 2,
+        "failed": 0,
+        "unknown": 0,
+        "missingUsage": 0,
+        "input": 4524,
+        "output": 1046,
+        "cached": 2048,
+        "inputP50": 2035,
+        "inputP95": 2489,
+        "outputP95": 607,
+        "charsP95": 5244,
+        "maxChars": 5244
+      }
+    ],
+    "roundCounts": [
+      [
+        "accepted",
+        29
+      ],
+      [
+        "rejected",
+        22
+      ],
+      [
+        "waiting",
+        19
+      ],
+      [
+        "stale",
+        1
+      ]
+    ],
+    "currentUniqueArticles": 71,
+    "currentSelected": 6,
+    "currentPublic": 29,
+    "replayedSameRevision": 127,
+    "amountBasis": "unavailable: no actual bill amount and no configured service prices; tokens include cached input; 7 attempts lack usage"
+  },
+  "shadow": {
+    "blockedHistoricalChains": 9,
+    "acceptedHistoricalChainsBlocked": 0,
+    "avoidedHistoricalCalls": 18,
+    "historicalTokens": 69591,
+    "basis": "execution-condition replay of completed rejected rounds, no new model requests"
+  },
+  "strategy": {
+    "version": "primary-first-bounded-input-v1",
+    "maxUserInputChars": 60000,
+    "authorizationRuleUnchanged": "automatic-publication-v1:743f241ab8a474544fda3e20"
+  },
+  "checks": {
+    "backendFull": {
+      "passed": 375,
+      "externalNetwork": "denied by system sandbox; localhost only",
+      "failed": 0
+    },
+    "webTests": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typecheck": true,
+    "webBuild": true,
+    "localHttpSmoke": true,
+    "tdd": {
+      "initialThreeCostFailuresReproduced": true,
+      "unknownReceiptAndActualCountFailuresReproduced": true,
+      "costReasonClassificationFailureReproduced": true
+    },
+    "localHttpSmokePaths": 30
+  },
+  "productionBefore": {
+    "at": "2026-10-03T17:03:53.000Z",
+    "rule": "automatic-publication-v1:743f241ab8a474544fda3e20",
+    "publicCount": 1265,
+    "selectedCount": 99,
+    "enabledSources": 80,
+    "sourcesHash": "d1f8269f0be6e605daf55834f8c360d3628d2d1b2384e9211f13dd400525927f",
+    "budgetsHash": "eb958a1914df3277b259bd2a5a51ba210ab73d194f701821333be982edb75ef9",
+    "costStops": 0,
+    "backup": "2026-10-03T17:06:23Z successful existing backup service"
+  },
+  "production": null
+}
