@@ -20,7 +20,7 @@ Files: 新建 packages/backend/src/editorial/evidence-materials.ts、packages/ba
 - [ ] 增加 no-new-primary/needs_evidence 的唯一 rewrite 集成失败测试，金额/日期/核心事件保护与 <=3 verification 付费尝试不变。按 receipt_attempts 保证 rewrite 最多一次付费尝试，固定模型/配置；覆盖 malformed/unknown/crash-before-save/model-change，可恢复成功缓存而不能另付费重试。
 - [ ] 重写和再次 verifier 输入都包含 immutable original_copy 和原文标题，检查主体、动作和阶段未改变；缺 coreEventPreserved 字段不得接受重写稿。对抗样本包括改主体/动作/阶段、删除中心事件与 generic placeholder。
 - [ ] 实现状态转换，持久化取证诊断在已有 decisions 条目的额外字段，保持 verifier/decision 结构可读；无新增 schema 若可行。
-- [ ] 规则纳入取证/claim/recovery版本；补扫只处理48h新鲜内容，优先 selected/score，批量20。审核新旧实际 hash，精确兼容旧未重写严格 accepted；旧 rewritten 仅 original_copy_hash=final_copy_hash 时兼容，其余按正常路径重新核验。测试每种当前状态均覆盖旧授权，不兼容 rejected 结果；记录旧重写授权影响。
+- [ ] 规则纳入取证/claim/recovery版本；补扫只处理48h新鲜内容，优先 selected/score，批量20。审核新旧实际 hash，精确兼容旧未重写严格 accepted；旧 rewritten 仅文案未变或四元组（article_id/旧规则/original_copy_hash/final_copy_hash）匹配独立复查证明名单时兼容，SQL及runtime同一保护，其余按正常路径重新核验。名单仅生产已逐条复查的10组变化文案（另1条文案未变），排除改变TPS执行范围的Sui稿件。测试每种当前状态均覆盖旧授权，修改指纹或未知文章不得兼容，不兼容 rejected 结果；记录旧重写授权影响。
 - [ ] 运行针对性 tests、类型检查，完成 spec review 后再 code quality review；固定提交只包含本任务文件。
 
 ## Task 2: 后台唯一文章漏斗与诊断
