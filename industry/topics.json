@@ -37,6 +37,12 @@
       "related": ["defi", "regulation", "research"]
     },
     {
+      "slug": "prediction-markets", "name": "预测市场", "group": "field",
+      "tags": ["预测市场"],
+      "definition": "Polymarket、Kalshi 等事件合约平台的机制、预言机结算争议、治理经营融资、监管和数据研究；普通价格预测、体育娱乐结果和下注推广不自动归入。",
+      "related": ["defi", "regulation", "security", "research"]
+    },
+    {
       "slug": "security", "name": "安全事件", "group": "genre",
       "tags": ["安全事件", "安全"],
       "definition": "已核实的漏洞、攻击、资产损失和后续处置，明确区分传闻与确认事实。",

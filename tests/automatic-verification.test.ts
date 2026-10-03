@@ -5,7 +5,7 @@ import { config } from '../packages/backend/src/config.ts';
 import { sql, closeDb } from '../packages/backend/src/db.ts';
 import { upsertMaterial } from '../packages/backend/src/content/materials.ts';
 import { setSourceAutoPublic } from '../packages/backend/src/editorial/review.ts';
-import { AUTOMATIC_RULE_VERSION, verifyAutomaticArticle, queueAutomaticVerificationTx, sweepAutomaticVerifications } from '../packages/backend/src/editorial/automatic-verification.ts';
+import { AUTOMATIC_RULE_VERSION, currentAutomaticDecision, verifyAutomaticArticle, queueAutomaticVerificationTx, sweepAutomaticVerifications } from '../packages/backend/src/editorial/automatic-verification.ts';
 import { considerAutoPublicationTx } from '../packages/backend/src/editorial/auto-publication.ts';
 import { refreshAutomaticSafety, sourcePauseUntil } from '../packages/backend/src/editorial/automatic-safety.ts';
 import { publishArticleTx } from '../packages/backend/src/publication/publish.ts';
@@ -29,9 +29,11 @@ import { loadItemShare } from '../packages/backend/src/publication/og.ts';
 import { loadDevelopments } from '../packages/backend/src/publication/groups.ts';
 import { processArticle } from '../packages/backend/src/jobs/content.ts';
 import { buildApp } from '../apps/api/src/app.ts';
+import { loadTopicPage, seedTopics } from '../packages/backend/src/publication/topics.ts';
 const T = tag(),
   source = `verify-${T}`;
 const PRE_AMOUNT_GUARD_RULE_VERSION = 'automatic-publication-v1:2212ca55bcc7250900bfebde';
+const PRE_PREDICTION_RULE_VERSION = 'automatic-publication-v1:5c0e3a85b0b01eeb31df0874';
 const body = 'Bitcoin Core 30.1 is available. This maintenance release updates the Bitcoin client. ' + 'Documentation describes software improvements and supported operating systems. '.repeat(5);
 let serial = 0,
   verdict = 'supported',
@@ -417,6 +419,105 @@ test('source policy context or original-body edits cannot regrant an old verifie
   await verifyAutomaticArticle(other);
   await sql`UPDATE articles SET body_text=body_text||' Changed unversioned original fact.' WHERE id=${other}`;
   assert.equal((await projection(other)).visibility, 'withdrawn');
+});
+
+async function priorPredictionGrant(opts: Parameters<typeof article>[0] = {}) {
+  const id = await article(opts);
+  await verifyAutomaticArticle(id);
+  assert.equal((await projection(id)).visibility, 'public');
+  await sql`UPDATE automatic_verifications SET automatic_rule_version=${PRE_PREDICTION_RULE_VERSION} WHERE article_id=${id}`;
+  return id;
+}
+
+test('prediction release preserves accepted prior authority without replaying analysis or history', async () => {
+  const id = await priorPredictionGrant();
+  const before = await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  const analyses = await sql`SELECT * FROM analyses WHERE article_id=${id} ORDER BY id`;
+  const receipts = await sql`SELECT id FROM receipts ORDER BY id`;
+  const hits = provider.hits();
+  assert.ok((await fetchItemsByIds([id])).has(id), 'prior accepted copy stays readable before any rebuild');
+  assert.equal((await currentAutomaticDecision(sql, id))?.verificationId, before[0]!.id);
+  assert.equal((await projection(id)).selected, true, 'synchronous rebuild retains prior selection');
+  await sweepAutomaticVerifications();
+  await sweepAutomaticVerifications();
+  const jobs = await sql`SELECT id FROM pgboss.job WHERE name=${QUEUES.analyze} AND data->>'articleId'=${id}
+    AND state IN ('created','active','retry')`;
+  assert.equal(jobs.length, 0, 'compatible accepted history must not be queued for reanalysis');
+  assert.equal((await fetchItemsByIds([id])).has(id), true);
+  assert.equal(provider.hits(), hits);
+  assert.deepEqual(await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`, before);
+  assert.deepEqual(await sql`SELECT * FROM analyses WHERE article_id=${id} ORDER BY id`, analyses);
+  assert.deepEqual(await sql`SELECT id FROM receipts ORDER BY id`, receipts);
+});
+
+test('prediction release never falls back when any current revision round exists', async () => {
+  for (const status of ['queued', 'running', 'waiting', 'rejected', 'accepted', 'stale']) {
+    const id = await priorPredictionGrant();
+    await sql.begin(tx => queueAutomaticVerificationTx(tx, id));
+    await sql`UPDATE automatic_verifications SET status=${status},final_fingerprint='invalid-current-round'
+      WHERE article_id=${id} AND automatic_rule_version=${AUTOMATIC_RULE_VERSION}`;
+    assert.equal((await fetchItemsByIds([id])).has(id), false, status);
+    assert.equal(await currentAutomaticDecision(sql, id), null, status);
+    assert.equal((await projection(id)).visibility, 'withdrawn', status);
+  }
+  const id = await priorPredictionGrant();
+  await sql.begin(tx => queueAutomaticVerificationTx(tx, id));
+  await verifyAutomaticArticle(id);
+  const [current] = await sql`SELECT id FROM automatic_verifications WHERE article_id=${id} AND automatic_rule_version=${AUTOMATIC_RULE_VERSION}`;
+  assert.equal((await currentAutomaticDecision(sql, id))?.verificationId, current!.id, 'valid current acceptance supplies its own authority');
+  assert.ok((await fetchItemsByIds([id])).has(id));
+});
+
+test('prediction release accepts neither unrelated versions nor prior nonaccepted rounds', async () => {
+  for (const [version, status] of [[`unregistered:${AUTOMATIC_RULE_VERSION}`, 'accepted'], [PRE_PREDICTION_RULE_VERSION, 'waiting'], [PRE_PREDICTION_RULE_VERSION, 'rejected']]) {
+    const id = await priorPredictionGrant();
+    await sql`UPDATE automatic_verifications SET automatic_rule_version=${version!},status=${status!} WHERE article_id=${id}`;
+    assert.equal((await fetchItemsByIds([id])).has(id), false);
+    assert.equal(await currentAutomaticDecision(sql, id), null);
+    assert.equal((await projection(id)).visibility, 'withdrawn');
+  }
+});
+
+test('prediction release keeps revision, analysis, source, copy, evidence and fingerprint guards', async () => {
+  const mutations: Array<[string, (id: string) => Promise<unknown>, (() => Promise<unknown>)?]> = [
+    ['revision', id => sql`UPDATE articles SET revision=revision+1 WHERE id=${id}`],
+    ['analysis', id => sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output)
+      SELECT article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output FROM analyses WHERE article_id=${id} ORDER BY id DESC LIMIT 1`],
+    ['source', () => sql`UPDATE sources SET enabled=false WHERE id=${source}`, () => sql`UPDATE sources SET enabled=true WHERE id=${source}`],
+    ['policy', () => sql`UPDATE source_auto_public_policies SET version=version+1 WHERE source_id=${source}`, () => sql`UPDATE source_auto_public_policies SET version=version-1 WHERE source_id=${source}`],
+    ['copy', id => sql`UPDATE analyses SET summary_zh='变更后的摘要。' WHERE article_id=${id}`],
+    ['original', id => sql`UPDATE articles SET body_text=body_text||' Changed fact.' WHERE id=${id}`],
+    ['evidence', id => sql`UPDATE automatic_verifications SET materials='[{"id":"original","bodyText":"invalid evidence","url":"https://bitcoincore.org/","primary":true}]' WHERE article_id=${id}`],
+    ['fingerprint', id => sql`UPDATE automatic_verifications SET final_fingerprint='changed' WHERE article_id=${id}`],
+    ['override', id => sql`INSERT INTO editorial_overrides(article_id,fields,visibility) VALUES(${id},'{}','withdrawn')`],
+    ['human review', id => sql`INSERT INTO audit_log(actor,action,subject,reason) VALUES('test','content.review',${`content:${id}`},'held')`],
+  ];
+  for (const [label, mutate, restore] of mutations) {
+    const id = await priorPredictionGrant();
+    try {
+      assert.ok((await fetchItemsByIds([id])).has(id), label);
+      await mutate(id);
+      assert.equal((await fetchItemsByIds([id])).has(id), false, label);
+      assert.equal(await currentAutomaticDecision(sql, id), null, label);
+      assert.equal((await projection(id)).visibility, 'withdrawn', label);
+    } finally { await restore?.(); }
+  }
+});
+
+test('prediction topic includes selected public tags and excludes plain pool and withdrawn items', async () => {
+  await seedTopics();
+  const selected = await priorPredictionGrant();
+  const pool = await priorPredictionGrant({ scores: [40, 41], selected: false });
+  const withdrawn = await priorPredictionGrant();
+  for (const id of [selected, pool, withdrawn]) await sql`UPDATE publications SET tags=ARRAY['研究/数据','预测市场'] WHERE article_id=${id}`;
+  await sql`UPDATE publications SET visibility='withdrawn' WHERE article_id=${withdrawn}`;
+  const page = await loadTopicPage('prediction-markets', 1, await releasedLedgerClock());
+  assert.ok(page);
+  assert.equal(page.topic.name, '预测市场');
+  assert.equal(page.topic.group, 'field');
+  assert.ok(page.items.some(item => item.id === selected));
+  assert.ok(!page.items.some(item => item.id === pool || item.id === withdrawn));
+  assert.equal((await fetchItemsByIds([pool])).get(pool)?.visibility, 'public', 'plain pool fixture remains public');
 });
 
 test('an obsolete accepted automatic rule closes every public exit before asynchronous recovery', async () => {

@@ -6,8 +6,11 @@ import { FEATURES } from "@aihot/industry/features";
 import { CATEGORIES, CATEGORY_BY_ITEM_TYPE, CATEGORY_TAGS, ENTITIES, ENTITY_TAGS, IDENTITY_LEXICON, ITEM_TYPES, TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { enforceIdentity, matchEntityIds } from "@aihot/backend/editorial/writing";
 import { promptText } from "@aihot/backend/editorial/prompts";
+import { CATEGORY_GUIDE, normalizeTags } from "@aihot/backend/editorial/vocabulary";
 import { BatchSchema, PairSchema, SignalSchema } from "@aihot/backend/events/relate";
 import { PeriodSchema, periodPrompt } from "@aihot/backend/reports/compose";
+import { acceptedAutomaticRuleVersions } from "@aihot/industry/automatic-rule-compatibility";
+import { AUTOMATIC_RULE_VERSION } from "@aihot/backend/editorial/automatic-verification";
 
 test("grouping prompts render shared guidance and provide examples accepted without schema fallbacks", () => {
   for (const [name, schema] of [["group-pair", PairSchema], ["group-batch", BatchSchema], ["group-signal", SignalSchema]] as const) {
@@ -63,6 +66,37 @@ test("content understanding enumerates the live item types and a compatible JSON
     const allowed = new Set<string>([...CATEGORY_TAGS, ...TOPIC_TAGS, ...ENTITY_TAGS]);
     assert.ok(example.tags.every((tag: string) => allowed.has(tag)));
     for (const key of ["editorialJudgment", "titleZh", "summaryZh"]) assert.equal(typeof example[key], "string");
+  }
+});
+
+test("prediction market tags normalize explicit synonyms and discard generic prediction words", () => {
+  for (const tag of ["预测市场", "Prediction Market", "prediction markets", "預測市場"]) {
+    assert.deepEqual(normalizeTags(["研究/数据", tag]), ["研究/数据", "预测市场"], tag);
+  }
+  for (const tag of ["price prediction", "预测", "市场", "Polymarket", "Kalshi", "UMA"]) {
+    assert.deepEqual(normalizeTags(["研究/数据", tag]), ["研究/数据"], tag);
+  }
+  const understanding = promptText("understand");
+  const structure = promptText("structure", {
+    categoryCount: String(CATEGORIES.length), categoryGuide: CATEGORY_GUIDE,
+    categoryTags: CATEGORY_TAGS.join("、"), topicTags: TOPIC_TAGS.join("、"),
+    entityTags: ENTITY_TAGS.join("、"), entities: Object.keys(ENTITIES).join("、"),
+  });
+  for (const prompt of [understanding, structure]) {
+    assert.match(prompt, /主题：[^\n]*预测市场/);
+    assert.match(prompt, /Kalshi/);
+    assert.match(prompt, /UMA/);
+  }
+});
+
+test("prediction compatibility binds only this exact release and closes for every other current rule", () => {
+  const previous = "automatic-publication-v1:5c0e3a85b0b01eeb31df0874";
+  assert.notEqual(AUTOMATIC_RULE_VERSION, previous);
+  assert.deepEqual(acceptedAutomaticRuleVersions(AUTOMATIC_RULE_VERSION), [AUTOMATIC_RULE_VERSION, previous]);
+  for (const current of [previous, `${AUTOMATIC_RULE_VERSION}-next`, "automatic-publication-v2:future", "unregistered", "constructor", "__proto__"]) {
+    let versions: readonly string[] = [];
+    assert.doesNotThrow(() => { versions = acceptedAutomaticRuleVersions(current); }, current);
+    assert.deepEqual(versions, [current], current);
   }
 });
 
@@ -150,7 +184,11 @@ test("Web3 categories and topic directory use one consistent vocabulary", () => 
     topics: Array<{ slug: string; group: string; entityId?: string; tags: string[]; definition: string; related: string[] }>;
   };
   assert.deepEqual(directory.groups.map((g) => g.key), ["company", "field", "genre"]);
-  assert.deepEqual(directory.topics.map((t) => t.slug), ["bitcoin", "ethereum", "solana", "defi", "stablecoins", "security", "regulation", "research"]);
+  assert.deepEqual(directory.topics.map((t) => t.slug), ["bitcoin", "ethereum", "solana", "defi", "stablecoins", "prediction-markets", "security", "regulation", "research"]);
+  const prediction = directory.topics.find((t) => t.slug === "prediction-markets")!;
+  assert.equal(prediction.group, "field");
+  assert.deepEqual(prediction.tags, ["预测市场"]);
+  assert.deepEqual(prediction.related, ["defi", "regulation", "security", "research"]);
   assert.equal(new Set(directory.topics.map((t) => t.slug)).size, directory.topics.length);
   const slugs = new Set(directory.topics.map((t) => t.slug));
   const groupKeys = new Set(directory.groups.map((g) => g.key));

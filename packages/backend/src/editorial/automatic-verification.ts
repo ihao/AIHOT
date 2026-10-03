@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { SELECTION } from '@aihot/industry/selection';
 import { PRIMARY_EVIDENCE_HOSTS } from '@aihot/industry/evidence';
+import { acceptedAutomaticRuleVersions } from '@aihot/industry/automatic-rule-compatibility';
 import { load } from 'cheerio';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
 import { AutomaticSourcePaused, checkAutomaticSourcePause, refreshAutomaticSafety } from './automatic-safety.ts';
@@ -108,6 +109,19 @@ function verificationConfigHash(model: string): string {
 }
 export const automaticCopyHash = (copy: AutomaticCopy) => sha256(stableJson(copy));
 
+/** Parameterized version checks also work before a connection has learned PostgreSQL array OIDs. */
+function acceptedRuleCondition(roundAlias: string) {
+  const round = sql(roundAlias);
+  let previous = sql`false`;
+  for (const version of acceptedAutomaticRuleVersions(AUTOMATIC_RULE_VERSION).slice(1)) {
+    previous = sql`(${previous} OR ${round}.automatic_rule_version=${version})`;
+  }
+  return sql`(${round}.automatic_rule_version=${AUTOMATIC_RULE_VERSION} OR (${previous}
+    AND NOT EXISTS(SELECT 1 FROM automatic_verifications current_rule
+      WHERE current_rule.article_id=${round}.article_id AND current_rule.article_revision=${round}.article_revision
+        AND current_rule.automatic_rule_version=${AUTOMATIC_RULE_VERSION})))`;
+}
+
 /** Read-time proof for a stored automatic grant; no asynchronous rebuild can substitute for it. */
 export function automaticGrantCondition(publicationAlias: string, reviewAlias: string, requireSelected = false) {
   const p = sql(publicationAlias), er = sql(reviewAlias);
@@ -119,7 +133,7 @@ export function automaticGrantCondition(publicationAlias: string, reviewAlias: s
       AND av.article_revision=a.revision AND av.article_revision=${er}.article_revision
       AND av.analysis_id=${er}.analysis_id AND av.analysis_id=${p}.analysis_id
       AND av.analysis_id=(SELECT max(latest.id) FROM analyses latest WHERE latest.article_id=a.id AND latest.input_revision=a.revision)
-      AND av.final_fingerprint=${er}.fingerprint AND av.automatic_rule_version=${AUTOMATIC_RULE_VERSION}
+      AND av.final_fingerprint=${er}.fingerprint AND ${acceptedRuleCondition('av')}
       AND source.enabled AND source.participation_mode='editorial' AND sp.enabled
       AND sp.version=av.source_policy_version AND sp.version=${er}.source_policy_version
       AND av.final_copy=jsonb_build_object('titleZh',an.title_zh,'summaryZh',an.summary_zh,'reasonZh',an.reason_zh,'category',an.category)
@@ -133,7 +147,7 @@ export function automaticGrantCondition(publicationAlias: string, reviewAlias: s
 }
 
 /** Manual approvals and the legacy manual lane keep their existing semantics. Automatic grants
- * stay bound to the current rule even after switching modes, including legacy rows later verified. */
+ * stay bound to the current or explicitly compatible accepted rule even after switching modes. */
 export function publicationAuthorityCondition(publicationAlias: string) {
   const p = sql(publicationAlias);
   return sql`(
@@ -288,13 +302,13 @@ function decision(a: Input, r: Round) {
     };
   }
 }
-/** Read-only exact current authority. It does not infer grants from legacy editorial rows. */
+/** Read-only exact accepted authority. It does not infer grants from legacy editorial rows. */
 export async function currentAutomaticDecision(db: Db, articleId: string) {
   if (config.editorialMode !== 'automatic') return null;
   const a = await loadInput(db, articleId);
   if (!a || (await manuallyHeld(db, articleId))) return null;
-  const [r] = await db<Round[]>`SELECT * FROM automatic_verifications WHERE article_id=${articleId}
- AND article_revision=${a.revision} AND automatic_rule_version=${AUTOMATIC_RULE_VERSION} AND status='accepted'`;
+  const [r] = await db<Round[]>`SELECT av.* FROM automatic_verifications av WHERE av.article_id=${articleId}
+ AND av.article_revision=${a.revision} AND ${acceptedRuleCondition('av')} AND av.status='accepted'`;
   if (!r || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a))) return null;
   const proposal = await getReviewProposal(articleId, db);
   if (!proposal || proposal.fingerprint !== r.final_fingerprint) return null;
@@ -594,6 +608,9 @@ export async function sweepAutomaticVerifications(): Promise<number> {
     WHERE a.processing_state='analyzed' AND an.origin='model' AND s.enabled AND s.participation_mode='editorial' AND sp.enabled
       AND EXISTS(SELECT 1 FROM automatic_verifications old WHERE old.article_id=a.id AND old.automatic_rule_version<>${AUTOMATIC_RULE_VERSION})
       AND NOT EXISTS(SELECT 1 FROM automatic_verifications current WHERE current.article_id=a.id AND current.article_revision=a.revision AND current.automatic_rule_version=${AUTOMATIC_RULE_VERSION})
+      AND NOT EXISTS(SELECT 1 FROM publications compatible JOIN editorial_reviews compatible_review
+        ON compatible_review.article_id=compatible.article_id AND compatible_review.status='auto_public'
+        WHERE compatible.article_id=a.id AND ${automaticGrantCondition('compatible', 'compatible_review')})
       AND NOT EXISTS(SELECT 1 FROM editorial_overrides o WHERE o.article_id=a.id)
       AND NOT EXISTS(SELECT 1 FROM audit_log log WHERE log.subject='content:'||a.id AND log.action IN ('content.review','content.curation'))
     ORDER BY a.id LIMIT 100`;
