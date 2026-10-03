@@ -1,5 +1,5 @@
 {
-  "status": "local_verified_production_pending",
+  "status": "production_deployed_and_read_paths_verified",
   "audit": {
     "at": "2026-10-03T16:46:38.261Z",
     "rule": "automatic-publication-v1:743f241ab8a474544fda3e20",
@@ -661,7 +661,16 @@
       "unknownReceiptAndActualCountFailuresReproduced": true,
       "costReasonClassificationFailureReproduced": true
     },
-    "localHttpSmokePaths": 30
+    "localHttpSmokePaths": 30,
+    "productionNode24ImageTests": {
+      "passed": 30,
+      "failed": 0,
+      "network": "none"
+    },
+    "productionHttpSmoke": {
+      "passed": 30,
+      "failed": 0
+    }
   },
   "productionBefore": {
     "at": "2026-10-03T17:03:53.000Z",
@@ -674,5 +683,47 @@
     "costStops": 0,
     "backup": "2026-10-03T17:06:23Z successful existing backup service"
   },
-  "production": null
+  "production": {
+    "at": "2026-10-03T17:12:06.971Z",
+    "ruleSame": true,
+    "policy": "primary-first-bounded-input-v1",
+    "maxInputChars": 60000,
+    "publicBefore": 1265,
+    "publicAfter": 1265,
+    "publicRemoved": [],
+    "publicAdded": [],
+    "selectedBefore": 99,
+    "selectedAfter": 99,
+    "selectedRemoved": [],
+    "sourcesSame": true,
+    "budgetsSame": true,
+    "costStops": [],
+    "releaseCommit": "ee96ed041c2b2140b56089a78eaacd17bec5adcb",
+    "mainIntegrationCommit": "0985e16988ba679fa374f57263034bbc1bc670dc",
+    "sourceTreesIdentical": "9a5afda9ba5c3afe033ded0707dc274ad726ed0f",
+    "image": "sha256:eea649891fc2cef6b0a38531b5dd8041e4dbbc1107c2f604fb47df2e0018d128",
+    "previousImage": "sha256:6e877a60cd11a2b9acf6113778b08305620f4021f138e52d9f14e514d242b3d4",
+    "privateEnvironmentPreserved": true,
+    "databaseContainerStartedAt": "2026-09-30T10:37:33.798252054Z",
+    "roleValves": {
+      "api": {
+        "collect": true,
+        "modelCalls": true,
+        "editorialMode": "automatic"
+      },
+      "web": {
+        "collect": true,
+        "modelCalls": true,
+        "editorialMode": "automatic"
+      },
+      "worker": {
+        "collect": true,
+        "modelCalls": true,
+        "editorialMode": "automatic"
+      }
+    },
+    "diagnosticPaidModelRequests": 0,
+    "liveBillingSavingsVerified": false,
+    "measurementBoundary": "deployment and existing-public-set preservation verified; no new production cost-stop sample at immediate snapshot; 69591 tokens is historical replay opportunity, not observed invoice reduction"
+  }
 }
