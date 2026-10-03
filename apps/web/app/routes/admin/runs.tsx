@@ -12,7 +12,12 @@ type Row = Record<string, any>;
 interface Runs {
   checkedAt: string;
   automatic?: { counts: Record<string,number>; acceptanceRate: number | null; failed: number; missingEvidence: number;
-    disagreement: number; reasons: Row[]; recent: Row[]; sourcePauses: Row[] };
+    disagreement: number; reasons: Row[]; recent: Row[]; sourcePauses: Row[];
+    current: { collected: number; passed: number; scoreQualified: number; public: number; selected: number;
+      counts: Record<string,number>; acceptanceRate: number|null; reasons: Array<{reason:string;n:number}>;
+      diagnostics: Array<{reason:string;n:number}>; historicalReasons: Array<{reason:string;n:number}>;
+      historicalDiagnostics: Array<{reason:string;n:number}>; highScoreWaiting:number; oldestHighScoreAt:string|null;
+      selected24h:number; selectionState:string } };
   processes: Array<{ role: string; pid: number; host: string; release: string; startedAt: string; at: string; alive: boolean }>;
   jobs: Row[];
   timeline: Row[];
@@ -34,6 +39,8 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export const meta: Route.MetaFunction = () => [{ title: `运行 · ${SITE.name} 后台` }];
 
+const DIAGNOSTIC_LABEL: Record<string,string> = {quote_invalid:'引用与原文不一致',primary_evidence_unverified:'一手证据未获核验支持',
+  unsupported_entry:'取证入口不支持',fetch_failed:'证据抓取失败',identity_mismatch:'官方身份不符',pdf_unreadable:'PDF 无法读取',body_unreadable:'正文无法读取'};
 const STATE_LABEL: Record<string, string> = { created: "排队", retry: "等待重试", active: "执行中" };
 
 export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
@@ -73,13 +80,32 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
         <Stat label="投递待核实" value={num(r.deliveries.filter((d) => d.status === "unknown").length)} tone={r.deliveries.some((d) => d.status === "unknown") ? "bad" : "ok"} />
       </div>
 
-      {r.automatic && <Card title="自动核验 · 最近24小时">
+      {r.automatic && <Card title="当前文章 · 最近24小时采集">
+        <p className="mb-3 text-sm text-ink-3">每篇文章只计一次，使用当前原文版本的最新分析；公开与精选按读者当前可见的内容统计。</p>
+        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <Stat label="采集文章" value={num(r.automatic.current.collected)} />
+          <Stat label="相关性通过" value={num(r.automatic.current.passed)} />
+          <Stat label="评分达标" value={num(r.automatic.current.scoreQualified)} hint="完整评分均达到当前来源门槛，分差不超过20" />
+          <Stat label="实际公开" value={num(r.automatic.current.public)} />
+          <Stat label="实际精选" value={num(r.automatic.current.selected)} />
+        </div>
+        <p className="mb-3 text-sm">当前核验接受比例：{r.automatic.current.acceptanceRate === null ? '—' : `${Math.round(r.automatic.current.acceptanceRate*100)}%`}
+          <span className="ml-2 text-ink-3">接受 {r.automatic.current.counts.accepted??0} · 拒绝 {r.automatic.current.counts.rejected??0} · 等待 {r.automatic.current.counts.waiting??0}；仅统计与当前内容匹配的决定</span>
+        </p>
+        {r.automatic.current.selectionState==='investigate' && <p role="status" className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+          需要检查：{r.automatic.current.highScoreWaiting} 篇新鲜文章连续评分达标已满4小时，仍未公开；最近24小时没有新增可见精选。请查看取证和核验原因。
+        </p>}
+        <p className="mb-4 text-sm text-ink-3">本次核验记录的取证问题（文章数，可含已解决问题）：{r.automatic.current.diagnostics.map(d=>`${DIAGNOSTIC_LABEL[d.reason]??'其他取证问题'} ${d.n}`).join(' · ') || '暂无'}</p>
+        <details className="mb-4"><summary className="cursor-pointer text-sm">历史核验轮次 · 最近24小时</summary>
+        <p className="my-3 text-xs text-ink-3">同一文章的不同规则、重试会分别计数，轮次比例不代表当前文章接受比例。</p>
         <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat label="接受比例" value={r.automatic.acceptanceRate === null ? "—" : `${Math.round(r.automatic.acceptanceRate * 100)}%`} hint={`接受 ${r.automatic.counts.accepted ?? 0} · 拒绝 ${r.automatic.counts.rejected ?? 0} · 等待 ${r.automatic.counts.waiting ?? 0}`} />
+          <Stat label="轮次接受比例" value={r.automatic.acceptanceRate === null ? "—" : `${Math.round(r.automatic.acceptanceRate * 100)}%`} hint={`接受 ${r.automatic.counts.accepted ?? 0} · 拒绝 ${r.automatic.counts.rejected ?? 0} · 等待 ${r.automatic.counts.waiting ?? 0}`} />
           <Stat label="缺少证据" value={num(r.automatic.missingEvidence)} />
           <Stat label="评分分歧" value={num(r.automatic.disagreement)} />
           <Stat label="请求失败" value={num(r.automatic.failed)} />
         </div>
+        <p className="mb-3 text-xs text-ink-3">旧决定保留的取证问题（文章数）：{r.automatic.current.historicalDiagnostics.map(d=>`${DIAGNOSTIC_LABEL[d.reason]??'其他取证问题'} ${d.n}`).join(' · ') || '暂无'}</p>
+        </details>
         <p className="mb-3 text-sm text-ink-3">连续五条终止核验明确矛盾时，该来源的新分析与核验暂停30分钟；已核验公开内容继续可读。</p>
         <DataTable dense rows={r.automatic.sourcePauses} rowKey={s=>s.source_id} empty="来源尚无异常暂停记录" columns={[
           {key:"source",label:"来源",render:s=>s.source_name},

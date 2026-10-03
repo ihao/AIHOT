@@ -1,5 +1,12 @@
 // Runs view: task timeline, queue backlog, source lag, error classes, process
 // heartbeats, and the receipts and deliveries whose outcome needs an operator.
+import { SELECTION } from '@aihot/industry/selection';
+import { compatibleAcceptedCopy } from '@aihot/industry/automatic-rule-compatibility';
+import { automaticReasonCode } from '@aihot/contracts/automatic-content';
+import { AUTOMATIC_RULE_VERSION, automaticCopyHash, type AutomaticCopy } from '../editorial/automatic-verification.ts';
+import { getReviewProposal } from '../editorial/review.ts';
+import { freshnessReason } from '../content/freshness.ts';
+import { listedCondition, selectedCondition } from '../publication/items.ts';
 import { automaticSafetyStates } from "../editorial/automatic-safety.ts";
 import { sql } from "../db.ts";
 import { audit } from "./auth.ts";
@@ -8,8 +15,112 @@ import { failureGroupSql, queueProcessing, requeueFailed } from "../jobs/content
 
 const STALE_HEARTBEAT_MS = 3 * 60_000;
 
+interface StoredRound {
+  id: number; article_id: string; article_revision: number; analysis_id: number; automatic_rule_version: string;
+  status: string; source_policy_version: number; original_copy_hash: string; final_copy_hash: string;
+  final_fingerprint: string | null; rewritten: boolean; reasons: string[]; decisions: Array<{ decision?: { reasons?: string[] }; evidenceFetch?: Array<{ reason: string }> }>;
+}
+interface CurrentArticle {
+  id: string; revision: number; published_at: Date | null; tier: string; enabled: boolean; participation_mode: string;
+  authorized: boolean; manually_held: boolean; policy_version: number; analysis_id: number | null; analysis_origin: string | null; processing_state: string; relevance: string | null;
+  title_zh: string | null; summary_zh: string | null; reason_zh: string | null; category: string | null;
+  output: Record<string, unknown> | null; actual_public: boolean; actual_selected: boolean; rounds: StoredRound[];
+  analyses: Array<{ relevance: string | null; output: Record<string, unknown> | null; created_at: string }>;
+}
+const scoreQualified = (relevance: string | null, output: Record<string, unknown> | null, threshold: number | undefined) => {
+  const scores = output?.scores;
+  return relevance === 'pass' && threshold !== undefined && output?.scoreRefused !== true && Array.isArray(scores)
+    && (scores.length === 2 || scores.length === 3) && scores.every(s => Number.isInteger(s) && s >= threshold && s <= 100)
+    && Math.max(...scores) - Math.min(...scores) <= 20;
+};
+const countedReasons = (counts: Map<string, number>) => [...counts].map(([reason,n])=>({reason,n})).sort((a,b)=>b.n-a.n||a.reason.localeCompare(b.reason));
+
+/** Unique current articles, independent from the historical verification-round totals below. */
+async function currentArticleOverview(now: Date) {
+  const [rows, selected] = await Promise.all([
+    sql<CurrentArticle[]>`SELECT a.id,a.revision,a.published_at,a.processing_state,s.tier,s.enabled,s.participation_mode,
+      coalesce(sp.enabled,false) AS authorized,coalesce(sp.version,0) AS policy_version,
+      (EXISTS(SELECT 1 FROM editorial_overrides o WHERE o.article_id=a.id)
+        OR EXISTS(SELECT 1 FROM audit_log log WHERE log.subject='content:'||a.id AND log.action IN ('content.review','content.curation'))) AS manually_held,
+      an.id AS analysis_id,an.origin AS analysis_origin,an.relevance,an.title_zh,an.summary_zh,an.reason_zh,an.category,an.output,
+      coalesce(p.eligible AND ${listedCondition(now)},false) AS actual_public,
+      coalesce(p.eligible AND ${selectedCondition(now)},false) AS actual_selected,
+      coalesce((SELECT jsonb_agg(jsonb_build_object('id',av.id,'article_id',av.article_id,'article_revision',av.article_revision,
+        'analysis_id',av.analysis_id,'automatic_rule_version',av.automatic_rule_version,'status',av.status,
+        'source_policy_version',av.source_policy_version,'original_copy_hash',av.original_copy_hash,'final_copy_hash',av.final_copy_hash,
+        'final_fingerprint',av.final_fingerprint,'rewritten',av.rewritten,'reasons',av.reasons,'decisions',(SELECT coalesce(jsonb_agg(jsonb_build_object('evidenceFetch',entry->'evidenceFetch','decision',jsonb_build_object('reasons',entry->'decision'->'reasons'))),'[]')
+          FROM jsonb_array_elements(av.decisions) entry WHERE entry ? 'evidenceFetch' OR entry->'decision' ? 'reasons')) ORDER BY av.id DESC)
+        FROM automatic_verifications av WHERE av.article_id=a.id),'[]') AS rounds,
+      coalesce((SELECT jsonb_agg(jsonb_build_object('relevance',history.relevance,'output',history.output,'created_at',history.created_at) ORDER BY history.id DESC)
+        FROM analyses history WHERE history.article_id=a.id AND history.input_revision=a.revision),'[]') AS analyses
+      FROM articles a JOIN sources s ON s.id=a.source_id
+      LEFT JOIN source_auto_public_policies sp ON sp.source_id=s.id
+      LEFT JOIN LATERAL(SELECT * FROM analyses WHERE article_id=a.id AND input_revision=a.revision ORDER BY id DESC LIMIT 1) an ON true
+      LEFT JOIN publications p ON p.article_id=a.id
+      WHERE a.discovered_at>${now}::timestamptz-interval '24 hours' AND a.discovered_at<=${now}`,
+    sql<{ n: number }[]>`SELECT count(*)::int AS n FROM publications p
+      WHERE p.eligible AND ${selectedCondition(now)} AND p.visible_after>${now}::timestamptz-interval '24 hours'`,
+  ]);
+  // Accepted status is current only while its complete immutable review target still matches.
+  const proposals = new Map(await Promise.all(rows.filter(a=>a.rounds.some(r=>r.status==='accepted'
+    &&r.article_revision===a.revision&&r.analysis_id===a.analysis_id&&compatibleAcceptedCopy(r,AUTOMATIC_RULE_VERSION)))
+    .map(async a=>[a.id,await getReviewProposal(a.id)] as const)));
+  const counts: Record<string,number> = {}, reasons = new Map<string,number>(), historicalReasons = new Map<string,number>();
+  const diagnostics = new Map<string,number>(), historicalDiagnostics = new Map<string,number>();
+  let passed=0, qualified=0, actualPublic=0, actualSelected=0, highScoreWaiting=0, oldestHighScoreAt: string|null=null;
+  for(const a of rows) {
+    const scoresPass=scoreQualified(a.relevance,a.output,SELECTION.thresholds[a.tier]);
+    if(a.relevance==='pass')passed++;if(scoresPass)qualified++;
+    if(a.actual_public)actualPublic++;if(a.actual_selected)actualSelected++;
+    const copy: AutomaticCopy={titleZh:a.title_zh,summaryZh:a.summary_zh,reasonZh:a.reason_zh,category:a.category};
+    const targetMatches=(r:StoredRound)=>r.article_revision===a.revision&&r.analysis_id===a.analysis_id&&r.source_policy_version===a.policy_version;
+    const grantMatches=(r:StoredRound)=>targetMatches(r)&&!a.manually_held&&a.enabled&&a.authorized&&a.participation_mode==='editorial'
+      &&r.final_copy_hash===automaticCopyHash(copy)&&compatibleAcceptedCopy(r,AUTOMATIC_RULE_VERSION)
+      &&!!proposals.get(a.id)&&r.final_fingerprint===proposals.get(a.id)!.fingerprint;
+    const exact=a.rounds.find(r=>r.article_revision===a.revision&&r.automatic_rule_version===AUTOMATIC_RULE_VERSION);
+    const legacy=exact ? undefined : a.rounds.find(r=>r.status==='accepted'&&grantMatches(r));
+    const round=exact??legacy??a.rounds[0];
+    const isCurrent=!!round&&targetMatches(round)&&(round===exact||round===legacy)
+      &&(round.status!=='accepted'||grantMatches(round));
+    if(isCurrent)counts[round.status]=(counts[round.status]??0)+1;
+    const currentReasons=new Set<string>(), oldReasons=new Set<string>(), currentDiagnostics=new Set<string>(), oldDiagnostics=new Set<string>();
+    for(const saved of a.rounds) {
+      const reasonSet=isCurrent&&saved===round?currentReasons:oldReasons;
+      const diagnosticSet=isCurrent&&saved===round?currentDiagnostics:oldDiagnostics;
+      for(const reason of saved.reasons)reasonSet.add(automaticReasonCode(reason));
+      // Earlier verification failures remain useful even when recovery overwrites final reasons.
+      for(const reason of [...saved.reasons,...saved.decisions.flatMap(entry=>entry.decision?.reasons??[])]) {
+        if(/^claim_\d+_quote_invalid$/.test(reason))diagnosticSet.add('quote_invalid');
+        if(reason==='primary_evidence_missing'||/^claim_\d+_primary_evidence_missing$/.test(reason))diagnosticSet.add('primary_evidence_unverified');
+        if(reason==='body_unreadable'||reason==='original_unreadable')diagnosticSet.add('body_unreadable');
+      }
+      for(const entry of saved.decisions)for(const fetched of entry.evidenceFetch??[]) {
+        if(['unsupported_entry','fetch_failed','identity_mismatch','pdf_unreadable','body_unreadable'].includes(fetched.reason))diagnosticSet.add(fetched.reason);
+      }
+    }
+    for(const [set,map] of [[currentReasons,reasons],[oldReasons,historicalReasons],[currentDiagnostics,diagnostics],[oldDiagnostics,historicalDiagnostics]] as const)
+      for(const reason of set)map.set(reason,(map.get(reason)??0)+1);
+    if(scoresPass&&!a.manually_held&&a.analysis_origin==='model'&&a.processing_state==='analyzed'&&!a.actual_public&&a.enabled&&a.authorized&&a.participation_mode==='editorial'&&!freshnessReason(a.published_at,now)) {
+      // Consecutive qualifying analyses form one episode; cached reanalysis cannot reset its age.
+      let since:string|null=null;
+      for(const history of a.analyses) {
+        if(!scoreQualified(history.relevance,history.output,SELECTION.thresholds[a.tier]))break;
+        since=history.created_at;
+      }
+      if(since&&now.getTime()-Date.parse(since)>=4*60*60_000) {
+        highScoreWaiting++;if(!oldestHighScoreAt||Date.parse(since)<Date.parse(oldestHighScoreAt))oldestHighScoreAt=since;
+      }
+    }
+  }
+  const terminal=(counts.accepted??0)+(counts.rejected??0)+(counts.stale??0), selected24h=selected[0]?.n??0;
+  return {collected:rows.length,passed,scoreQualified:qualified,public:actualPublic,selected:actualSelected,counts,
+    acceptanceRate:terminal?(counts.accepted??0)/terminal:null,reasons:countedReasons(reasons),diagnostics:countedReasons(diagnostics),
+    historicalReasons:countedReasons(historicalReasons),historicalDiagnostics:countedReasons(historicalDiagnostics),
+    highScoreWaiting,oldestHighScoreAt,selected24h,selectionState:highScoreWaiting>0&&selected24h===0?'investigate':'normal'};
+}
+
 /** Stored decisions only. This view never retries a round or calls a model. */
-export async function automaticVerificationOverview() {
+export async function automaticVerificationOverview(now = new Date()) {
   const [statuses, reasons, recent, sourcePauses, issues] = await Promise.all([
     sql<{ status: string; n: number }[]>`SELECT status,count(*)::int AS n FROM automatic_verifications
       WHERE created_at>now()-interval '24 hours' GROUP BY status`,
@@ -33,7 +144,7 @@ export async function automaticVerificationOverview() {
   ]);
   const counts = Object.fromEntries(statuses.map(s => [s.status,s.n]));
   const terminal = (counts.accepted ?? 0)+(counts.rejected ?? 0)+(counts.stale ?? 0);
-  return { counts, acceptanceRate: terminal ? (counts.accepted ?? 0)/terminal : null,
+  return { current: await currentArticleOverview(now), counts, acceptanceRate: terminal ? (counts.accepted ?? 0)/terminal : null,
     failed: issues[0]?.failed ?? 0, missingEvidence: issues[0]?.missing_evidence ?? 0,
     disagreement: issues[0]?.disagreement ?? 0, reasons, recent, sourcePauses };
 }
