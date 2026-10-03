@@ -1,0 +1,330 @@
+{
+  "status": "production_verified",
+  "commit": "034094bbcedd2c5181ab125ce3eb65515c24c541",
+  "appliedAt": "2026-10-03T02:05:16.471Z",
+  "verifiedAt": "2026-10-03T02:10:44.009Z",
+  "runtimeRoles": [
+    {
+      "role": "ninebtc-api-1",
+      "commit": "034094bbcedd2c5181ab125ce3eb65515c24c541",
+      "ruleVersion": "automatic-publication-v1:d7cc9c407669a5f9b1c67141",
+      "topics": 9,
+      "node": "v24.21.0"
+    },
+    {
+      "role": "ninebtc-web-1",
+      "commit": "034094bbcedd2c5181ab125ce3eb65515c24c541",
+      "ruleVersion": "automatic-publication-v1:d7cc9c407669a5f9b1c67141",
+      "topics": 9,
+      "node": "v24.21.0"
+    },
+    {
+      "role": "ninebtc-worker-1",
+      "commit": "034094bbcedd2c5181ab125ce3eb65515c24c541",
+      "ruleVersion": "automatic-publication-v1:d7cc9c407669a5f9b1c67141",
+      "topics": 9,
+      "node": "v24.21.0"
+    }
+  ],
+  "topic": {
+    "status": 200,
+    "data": {
+      "topic": {
+        "slug": "prediction-markets",
+        "name": "预测市场",
+        "group": "field",
+        "definition": "Polymarket、Kalshi 等事件合约平台的机制、预言机结算争议、治理经营融资、监管和数据研究；普通价格预测、体育娱乐结果和下注推广不自动归入。",
+        "total": 0,
+        "recent": 0,
+        "indexable": false,
+        "latestAt": null,
+        "related": [
+          {
+            "slug": "defi",
+            "name": "DeFi"
+          },
+          {
+            "slug": "regulation",
+            "name": "政策与监管"
+          },
+          {
+            "slug": "security",
+            "name": "安全事件"
+          },
+          {
+            "slug": "research",
+            "name": "研究与数据"
+          }
+        ]
+      },
+      "items": [],
+      "page": 1,
+      "pageCount": 1
+    }
+  },
+  "publicChecks": {
+    "nineTopics": true,
+    "topicAPI": true,
+    "topicPage": true,
+    "directory": true,
+    "poolTags": true,
+    "readerNoPaidCalls": true,
+    "normalization": true,
+    "exactCompatibility": true
+  },
+  "page": {
+    "status": 200,
+    "emptyState": true
+  },
+  "pool": {
+    "status": 200,
+    "count": 5,
+    "ids": [
+      "l9na5m3xlpcemnb4glap0en9n",
+      "ngzro4zyhitvqfsqaqcv8nd2z",
+      "q3l262tlzhnmm3men5c7x7kas",
+      "nluhp8qmagmjbrag56xmqrfd7",
+      "nc4cujj006aaznuqsfkoe44wy"
+    ]
+  },
+  "patches": [
+    {
+      "articleId": "l9na5m3xlpcemnb4glap0en9n",
+      "before": {
+        "revision": 3,
+        "tags": [
+          "研究/数据",
+          "链上数据",
+          "研究报告"
+        ],
+        "selected": false,
+        "score": 64,
+        "visibility": "public",
+        "analysisId": 2276
+      },
+      "after": {
+        "article_id": "l9na5m3xlpcemnb4glap0en9n",
+        "revision": 4,
+        "tags": [
+          "研究/数据",
+          "链上数据",
+          "研究报告",
+          "预测市场"
+        ],
+        "score": 64,
+        "selected": false,
+        "visibility": "public",
+        "analysis_id": 2276
+      }
+    },
+    {
+      "articleId": "ngzro4zyhitvqfsqaqcv8nd2z",
+      "before": {
+        "revision": 2,
+        "tags": [
+          "研究/数据",
+          "DeFi"
+        ],
+        "selected": false,
+        "score": 30,
+        "visibility": "public",
+        "analysisId": 1845
+      },
+      "after": {
+        "article_id": "ngzro4zyhitvqfsqaqcv8nd2z",
+        "revision": 3,
+        "tags": [
+          "研究/数据",
+          "DeFi",
+          "预测市场"
+        ],
+        "score": 30,
+        "selected": false,
+        "visibility": "public",
+        "analysis_id": 1845
+      }
+    },
+    {
+      "articleId": "q3l262tlzhnmm3men5c7x7kas",
+      "before": {
+        "revision": 3,
+        "tags": [
+          "DeFi/产品",
+          "去中心化交易"
+        ],
+        "selected": false,
+        "score": 22,
+        "visibility": "public",
+        "analysisId": 1679
+      },
+      "after": {
+        "article_id": "q3l262tlzhnmm3men5c7x7kas",
+        "revision": 4,
+        "tags": [
+          "DeFi/产品",
+          "去中心化交易",
+          "预测市场"
+        ],
+        "score": 22,
+        "selected": false,
+        "visibility": "public",
+        "analysis_id": 1679
+      }
+    },
+    {
+      "articleId": "nluhp8qmagmjbrag56xmqrfd7",
+      "before": {
+        "revision": 2,
+        "tags": [
+          "项目/商业",
+          "DeFi",
+          "Ethereum",
+          "entity:ethereum"
+        ],
+        "selected": false,
+        "score": 28,
+        "visibility": "public",
+        "analysisId": 1848
+      },
+      "after": {
+        "article_id": "nluhp8qmagmjbrag56xmqrfd7",
+        "revision": 3,
+        "tags": [
+          "项目/商业",
+          "DeFi",
+          "Ethereum",
+          "entity:ethereum",
+          "预测市场"
+        ],
+        "score": 28,
+        "selected": false,
+        "visibility": "public",
+        "analysis_id": 1848
+      }
+    },
+    {
+      "articleId": "nc4cujj006aaznuqsfkoe44wy",
+      "before": {
+        "revision": 3,
+        "tags": [
+          "DeFi/产品",
+          "治理",
+          "Ethereum",
+          "entity:ethereum"
+        ],
+        "selected": false,
+        "score": 26,
+        "visibility": "public",
+        "analysisId": 831
+      },
+      "after": {
+        "article_id": "nc4cujj006aaznuqsfkoe44wy",
+        "revision": 4,
+        "tags": [
+          "DeFi/产品",
+          "治理",
+          "Ethereum",
+          "entity:ethereum",
+          "预测市场"
+        ],
+        "score": 26,
+        "selected": false,
+        "visibility": "public",
+        "analysis_id": 831
+      }
+    }
+  ],
+  "publicContinuity": {
+    "before": 1228,
+    "after": 1228,
+    "missingPrevious": 0,
+    "projectionUnchangedDuringTagOperation": true
+  },
+  "sourceCounts": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  },
+  "sourcePoliciesUnchanged": true,
+  "receiptsDuringOperation": {
+    "before": {
+      "receipts": 14259,
+      "attempts": 14348
+    },
+    "after": {
+      "receipts": 14259,
+      "attempts": 14348
+    },
+    "unchanged": true
+  },
+  "readerReceipts": {
+    "before": {
+      "receipts": 14259,
+      "attempts": 14348
+    },
+    "after": {
+      "receipts": 14259,
+      "attempts": 14348
+    }
+  },
+  "budgetsUnchanged": true,
+  "legacyAcceptedAnalysisRequeued": 0,
+  "workerHeartbeat": [
+    {
+      "key": "heartbeat.worker",
+      "heartbeat_at": "2026-10-03T02:10:22.031Z",
+      "started_at": "2026-10-03T02:08:14.631Z"
+    }
+  ],
+  "validation": {
+    "typecheck": "passed",
+    "backendEmptyDatabase": {
+      "passed": 318,
+      "failed": 0,
+      "runtime": "local Node26, PostgreSQL17, external fetch blocked"
+    },
+    "web": {
+      "passed": 16,
+      "failed": 0
+    },
+    "webBuild": "passed",
+    "mergedIndustryRegression": {
+      "passed": 11,
+      "failed": 0
+    },
+    "imageOfflineCheck": "passed on Node24",
+    "productionSmoke": {
+      "passed": 30,
+      "failed": 0
+    },
+    "reviews": [
+      "design approved",
+      "plan approved",
+      "spec compliance approved",
+      "code quality approved"
+    ]
+  },
+  "diagnosticNotes": [
+    "Earlier reused test database showed a release-watermark fixture failure; fresh empty database final suite passed all318.",
+    "One existing date fixture was corrected to an explicit UTC timestamp; production date behavior unchanged."
+  ],
+  "rollback": {
+    "previousImage": "ninebtc-app:before-prediction-market",
+    "databaseBackup": "/srv/9btc-release-backups/before-prediction-20261003.dump",
+    "previousTopicSlugs": [
+      "bitcoin",
+      "ethereum",
+      "solana",
+      "defi",
+      "stablecoins",
+      "security",
+      "regulation",
+      "research"
+    ]
+  },
+  "limits": [
+    "Prediction topic currently has zero selected publications.",
+    "New prompts are installed; no newly collected prediction-market article has been end-to-end verified during this acceptance window.",
+    "Tag repair affected only five reviewed recent public publication projections; no old analysis/review/verification records or selected states changed."
+  ]
+}
