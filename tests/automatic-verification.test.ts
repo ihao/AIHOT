@@ -673,7 +673,7 @@ test('automatic event outputs suppress an unverified structured occurrence date 
   const id = await article({ publishedAt: sourceDate });
   await verifyAutomaticArticle(id);
   const grouped = await groupArticle(id);
-  await sql`UPDATE facts SET occurred_at='2099-01-01' WHERE story_id=${grouped.storyId!}`;
+  await sql`UPDATE facts SET occurred_at='2099-01-01T00:00:00Z' WHERE story_id=${grouped.storyId!}`;
   const [story] = await sql<{ public_id: string }[]>`SELECT public_id::text FROM stories WHERE id=${grouped.storyId!}`;
   const query = { storyPublicId: story!.public_id, channel: 'all' as const, category: null, tag: null, topicTags: null, cursor: null, take: 10, revision: null };
   const detail = await loadStoryDetail(grouped.storyId!);
