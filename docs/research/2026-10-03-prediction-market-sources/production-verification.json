@@ -1,0 +1,674 @@
+{
+  "at": "2026-10-03T14:54:09.762Z",
+  "counts": {
+    "total": 109,
+    "enabled": 80,
+    "paused": 29
+  },
+  "sources": [
+    {
+      "id": "casino-org-prediction-markets",
+      "name": "Casino.org 预测市场新闻",
+      "enabled": true,
+      "health": "ok",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        },
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true
+      },
+      "cursor": {
+        "lastOkAt": "2026-10-03T14:48:30.085Z",
+        "initializedAt": "2026-10-03T14:48:30.085Z"
+      },
+      "last_ok_at": "2026-10-03T14:48:30.085Z",
+      "last_error": null,
+      "fail_count": 0,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "auto_policy": true,
+      "policy_version": 1
+    },
+    {
+      "id": "cnbc-prediction-markets",
+      "name": "CNBC 预测市场报道",
+      "enabled": true,
+      "health": "ok",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+        "ingestNoiseFilter": {
+          "dropMarkers": [
+            ""
+          ],
+          "keepIfMatches": [
+            "polymarket",
+            "kalshi",
+            "prediction market",
+            "prediction-market",
+            "event contract",
+            "novig"
+          ]
+        },
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true
+      },
+      "cursor": {
+        "lastOkAt": "2026-10-03T14:48:27.655Z",
+        "initializedAt": "2026-10-03T14:48:27.655Z"
+      },
+      "last_ok_at": "2026-10-03T14:48:27.655Z",
+      "last_error": null,
+      "fail_count": 0,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "auto_policy": true,
+      "policy_version": 1
+    },
+    {
+      "id": "fos-prediction-markets",
+      "name": "Front Office Sports 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        },
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true
+      },
+      "cursor": {
+        "lastOkAt": "2026-10-03T14:48:28.301Z",
+        "initializedAt": "2026-10-03T14:48:28.301Z"
+      },
+      "last_ok_at": "2026-10-03T14:48:28.302Z",
+      "last_error": null,
+      "fail_count": 0,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "auto_policy": true,
+      "policy_version": 1
+    },
+    {
+      "id": "igb-prediction-markets",
+      "name": "iGaming Business 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://igamingbusiness.com/tag/prediction-markets/feed/",
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        },
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true
+      },
+      "cursor": {
+        "lastOkAt": "2026-10-03T14:48:29.910Z",
+        "initializedAt": "2026-10-03T14:48:29.910Z"
+      },
+      "last_ok_at": "2026-10-03T14:48:29.911Z",
+      "last_error": null,
+      "fail_count": 0,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "auto_policy": true,
+      "policy_version": 1
+    },
+    {
+      "id": "sportico-prediction-markets",
+      "name": "Sportico 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "config": {
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 1
+        },
+        "feedUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        },
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true
+      },
+      "cursor": {
+        "lastOkAt": "2026-10-03T14:48:27.682Z",
+        "initializedAt": "2026-10-03T14:48:27.682Z"
+      },
+      "last_ok_at": "2026-10-03T14:48:27.682Z",
+      "last_error": null,
+      "fail_count": 0,
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "auto_policy": true,
+      "policy_version": 1
+    }
+  ],
+  "runs": [
+    {
+      "source_id": "casino-org-prediction-markets",
+      "started_at": "2026-10-03T14:48:28.302Z",
+      "finished_at": "2026-10-03T14:48:30.090Z",
+      "status": "ok",
+      "found_count": 40,
+      "new_count": 2,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 1,
+            "undated": 0
+          },
+          "accepted": 2,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "igb-prediction-markets",
+      "started_at": "2026-10-03T14:48:27.696Z",
+      "finished_at": "2026-10-03T14:48:29.921Z",
+      "status": "ok",
+      "found_count": 100,
+      "new_count": 2,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 1,
+            "undated": 0
+          },
+          "accepted": 2,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "sportico-prediction-markets",
+      "started_at": "2026-10-03T14:48:27.608Z",
+      "finished_at": "2026-10-03T14:48:27.686Z",
+      "status": "ok",
+      "found_count": 9,
+      "new_count": 0,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 2,
+            "undated": 0
+          },
+          "accepted": 0,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "fos-prediction-markets",
+      "started_at": "2026-10-03T14:48:27.607Z",
+      "finished_at": "2026-10-03T14:48:28.311Z",
+      "status": "ok",
+      "found_count": 50,
+      "new_count": 0,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 3,
+            "undated": 0
+          },
+          "accepted": 0,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "cnbc-prediction-markets",
+      "started_at": "2026-10-03T14:48:27.347Z",
+      "finished_at": "2026-10-03T14:48:27.663Z",
+      "status": "ok",
+      "found_count": 30,
+      "new_count": 1,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 1,
+          "windowHours": 48
+        }
+      }
+    }
+  ],
+  "articles": [
+    {
+      "id": "ntr4ecbj4rqisel4rv8fpcllz",
+      "source_id": "cnbc-prediction-markets",
+      "title": "Novig credits Sydney Sweeney-backed campaign for platform’s surge in growth",
+      "url": "https://www.cnbc.com/2026/10/03/novig-credits-sydney-sweeney-backed-campaign-for-platforms-surge-in-growth.html",
+      "published_at": "2026-10-03T13:30:48.000Z",
+      "discovered_at": "2026-10-03T14:48:27.578Z",
+      "body_status": "ok",
+      "body_chars": 3277,
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "processing_retry_at": null,
+      "processing_attempts": 0,
+      "relevance": "pass",
+      "score": 18,
+      "tags": [
+        "项目/商业",
+        "预测市场"
+      ],
+      "visibility": "public",
+      "public_title": "Novig 称悉尼·斯威尼广告推动交易量增94%及新用户增218%，遭女运动员批评",
+      "public_tags": [
+        "项目/商业",
+        "预测市场"
+      ],
+      "selected": false,
+      "authorized": true,
+      "publicly_selected": false,
+      "verification_status": "accepted",
+      "verification_reasons": []
+    },
+    {
+      "id": "ppxwsy52mvfwysm541emoee8f",
+      "source_id": "igb-prediction-markets",
+      "title": "Prediction market roundup: CFTC sends proposed event contract rules to White House",
+      "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-10226/",
+      "published_at": "2026-10-02T22:51:03.000Z",
+      "discovered_at": "2026-10-03T14:48:29.498Z",
+      "body_status": "ok",
+      "body_chars": 4376,
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "processing_retry_at": null,
+      "processing_attempts": 0,
+      "relevance": "pass",
+      "score": 52,
+      "tags": [
+        "政策/监管",
+        "预测市场",
+        "CFTC"
+      ],
+      "visibility": "withdrawn",
+      "public_title": "CFTC 向白宫提交修改“互换”定义以涵盖事件合约的提案",
+      "public_tags": [
+        "政策/监管",
+        "预测市场",
+        "CFTC",
+        "entity:cftc"
+      ],
+      "selected": false,
+      "authorized": false,
+      "publicly_selected": false,
+      "verification_status": "rejected",
+      "verification_reasons": [
+        "no_new_primary_evidence"
+      ]
+    },
+    {
+      "id": "mj9dgohqbawv8mfbx65x7g67v",
+      "source_id": "casino-org-prediction-markets",
+      "title": "DOJ Labels Binary Event Contracts as Illegal Swaps in Green Beret Case",
+      "url": "https://www.casino.org/news/justice-department-says-binary-event-contracts-are-swaps/",
+      "published_at": "2026-10-02T15:43:56.000Z",
+      "discovered_at": "2026-10-03T14:48:29.871Z",
+      "body_status": "ok",
+      "body_chars": 3567,
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "processing_retry_at": "2026-10-03T14:50:07.219Z",
+      "processing_attempts": 0,
+      "relevance": null,
+      "score": null,
+      "tags": null,
+      "visibility": null,
+      "public_title": null,
+      "public_tags": null,
+      "selected": null,
+      "authorized": false,
+      "publicly_selected": false,
+      "verification_status": null,
+      "verification_reasons": null
+    },
+    {
+      "id": "mpvnkbb6za9xb1v29a91v5rqy",
+      "source_id": "igb-prediction-markets",
+      "title": "European Lotteries calls for clearer regulation of prediction markets",
+      "url": "https://igamingbusiness.com/prediction-markets/european-lotteries-calls-clearer-regulation-prediction-markets/",
+      "published_at": "2026-10-02T09:25:59.000Z",
+      "discovered_at": "2026-10-03T14:48:29.568Z",
+      "body_status": "ok",
+      "body_chars": 3991,
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "processing_retry_at": null,
+      "processing_attempts": 0,
+      "relevance": "pass",
+      "score": 42,
+      "tags": [
+        "政策/监管",
+        "预测市场"
+      ],
+      "visibility": "withdrawn",
+      "public_title": "欧洲彩票协会呼吁建立统一的预测市场监管框架",
+      "public_tags": [
+        "政策/监管",
+        "预测市场"
+      ],
+      "selected": false,
+      "authorized": false,
+      "publicly_selected": false,
+      "verification_status": "rejected",
+      "verification_reasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing",
+        "copy_amount_conflict"
+      ]
+    },
+    {
+      "id": "fn6dejhe11epje56kl2wase32",
+      "source_id": "casino-org-prediction-markets",
+      "title": "Why Casino-Style Games and Slots Won’t Be Hitting Prediction Markets",
+      "url": "https://www.casino.org/news/dont-bet-on-casino-style-slots-coming-to-prediction-markets/",
+      "published_at": "2026-10-01T15:31:49.000Z",
+      "discovered_at": "2026-10-03T14:48:29.938Z",
+      "body_status": "ok",
+      "body_chars": 3709,
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "processing_retry_at": "2026-10-03T14:50:09.222Z",
+      "processing_attempts": 0,
+      "relevance": null,
+      "score": null,
+      "tags": null,
+      "visibility": null,
+      "public_title": null,
+      "public_tags": null,
+      "selected": null,
+      "authorized": false,
+      "publicly_selected": false,
+      "verification_status": null,
+      "verification_reasons": null
+    }
+  ],
+  "history": {
+    "items": 5,
+    "older_than_month": 0,
+    "older_than_48h": 0,
+    "undated": 0,
+    "future": 0
+  },
+  "audit": [
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.create",
+      "subject": "source:cnbc-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:25.998Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.auto_public",
+      "subject": "source:cnbc-prediction-markets",
+      "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。",
+      "created_at": "2026-10-03T14:48:26.024Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.fetch",
+      "subject": "source:cnbc-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.338Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.create",
+      "subject": "source:fos-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.360Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.auto_public",
+      "subject": "source:fos-prediction-markets",
+      "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。",
+      "created_at": "2026-10-03T14:48:26.364Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.fetch",
+      "subject": "source:fos-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.391Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.create",
+      "subject": "source:sportico-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.400Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.auto_public",
+      "subject": "source:sportico-prediction-markets",
+      "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。",
+      "created_at": "2026-10-03T14:48:26.405Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.fetch",
+      "subject": "source:sportico-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.423Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.create",
+      "subject": "source:igb-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.461Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.auto_public",
+      "subject": "source:igb-prediction-markets",
+      "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。",
+      "created_at": "2026-10-03T14:48:26.465Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.fetch",
+      "subject": "source:igb-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.490Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.create",
+      "subject": "source:casino-org-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.499Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.auto_public",
+      "subject": "source:casino-org-prediction-markets",
+      "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。",
+      "created_at": "2026-10-03T14:48:26.501Z"
+    },
+    {
+      "actor": "codex:prediction-source-renewal-2026-10-03",
+      "action": "source.fetch",
+      "subject": "source:casino-org-prediction-markets",
+      "reason": null,
+      "created_at": "2026-10-03T14:48:26.517Z"
+    }
+  ],
+  "topic": {
+    "public_items": 6,
+    "selected": 0
+  },
+  "jobs": [
+    {
+      "name": "content.analyze",
+      "state": "completed",
+      "count": 5
+    },
+    {
+      "name": "content.extract-body",
+      "state": "completed",
+      "count": 1
+    },
+    {
+      "name": "content.verify-automatic",
+      "state": "completed",
+      "count": 3
+    },
+    {
+      "name": "events.group",
+      "state": "completed",
+      "count": 4
+    },
+    {
+      "name": "sources.fetch",
+      "state": "completed",
+      "count": 5
+    }
+  ],
+  "budgets": [
+    {
+      "service": "dajiala",
+      "per_minute": 5,
+      "per_hour": 60,
+      "per_day": 500,
+      "usage_reset_at": null
+    },
+    {
+      "service": "dashscope",
+      "per_minute": 20,
+      "per_hour": 300,
+      "per_day": 2000,
+      "usage_reset_at": "2026-10-01T17:32:45.035Z"
+    },
+    {
+      "service": "deepseek",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "embedding",
+      "per_minute": 300,
+      "per_hour": 6000,
+      "per_day": 40000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "jina",
+      "per_minute": 5,
+      "per_hour": 50,
+      "per_day": 300,
+      "usage_reset_at": null
+    },
+    {
+      "service": "llm",
+      "per_minute": 0,
+      "per_hour": 0,
+      "per_day": 0,
+      "usage_reset_at": null
+    },
+    {
+      "service": "mimo",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "socialdata",
+      "per_minute": 10,
+      "per_hour": 100,
+      "per_day": 1000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "zhipu",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    }
+  ]
+}
