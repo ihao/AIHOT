@@ -4,7 +4,7 @@
 import type { z } from "zod";
 import { config, credential } from "../config.ts";
 import { sha256 } from "../lib/ids.ts";
-import { completeReceipt, paidRequest, ProviderRejectedError, rejectReceivedResponse } from "./receipts.ts";
+import { completeReceipt, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
 import { sql } from "../db.ts";
 
 export interface ModelSpec {
@@ -162,6 +162,27 @@ function isConnectFailure(error: unknown): boolean {
   return ["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT", "ECONNRESET_BEFORE_SEND", "CERT_HAS_EXPIRED"].includes(code ?? "");
 }
 
+type ChatIdentityOptions = Pick<ChatJsonOptions<z.ZodType>, "model" | "purpose" | "promptVersion" | "system" | "user" | "temperature" | "maxTokens" | "attemptTag"> & { subject?: string };
+
+/** Shared pure normalization for both paid calls and exact successful-cache recovery. */
+export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
+  const spec = MODELS[opts.model];
+  if (!spec) throw new Error(`Unknown model ${opts.model}`);
+  const temperature = opts.temperature ?? 0.2;
+  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.key.endsWith("-think") ? 4000 : 0);
+  const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
+  const receiptRequest = {
+    service: spec.service,
+    model: spec.model,
+    purpose: opts.purpose,
+    subject: opts.subject,
+    identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
+    requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length, temperature, maxTokens },
+    attemptTag: opts.attemptTag,
+  } satisfies ReceiptRequest;
+  return { spec, temperature, maxTokens, userText, receiptRequest };
+}
+
 export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): Promise<ChatJsonResult<z.infer<S>>> {
   const spec = MODELS[opts.model];
   if (!spec) throw new Error(`Unknown model ${opts.model}`);
@@ -170,9 +191,7 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   const apiKey = credential("models", spec.apiKeyEnv);
   if (!baseUrl || !apiKey || !spec.model) throw new Error(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
 
-  const temperature = opts.temperature ?? 0.2;
-  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.key.endsWith("-think") ? 4000 : 0);
-  const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
+  const { temperature, maxTokens, userText, receiptRequest } = chatJsonRequestIdentity(opts);
   const body: Record<string, unknown> = {
     model: spec.model,
     messages: [
@@ -188,15 +207,7 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   };
 
   const receipt = await paidRequest(
-    {
-      service: spec.service,
-      model: spec.model,
-      purpose: opts.purpose,
-      subject: opts.subject,
-      identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
-      requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length, temperature, maxTokens },
-      attemptTag: opts.attemptTag,
-    },
+    receiptRequest,
     async () => {
       const started = Date.now();
       let res: Response;

@@ -41,6 +41,10 @@ let serial = 0,
   invalidJson = false;
 let scoreAnswers: number[] = [];
 let rewriteSummary: string | null = null;
+let rewriteInvalid = false;
+let preserveCore: boolean | undefined = true;
+let rewriteInput: Record<string, unknown> | null = null;
+let verifierInput: Record<string, unknown> | null = null;
 const checks = {
   claimsComplete: true,
   chineseCopyFaithful: true,
@@ -66,10 +70,10 @@ const provider = await stub(async (_n, req) => {
   if (system.includes('事件注意力评分器')) return answer({ attentionScore: scoreAnswers.shift() ?? 75 });
   if (system.includes('内容理解编辑')) return answer({ itemType: 'protocol_upgrade', authorRole: 'principal', tags: [], editorialJudgment: '维护发布', titleZh: 'Bitcoin Core 新软件版本发布', summaryZh: 'Bitcoin Core 宣布新版客户端可用。' });
   if (system.includes('资料结构化助手')) return answer({ category: 'infrastructure', tags: [], subjects: [], fact: null });
-  if (system.includes('依据已抓取材料修正')) return {
+  if (system.includes('依据已抓取材料修正')) { rewriteInput=JSON.parse(userText); return {
     choices: [{
       message: {
-        content: JSON.stringify({
+        content: rewriteInvalid ? 'invalid-json' : JSON.stringify({
           titleZh: 'Bitcoin Core 新软件版本发布',
           summaryZh: rewriteSummary ?? 'Bitcoin Core 发布了常规客户端软件版本。',
           reasonZh: null,
@@ -77,7 +81,7 @@ const provider = await stub(async (_n, req) => {
         })
       }
     }]
-  };
+  }; }
   if (!String(userText).startsWith('{')) return {
     choices: [{
       message: {
@@ -100,6 +104,7 @@ const provider = await stub(async (_n, req) => {
   };
   const user = JSON.parse(userText),
     currentVerdict = verdicts.shift() ?? verdict;
+  verifierInput=user;
   asked.open();
   if (hold) await hold.promise;
   const material = user.materials.find((m: {
@@ -119,7 +124,7 @@ const provider = await stub(async (_n, req) => {
             }] : [],
             reason: '本机证据'
           }],
-          checks,
+          checks:{...checks,coreEventPreserved:preserveCore},
           riskFlags: [],
           reason: '本机证据'
         })
@@ -569,7 +574,7 @@ test('restart sweep queues ordinary current analysis and preserves old waiting a
   assert.ok(prior.items.some(item => item.id === id), 'the old grant was actually synchronized before its rule became obsolete');
   for (const articleId of [id, waiting]) {
     await sql`UPDATE automatic_verifications SET automatic_rule_version=${PRE_AMOUNT_GUARD_RULE_VERSION} WHERE article_id=${articleId}`;
-    await sql`UPDATE analyses SET prompt_version='obsolete-score-and-writer-prompts' WHERE article_id=${articleId}`;
+    await sql`UPDATE analyses SET prompt_version='obsolete-score-and-writer-prompts',score=100 WHERE article_id=${articleId}`;
   }
   const old = await sql`SELECT id,status,verification_count,failures,stage,receipt_ids,decisions FROM automatic_verifications WHERE article_id IN (${id},${waiting}) ORDER BY id`;
   const hits = provider.hits();
@@ -918,3 +923,103 @@ test('automatic event digest skips the unused paid generation step',async()=>{
 test('current automatic score and verification decision supplies selection authority',async()=>{
  const id=await article({selected:false});await verifyAutomaticArticle(id);assert.equal((await projection(id)).selected,true);
 });
+
+
+test('no new primary material still gets exactly one bounded rewrite with immutable originals',async()=>{
+ const id=await article();const [before]=await sql`SELECT original_copy FROM automatic_verifications WHERE article_id=${id}`;
+ const hits=provider.hits();verdicts=['needs_evidence','supported'];
+ await verifyAutomaticArticle(id,{fetchMaterial:async()=>null});
+ const [r]=await sql`SELECT status,rewritten,verification_count,decisions FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'accepted');assert.equal(r.rewritten,true);assert.equal(r.verification_count,2);assert.equal(provider.hits()-hits,3);
+ assert.deepEqual(rewriteInput?.original_copy,before.original_copy);assert.equal(rewriteInput?.originalTitle,'Bitcoin Core release');
+ assert.deepEqual(verifierInput?.original_copy,before.original_copy);assert.equal(verifierInput?.originalTitle,'Bitcoin Core release');
+ assert.ok(Array.isArray(r.decisions));assert.ok(r.decisions.every((d:{verifier:unknown;decision:unknown})=>d.verifier&&d.decision));
+});
+test('rewrite cannot publish without final explicit core preservation',async()=>{
+ for(const flag of [undefined,false]){const id=await article();verdicts=['contradicted','supported'];preserveCore=flag;await verifyAutomaticArticle(id);assert.equal((await projection(id)).visibility,'withdrawn');}
+ preserveCore=true;
+});
+test('malformed rewrite is one paid attempt across retry and configuration changes',async()=>{
+ const id=await article();verdicts=['contradicted'];rewriteInvalid=true;const hits=provider.hits();
+ try{await assert.rejects(verifyAutomaticArticle(id));await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;await verifyAutomaticArticle(id);}finally{rewriteInvalid=false;}
+ assert.equal(provider.hits()-hits,2,'one verifier and one rewrite purchase only');
+ const [r]=await sql`SELECT status,rewrite_model,rewrite_config_hash FROM automatic_verifications WHERE article_id=${id}`;assert.equal(r.status,'rejected');assert.equal(r.rewrite_model,'default');assert.ok(r.rewrite_config_hash);
+});
+test('changed-copy legacy rewrite has no grant unless exact audited proof exists',async()=>{
+ const id=await priorPredictionGrant();await sql`UPDATE automatic_verifications SET rewritten=true,original_copy_hash='unaudited-old-copy' WHERE article_id=${id}`;
+ assert.equal((await projection(id)).visibility,'withdrawn');
+});
+
+test('rewrite crash before business save reuses successful raw receipts with no extra purchases',async()=>{
+ const id=await article();verdicts=['contradicted','supported'];await verifyAutomaticArticle(id);
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'accepted');const copy=r.original_copy;const hits=provider.hits();
+ await sql`UPDATE analyses SET title_zh=${copy.titleZh},summary_zh=${copy.summaryZh},reason_zh=${copy.reasonZh},category=${copy.category} WHERE article_id=${id}`;
+ await sql`UPDATE automatic_verifications SET status='waiting',retry_at=NULL,rewritten=false,stage='rewrite',final_copy=original_copy,
+   final_copy_hash=original_copy_hash,final_fingerprint=original_fingerprint,verification=${sql.json(r.decisions[0].verifier)},decisions=${sql.json([r.decisions[0]])},lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+ await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);assert.equal((await projection(id)).visibility,'public');
+ const [usage]=await sql`SELECT count(*)::int AS n FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id
+   WHERE rec.subject=${`article:${id}@1`} AND rec.purpose='rewrite_verified_summary'`;assert.equal(usage.n,1);
+});
+test('budget wait before rewrite sends no attempt and resumes the pinned model once',async()=>{
+ const id=await article();verdicts=['contradicted','supported'];hold=gate();asked=gate();
+ const work=verifyAutomaticArticle(id);await asked.promise;
+ const [budget]=await sql`SELECT per_minute,per_hour,per_day FROM budgets WHERE service='llm'`;
+ await sql`UPDATE budgets SET per_minute=0 WHERE service='llm'`;hold.open(undefined);hold=null;
+ await assert.rejects(work);const [r]=await sql`SELECT status,stage,rewrite_model FROM automatic_verifications WHERE article_id=${id}`;
+ assert.equal(r.status,'waiting');assert.equal(r.stage,'rewrite');assert.equal(r.rewrite_model,'default');
+ const [before]=await sql`SELECT count(*)::int AS n FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id WHERE rec.subject=${`article:${id}@1`} AND rec.purpose='rewrite_verified_summary'`;assert.equal(before.n,0);
+ await sql`UPDATE budgets SET per_minute=${budget.per_minute},per_hour=${budget.per_hour},per_day=${budget.per_day} WHERE service='llm'`;
+ const old=process.env.UNDERSTAND_MODEL;process.env.UNDERSTAND_MODEL='qwen3.8-max';invalidateModelCache();
+ try{await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;await verifyAutomaticArticle(id);}finally{process.env.UNDERSTAND_MODEL=old;invalidateModelCache();}
+ assert.equal((await projection(id)).visibility,'public');
+ const [after]=await sql`SELECT count(*)::int AS n FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id WHERE rec.subject=${`article:${id}@1`} AND rec.purpose='rewrite_verified_summary'`;assert.equal(after.n,1);
+});
+test('unknown rewrite waits for trusted receipt resolution and never purchases a replacement',async()=>{
+ const id=await article();verdicts=['contradicted'];rewriteInvalid=true;
+ try{await assert.rejects(verifyAutomaticArticle(id));}finally{rewriteInvalid=false;}
+ const [receipt]=await sql`SELECT id FROM receipts WHERE subject=${`article:${id}@1`} AND purpose='rewrite_verified_summary'`;
+ await sql`UPDATE receipts SET status='unknown' WHERE id=${receipt.id}`;
+ await sql`UPDATE automatic_verifications SET status='waiting',retry_at=NULL WHERE article_id=${id}`;
+ const hits=provider.hits();await assert.rejects(verifyAutomaticArticle(id));assert.equal(provider.hits(),hits);
+ const [r]=await sql`SELECT status FROM automatic_verifications WHERE article_id=${id}`;assert.equal(r.status,'waiting');
+});
+
+test('changed recovery request cannot spend a second rewrite despite an unrelated successful cache',async()=>{
+ const id=await article();verdicts=['contradicted','supported'];await verifyAutomaticArticle(id);
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;const copy=r.original_copy;
+ await sql`UPDATE analyses SET title_zh=${copy.titleZh},summary_zh=${copy.summaryZh},reason_zh=${copy.reasonZh},category=${copy.category} WHERE article_id=${id}`;
+ await sql`UPDATE automatic_verifications SET status='waiting',retry_at=NULL,rewritten=false,stage='rewrite',final_copy=original_copy,
+ final_copy_hash=original_copy_hash,final_fingerprint=original_fingerprint,verification=${sql.json({...r.decisions[0].verifier,reason:'changed recovery payload'})},decisions=${sql.json([r.decisions[0]])},lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+ const hits=provider.hits();await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);
+ const [final]=await sql`SELECT status FROM automatic_verifications WHERE id=${r.id}`;assert.equal(final.status,'rejected');
+});
+async function withThinkingModels(work:()=>Promise<void>){
+ const names=['VERIFICATION_MODEL','UNDERSTAND_MODEL','DEEPSEEK_BASE_URL','DEEPSEEK_API_KEY'];
+ const old=Object.fromEntries(names.map(name=>[name,process.env[name]]));
+ const [budget]=await sql`SELECT per_minute,per_hour,per_day FROM budgets WHERE service='deepseek'`;
+ Object.assign(process.env,{VERIFICATION_MODEL:'deepseek-flash-think',UNDERSTAND_MODEL:'deepseek-flash-think',DEEPSEEK_BASE_URL:`${provider.url}/v1`,DEEPSEEK_API_KEY:'test-local-key'});invalidateModelCache();
+ await sql`UPDATE budgets SET per_minute=1000,per_hour=10000,per_day=100000 WHERE service='deepseek'`;
+ try{await work();}finally{
+  for(const name of names)if(old[name]===undefined)delete process.env[name];else process.env[name]=old[name];invalidateModelCache();
+  if(budget)await sql`UPDATE budgets SET per_minute=${budget.per_minute},per_hour=${budget.per_hour},per_day=${budget.per_day} WHERE service='deepseek'`;
+ }
+}
+test('thinking preset rewrite crash recovery uses the exact normalized successful receipt',async()=>withThinkingModels(async()=>{
+ const id=await article();verdicts=['contradicted','supported'];await verifyAutomaticArticle(id);
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;assert.equal(r.status,'accepted');assert.equal(r.rewrite_model,'deepseek-flash-think');
+ const copy=r.original_copy,hits=provider.hits();
+ await sql`UPDATE analyses SET title_zh=${copy.titleZh},summary_zh=${copy.summaryZh},reason_zh=${copy.reasonZh},category=${copy.category} WHERE article_id=${id}`;
+ await sql`UPDATE automatic_verifications SET status='waiting',retry_at=NULL,rewritten=false,stage='rewrite',final_copy=original_copy,
+ final_copy_hash=original_copy_hash,final_fingerprint=original_fingerprint,verification=${sql.json(r.decisions[0].verifier)},decisions=${sql.json([r.decisions[0]])},lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+ await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);assert.equal((await projection(id)).visibility,'public');
+ const [usage]=await sql`SELECT count(*)::int AS n FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id WHERE rec.subject=${`article:${id}@1`} AND rec.purpose='rewrite_verified_summary'`;assert.equal(usage.n,1);
+}));
+test('thinking preset cached final verifier remains recoverable at the three-attempt cap',async()=>withThinkingModels(async()=>{
+ const id=await article({bodyHtml:'<a href="https://blog.ethereum.org/proof">official</a>'});verdicts=['needs_evidence','contradicted','supported'];
+ await verifyAutomaticArticle(id,{fetchMaterial:async url=>({id:'thinking-proof',url,bodyText:body,primary:true})});
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;assert.equal(r.status,'accepted');assert.equal(r.verification_count,3);
+ const hits=provider.hits();await sql`UPDATE automatic_verifications SET status='waiting',retry_at=NULL,verification=${sql.json(r.decisions[1].verifier)},decisions=${sql.json(r.decisions.slice(0,2))},lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
+ await verifyAutomaticArticle(id);assert.equal(provider.hits(),hits);assert.equal((await projection(id)).visibility,'public');
+ const [after]=await sql`SELECT verification_count FROM automatic_verifications WHERE id=${r.id}`;assert.equal(after.verification_count,3);
+}));

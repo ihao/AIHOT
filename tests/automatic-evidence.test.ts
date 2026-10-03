@@ -187,3 +187,6 @@ test('an approved redirect can yield a primary material using readable final HTT
 test('policy category and policy_event item type force primary evidence despite no literal risk words',()=>{
  assert.equal(requiresPrimaryEvidence({first_party:false,title:'A new order entered force',body_text:'The decision was issued yesterday.',category:'policy',output:{itemType:'policy_event'}}),true);
 });
+test('actual copy policy ignores regulatory CEO and governance background in research body',()=>{
+ assert.equal(requiresPrimaryEvidence({first_party:false,title:'Regional adoption research',body_text:'The CEO is hiring a regulatory affairs manager. Governance proposals are discussed.',category:'research',output:{itemType:'research'}}),false);
+});

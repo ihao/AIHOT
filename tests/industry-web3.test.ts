@@ -92,7 +92,7 @@ test("prediction market tags normalize explicit synonyms and discard generic pre
 test("prediction compatibility binds only this exact release and closes for every other current rule", () => {
   const previous = "automatic-publication-v1:5c0e3a85b0b01eeb31df0874";
   assert.notEqual(AUTOMATIC_RULE_VERSION, previous);
-  assert.deepEqual(acceptedAutomaticRuleVersions(AUTOMATIC_RULE_VERSION), [AUTOMATIC_RULE_VERSION, previous]);
+  assert.deepEqual(acceptedAutomaticRuleVersions(AUTOMATIC_RULE_VERSION), [AUTOMATIC_RULE_VERSION, "automatic-publication-v1:d7cc9c407669a5f9b1c67141", previous]);
   for (const current of [previous, `${AUTOMATIC_RULE_VERSION}-next`, "automatic-publication-v2:future", "unregistered", "constructor", "__proto__"]) {
     let versions: readonly string[] = [];
     assert.doesNotThrow(() => { versions = acceptedAutomaticRuleVersions(current); }, current);

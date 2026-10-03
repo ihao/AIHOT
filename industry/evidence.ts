@@ -1,9 +1,10 @@
 /** Candidate locations for statements by already researched official publishers. Being on this
  * list never proves a claim: fetched excerpts, attribution and the normal verifier still apply.
  * Shared publishing platforms and community forums deliberately have no blanket permission. */
-export const PRIMARY_EVIDENCE_POLICY_VERSION = 'official-evidence-locations-v2';
+export const PRIMARY_EVIDENCE_POLICY_VERSION = 'official-evidence-locations-v3';
 export const PRIMARY_EVIDENCE_HOSTS = [
   'ethereum.org', 'blog.ethereum.org', 'bitcoincore.org', 'chainalysis.com', 'coinmetrics.io',
+  'home.treasury.gov', 'ofac.treasury.gov', 'cftc.gov', 'federalregister.gov', 'reginfo.gov', 'docs.arbitrum.io',
   'sec.gov', 'aave.com', 'uniswap.org', 'blog.uniswap.org',
   'blog.chain.link', 'chain.link', 'docs.chain.link', 'docs.compound.finance', 'compound.finance',
   'docs.compound.xyz', 'compound.xyz',

@@ -233,3 +233,77 @@ test("normalized analysis retains an observed score range and manual UNKNOWN beh
   assert.equal(manual.relevance, "pass");
   assert.equal(manual.selected, true);
 });
+
+test('explicit claim scope does not make unrelated research or background facts primary',()=>{
+ const research=input();research.materials[0]!.primary=false;
+ const v={...research.verification,claims:research.verification.claims.map(c=>({...c,riskFlags:[]}))};
+ assert.equal(policy().evaluateAutomaticPublication({...research,requiresPrimaryEvidence:true,primaryEvidenceScope:'claims',verification:v}).public,true);
+ assert.equal(policy().evaluateAutomaticPublication({...research,requiresPrimaryEvidence:true,primaryEvidenceScope:'claims'}).public,false,'omitted flags keep legacy strict fallback');
+ assert.equal(policy().evaluateAutomaticPublication({...research,requiresPrimaryEvidence:true,verification:v}).public,false,'old boolean caller stays strict');
+});
+test('empty model flags cannot bypass critical copy or claim facts',()=>{
+ for(const claim of ['协议已确认遭受攻击','协议损失100万美元','SEC 正式起诉交易所','治理提案已在链上执行']){
+  const bad=input();bad.materials[0]!.primary=false;bad.copy.titleZh=claim;bad.verification.claims[0]!.claim=claim;
+  const v={...bad.verification,claims:bad.verification.claims.map(c=>({...c,riskFlags:[]}))};
+  assert.equal(policy().evaluateAutomaticPublication({...bad,primaryEvidenceScope:'claims',verification:v}).public,false,claim);
+ }
+ const v=verification();assert.equal(policy().VerificationSchema.safeParse({...v,claims:v.claims.map(c=>({...c,riskFlags:['invented_risk']}))}).success,false);
+});
+test('quoteId resolves actual paragraph in its material and unknown or swapped identifiers fail',()=>{
+ const good=input();good.materials[0]!.bodyText='First “exact” paragraph.\n\nSecond paragraph.';
+ const v={...good.verification,claims:[{...good.verification.claims[0]!,evidence:[{materialId:'original',quoteId:'original:p1'}]}]};
+ assert.equal(policy().evaluateAutomaticPublication({...good,verification:v}).public,true);
+ for(const e of [{materialId:'original',quoteId:'original:p3'},{materialId:'other',quoteId:'original:p1'},{materialId:'original',quoteId:'original:p1',exactQuote:'changed'}]){
+  assert.equal(policy().evaluateAutomaticPublication({...good,verification:{...v,claims:[{...v.claims[0]!,evidence:[e]}]}}).public,false);
+ }
+});
+test('rewritten copy requires an explicit immutable core preservation check',()=>{
+ for(const coreEventPreserved of [undefined,false]){
+  const v={...verification(),checks:{...checks,coreEventPreserved}};
+  assert.equal(policy().evaluateAutomaticPublication({...input(),rewritten:true,verification:v}).public,false);
+ }
+ assert.equal(policy().evaluateAutomaticPublication({...input(),rewritten:true,verification:{...verification(),checks:{...checks,coreEventPreserved:true}}}).public,true);
+});
+test('deterministic critical copy still requires primary under omitted legacy claim flags',()=>{
+ const bad=input();bad.materials[0]!.primary=false;bad.copy.titleZh='SEC 正式起诉交易所';bad.verification.claims[0]!.claim=bad.copy.titleZh;
+ const result=policy().evaluateAutomaticPublication(bad);assert.equal(result.public,false);assert.ok(result.reasons.includes('claim_0_primary_evidence_missing'));
+});
+test('formal regulator proposals and actual governance completion remain primary with empty flags',()=>{
+ for(const claim of ['SEC提出加密资产托管规则提案','SEC发布拟议规则','安全理事会执行了提案','治理升级已完成']){
+  const bad=input();bad.materials[0]!.primary=false;bad.copy.titleZh=claim;bad.verification.claims[0]!.claim=claim;
+  const v={...bad.verification,claims:bad.verification.claims.map(c=>({...c,riskFlags:[]}))};
+  const result=policy().evaluateAutomaticPublication({...bad,primaryEvidenceScope:'claims',verification:v});
+  assert.equal(result.public,false,claim);assert.ok(result.reasons.includes('claim_0_primary_evidence_missing'),claim);
+ }
+});
+test('legacy omitted claim flags retain semantically equivalent primary supported claims',()=>{
+ const good=input();good.copy.titleZh='SEC正式起诉交易所';good.copy.summaryZh='SEC正式起诉交易所。';
+ good.verification.claims[0]!.claim='美国证券交易委员会对交易所提起诉讼';
+ assert.equal(policy().evaluateAutomaticPublication({...good,primaryEvidenceScope:'claims'}).public,true);
+ good.materials[0]!.primary=false;assert.equal(policy().evaluateAutomaticPublication({...good,primaryEvidenceScope:'claims'}).public,false);
+});
+test('reader-facing recommendation critical facts require primary even outside title and summary',()=>{
+ const initial=input();
+ const bad={...initial,copy:{...initial.copy,reasonZh:'SEC发布拟议规则，将影响托管要求。'}};bad.materials[0]!.primary=false;
+ bad.verification.claims.push({...bad.verification.claims[0]!,claim:bad.copy.reasonZh!});
+ const v={...bad.verification,claims:bad.verification.claims.map(c=>({...c,riskFlags:[]}))};
+ assert.equal(policy().evaluateAutomaticPublication({...bad,primaryEvidenceScope:'claims',verification:v}).public,false);
+ // Legacy response paraphrases the claim and omits flags, so actual reason must activate strict fallback.
+ bad.verification.claims[1]!.claim='美国证券交易委员会公布关于托管要求的规则草案';
+ assert.equal(policy().evaluateAutomaticPublication({...bad,primaryEvidenceScope:'claims'}).public,false);
+});
+test('deterministic Chinese aliases reverse losses vulnerabilities and rule adoption cannot use secondary proof',()=>{
+ for(const claim of ['美国证券交易委员会正式起诉交易所','协议造成三千万元损失','安全漏洞已被确认','CFTC通过新的监管规则']){
+  const bad=input();bad.copy.titleZh=claim;bad.copy.summaryZh=claim+'。';bad.materials[0]!.primary=false;bad.verification.claims[0]!.claim=claim;
+  const v={...bad.verification,claims:bad.verification.claims.map(c=>({...c,riskFlags:[]}))};
+  const result=policy().evaluateAutomaticPublication({...bad,requiresPrimaryEvidence:true,primaryEvidenceScope:'claims',verification:v});
+  assert.equal(result.public,false,claim);assert.ok(result.reasons.includes('claim_0_primary_evidence_missing'),claim);
+ }
+});
+test('formal recruiting and CEO wording around a regulator is still ordinary background',()=>{
+ for(const claim of ['SEC正式招聘监管研究员','前SEC官员正式担任该公司CEO']){
+  const good=input();good.copy.titleZh=claim;good.copy.summaryZh=claim+'。';good.materials[0]!.primary=false;good.verification.claims[0]!.claim=claim;
+  const v={...good.verification,claims:good.verification.claims.map(c=>({...c,riskFlags:[]}))};
+  assert.equal(policy().evaluateAutomaticPublication({...good,requiresPrimaryEvidence:true,primaryEvidenceScope:'claims',verification:v}).public,true,claim);
+ }
+});

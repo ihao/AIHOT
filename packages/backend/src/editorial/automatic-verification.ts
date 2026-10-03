@@ -3,27 +3,30 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { SELECTION } from '@aihot/industry/selection';
-import { PRIMARY_EVIDENCE_HOSTS } from '@aihot/industry/evidence';
-import { acceptedAutomaticRuleVersions } from '@aihot/industry/automatic-rule-compatibility';
-import { load } from 'cheerio';
+import { EVIDENCE_CONFIG, CLAIM_QUOTE_VERSION, approvedPrimaryUrl, approvedEvidenceCandidate, originalPrimaryLinks, fetchPrimaryMaterial, fetchPrimaryMaterialWithDiagnostic, promptMaterials, validatedPrimaryMaterial, type Material } from './evidence-materials.ts';
+export { approvedPrimaryUrl, originalPrimaryLinks, fetchPrimaryMaterial } from './evidence-materials.ts';
+import { acceptedAutomaticRuleVersions, auditedLegacyCopyProofs, compatibleAcceptedCopy } from '@aihot/industry/automatic-rule-compatibility';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
 import { AutomaticSourcePaused, checkAutomaticSourcePause, refreshAutomaticSafety } from './automatic-safety.ts';
 import { config } from '../config.ts';
 import { automaticFreshnessReason } from '../content/freshness.ts';
 import { sql, type Db, type Tx } from '../db.ts';
 import { sha256, stableJson } from '../lib/ids.ts';
-import { guardedFetch, type GuardedResponse } from '../lib/http-fetch.ts';
-import { readable } from '../content/extract.ts';
-import { chatJson, ModelOutputError, MODELS } from '../providers/llm.ts';
-import { BudgetExceededError, ReceiptBusyError, completeReceipt, ReceiptUnknownError } from '../providers/receipts.ts';
+import { chatJson, chatJsonRequestIdentity, ModelOutputError, MODELS } from '../providers/llm.ts';
+import { BudgetExceededError, ReceiptBusyError, completeReceipt, ReceiptUnknownError, logicalKeyFor } from '../providers/receipts.ts';
 import { modelFor } from './models.ts';
 import { getReviewProposal } from './review.ts';
 import { promptText, promptVersion } from './prompts.ts';
-import { AUTOMATIC_POLICY_VERSION, VerificationSchema, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
+import { VERIFICATION_RECOVERY_VERSION, nextRecoveryStage, canRequestStage, coreCopyConflicts } from './verification-recovery.ts';
+import { AUTOMATIC_POLICY_VERSION, CLAIM_EVIDENCE_POLICY_VERSION, criticalClaimFlags, VerificationSchema, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
 import { enqueue, QUEUES } from '../jobs/queue.ts';
 export const AUTOMATIC_AMOUNT_GUARD_VERSION = 'currency-amounts-v2';
 export const AUTOMATIC_RULE_VERSION = `${AUTOMATIC_POLICY_VERSION}:${sha256(stableJson({
   amountGuard: AUTOMATIC_AMOUNT_GUARD_VERSION,
+  evidence: EVIDENCE_CONFIG,
+  claims: CLAIM_EVIDENCE_POLICY_VERSION,
+  quotes: CLAIM_QUOTE_VERSION,
+  recovery: VERIFICATION_RECOVERY_VERSION,
   selection: SELECTION,
   prefilter: promptVersion('prefilter'),
   score: promptVersion('selection-score'),
@@ -38,9 +41,6 @@ export interface AutomaticCopy {
   summaryZh: string | null;
   reasonZh: string | null;
   category: string | null;
-}
-interface Material extends VerificationMaterial {
-  url: string;
 }
 interface Input {
   article_id: string;
@@ -72,6 +72,8 @@ interface Round {
   automatic_rule_version: string;
   verification_model: string;
   verification_config_hash: string;
+  rewrite_model: string | null;
+  rewrite_config_hash: string | null;
   original_fingerprint: string | null;
   final_fingerprint: string | null;
   evidence_links: string[];
@@ -94,19 +96,21 @@ interface Round {
   failures: number;
   lease_token: string | null;
 }
-function verificationConfigHash(model: string): string {
+function modelConfigHash(model: string, kind: "verify-summary" | "rewrite-verified-summary"): string {
   const spec = MODELS[model];
   return sha256(stableJson({
     model: spec?.model,
     service: spec?.service,
     extra: spec?.extra ?? null,
     jsonMode: spec?.jsonMode,
-    system: promptText('verify-summary'),
-    promptVersion: promptVersion('verify-summary'),
-    temperature: 0,
-    maxTokens: 16_384
+    system: promptText(kind),
+    promptVersion: promptVersion(kind),
+    temperature: kind === 'verify-summary' ? 0 : 0.2,
+    maxTokens: kind === 'verify-summary' ? 16_384 : 4096
   }));
 }
+const verificationConfigHash = (model: string) => modelConfigHash(model, "verify-summary");
+const rewriteConfigHash = (model: string) => modelConfigHash(model, "rewrite-verified-summary");
 export const automaticCopyHash = (copy: AutomaticCopy) => sha256(stableJson(copy));
 
 /** Parameterized version checks also work before a connection has learned PostgreSQL array OIDs. */
@@ -116,7 +120,12 @@ function acceptedRuleCondition(roundAlias: string) {
   for (const version of acceptedAutomaticRuleVersions(AUTOMATIC_RULE_VERSION).slice(1)) {
     previous = sql`(${previous} OR ${round}.automatic_rule_version=${version})`;
   }
+  let auditedCopy = sql`false`;
+  for (const proof of auditedLegacyCopyProofs(AUTOMATIC_RULE_VERSION)) auditedCopy = sql`(${auditedCopy} OR (
+    ${round}.article_id=${proof.article_id} AND ${round}.automatic_rule_version=${proof.automatic_rule_version}
+    AND ${round}.original_copy_hash=${proof.original_copy_hash} AND ${round}.final_copy_hash=${proof.final_copy_hash}))`;
   return sql`(${round}.automatic_rule_version=${AUTOMATIC_RULE_VERSION} OR (${previous}
+    AND (NOT ${round}.rewritten OR ${round}.original_copy_hash=${round}.final_copy_hash OR ${auditedCopy})
     AND NOT EXISTS(SELECT 1 FROM automatic_verifications current_rule
       WHERE current_rule.article_id=${round}.article_id AND current_rule.article_revision=${round}.article_revision
         AND current_rule.automatic_rule_version=${AUTOMATIC_RULE_VERSION})))`;
@@ -190,56 +199,7 @@ export function requiresPrimaryEvidence(a: {
   category: string | null;
   output: Record<string, unknown>;
 }) {
-  return !a.first_party && (['security', 'policy', 'regulation', 'governance'].includes(a.category ?? '') || /security|policy|regulat|governance|hack|exploit|attack|loss|enforcement/i.test(String(a.output.itemType ?? '')) || /\b(?:hack(?:ed|ing)?|exploit|attack|breach|loss(?:es)?|stolen|drain(?:ed)?|SEC|CFTC|regulat(?:ion|ory|or)|lawsuit|court|governance|proposal|vote|executed)\b|攻击|漏洞|被盗|损失|监管|起诉|法院|治理|提案|投票|执行/i.test(`${a.title}\n${a.body_text ?? ''}`));
-}
-export function approvedPrimaryUrl(value: string) {
-  try {
-    const u = new URL(value);
-    return u.protocol === 'https:' && !u.username && !u.password && (!u.port || u.port === '443') && PRIMARY_EVIDENCE_HOSTS.some(d => u.hostname === d || u.hostname === `www.${d}`);
-  } catch {
-    return false;
-  }
-}
-/** Only literal links in the fetched original body; model supplied links are never read. */
-export function originalPrimaryLinks(bodyHtml: string | null, originalUrl: string): string[] {
-  const urls: string[] = [];
-  const $=load(bodyHtml ?? '');
-  for (const anchor of $('a[href]').toArray()) {
-    try {
-      const url = new URL($(anchor).attr('href')!, originalUrl).toString();
-      if (approvedPrimaryUrl(url) && !urls.includes(url)) urls.push(url);
-    } catch {}
-    if (urls.length === 2) break;
-  }
-  return urls;
-}
-export async function fetchPrimaryMaterial(url: string, fetcher: typeof guardedFetch = guardedFetch): Promise<Material | null> {
-  if (!approvedPrimaryUrl(url)) return null;
-  // Disable automatic redirects and validate every hop before any outbound request.
-  let next = url;
-  const deadline = Date.now() + 20_000;
-  for (let hop = 0; hop <= 5; hop++) {
-    if (!approvedPrimaryUrl(next) || Date.now() >= deadline) return null;
-    const response: GuardedResponse = await fetcher(next, {
-      timeoutMs: Math.max(1, deadline - Date.now()),
-      maxBytes: 6 * 1024 * 1024,
-      maxRedirects: 0,
-      followRedirects: false
-    });
-    if (response.status >= 300 && response.status < 400 && response.headers.get('location')) {
-      next = new URL(response.headers.get('location')!, next).toString();
-      continue;
-    }
-    if (!approvedPrimaryUrl(response.url) || response.status !== 200 || !/(?:text\/html|application\/xhtml)/i.test(response.headers.get('content-type') ?? '')) return null;
-    const body = readable(response.text(), response.url);
-    return body ? {
-      id: `primary:${sha256(response.url).slice(0, 20)}`,
-      url: response.url,
-      bodyText: body.text,
-      primary: true
-    } : null;
-  }
-  return null;
+  return !a.first_party && (['security', 'policy', 'regulation', 'governance'].includes(a.category ?? '') || /security|policy|regulat|governance|hack|exploit|attack|loss|enforcement/i.test(String(a.output.itemType ?? '')) || criticalClaimFlags(a.title).length > 0);
 }
 /** Persist once: a fresh analysis ID never resets a rejected/accepted round. */
 export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): Promise<void> {
@@ -251,13 +211,15 @@ export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): P
     hash = automaticCopyHash(copy);
   const proposal = await getReviewProposal(articleId, tx);
   const model = await modelFor("verification");
+  const rewriteModel = await modelFor("understand");
   const [round] = await tx<{
     id: number;
   }[]>`INSERT INTO automatic_verifications(article_id,article_revision,analysis_id,
- automatic_rule_version,verification_model,verification_config_hash,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
- VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model)},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
+ automatic_rule_version,verification_model,verification_config_hash,rewrite_model,rewrite_config_hash,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
+ VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model)},${rewriteModel},${rewriteConfigHash(rewriteModel)},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
  ${tx.json(copy as never)},${tx.json(copy as never)},${tx.json([{
     id: 'original',
+    role: 'original_source',
     url: a.url,
     bodyText: a.body_text ?? '',
     primary: a.first_party
@@ -283,9 +245,11 @@ function decision(a: Input, r: Round) {
       scoreRefused: a.output.scoreRefused === true,
       verification: r.verification,
       materials: r.materials,
-      requiresPrimaryEvidence: requiresPrimaryEvidence(a)
+      requiresPrimaryEvidence: requiresPrimaryEvidence(a),
+      primaryEvidenceScope: "claims",
+      rewritten: r.automatic_rule_version === AUTOMATIC_RULE_VERSION && r.rewritten
     });
-    const conflicts = deterministicCopyConflicts(copyOf(a), r.materials);
+    const conflicts = [...deterministicCopyConflicts(copyOf(a), r.materials), ...(r.rewritten && r.automatic_rule_version === AUTOMATIC_RULE_VERSION ? coreCopyConflicts(r.original_copy, a.title, copyOf(a)) : [])];
     return conflicts.length ? {
       ...evaluated,
       public: false,
@@ -309,7 +273,7 @@ export async function currentAutomaticDecision(db: Db, articleId: string) {
   if (!a || (await manuallyHeld(db, articleId))) return null;
   const [r] = await db<Round[]>`SELECT av.* FROM automatic_verifications av WHERE av.article_id=${articleId}
  AND av.article_revision=${a.revision} AND ${acceptedRuleCondition('av')} AND av.status='accepted'`;
-  if (!r || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a))) return null;
+  if (!r || !compatibleAcceptedCopy(r, AUTOMATIC_RULE_VERSION) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a))) return null;
   const proposal = await getReviewProposal(articleId, db);
   if (!proposal || proposal.fingerprint !== r.final_fingerprint) return null;
   const d = decision(a, r);
@@ -343,6 +307,26 @@ async function verificationUsage(r: Round): Promise<{
     count: 0,
     ids: []
   };
+}
+function stageReceiptKey(model:string, purpose:string, prompt:string, user:string, temperature:number, maxTokens:number, tag:string) {
+  const { receiptRequest } = chatJsonRequestIdentity({model,purpose,promptVersion:promptVersion(prompt),system:promptText(prompt),user,temperature,maxTokens,attemptTag:tag});
+  return logicalKeyFor(receiptRequest);
+}
+async function stageUsage(r: Round, purpose: string, expectedKey?: string) {
+  const prefix = `%:automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:%`;
+  const [usage] = await sql<{count:number}[]>`SELECT count(ra.id)::int AS count FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id
+    WHERE rec.purpose=${purpose} AND rec.logical_key LIKE ${prefix}`;
+  const [receipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose=${purpose}
+    AND (${expectedKey ? sql`logical_key=${expectedKey}` : sql`logical_key LIKE ${prefix}`}) ORDER BY id DESC LIMIT 1`;
+  return {count:usage?.count??0,id:receipt?.id??null,status:receipt?.status??null,success:receipt?.status==='received'||receipt?.status==='completed'};
+}
+async function rejectRound(r:Round, token:string, reason:string) {
+  await sql.begin(async tx=>{
+    await tx`SELECT id FROM articles WHERE id=${r.article_id} FOR UPDATE`;
+    const changed=await tx`UPDATE automatic_verifications SET status='rejected',selected=false,retry_at=NULL,
+      reasons=${tx.json([reason])},lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
+    if(changed.count){const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,r.article_id);}
+  });
 }
 const LEASE_MS = 10 * 60_000;
 /** Claim/restart a stage using a durable lease; never hold a database lock while awaiting AI. */
@@ -380,7 +364,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   AND (retry_at IS NULL OR retry_at<=now()) RETURNING *`;
     if (!r) return null;
     const proposal = await getReviewProposal(articleId, tx);
-    if (!proposal || proposal.fingerprint !== r.final_fingerprint || r.verification_config_hash !== verificationConfigHash(r.verification_model) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a)) || (await manuallyHeld(tx, articleId))) {
+    if (!proposal || proposal.fingerprint !== r.final_fingerprint || (r.verification_config_hash !== verificationConfigHash(r.verification_model) || !r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model)) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a)) || (await manuallyHeld(tx, articleId))) {
       await tx`UPDATE automatic_verifications SET status='stale',selected=false,retry_at=NULL,reasons='["input_changed_or_manual_hold"]',lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
       const {publishArticleTx}=await import('../publication/publish.ts');
       await publishArticleTx(tx,articleId);
@@ -401,7 +385,9 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       await checkAutomaticSourcePause(articleId);
       const tag = `automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:${r.stage}`;
       if (r.stage === 'evidence' && !r.evidence_fetched) {
-        for (const url of originalPrimaryLinks(a.body_html, a.url)) {
+        const fetchDiagnostics: Array<{url:string;reason:string}> = [];
+        const materialCountBefore = r.materials.length;
+        for (const url of [...(approvedEvidenceCandidate(a.url) && !approvedPrimaryUrl(a.url) ? [a.url] : []), ...originalPrimaryLinks(a.body_html, a.url, {title:a.title,copy:r.original_copy})].slice(0,2)) {
           if (r.evidence_links.includes(url)) continue;
           // Reserve the actual URL before the request: crash recovery must not fetch two pages again.
           const reserved = await sql`UPDATE automatic_verifications SET evidence_links=evidence_links||${sql.json([url])}::jsonb
@@ -412,8 +398,10 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
             evidence_links: [...r.evidence_links, url]
           };
           try {
-            const material = await (opts.fetchMaterial ?? fetchPrimaryMaterial)(url);
-            if (material && approvedPrimaryUrl(material.url) && material.bodyText.trim()) {
+            const fetched = opts.fetchMaterial ? {material:await opts.fetchMaterial(url),diagnostic:'body_unreadable'} : await fetchPrimaryMaterialWithDiagnostic(url);
+            const material = fetched.material;
+            fetchDiagnostics.push({url,reason:material?'fetched':fetched.diagnostic});
+            if (material && validatedPrimaryMaterial(material) && material.bodyText.trim()) {
               r = {
                 ...r,
                 materials: [...r.materials, {
@@ -423,36 +411,42 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
               };
               await sql`UPDATE automatic_verifications SET materials=${sql.json(r.materials as never)},updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
             }
-          } catch {/* failed evidence stays absent */}
+          } catch {fetchDiagnostics.push({url,reason:'fetch_failed'});}
         }
         r = {
           ...r,
           evidence_fetched: true
         };
         await sql`UPDATE automatic_verifications SET evidence_fetched=true,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
-        if (r.materials.length === 1) {
-          await sql.begin(async tx=>{
-            await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
-            const changed=await tx`UPDATE automatic_verifications SET status='rejected',selected=false,retry_at=NULL,
-              reasons='["no_new_primary_evidence"]',lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token}`;
-            if(changed.count) {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
-          });
-          return;
+        if (!fetchDiagnostics.length) fetchDiagnostics.push({url:a.url,reason:'unsupported_entry'});
+        // Add diagnostics to the verifier decision, preserving consumers' history shape.
+        if (r.decisions.length) r.decisions = r.decisions.map((entry,index)=>index===r.decisions.length-1 ? {...entry as object,evidenceFetch:fetchDiagnostics} : entry);
+        await sql`UPDATE automatic_verifications SET decisions=${sql.json(r.decisions as never)} WHERE id=${r.id} AND lease_token=${token}`;
+        if (r.materials.length === materialCountBefore) {
+          r={...r,stage:'rewrite'};
+          await sql`UPDATE automatic_verifications SET stage='rewrite' WHERE id=${r.id} AND lease_token=${token}`;
+          continue;
         }
       }
       if (r.stage === 'rewrite' && !r.rewritten) {
         await checkAutomaticSourcePause(articleId);
+        if (!r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model)) throw new Error('rewrite configuration changed');
+        const rewriteUser=stableJson({copy:r.final_copy,original_copy:r.original_copy,originalTitle:a.title,verification:r.verification,materials:promptMaterials(r.materials)});
+        const rewriteKey=stageReceiptKey(r.rewrite_model,'rewrite_verified_summary','rewrite-verified-summary',rewriteUser,0.2,4096,`${tag}:rewrite`);
+        const rewriteUsage = await stageUsage(r, 'rewrite_verified_summary', rewriteKey);
+        if (!canRequestStage(rewriteUsage.count, rewriteUsage.success, rewriteUsage.status)) {
+          if (rewriteUsage.status === 'pending') throw new ReceiptBusyError('rewrite receipt is in flight');
+          if (rewriteUsage.status === 'unknown') throw new ReceiptUnknownError(rewriteUsage.id!, 'rewrite outcome unknown; no additional paid attempt is allowed');
+          await rejectRound(r, token, 'rewrite_request_limit');
+          return;
+        }
         const rewrite = await chatJson({
-          model: await modelFor('understand'),
+          model: r.rewrite_model,
           purpose: 'rewrite_verified_summary',
           subject: `article:${articleId}@${a.revision}`,
           promptVersion: promptVersion('rewrite-verified-summary'),
           system: promptText('rewrite-verified-summary'),
-          user: JSON.stringify({
-            copy: r.final_copy,
-            verification: r.verification,
-            materials: r.materials
-          }),
+          user: rewriteUser,
           schema: RewriteSchema,
           temperature: 0.2,
           maxTokens: 4096,
@@ -495,8 +489,10 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         };
       }
       const usageBefore = await verificationUsage(r);
+      const verificationUser=stableJson({copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),primaryEvidenceScope:'claims',rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:promptMaterials(r.materials)});
+      const verificationKey=stageReceiptKey(r.verification_model,'verify_summary','verify-summary',verificationUser,0,16_384,tag);
       const [settled] = await sql`SELECT 1 FROM receipts WHERE purpose='verify_summary'
-     AND logical_key LIKE ${`%:${tag}`} AND status IN ('received','completed')`;
+        AND logical_key=${verificationKey} AND status IN ('received','completed')`;
       if (usageBefore.count >= 3 && !settled) {
         await sql.begin(async tx=>{
           await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
@@ -514,11 +510,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         subject: `article:${articleId}@${a.revision}`,
         promptVersion: promptVersion('verify-summary'),
         system: promptText('verify-summary'),
-        user: JSON.stringify({
-          copy: r.final_copy,
-          requiresPrimaryEvidence: requiresPrimaryEvidence(a),
-          materials: r.materials
-        }),
+        user: verificationUser,
         schema: VerificationSchema,
         temperature: 0,
         maxTokens: 16_384,
@@ -532,7 +524,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         receipt_ids: [...new Set([...r.receipt_ids, ...usageAfter.ids])]
       };
       const d = decision(a, r);
-      const nextStage = !d.public && d.verificationVerdict === 'needs_evidence' && !r.evidence_fetched ? 'evidence' : !d.public && d.verificationVerdict === 'contradicted' && !r.rewritten ? 'rewrite' : null;
+      const nextStage = nextRecoveryStage(d, r);
       const terminal = d.public || !nextStage || r.verification_count >= 3;
       const saved = await sql.begin(async tx => {
         await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
@@ -574,16 +566,18 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       if (!saved || terminal) return;
     }
   } catch (error) {
-    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof AutomaticSourcePaused;
+    const rewriteUsage = r.stage === 'rewrite' && !r.rewritten ? await stageUsage(r, 'rewrite_verified_summary') : null;
+    const exhaustedRewrite = !!rewriteUsage?.count && !rewriteUsage.success && rewriteUsage.status === 'failed';
+    const waiting = error instanceof BudgetExceededError || error instanceof ReceiptBusyError || error instanceof AutomaticSourcePaused || (!!rewriteUsage?.count && rewriteUsage.status === 'unknown');
     const usage = await verificationUsage(r);
     const receiptId = error instanceof ModelOutputError || error instanceof ReceiptUnknownError ? error.receiptId : null;
     await sql.begin(async tx=>{
       await tx`SELECT id FROM articles WHERE id=${articleId} FOR UPDATE`;
-      const [settled]=await tx`UPDATE automatic_verifications SET status=CASE WHEN ${usage.count >= 3} AND NOT ${waiting} THEN 'rejected' WHEN ${waiting} OR failures<2 THEN 'waiting' ELSE 'rejected' END,
+      const [settled]=await tx`UPDATE automatic_verifications SET status=CASE WHEN ${usage.count >= 3} AND NOT ${waiting} THEN 'rejected' WHEN ${exhaustedRewrite} THEN 'rejected' WHEN ${waiting} OR failures<2 THEN 'waiting' ELSE 'rejected' END,
    verification_count=${Math.min(3, usage.count)},
-   selected=false,failures=failures+${waiting ? 0 : 1},retry_at=CASE WHEN ${waiting} OR (${usage.count < 3} AND failures<2)
+   selected=false,failures=failures+${waiting ? 0 : 1},retry_at=CASE WHEN NOT ${exhaustedRewrite} AND (${waiting} OR (${usage.count < 3} AND failures<2))
      THEN ${error instanceof AutomaticSourcePaused ? error.until : new Date(Date.now() + (error instanceof BudgetExceededError ? error.retryAfterSeconds * 1000 : 60_000))} ELSE NULL END,
-   reasons=${sql.json([String(error).slice(0, 1000)])},receipt_ids=${[...new Set([...r.receipt_ids, ...usage.ids, ...(receiptId === null ? [] : [receiptId])])]},
+   reasons=${sql.json([String(error).slice(0, 1000)])},receipt_ids=${[...new Set([...r.receipt_ids, ...usage.ids, ...(receiptId === null ? [] : [receiptId]), ...(rewriteUsage?.id ? [rewriteUsage.id] : [])])]},
    lease_token=NULL,lease_until=NULL,updated_at=now() WHERE id=${r.id} AND lease_token=${token} RETURNING status`;
       if(settled?.status==='rejected') {const {publishArticleTx}=await import('../publication/publish.ts');await publishArticleTx(tx,articleId);}
     });
@@ -604,8 +598,8 @@ export async function sweepAutomaticVerifications(): Promise<number> {
   const obsolete = await sql<{ id: string }[]>`
     SELECT a.id FROM articles a JOIN sources s ON s.id=a.source_id
       JOIN source_auto_public_policies sp ON sp.source_id=s.id
-      JOIN LATERAL (SELECT origin FROM analyses WHERE article_id=a.id AND input_revision=a.revision ORDER BY id DESC LIMIT 1) an ON true
-    WHERE a.processing_state='analyzed' AND an.origin='model' AND s.enabled AND s.participation_mode='editorial' AND sp.enabled
+      JOIN LATERAL (SELECT origin,selected,score FROM analyses WHERE article_id=a.id AND input_revision=a.revision ORDER BY id DESC LIMIT 1) an ON true
+    WHERE a.processing_state='analyzed' AND an.origin='model' AND a.published_at >= now()-interval '48 hours' AND a.published_at <= now()+interval '1 hour' AND s.enabled AND s.participation_mode='editorial' AND sp.enabled
       AND EXISTS(SELECT 1 FROM automatic_verifications old WHERE old.article_id=a.id AND old.automatic_rule_version<>${AUTOMATIC_RULE_VERSION})
       AND NOT EXISTS(SELECT 1 FROM automatic_verifications current WHERE current.article_id=a.id AND current.article_revision=a.revision AND current.automatic_rule_version=${AUTOMATIC_RULE_VERSION})
       AND NOT EXISTS(SELECT 1 FROM publications compatible JOIN editorial_reviews compatible_review
@@ -613,7 +607,7 @@ export async function sweepAutomaticVerifications(): Promise<number> {
         WHERE compatible.article_id=a.id AND ${automaticGrantCondition('compatible', 'compatible_review')})
       AND NOT EXISTS(SELECT 1 FROM editorial_overrides o WHERE o.article_id=a.id)
       AND NOT EXISTS(SELECT 1 FROM audit_log log WHERE log.subject='content:'||a.id AND log.action IN ('content.review','content.curation'))
-    ORDER BY a.id LIMIT 100`;
+    ORDER BY an.selected DESC, an.score DESC NULLS LAST, a.id LIMIT 20`;
   const { queueProcessing } = await import('../jobs/content.ts');
   let recovered = 0;
   for (const article of obsolete) {
@@ -625,7 +619,7 @@ export async function sweepAutomaticVerifications(): Promise<number> {
     article_id: string;
   }[]>`SELECT id,article_id FROM automatic_verifications
  WHERE automatic_rule_version=${AUTOMATIC_RULE_VERSION}
- AND ((status IN ('queued','waiting') AND (retry_at IS NULL OR retry_at<=now())) OR (status='running' AND lease_until<now())) ORDER BY id LIMIT 100`;
+ AND ((status IN ('queued','waiting') AND (retry_at IS NULL OR retry_at<=now())) OR (status='running' AND lease_until<now())) ORDER BY id LIMIT 20`;
   for (const r of rows) await enqueue(QUEUES.verifyAutomatic, {
     articleId: r.article_id
   }, {
