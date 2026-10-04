@@ -4,7 +4,7 @@ import { after, before, beforeEach, test } from 'node:test';
 import { closeDb, sql } from '@aihot/backend/db';
 import { paidRequest, BudgetExceededError, logicalKeyFor, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from '@aihot/backend/providers/receipts';
 import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm';
-import { lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
+import { benchmarkModelCostOverview, lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
 import { sha256 } from '@aihot/backend/lib/ids';
 import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
@@ -366,7 +366,6 @@ test('consistent input output and cache aliases still settle trusted usage',asyn
 });
 
 for(const [name,change] of [
-  ['disabled policy',()=>sql`UPDATE model_cost_policy SET enabled=false WHERE id=1`],
   ['day limit above nine yuan',()=>sql`UPDATE model_cost_policy SET day_limit_cny=10 WHERE id=1`],
   ['rolling limit above nine yuan',()=>sql`UPDATE model_cost_policy SET rolling_limit_cny=10 WHERE id=1`],
 ] as const) {
@@ -445,4 +444,102 @@ test('a read-only overview leaves policy changes available during its transactio
   });
   const [policy]=await sql`SELECT enabled FROM model_cost_policy WHERE id=1`;
   assert.equal(policy!.enabled,false);
+});
+
+test('production above nine yuan continues and never consumes the separate disabled-policy benchmark quota',async()=>{
+  await paidRequest(request('production-large'),async()=>({response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}}));
+  await paidRequest(request('production-continues'),success);
+  const req={...request('isolated-benchmark'),purpose:'verification_benchmark'};
+  await paidRequest(req,success);
+  const row=await attempt(req);assert.equal(row.model_cost_reserved_cny,2);assert.equal(row.model_cost_cny,1);
+  const experiment=await benchmarkModelCostOverview();
+  const production=await modelCostOverview();
+  assert.equal(experiment.scope,'verification_benchmark');assert.equal(experiment.rolling.totalCny,1);
+  assert.equal(experiment.policy.enabled,true);assert.equal(experiment.policy.productionEnabled,false);
+  assert.equal(production.scope,'all_models');assert.equal(production.rolling.totalCny,12);
+  assert.equal(production.policy.enabled,false);assert.equal(production.blocked,false);
+});
+
+test('all benchmark datasets share atomic reservations while ordinary production remains unblocked',async()=>{
+  await sql`UPDATE model_cost_policy SET day_limit_cny=3,rolling_limit_cny=3 WHERE id=1`;
+  const hold=gate(),started=gate();let experimentSent=0,productionSent=0;
+  const firstReq={...request('experiment-dataset-a'),purpose:'verification_benchmark',identity:{dataset:'a'}};
+  const first=paidRequest(firstReq,async()=>{experimentSent++;started.open();await hold.promise;return success();});
+  await Promise.race([started.promise,first]);
+  try {
+    const overview=await benchmarkModelCostOverview();
+    assert.equal(overview.rolling.reservedCny,2);
+    await assert.rejects(paidRequest({...request('experiment-dataset-b',otherService),purpose:'verification_benchmark',identity:{dataset:'b'}},async()=>{experimentSent++;return success();}),BudgetExceededError);
+    await paidRequest(request('production-during-experiment'),async()=>{productionSent++;return {response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}};});
+    assert.equal(experimentSent,1);assert.equal(productionSent,1);
+  } finally {hold.open();await first;}
+});
+
+test('unknown and settled benchmark attempts both occupy experiment quota with production guard disabled',async()=>{
+  await sql`UPDATE model_cost_policy SET day_limit_cny=3,rolling_limit_cny=3 WHERE id=1`;
+  const first={...request('experiment-paid'),purpose:'verification_benchmark'};
+  await paidRequest(first,success);
+  const lost={...request('experiment-unknown'),purpose:'verification_benchmark'};
+  await assert.rejects(paidRequest(lost,async()=>{throw new Error('socket lost after sending');}));
+  const overview=await benchmarkModelCostOverview();
+  assert.equal(overview.rolling.estimatedCny,1);assert.equal(overview.rolling.reservedCny,2);assert.equal(overview.rolling.totalCny,3);
+  let sent=0;await assert.rejects(paidRequest({...request('experiment-over-limit'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+  await assert.rejects(paidRequest(lost,async()=>{sent++;return success();}));assert.equal(sent,0);
+});
+
+test('when production guard is enabled the experiment also observes the shared production limit',async()=>{
+  await paidRequest(request('production-eight'),async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
+  await enable();let sent=0;
+  await assert.rejects(paidRequest({...request('experiment-global-limit'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+  assert.equal(sent,0);
+});
+
+test('a disabled production guard never relaxes benchmark price and bound checks',async()=>{
+  let sent=0;
+  await assert.rejects(paidRequest({...request('experiment-unbounded'),purpose:'verification_benchmark',modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}},async()=>{sent++;return success();}),BudgetExceededError);
+  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  try {
+    await assert.rejects(paidRequest({...request('experiment-unpriced'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+    assert.equal(sent,0);
+  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+});
+
+test('the read-only benchmark overview explicitly identifies its enforced experiment scope',async()=>{
+  const result=await benchmarkModelCostOverview();assert.equal(result.scope,'verification_benchmark');assert.equal(result.policy.enabled,true);
+  assert.equal(result.policy.productionEnabled,false);assert.equal(result.rolling.totalCny,0);
+});
+
+test('live experiment windows retain reservations in the clock read millisecond',async()=>{
+  const req={...request('same-millisecond'),purpose:'verification_benchmark'};
+  await paidRequest(req,async()=>({response:{},usage:null}));
+  await sql`UPDATE receipt_attempts SET started_at='2000-01-01T16:05:00.000500Z' WHERE receipt_id=${(await attempt(req)).receipt_id}`;
+  const clock=new Date('2000-01-01T16:05:00.000Z');
+  const observed=new Proxy(sql,{apply(target,thisArg,args) {
+    if(Array.isArray(args[0])&&args[0].join('').includes('SELECT clock_timestamp() AS at'))return Promise.resolve([{at:clock}]);
+    return Reflect.apply(target,thisArg,args);
+  }});
+  assert.equal((await benchmarkModelCostOverview(undefined,observed)).rolling.reservedCny,2);
+  assert.equal((await benchmarkModelCostOverview(clock,observed)).rolling.reservedCny,0,'explicit historical cutoffs retain their precise requested boundary');
+});
+
+for(const field of ['day_limit_cny','rolling_limit_cny'] as const) {
+  test(`disabled production still rejects enlarged experiment ${field} and keeps exact successful reuse`,async()=>{
+    let sent=0;const req={...request('experiment-off-cap-change'),purpose:'verification_benchmark'};
+    const call=async()=>{sent++;return success();};const first=await paidRequest(req,call);
+    if(field==='day_limit_cny')await sql`UPDATE model_cost_policy SET day_limit_cny=10 WHERE id=1`;
+    else await sql`UPDATE model_cost_policy SET rolling_limit_cny=10 WHERE id=1`;
+    const reused=await paidRequest(req,call);assert.equal(reused.reused,true);assert.equal(reused.receiptId,first.receiptId);
+    await assert.rejects(paidRequest({...request('experiment-off-cap-new'),purpose:'verification_benchmark'},call),/benchmark_policy/);
+    assert.equal(sent,1);
+  });
+}
+
+test('unpriced production history is excluded from experiments but legacy unknown experiment history freezes new purchases',async()=>{
+  const old=request('legacy-production-unknown');await assert.rejects(paidRequest(old,async()=>{throw new Error('unknown pre-protection outcome');}));
+  assert.equal((await modelCostOverview()).rolling.unpricedAttempts,1);
+  assert.equal((await benchmarkModelCostOverview()).rolling.unpricedAttempts,0);
+  await paidRequest({...request('experiment-with-production-unknown'),purpose:'verification_benchmark'},success);
+  await sql`UPDATE receipts SET purpose='verification_benchmark' WHERE id=${(await attempt(old)).receipt_id}`;
+  let sent=0;await assert.rejects(paidRequest({...request('experiment-with-legacy-unknown'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/unpriced_usage/);
+  assert.equal(sent,0);
 });
