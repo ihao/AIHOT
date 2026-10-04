@@ -183,7 +183,8 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const boundedOutput = Number.isSafeInteger(actualMaxTokens) && actualMaxTokens>=0
     && extra.max_completion_tokens===undefined && (extra.n===undefined||extra.n===1);
   const boundedInput = !Object.hasOwn(extra,'messages')&&!Object.hasOwn(extra,'model')&&!Object.hasOwn(extra,'tools')&&!Object.hasOwn(extra,'functions');
-  const modelBudgetBounded=boundedInput&&boundedOutput&&!hasImage&&!spec.vision&&(!reasoning||explicitlyNoThinking)
+  // Any enabled signal wins over conflicting disable fields: reasoning has no proven billable bound.
+  const modelBudgetBounded=boundedInput&&boundedOutput&&!hasImage&&!spec.vision&&!reasoning
     && (spec.key!=='default'||explicitlyNoThinking);
   const receiptRequest = {
     service: spec.service,

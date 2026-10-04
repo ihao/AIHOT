@@ -235,3 +235,37 @@ test('a trustworthy actual CNY charge above reservation cannot release money at 
   const row=await attempt(req);assert.equal(row.model_cost_cny,3);assert.equal(row.model_cost_state,'retained');
   await assert.rejects(paidRequest(request('after-actual-overrun'),success),BudgetExceededError);
 });
+
+for(const [name,extra] of [
+  ['enable_thinking takes priority over thinking disabled',{enable_thinking:true,thinking:{type:'disabled'}}],
+  ['thinking enabled takes priority over enable_thinking false',{enable_thinking:false,thinking:{type:'enabled'}}],
+] as const) {
+  test(`conflicting thinking configuration is unbounded: ${name}`,()=>{
+    const oldModel=process.env.LLM_MODEL,oldExtra=process.env.LLM_EXTRA_JSON;
+    process.env.LLM_MODEL='conflicting-thinking';process.env.LLM_EXTRA_JSON=JSON.stringify(extra);
+    try {
+      assert.equal(chatJsonRequestIdentity({model:'default',purpose:'test',promptVersion:'p',system:'s',user:'u'}).receiptRequest.modelBudget.bounded,false);
+    } finally {
+      if(oldModel===undefined)delete process.env.LLM_MODEL;else process.env.LLM_MODEL=oldModel;
+      if(oldExtra===undefined)delete process.env.LLM_EXTRA_JSON;else process.env.LLM_EXTRA_JSON=oldExtra;
+    }
+  });
+
+  test(`the money policy refuses conflicting thinking before sending: ${name}`,async()=>{
+    const provider=await stub(()=>({choices:[{message:{content:'{"ok":true}'}}],usage:{prompt_tokens:1,completion_tokens:0,total_tokens:1}}));
+    const previous=Object.fromEntries(['LLM_MODEL','LLM_EXTRA_JSON','LLM_BASE_URL','LLM_API_KEY'].map(key=>[key,process.env[key]]));
+    const model=prefix+'-conflicting-thinking';
+    process.env.LLM_MODEL=model;process.env.LLM_EXTRA_JSON=JSON.stringify(extra);process.env.LLM_BASE_URL=provider.url;process.env.LLM_API_KEY='test';
+    await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on)
+      VALUES('llm',${model},'CNY',2,8,'https://example.invalid/verified',current_date)`;
+    await enable();
+    try {
+      await assert.rejects(chatJson({model:'default',purpose:'test',subject:prefix+'-conflicting-thinking',promptVersion:'p',system:'s',user:name,schema:z.object({ok:z.boolean()})}),BudgetExceededError);
+      assert.equal(provider.hits(),0);
+    } finally {
+      await sql`DELETE FROM service_prices WHERE service='llm' AND model=${model}`;
+      for(const [key,value] of Object.entries(previous))if(value===undefined)delete process.env[key];else process.env[key]=value;
+      await provider.close();
+    }
+  });
+}
