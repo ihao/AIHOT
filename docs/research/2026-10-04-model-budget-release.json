@@ -3,7 +3,7 @@
   "image": "ninebtc-model-budget:14ba61e9d12e",
   "imageId": "sha256:503b541155e0f22835a135f9214a9ad47943fb0e3c2b5b095bb079261342a9d6",
   "phase1ReleasedAt": "2026-10-04T15:30:23Z",
-  "goal": "site model directory estimate under10 CNY;9 CNY Beijing-day androlling24h guard",
+  "goal": "under10 CNY/day by model selection and wasted-call reduction; preserve density, effective output and fresh production",
   "actualSupplierBillVerified": false,
   "preservation": {
     "checked": [
@@ -163,5 +163,17 @@
     "remoteTestImages": true,
     "localTestServers": true,
     "productionAndRollbackPreserved": true
+  },
+  "scopeCorrection": {
+    "productionAmountCapEnabled": false,
+    "productionAccountingRetained": true,
+    "benchmarkIndependentLimitsCny": {
+      "day": 9,
+      "rolling24h": 9
+    },
+    "supportedGate": "40/40",
+    "supplierMonthlyBudgetCny": 300,
+    "supplierStopOnBudgetPreserved": true,
+    "runtimeAndAssessment": "pending final release"
   }
 }

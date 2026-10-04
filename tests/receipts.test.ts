@@ -9,7 +9,7 @@ import { config } from "@aihot/backend/config";
 import { closeDb, sql } from "@aihot/backend/db";
 import { chatJson, ModelOutputError } from "@aihot/backend/providers/llm";
 import { embeddingsAvailable } from "@aihot/backend/providers/embeddings";
-import { BudgetExceededError, paidRequest, ReceiptUnknownError } from "@aihot/backend/providers/receipts";
+import { BudgetExceededError, paidRequest, ReceiptUnknownError, ProviderRejectedError } from "@aihot/backend/providers/receipts";
 import { autoReleaseUnknownReceipts } from "@aihot/backend/admin/runs";
 
 const usage = { prompt_tokens: 80, completion_tokens: 20, total_tokens: 100 };
@@ -35,6 +35,28 @@ test("the migrations seed a budget for every paid service", async () => {
   const rows = await sql<{ service: string }[]>`SELECT service FROM budgets`;
   const services = new Set(rows.map((r) => r.service));
   for (const s of ["jina", "socialdata", "dajiala", "zhipu", "deepseek", "mimo", "dashscope"]) assert.ok(services.has(s), `no budget for ${s}`);
+});
+
+test('an independently bounded benchmark keeps unknown 5xx outcomes closed when production hard limits are off',async()=>{
+  const service=`benchmark-unknown-${tag()}`;
+  const [policy]=await sql`SELECT enabled,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
+  await sql`UPDATE model_cost_policy SET enabled=false,day_limit_cny=9,rolling_limit_cny=9 WHERE id=1`;
+  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on) VALUES(${service},'bounded','CNY',1000000,1000000,'https://example.invalid/test-price',current_date)`;
+  const req={service,model:'bounded',purpose:'verification_benchmark',subject:service,identity:{service},modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:true as const}};
+  try {
+    await assert.rejects(paidRequest(req,async()=>{throw new ProviderRejectedError('upstream500',500,true);}),/upstream500/);
+    const [r]=await sql`UPDATE receipts SET updated_at=now()-interval '40 minutes' WHERE service=${service} RETURNING id,status`;
+    assert.equal(r!.status,'unknown');
+    await autoReleaseUnknownReceipts();
+    assert.equal((await sql`SELECT status FROM receipts WHERE id=${r!.id}`)[0]!.status,'unknown','a benchmark may not be automatically repurchased');
+    await assert.rejects(paidRequest(req,async()=>assert.fail('unknown cannot send')),ReceiptUnknownError);
+    const [attempt]=await sql`SELECT model_cost_cny FROM receipt_attempts WHERE receipt_id=${r!.id}`;
+    assert.equal(attempt!.model_cost_cny,2,'possible charge retains the reservation');
+  }finally{
+    await sql`DELETE FROM receipts WHERE service=${service}`;
+    await sql`DELETE FROM service_prices WHERE service=${service}`;
+    await sql`UPDATE model_cost_policy SET enabled=${policy!.enabled},day_limit_cny=${policy!.day_limit_cny},rolling_limit_cny=${policy!.rolling_limit_cny} WHERE id=1`;
+  }
 });
 
 test("an answer already received is reused instead of bought again", async () => {

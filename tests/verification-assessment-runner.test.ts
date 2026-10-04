@@ -16,21 +16,21 @@ function fixture(){
   return [...Array.from({length:40},(_,i)=>({...base,id:`p${i}`,articleId:`a${i}`})),...Array.from({length:40},(_,i)=>({...base,id:`n${i}`,articleId:`a${i}`,expectedPublic:false,family:'official_negative',expectedIssue:'wrong version',copy:{...base.copy,titleZh:'版本3进入测试阶段'}})),...Array.from({length:20},(_,i)=>({...base,id:`b${i}`,articleId:`b${i}`,firstParty:false,family:'secondary_boundary',materials:base.materials.map(m=>({...m,primary:false}))}))];
 }
 
-test('assessment preflight can inspect fixtures but refuses paid evaluation when the shared guard is disabled',async()=>{
+test('assessment independently limits experiment costs while production is uncapped and refuses fabricated or tampered evidence',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'verification-assessment-'));
   const dataset=join(dir,'cases.json'),output=join(dir,'report.json');
   const provider=await stub(()=>assert.fail('preflight cannot buy a model call'));
-  const [previous]=await sql`SELECT enabled FROM model_cost_policy WHERE id=1`;
-  await sql`UPDATE model_cost_policy SET enabled=false WHERE id=1`;
+  const [previous]=await sql`SELECT enabled,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
+  await sql`UPDATE model_cost_policy SET enabled=false,day_limit_cny=10,rolling_limit_cny=9 WHERE id=1`;
   try {
     await writeFile(dataset,JSON.stringify(fixture()));
     const args=['scripts/eval-verification.ts','--dataset',dataset,'--output',output];
     const env={...process.env,MODEL_CALLS_ENABLED:'true',DASHSCOPE_API_KEY:'test',DASHSCOPE_BASE_URL:provider.url};
     await exec(process.execPath,[...args,'--dry-run'],{env,timeout:20_000});
     assert.equal(JSON.parse(await readFile(output,'utf8')).results.length,0);
-    await assert.rejects(exec(process.execPath,args,{env,timeout:20_000}),error=>/shared <=9 CNY day and rolling guard is mandatory/.test(String((error as {stderr?:string}).stderr)));
+    await assert.rejects(exec(process.execPath,args,{env,timeout:20_000}),error=>/independent shared benchmark <=9 CNY day and rolling caps are mandatory/.test(String((error as {stderr?:string}).stderr)));
     assert.equal(provider.hits(),0);
-    await sql`UPDATE model_cost_policy SET enabled=true WHERE id=1`;
+    await sql`UPDATE model_cost_policy SET day_limit_cny=9,rolling_limit_cny=9 WHERE id=1`;
     await assert.rejects(exec(process.execPath,args,{env,timeout:20_000}),error=>/live article\/source snapshot differs/.test(String((error as {stderr?:string}).stderr)));
     assert.equal(provider.hits(),0,'fabricated assessment snapshots cannot trigger a provider call');
     const prepared=JSON.parse(await readFile(output,'utf8'));
@@ -43,7 +43,7 @@ test('assessment preflight can inspect fixtures but refuses paid evaluation when
     await assert.rejects(exec(process.execPath,[...args,'--dry-run'],{env,timeout:20_000}),error=>/exceeds production input limit/.test(String((error as {stderr?:string}).stderr)));
     assert.equal(provider.hits(),0,'all packets are checked against the production input bound before any paid evaluation');
   } finally {
-    await sql`UPDATE model_cost_policy SET enabled=${previous!.enabled} WHERE id=1`;
+    await sql`UPDATE model_cost_policy SET enabled=${previous!.enabled},day_limit_cny=${previous!.day_limit_cny},rolling_limit_cny=${previous!.rolling_limit_cny} WHERE id=1`;
     await provider.close();await rm(dir,{recursive:true,force:true});
   }
 });

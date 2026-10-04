@@ -8,7 +8,7 @@ import {sha256,stableJson} from '../packages/backend/src/lib/ids.ts';
 import {chatJson,chatJsonRequestIdentity,extractJson,MODELS,ModelOutputError} from '../packages/backend/src/providers/llm.ts';
 import {logicalKeyFor} from '../packages/backend/src/providers/receipts.ts';
 import {VerificationSchema} from '../packages/backend/src/editorial/automatic-policy.ts';
-import {modelCostOverview} from '../packages/backend/src/providers/model-cost.ts';
+import {benchmarkModelCostOverview,modelCostOverview} from '../packages/backend/src/providers/model-cost.ts';
 import {assessVerificationCase,resumeAssessmentResults,validateAssessmentCases,type AssessmentResult} from '../packages/backend/src/editorial/verification-assessment.ts';
 import {AUTOMATIC_RULE_VERSION,deterministicCopyConflicts,MAX_AUTOMATIC_STAGE_INPUT_CHARS,requiresPrimaryEvidence} from '../packages/backend/src/editorial/automatic-verification.ts';
 import {executionConfig,ordinaryVerificationEligible,routeVerificationModel,verificationRequest} from '../packages/backend/src/editorial/verification-execution.ts';
@@ -37,7 +37,7 @@ const scope=cases.map(c=>{
   if(!c.family.startsWith('official_')&&routed!=='qwen3.8-max')throw new Error(`boundary case incorrectly routed: ${c.id}`);
   return {id:c.id,eligible,routed};
 });
-interface Report {datasetHash:string;executionHash:string;model:string;profile:string;labelBasis:string;articles:number;sources:number;cases:number;scope:typeof scope;results:AssessmentResult[];state:string;blockedReason?:string;moneyBefore?:unknown;moneyAfter?:unknown;cost?:unknown;summary?:unknown;startedAt:string;updatedAt:string;gateFixtures:unknown}
+interface Report {datasetHash:string;executionHash:string;model:string;profile:string;labelBasis:string;articles:number;sources:number;cases:number;scope:typeof scope;results:AssessmentResult[];state:string;blockedReason?:string;moneyBefore?:unknown;moneyAfter?:unknown;benchmarkMoneyBefore?:unknown;benchmarkMoneyAfter?:unknown;cost?:unknown;summary?:unknown;startedAt:string;updatedAt:string;gateFixtures:unknown}
 let report:Report={datasetHash,executionHash,model,profile,labelBasis:'agent_literal_source_review',articles:new Set(cases.map(c=>c.articleId)).size,sources:new Set(cases.map(c=>c.sourceId)).size,cases:cases.length,scope,results:[],state:'prepared',startedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),gateFixtures:{scores:[80,80],threshold:60,sourceAuthorized:true,sourceEnabled:true,relevance:'PASS',bodyReadable:true,publicationWrites:false,boundaryModel:'ordinary-candidate shadow; production boundary route remains Max'}};
 try {
   const previous=JSON.parse(await readFile(outputPath,'utf8')) as Report;
@@ -52,13 +52,14 @@ const summarize=()=>{
   const supported=ordinary.filter(r=>r.expectedPublic),negative=ordinary.filter(r=>!r.expectedPublic);
   const differences=report.results.filter(r=>r.public!==r.expectedPublic);
   const complete=report.results.length===cases.length;
-  return {complete,evaluated:report.results.length,supportedAccepted:supported.filter(r=>r.public).length,supportedTotal:supported.length,ordinaryFalseAcceptances:negative.filter(r=>r.public).length,negativeTotal:negative.length,invalidStructure:report.results.filter(r=>!r.structureValid).length,invalidCitations:report.results.filter(r=>!r.citationsValid).length,differences:differences.map(r=>({id:r.id,expected:r.expectedPublic,actual:r.public,reasons:r.reasons,review:r.differenceReview??null})),passed:complete&&supported.length>=40&&negative.length>=40&&supported.filter(r=>r.public).length/supported.length>=.95&&negative.every(r=>!r.public)&&report.results.every(r=>r.structureValid&&r.citationsValid)&&differences.every(r=>!!r.differenceReview)};
+  return {complete,evaluated:report.results.length,supportedAccepted:supported.filter(r=>r.public).length,supportedTotal:supported.length,ordinaryFalseAcceptances:negative.filter(r=>r.public).length,negativeTotal:negative.length,invalidStructure:report.results.filter(r=>!r.structureValid).length,invalidCitations:report.results.filter(r=>!r.citationsValid).length,differences:differences.map(r=>({id:r.id,expected:r.expectedPublic,actual:r.public,reasons:r.reasons,review:r.differenceReview??null})),passed:complete&&supported.length>=40&&negative.length>=40&&supported.every(r=>r.public)&&negative.every(r=>!r.public)&&report.results.every(r=>r.structureValid&&r.citationsValid)&&differences.every(r=>!!r.differenceReview)};
 };
 if(process.argv.includes('--dry-run')){if(report.results.length)throw new Error('paid evidence requires live receipt proof; dry-run cannot certify resumed results');report.summary=summarize();await save();console.log(JSON.stringify({state:'prepared',datasetHash,executionHash,cases:cases.length,articles:report.articles,sources:report.sources}));process.exit(0);}
 try {
   if(!config.modelCallsEnabled)throw new Error('model valve is disabled');
   const money=await modelCostOverview();report.moneyBefore??=money;
-  if(!money.policy.enabled||money.policy.dayLimitCny>9||money.policy.rollingLimitCny>9)throw new Error('an enabled shared <=9 CNY day and rolling guard is mandatory');
+  const experiment=await benchmarkModelCostOverview();report.benchmarkMoneyBefore=experiment;
+  if(experiment.policy.dayLimitCny>9||experiment.policy.rollingLimitCny>9)throw new Error('independent shared benchmark <=9 CNY day and rolling caps are mandatory');
   const originals=await sql<{id:string;source_id:string;title:string;url:string;body_text:string;first_party:boolean}[]>`SELECT a.id,a.source_id,a.title,a.url,a.body_text,s.first_party FROM articles a JOIN sources s ON s.id=a.source_id WHERE a.id IN ${sql([...new Set(cases.map(c=>c.articleId))])}`;
   const byId=new Map(originals.map(a=>[a.id,a]));
   for(const c of cases){const a=byId.get(c.articleId);if(!a||a.source_id!==c.sourceId||a.title!==c.originalTitle||a.url!==c.sourceUrl||a.body_text!==c.originalBodyText||a.first_party!==c.firstParty)throw new Error(`live article/source snapshot differs: ${c.id}`);}
@@ -87,10 +88,11 @@ try {
       else {report.state='blocked';report.blockedReason=error instanceof Error?error.message.slice(0,300):String(error);await save();break;}
     }
     await save();
-    // Existing service request-count limits also apply; the worker may consume part of this window.
-    await new Promise(resolve=>setTimeout(resolve,3100));
+    // Leave service capacity for continuing production output; shared request limits still apply.
+    await new Promise(resolve=>setTimeout(resolve,10000));
   }
   report.moneyAfter=await modelCostOverview();
+  report.benchmarkMoneyAfter=await benchmarkModelCostOverview();
   const [cost]=await sql`SELECT count(*)::int attempts,coalesce(sum(a.model_cost_cny),0) estimated_or_retained_cny,count(*) FILTER(WHERE a.model_cost_state='retained')::int retained FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id WHERE r.purpose='verification_benchmark' AND r.logical_key LIKE ${'%:model-budget-assessment:'+datasetHash+':'+executionHash+':%'} AND a.origin='live'`;
   report.cost=cost;report.summary=summarize();
   if(report.state!=='blocked')report.state='evaluated';

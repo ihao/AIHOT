@@ -6,7 +6,7 @@ import { sql } from "../db.ts";
 import { CAPABILITIES, invalidateModelCache, modelSources, type Capability, type CapabilityKey } from "../editorial/models.ts";
 import { MODELS } from "../providers/llm.ts";
 import { audit } from "./auth.ts";
-import { modelCostOverview,modelTokenUsage } from "../providers/model-cost.ts";
+import { benchmarkModelCostOverview,modelCostOverview,modelTokenUsage } from "../providers/model-cost.ts";
 import { ORDINARY_VERIFICATION_MODEL,VERIFICATION_ROUTING_SETTING } from '../editorial/verification-execution.ts';
 
 interface UsageRow {
@@ -27,7 +27,7 @@ interface UsageRow {
 
 export async function modelsOverview(days = 7) {
   const since = new Date(Date.now() - days * 86400_000);
-  const [sources, usage, prices, history, benches, moneyBudget, routing] = await Promise.all([
+  const [sources, usage, prices, history, benches, moneyBudget, routing,benchmarkBudget] = await Promise.all([
     modelSources(),
     sql<UsageRow[]>`
       SELECT r.purpose, a.model, r.request->>'promptVersion' AS prompt_version, a.service, count(*)::int AS calls,
@@ -51,6 +51,7 @@ export async function modelsOverview(days = 7) {
       created_at FROM selectbench_runs r ORDER BY created_at DESC LIMIT 8`,
     modelCostOverview(),
     sql<{value:{enabled?:boolean;ordinaryModel?:string;datasetHash?:string;assessmentHash?:string}}[]>`SELECT value FROM settings WHERE key=${VERIFICATION_ROUTING_SETTING}`,
+    benchmarkModelCostOverview(),
   ]);
   const tokenTotals=(u:UsageRow)=>u.token_usages.reduce<{input:number;output:number;cached:number;unknown:boolean}>((sum,raw)=>{
     if(raw===null)return sum;
@@ -104,7 +105,7 @@ export async function modelsOverview(days = 7) {
   const choices = Object.values(MODELS).map((m) => ({ key: m.key, service: m.service, vision: !!m.vision }));
   const ordinaryModel=routing[0]?.value.ordinaryModel??ORDINARY_VERIFICATION_MODEL;
   const verificationRouting = {enabled:routing[0]?.value.enabled===true&&ordinaryModel===ORDINARY_VERIFICATION_MODEL,ordinaryModel,datasetHash:routing[0]?.value.datasetHash??null,assessmentHash:routing[0]?.value.assessmentHash??null};
-  return { days, capabilities, choices, history, benches, moneyBudget, verificationRouting };
+  return { days, capabilities, choices, history, benches, moneyBudget, verificationRouting,benchmarkBudget };
 }
 
 /** Switches a capability to another registered model (or back to the environment/default when null). */

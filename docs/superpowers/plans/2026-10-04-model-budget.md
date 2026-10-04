@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan. Steps use checkbox syntax for tracking.
 
-**Goal:** Deploy a shared 9 CNY model guard and assessed ordinary-verifier routing while preserving factual authority and existing public grants.
+**Goal:** Optimize model selection and wasted calls while preserving information density, effective output and continuing new information. Production hard amount limits stay off; the assessed ordinary-verifier candidate uses independent 9 CNY experiment protection.
 
 **Architecture:** Atomically reserve every paid model attempt in the existing receipt boundary. Persist verification execution policy per new round; retain legacy payload/configuration. An independent assessment decides whether production ordinary routing is enabled.
 
@@ -32,7 +32,7 @@ Files: `packages/backend/src/admin/models.ts`, `admin/review.ts`, `packages/cont
 
 - [x] Show amount policy, reserved/estimated usage and natural-day/rolling windows with clear billing boundary; verify cache accounting in existing overview.
 - [x] Build at least 100 evidence-grounded claim cases from at least 40 real articles: 40 ordinary official supported, 40 ordinary official contradicted/unsupported mutations and 20 risk/secondary boundaries; document analyst/agent labels separately from user annotations.
-- [ ] Run isolated offline fixtures. After phase-1 release has enabled monetary protection, run bounded production assessment through the same ledger; zero ordinary false acceptance, at least 95% supported full-gate acceptance, 100% structure/citation validity and no unexplained differences are required. Record dataset/hash/scope/costs and all differences.
+- [ ] Run isolated offline fixtures. After independent experiment protection is deployed, run bounded production assessment through the same ledger; zero ordinary false acceptance, 40/40 supported full-gate acceptance, 100% structure/citation validity and no unexplained differences are required. Record dataset/hash/scope/costs and all differences.
 - [ ] Enable ordinary model only if required quality gates pass; never bypass budget to finish the assessment.
 
 ## Task 4: Full gate and production release
@@ -46,3 +46,14 @@ Files: `packages/backend/src/admin/models.ts`, `admin/review.ts`, `packages/cont
 ## Release checkpoint (2026-10-04 23:39 Beijing)
 
 Runtime commit `14ba61e` is deployed. Node 24/PostgreSQL 17 full gate passed (451 backend,18 frontend,30 HTTP); preservation and public production smoke passed. Shared 9 CNY day and rolling guard is enabled with historical costs retained. The first real assessment was safely blocked with zero attempts. Ordinary routing remains disabled pending the protected 100-case gate. Historical-only forecast first allows the largest single assessment reservation at approximately 2026-10-05 00:27:44 Beijing; real admission always uses the database clock. Temporary test services have been cleaned up.
+
+## Output-priority scope correction (2026-10-05 Beijing)
+
+The user rejected hard amount caps as the saving mechanism. Production amount policy was audited off with price/accounting history retained; provider monthly budget was manually raised by the user to 300 with supplier stop switch retained. Phase-1 forecast above is historical and no longer determines production admission.
+
+- [x] Separate experiment-only day/rolling 9 CNY protection from uncapped production statistics; keep experiment unknown outcomes closed and reserved.
+- [x] Add red/green shared provider-budget stop tests: exact success reuse, no extra attempt/HTTP while blocked, bounded probe, unchanged rate-limit semantics. Integrate chat and embeddings.
+- [ ] Complete final serial full gate, updated spec/quality review, commit/integrate without altering unrelated main work.
+- [ ] Deploy immutable updated runtime with production amount cap off and ordinary routing still off.
+- [ ] Complete 100-case experiment under independent protection; record all source differences and only enable candidate after 40/40 support, zero false acceptance and full structural/citation gates pass.
+- [ ] Verify resumed production calls and fresh valid public information; record billing/quality limits and clean owned test resources.
