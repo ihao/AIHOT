@@ -39,7 +39,8 @@ export async function modelsOverview(days = 7) {
              percentile_disc(0.95) WITHIN GROUP (ORDER BY a.latency_ms) AS p95,
              sum((a.usage->>'prompt_tokens')::bigint) AS tokens_in, sum((a.usage->>'completion_tokens')::bigint) AS tokens_out,
              sum(CASE WHEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0') ~ '^[0-9]+$'
-               THEN least(coalesce((a.usage->>'prompt_tokens')::bigint,0),coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::bigint) ELSE 0 END) AS tokens_cached,
+               THEN CASE WHEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::numeric <= coalesce((a.usage->>'prompt_tokens')::numeric,0)
+                 THEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::numeric ELSE 0 END ELSE 0 END) AS tokens_cached,
              sum(a.cost) FILTER (WHERE a.cost_basis = 'actual') AS actual_cost, max(a.currency) AS currency
       FROM receipt_attempts a JOIN receipts r ON r.id = a.receipt_id
       WHERE a.started_at >= ${since} AND a.origin = 'live' AND a.model IS NOT NULL

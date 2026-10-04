@@ -22,6 +22,10 @@ test('model overview exposes shared amount windows and prices trusted cached inp
     const usage=result.capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
     assert.equal(usage.cachedTokensIn,800);
     assert.equal(usage.estimate!.amount,0.0072);
+    await sql`UPDATE receipt_attempts SET usage='{"prompt_tokens":1000,"completion_tokens":100,"prompt_tokens_details":{"cached_tokens":1001}}' WHERE receipt_id=${receipt!.id}`;
+    const invalid=(await modelsOverview(1)).capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
+    assert.equal(invalid.cachedTokensIn,0,'invalid cache counts never discount the estimate');
+    assert.equal(invalid.estimate!.amount,0.0156);
   } finally {
     await sql`DELETE FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
     await sql`DELETE FROM receipts WHERE id=${receipt!.id}`;
