@@ -3,21 +3,12 @@
 // 1. A logical request has a stable key bound to task, input revision, provider, model, prompt and config.
 // 2. Before calling, a placeholder row and an attempt row are persisted; budgets count attempts.
 // 3. The raw response is saved before any business write; recovery reuses a received response.
-// 4. A request whose outcome is unknown (timeout after sending, crash mid-flight) is not re-sent by the
-//    caller. ops.recover releases it once after 30 minutes (admin/runs.ts), so a lost answer costs at
-//    most one repeat; after that it waits for the admin.
+// 4. An unknown model outcome waits for an operator while the money policy is enabled.
 import { sql, type Db } from "../db.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
-
-export class BudgetExceededError extends Error {
-  readonly service: string;
-  readonly retryAfterSeconds: number;
-  constructor(service: string, window: string, retryAfterSeconds: number) {
-    super(`Budget for ${service} exhausted (${window})`);
-    this.service = service;
-    this.retryAfterSeconds = retryAfterSeconds;
-  }
-}
+import { BudgetExceededError, definitelyNotAccepted, isModelRequest, lockModelCost, modelCostPolicyEnabled,
+  releaseModelCost, reserveModelCost, settleModelCost, type ModelBudgetBounds, type ModelCostReservation } from './model-cost.ts';
+export { BudgetExceededError } from './model-cost.ts';
 
 export class ReceiptBusyError extends Error {}
 
@@ -58,6 +49,8 @@ export interface ReceiptRequest {
   requestSummary?: Record<string, unknown>;
   /** Distinguishes an explicit re-run (e.g. admin "re-evaluate") from recovery of the same request. */
   attemptTag?: string;
+  /** Conservative per-attempt bounds; deliberately excluded from the logical request key. */
+  modelBudget?: ModelBudgetBounds;
 }
 
 export interface ReceiptResult {
@@ -111,6 +104,8 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
   const logicalKey = logicalKeyFor(req);
 
   const claimed = await sql.begin(async (tx) => {
+    // Every model provider shares money. Always acquire this before any service/receipt lock.
+    await lockModelCost(tx);
     // Serialise budget checks per service so concurrent workers cannot overshoot.
     await tx`SELECT pg_advisory_xact_lock(hashtext(${"budget:" + req.service}))`;
     const [existing] = await tx<ReceiptRow[]>`
@@ -124,19 +119,21 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
       }
       if (existing.status === "unknown") return { kind: "unknown" as const, row: existing };
       // failed: the provider did not take the request, or its answer was unusable; a new attempt is allowed.
+      const reservation = await reserveModelCost(tx, req);
       await checkBudget(tx, req.service);
       const [r] = await tx<{ attempts: number }[]>`
         UPDATE receipts SET status = 'pending', attempts = attempts + 1, error = NULL, updated_at = now() WHERE id = ${existing.id} RETURNING attempts`;
-      const attemptId = await startAttempt(tx, existing.id, r!.attempts, req);
+      const attemptId = await startAttempt(tx, existing.id, r!.attempts, req, reservation);
       return { kind: "call" as const, id: existing.id, attemptId };
     }
+    const reservation = await reserveModelCost(tx, req);
     await checkBudget(tx, req.service);
     const [row] = await tx<{ id: number }[]>`
       INSERT INTO receipts (logical_key, service, model, purpose, subject, status, request, attempts)
       VALUES (${logicalKey}, ${req.service}, ${req.model ?? null}, ${req.purpose}, ${req.subject ?? null}, 'pending',
               ${tx.json((req.requestSummary ?? {}) as never)}, 1)
       RETURNING id`;
-    const attemptId = await startAttempt(tx, row!.id, 1, req);
+    const attemptId = await startAttempt(tx, row!.id, 1, req, reservation);
     return { kind: "call" as const, id: row!.id, attemptId };
   });
 
@@ -152,10 +149,14 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
   try {
     outcome = await call();
   } catch (error) {
-    const status = error instanceof ProviderRejectedError ? "failed" : "unknown";
     // "unknown": the request may have reached the provider (timeout, reset): do not re-send automatically.
     const message = (error instanceof ProviderRejectedError ? error.message : String(error)).slice(0, 2000);
     await sql.begin(async (tx) => {
+      await lockModelCost(tx);
+      const free = error instanceof ProviderRejectedError && definitelyNotAccepted(error.status);
+      const protectedModel = isModelRequest(req) && await modelCostPolicyEnabled(tx);
+      const status = error instanceof ProviderRejectedError && (free || !protectedModel) ? 'failed' : 'unknown';
+      if (free && isModelRequest(req)) await releaseModelCost(tx, receiptId, attemptId);
       await tx`UPDATE receipts SET status = ${status}, error = ${message}, updated_at = now() WHERE id = ${receiptId}`;
       await tx`UPDATE receipt_attempts SET status = ${status}, error = ${message}, latency_ms = ${Date.now() - started}, finished_at = now() WHERE id = ${attemptId}`;
     });
@@ -163,31 +164,38 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
   }
 
   await sql.begin(async (tx) => {
+    await lockModelCost(tx);
+    const estimate = await settleModelCost(tx, attemptId, outcome);
+    const cost = outcome.cost?.basis==='actual' ? outcome.cost : estimate ?? outcome.cost;
     await tx`
       UPDATE receipts SET
         status = 'received',
         response = ${tx.json((outcome.response ?? null) as never)},
         request_id = ${outcome.requestId ?? null},
         usage = ${outcome.usage ? tx.json(outcome.usage as never) : null},
-        cost = ${outcome.cost?.amount ?? null},
-        currency = ${outcome.cost?.currency ?? null},
-        cost_basis = ${outcome.cost?.basis ?? null},
+        cost = ${cost?.amount ?? null},
+        currency = ${cost?.currency ?? null},
+        cost_basis = ${cost?.basis ?? null},
         received_at = now(),
         updated_at = now()
       WHERE id = ${receiptId}`;
     await tx`
       UPDATE receipt_attempts SET
         status = 'received', request_id = ${outcome.requestId ?? null}, usage = ${outcome.usage ? tx.json(outcome.usage as never) : null},
-        cost = ${outcome.cost?.amount ?? null}, currency = ${outcome.cost?.currency ?? null}, cost_basis = ${outcome.cost?.basis ?? null},
+        cost = ${cost?.amount ?? null}, currency = ${cost?.currency ?? null}, cost_basis = ${cost?.basis ?? null},
         latency_ms = ${Date.now() - started}, finished_at = now()
       WHERE id = ${attemptId}`;
   });
   return { receiptId, response: outcome.response, reused: false };
 }
 
-async function startAttempt(tx: Db, receiptId: number, attempt: number, req: ReceiptRequest): Promise<number> {
+async function startAttempt(tx: Db, receiptId: number, attempt: number, req: ReceiptRequest, reservation: ModelCostReservation | null): Promise<number> {
   const [row] = await tx<{ id: number }[]>`
-    INSERT INTO receipt_attempts (receipt_id, attempt, service, model, status, started_at) VALUES (${receiptId}, ${attempt}, ${req.service}, ${req.model ?? null}, 'pending', clock_timestamp())
+    INSERT INTO receipt_attempts (receipt_id, attempt, service, model, status, started_at,
+      model_cost_reserved_cny,model_cost_cny,model_cost_state,model_cost_price,model_cost_bounds)
+    VALUES (${receiptId}, ${attempt}, ${req.service}, ${req.model ?? null}, 'pending', clock_timestamp(),
+      ${reservation?.amount??null},${reservation?.amount??null},${reservation?'reserved':null},
+      ${reservation?tx.json(reservation.price as never):null},${reservation?tx.json(reservation.bounds as never):null})
     RETURNING id`;
   return row!.id;
 }

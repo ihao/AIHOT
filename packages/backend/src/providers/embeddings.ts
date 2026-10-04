@@ -37,7 +37,9 @@ async function embedBatch(texts: string[], subject: string): Promise<number[][]>
   const key = own ? credential("models", "EMBEDDING_API_KEY") : credential("models", "DASHSCOPE_API_KEY");
   if (!key) throw new Error("EMBEDDING_API_KEY (or DASHSCOPE_API_KEY) missing");
   const receipt = await paidRequest(
-    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) }, requestSummary: { count: texts.length } },
+    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) },
+      requestSummary: { count: texts.length,inputTokenBound:Buffer.byteLength(JSON.stringify(texts))+1024+texts.length*64,maxTokens:0,modelBudgetBounded:true },
+      modelBudget:{inputTokens:Buffer.byteLength(JSON.stringify(texts))+1024+texts.length*64,maxOutputTokens:0,bounded:true} },
     async () => {
       const res = await fetch(`${base.replace(/\/$/, "")}/embeddings`, {
         method: "POST",

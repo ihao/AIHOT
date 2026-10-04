@@ -171,13 +171,29 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const temperature = opts.temperature ?? 0.2;
   const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.key.endsWith("-think") ? 4000 : 0);
   const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
+  const messages = [...(opts.system ? [{role:'system',content:opts.system}] : []),{role:'user',content:opts.user}];
+  // A byte-level token bound deliberately overestimates text. Framing covers protocol tokens.
+  const inputTokenBound = Buffer.byteLength(JSON.stringify(messages),'utf8') + 1024 + messages.length*64;
+  const extra = spec.extra ?? {};
+  const actualMaxTokens = Object.hasOwn(extra,'max_tokens') ? Number(extra.max_tokens) : maxTokens;
+  const thinking = extra.thinking as {type?:string}|undefined;
+  const explicitlyNoThinking = extra.enable_thinking===false || thinking?.type==='disabled';
+  const reasoning = extra.enable_thinking===true || thinking?.type==='enabled' || spec.key.endsWith('-think');
+  const hasImage = Array.isArray(opts.user) && opts.user.some(part=>part.type==='image_url');
+  const boundedOutput = Number.isSafeInteger(actualMaxTokens) && actualMaxTokens>=0
+    && extra.max_completion_tokens===undefined && (extra.n===undefined||extra.n===1);
+  const boundedInput = !Object.hasOwn(extra,'messages')&&!Object.hasOwn(extra,'model')&&!Object.hasOwn(extra,'tools')&&!Object.hasOwn(extra,'functions');
+  const modelBudgetBounded=boundedInput&&boundedOutput&&!hasImage&&!spec.vision&&(!reasoning||explicitlyNoThinking)
+    && (spec.key!=='default'||explicitlyNoThinking);
   const receiptRequest = {
     service: spec.service,
     model: spec.model,
     purpose: opts.purpose,
     subject: opts.subject,
     identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
-    requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length, temperature, maxTokens },
+    requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length,
+      systemBytes:Buffer.byteLength(opts.system),userBytes:Buffer.byteLength(userText),inputTokenBound,modelBudgetBounded,temperature,maxTokens:actualMaxTokens },
+    modelBudget: {inputTokens:inputTokenBound,maxOutputTokens:actualMaxTokens,bounded:modelBudgetBounded},
     attemptTag: opts.attemptTag,
   } satisfies ReceiptRequest;
   return { spec, temperature, maxTokens, userText, receiptRequest };

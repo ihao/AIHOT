@@ -12,6 +12,8 @@ import { sql } from "../db.ts";
 import { audit } from "./auth.ts";
 import { Conflict } from "./sources.ts";
 import { failureGroupSql, queueProcessing, requeueFailed } from "../jobs/content.ts";
+import { isModelRequest, lockModelCost, modelCostOverview, modelCostPolicyEnabled, releaseModelCost } from '../providers/model-cost.ts';
+export { modelCostOverview } from '../providers/model-cost.ts';
 
 const STALE_HEARTBEAT_MS = 3 * 60_000;
 
@@ -199,6 +201,7 @@ export async function runsOverview() {
   return {
     checkedAt: new Date(now).toISOString(),
     automatic: await automaticVerificationOverview(),
+    modelCost: await modelCostOverview(),
     processes: heartbeats.map((h) => ({
       role: h.key.slice("heartbeat.".length),
       ...h.value,
@@ -237,10 +240,18 @@ async function requeueReleasedAnalysis(id: number, purpose: string, subject: str
  * processing (one action, not two). Only an unknown receipt is released, once.
  */
 async function release(id: number, error: string, actor: string, note: string, billed: boolean | null) {
-  const [before] = await sql<{ subject: string | null; purpose: string }[]>`
+  const before = await sql.begin(async tx=>{
+    await lockModelCost(tx);
+    const [row] = await tx<{subject:string|null;purpose:string;service:string;model:string|null}[]>`SELECT subject,purpose,service,model FROM receipts WHERE id=${id} AND status='unknown' FOR UPDATE`;
+    if (!row) return null;
+    if (billed===null && isModelRequest(row) && await modelCostPolicyEnabled(tx)) return null;
+    if (billed===false) await releaseModelCost(tx,id);
+    await tx`
     UPDATE receipts SET status = 'failed', error = ${error}, updated_at = now() WHERE id = ${id} AND status = 'unknown' RETURNING subject, purpose`;
+    await tx`UPDATE receipt_attempts SET status = 'failed', error = ${error} WHERE receipt_id = ${id} AND status = 'unknown'`;
+    return row;
+  });
   if (!before) return null;
-  await sql`UPDATE receipt_attempts SET status = 'failed', error = ${error} WHERE receipt_id = ${id} AND status = 'unknown'`;
   const requeued = await requeueReleasedAnalysis(id, before.purpose, before.subject);
   await audit(actor, "receipt.release", `receipt:${id}`, note, { status: "unknown" }, { status: "failed", billed, requeued });
   return { id, status: "failed", subject: before.subject, purpose: before.purpose, requeued };
@@ -249,6 +260,7 @@ async function release(id: number, error: string, actor: string, note: string, b
 /** Admin, after checking the provider's console: records whether it was billed and releases it. */
 export async function releaseReceipt(id: number, input: { billed: boolean; note: string }, actor: string) {
   if (!input.note?.trim()) throw new Error("note is required");
+  if (typeof input.billed!=='boolean') throw new Error('必须明确确认供应商是否计费');
   const [row] = await sql<{ status: string }[]>`SELECT status FROM receipts WHERE id = ${id}`;
   if (!row) return null;
   if (row.status !== "unknown") throw new Conflict("只有结果未知的回执需要人工核对");
@@ -265,9 +277,11 @@ const AUTO_RELEASE_NOTE = "自动放行：结果未知超过 30 分钟，未核�
  * way once and unknown again stays for the admin (the daily ops digest lists it).
  */
 export async function autoReleaseUnknownReceipts(now = Date.now()) {
+  const moneyEnabled = await modelCostPolicyEnabled();
   const rows = await sql<{ id: number }[]>`
     SELECT r.id FROM receipts r
     WHERE r.status = 'unknown' AND r.updated_at < ${new Date(now - AUTO_RELEASE_AFTER_MS)}
+      AND (NOT ${moneyEnabled} OR (r.model IS NULL AND r.service NOT IN ('llm','embedding','dashscope','deepseek','zhipu','mimo')))
       AND NOT EXISTS (SELECT 1 FROM receipt_attempts a WHERE a.receipt_id = r.id AND a.error LIKE ${AUTO_RELEASE_NOTE + "%"})
     ORDER BY r.id LIMIT 200`;
   let released = 0;
@@ -281,6 +295,7 @@ export async function autoReleaseUnknownReceipts(now = Date.now()) {
   const stranded = await sql<{ id: number; purpose: string; subject: string | null }[]>`
     SELECT r.id,r.purpose,r.subject FROM receipts r JOIN articles a ON a.id=substring(r.subject FROM '^article:([^@]+)@')
     WHERE r.status='failed' AND r.purpose IN ${sql(ANALYSIS_PURPOSES)} AND r.error LIKE ${AUTO_RELEASE_NOTE + '%'}
+      AND (NOT ${moneyEnabled} OR (r.model IS NULL AND r.service NOT IN ('llm','embedding','dashscope','deepseek','zhipu','mimo')))
       AND a.processing_state='failed' AND a.processing_error='receipt '||r.id||' outcome unknown'
     ORDER BY r.id LIMIT 200`;
   for (const r of stranded) {
