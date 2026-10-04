@@ -89,11 +89,12 @@ test('legacy config, payload and logical receipt identity remain byte-for-byte u
 const T=tag(),source=`execution-${T}`;
 const calls: Array<Record<string,any>>=[];
 let verdicts: string[]=[];
+let rewriteRisk = false;
 const checks={claimsComplete:true,chineseCopyFaithful:true,subject:true,numbers:true,units:true,time:true,chain:true,stage:true,attribution:true,noSpeculationAsFact:true,notMarketing:true,coreEventPreserved:true};
 const provider=await stub((_hit,request)=>{
   const body=JSON.parse(request.body);calls.push(body);
   const input=JSON.parse(body.messages.at(-1).content),m=input.materials[0];
-  if(String(body.messages[0].content).includes('依据已抓取材料修正')) return {choices:[{message:{content:JSON.stringify({...input.copy,titleZh:'Bitcoin Core 发布新版客户端软件',summaryZh:'Bitcoin Core 发布新版客户端软件。'})}}],usage:{prompt_tokens:1,completion_tokens:1}};
+  if(String(body.messages[0].content).includes('依据已抓取材料修正')) return {choices:[{message:{content:JSON.stringify({...input.copy,titleZh:'Bitcoin Core 发布新版客户端软件',summaryZh:rewriteRisk?'Bitcoin Core 发布新版客户端软件，此次攻击已确认。':'Bitcoin Core 发布新版客户端软件。'})}}],usage:{prompt_tokens:1,completion_tokens:1}};
   const verdict=verdicts.shift()??'supported';
   return {choices:[{message:{content:JSON.stringify({verdict,claims:[{claim:input.copy.titleZh,verdict,evidence:verdict==='supported'?[{materialId:m.id,quoteId:m.quotes[0].quoteId}]:[],riskFlags:[],reason:'本机逐段证据'}],checks,riskFlags:[],reason:'本机证据'})}}],usage:{prompt_tokens:1,completion_tokens:1}};
 });
@@ -124,8 +125,8 @@ after(async()=>{
   await provider.close();await stopBoss();await closeDb();
 });
 let serial=0;
-async function article(bodyText=material.bodyText,title=ordinary.title){
-  const {articleId}=await upsertMaterial({sourceId:source,url:`https://bitcoincore.org/${T}/${++serial}`,title,bodyText,bodyStatus:'ok',via:'fetch',publishedAt:new Date()});
+async function article(bodyText=material.bodyText,title=ordinary.title,bodyHtml?:string){
+  const {articleId}=await upsertMaterial({sourceId:source,url:`https://bitcoincore.org/${T}/${++serial}`,title,bodyText,bodyHtml,bodyStatus:'ok',via:'fetch',publishedAt:new Date()});
   await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected,output) VALUES(${articleId},1,'model','pass',${copy.category},${copy.titleZh},${copy.summaryZh},75,true,${sql.json({scores:[75,76],threshold:60,itemType:'protocol_upgrade',authorRole:'principal'})})`;
   await sql`UPDATE articles SET processing_state='analyzed',grouped_at=now() WHERE id=${articleId}`;
   await sql.begin(tx=>queueAutomaticVerificationTx(tx,articleId));
@@ -145,6 +146,94 @@ test('new rounds persist bounded execution while routing stays disabled by defau
   assert.equal(stored.materials[0].bodyText,material.bodyText);
   assert.equal(stored.status,'accepted');
 });
+
+async function withOrdinaryRouting(work:()=>Promise<void>) {
+  await sql`UPDATE settings SET value=${sql.json({enabled:true,ordinaryModel})} WHERE key='verification.routing'`;
+  try { await work(); } finally {
+    verdicts=[];rewriteRisk=false;
+    await sql`UPDATE settings SET value='{"enabled":false}' WHERE key='verification.routing'`;
+  }
+}
+
+test('ordinary recovery pins a fallback at queue time and upgrades after new risk evidence',async()=>withOrdinaryRouting(async()=>{
+  const id=await article(material.bodyText,ordinary.title,'<a href="https://blog.ethereum.org/proof">official proof</a>');
+  const [queued]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(queued.fallback_model,'qwen3.8-max');
+  assert.equal(queued.fallback_config_hash,execution().executionModelConfigHash('qwen3.8-max','bounded-v1'));
+  const old=process.env.VERIFICATION_MODEL;process.env.VERIFICATION_MODEL='qwen3.8-flash';invalidateModelCache();
+  const before=calls.length;verdicts=['needs_evidence','supported'];
+  try { await verifyAutomaticArticle(id,{fetchMaterial:async url=>({id:'risk-proof',url,primary:true,bodyText:'An attacker stole $10 million. The claims conflict with an earlier statement.'})}); }
+  finally { process.env.VERIFICATION_MODEL=old;invalidateModelCache(); }
+  const verifierModels=calls.slice(before).filter(c=>!String(c.messages[0].content).includes('依据已抓取材料修正')).map(c=>c.model);
+  assert.deepEqual(verifierModels,['deepseek-v4.1-flash','qwen3.8-max']);
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.verification_model,'qwen3.8-max');assert.equal(r.verification_config_hash,r.fallback_config_hash);
+  assert.equal(r.verification_count,2);assert.equal(r.receipt_ids.length,2);assert.equal(r.materials[1].id,'risk-proof');
+}));
+
+test('ordinary recovery upgrades after a rewrite introduces risk instead of keeping DeepSeek',async()=>withOrdinaryRouting(async()=>{
+  const id=await article(),before=calls.length;
+  verdicts=['contradicted','supported'];rewriteRisk=true;
+  await verifyAutomaticArticle(id);
+  assert.deepEqual(calls.slice(before).map(c=>c.model),['deepseek-v4.1-flash','qwen3.8-flash','qwen3.8-max']);
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.verification_model,'qwen3.8-max');assert.equal(r.verification_count,2);
+  assert.equal(r.status,'rejected','the fallback model cannot bypass the unchanged critical-copy gate');
+}));
+
+async function recoveryReceipt(status:string) {
+  const id=await article();
+  await sql`UPDATE automatic_verifications SET stage='evidence',evidence_fetched=true WHERE article_id=${id}`;
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  const input={copy:r.final_copy,original_copy:r.original_copy,originalTitle:ordinary.title,materials:r.materials,requiresPrimaryEvidence:false,rewritten:false};
+  const request=execution().verificationRequest(input,r.verification_model,'bounded-v1',`automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:evidence`,`article:${id}@1`);
+  const receipt=await chatJson(request);
+  await sql`UPDATE receipts SET status=${status} WHERE id=${receipt.receiptId}`;
+  return {id,receipt};
+}
+for (const status of ['pending','unknown']) test(`a sent ${status} ordinary recovery receipt waits without a fallback purchase`,async()=>withOrdinaryRouting(async()=>{
+  const {id,receipt}=await recoveryReceipt(status),before=provider.hits();
+  await assert.rejects(verifyAutomaticArticle(id),/flight|unknown/i);
+  assert.equal(provider.hits(),before);
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'waiting');assert.equal(r.verification_model,ordinaryModel);
+  assert.equal(r.verification_count,1);assert.ok(r.receipt_ids.includes(receipt.receiptId));
+}));
+for (const status of ['received','completed']) test(`an exact ${status} ordinary recovery receipt is reused before considering fallback`,async()=>withOrdinaryRouting(async()=>{
+  const {id,receipt}=await recoveryReceipt(status),before=provider.hits();
+  await sql`UPDATE automatic_verifications SET fallback_config_hash='changed-unused-fallback' WHERE article_id=${id}`;
+  await verifyAutomaticArticle(id);assert.equal(provider.hits(),before);
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'accepted');assert.equal(r.verification_model,ordinaryModel);
+  assert.equal(r.verification_count,1);assert.ok(r.receipt_ids.includes(receipt.receiptId));
+}));
+for (const drift of ['changed config','ordinary fallback']) test(`new recovery does not send when the persisted fallback has ${drift}`,async()=>withOrdinaryRouting(async()=>{
+  const id=await article(),before=provider.hits();
+  await sql`UPDATE automatic_verifications SET stage='evidence',evidence_fetched=true,
+    fallback_model=${drift==='ordinary fallback'?ordinaryModel:'qwen3.8-max'},
+    fallback_config_hash=${drift==='ordinary fallback'?execution().executionModelConfigHash(ordinaryModel,'bounded-v1'):'changed-fallback-config'} WHERE article_id=${id}`;
+  await assert.rejects(verifyAutomaticArticle(id),/configuration changed/);
+  assert.equal(provider.hits(),before);
+  const [r]=await sql`SELECT status,verification_model,verification_count FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'waiting');assert.equal(r.verification_model,ordinaryModel);assert.equal(r.verification_count,0);
+}));
+test('a failed sent ordinary recovery stage stops without spending on another model',async()=>withOrdinaryRouting(async()=>{
+  const {id,receipt}=await recoveryReceipt('failed'),before=provider.hits();
+  await verifyAutomaticArticle(id);assert.equal(provider.hits(),before);
+  const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'rejected');assert.equal(r.verification_model,ordinaryModel);
+  assert.equal(r.verification_count,1);assert.ok(r.receipt_ids.includes(receipt.receiptId));
+  assert.deepEqual(r.reasons,['ordinary_recovery_receipt_not_reusable']);
+}));
+test('legacy ordinary recovery retains its exact model and 16k config',async()=>withOrdinaryRouting(async()=>{
+  const id=await article();
+  await sql`UPDATE automatic_verifications SET execution_policy='legacy-v1',stage='evidence',evidence_fetched=true,
+    verification_config_hash=${execution().executionModelConfigHash(ordinaryModel,'legacy-v1')},rewrite_config_hash=${execution().executionModelConfigHash('qwen3.8-flash','legacy-v1','rewrite-verified-summary')} WHERE article_id=${id}`;
+  await verifyAutomaticArticle(id);
+  assert.equal(calls.at(-1)!.model,'deepseek-v4.1-flash');assert.equal(calls.at(-1)!.max_tokens,16384);
+  const [r]=await sql`SELECT status,verification_model FROM automatic_verifications WHERE article_id=${id}`;
+  assert.equal(r.status,'accepted');assert.equal(r.verification_model,ordinaryModel);
+}));
 
 test('explicit routing only selects models for newly queued rounds and preserves accepted grants',async()=>{
   const id=await article();await verifyAutomaticArticle(id);

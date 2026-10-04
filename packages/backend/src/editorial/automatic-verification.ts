@@ -20,7 +20,7 @@ import { promptVersion } from './prompts.ts';
 import { VERIFICATION_RECOVERY_VERSION, nextRecoveryStage, canRequestStage, coreCopyConflicts } from './verification-recovery.ts';
 import { AUTOMATIC_POLICY_VERSION, CLAIM_EVIDENCE_POLICY_VERSION, criticalClaimFlags, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
 import { enqueue, QUEUES } from '../jobs/queue.ts';
-import { executionConfig, executionMaterials, executionModelConfigHash, verificationRequest, executeVerification, routeVerificationModel, VERIFICATION_ROUTING_SETTING, NEW_VERIFICATION_EXECUTION_POLICY, type VerificationExecutionPolicy, type VerificationRoutingSettings } from './verification-execution.ts';
+import { executionConfig, executionMaterials, executionModelConfigHash, verificationRequest, executeVerification, routeVerificationModel, VERIFICATION_ROUTING_SETTING, NEW_VERIFICATION_EXECUTION_POLICY, ORDINARY_VERIFICATION_MODEL, type VerificationExecutionPolicy, type VerificationRoutingSettings } from './verification-execution.ts';
 export const AUTOMATIC_AMOUNT_GUARD_VERSION = 'currency-amounts-v2';
 export const AUTOMATIC_RULE_VERSION = `${AUTOMATIC_POLICY_VERSION}:${sha256(stableJson({
   amountGuard: AUTOMATIC_AMOUNT_GUARD_VERSION,
@@ -74,6 +74,8 @@ interface Round {
   verification_model: string;
   verification_config_hash: string;
   execution_policy: VerificationExecutionPolicy;
+  fallback_model: string | null;
+  fallback_config_hash: string | null;
   rewrite_model: string | null;
   rewrite_config_hash: string | null;
   original_fingerprint: string | null;
@@ -201,13 +203,14 @@ export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): P
   const proposal = await getReviewProposal(articleId, tx);
   const [routing] = await tx<{value:VerificationRoutingSettings}[]>`SELECT value FROM settings WHERE key=${VERIFICATION_ROUTING_SETTING}`;
   const profile = NEW_VERIFICATION_EXECUTION_POLICY;
-  const model = routeVerificationModel({...a,conflicts:deterministicCopyConflicts(copy,[{id:'original',bodyText:a.body_text??'',primary:a.first_party}])},await modelFor("verification"),routing?.value);
+  const fallbackModel = await modelFor("verification");
+  const model = routeVerificationModel({...a,conflicts:deterministicCopyConflicts(copy,[{id:'original',bodyText:a.body_text??'',primary:a.first_party}])},fallbackModel,routing?.value);
   const rewriteModel = await modelFor("understand");
   const [round] = await tx<{
     id: number;
   }[]>`INSERT INTO automatic_verifications(article_id,article_revision,analysis_id,
- automatic_rule_version,verification_model,verification_config_hash,rewrite_model,rewrite_config_hash,execution_policy,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
- VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model,profile)},${rewriteModel},${rewriteConfigHash(rewriteModel,profile)},${profile},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
+ automatic_rule_version,verification_model,verification_config_hash,rewrite_model,rewrite_config_hash,execution_policy,fallback_model,fallback_config_hash,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
+ VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model,profile)},${rewriteModel},${rewriteConfigHash(rewriteModel,profile)},${profile},${fallbackModel},${verificationConfigHash(fallbackModel,profile)},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
  ${tx.json(copy as never)},${tx.json(copy as never)},${tx.json([{
     id: 'original',
     role: 'original_source',
@@ -503,14 +506,36 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       }
       const usageBefore = await verificationUsage(r);
       const verificationInput={copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:r.materials};
-      const request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
-      const verificationUser=request.user;
-      const verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
-      const [verifierReceipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary'
+      let request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
+      let verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
+      let [verifierReceipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary'
         AND logical_key=${verificationKey}`;
-      const settled = verifierReceipt && ['received','completed'].includes(verifierReceipt.status);
+      let settled = verifierReceipt && ['received','completed'].includes(verifierReceipt.status);
       if (verifierReceipt?.status==='pending') throw new ReceiptBusyError('verifier receipt is in flight');
       if (verifierReceipt?.status==='unknown') throw new ReceiptUnknownError(verifierReceipt.id,'verifier outcome unknown; wait for trusted resolution');
+      // Recovery can add risk material or risk copy after initial routing. Conservatively upgrade
+      // every new ordinary recovery stage, while exact already-sent requests remain immutable.
+      if (r.execution_policy==='bounded-v1' && r.verification_model===ORDINARY_VERIFICATION_MODEL && (r.stage!=='initial'||r.rewritten) && !settled) {
+        if (verifierReceipt) {
+          await rejectRound(r,token,'ordinary_recovery_receipt_not_reusable');
+          return;
+        }
+        if (!r.fallback_model || r.fallback_model===ORDINARY_VERIFICATION_MODEL || !r.fallback_config_hash || r.fallback_config_hash!==verificationConfigHash(r.fallback_model,r.execution_policy)) throw new Error('recovery verifier configuration changed');
+        const changed=await sql`UPDATE automatic_verifications SET verification_model=${r.fallback_model},verification_config_hash=${r.fallback_config_hash},updated_at=now()
+          WHERE id=${r.id} AND lease_token=${token} AND execution_policy='bounded-v1' AND status='running'
+            AND verification_model=${r.verification_model} AND verification_config_hash=${r.verification_config_hash}
+            AND fallback_model=${r.fallback_model} AND fallback_config_hash=${r.fallback_config_hash}
+            AND NOT EXISTS(SELECT 1 FROM receipts WHERE purpose='verify_summary' AND logical_key=${verificationKey})`;
+        if (!changed.count) throw new ReceiptBusyError('recovery verifier upgrade raced another request or lease');
+        r={...r,verification_model:r.fallback_model,verification_config_hash:r.fallback_config_hash};
+        request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
+        verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
+        [verifierReceipt]=await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary' AND logical_key=${verificationKey}`;
+        settled=verifierReceipt&&['received','completed'].includes(verifierReceipt.status);
+        if (verifierReceipt?.status==='pending') throw new ReceiptBusyError('verifier receipt is in flight');
+        if (verifierReceipt?.status==='unknown') throw new ReceiptUnknownError(verifierReceipt.id,'verifier outcome unknown; wait for trusted resolution');
+      }
+      const verificationUser=request.user;
       if (!settled && verificationUser.length>MAX_AUTOMATIC_STAGE_INPUT_CHARS) {
         await rejectRound(r,token,'verification_input_budget_exceeded');
         return;
