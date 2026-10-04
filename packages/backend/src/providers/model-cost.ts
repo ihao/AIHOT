@@ -80,7 +80,8 @@ function consistentTokens(values: unknown[]): number | null | undefined {
   if (!values.every(tokens) || values.some(value=>value!==values[0])) return null;
   return values[0] as number;
 }
-function usageCost(usage: unknown, price: Price, embedding: boolean) {
+/** Shared by budget settlement and read-only reporting; conflicting aliases are never trusted. */
+export function modelTokenUsage(usage: unknown, embedding=false): {input:number;output:number;cached:number} | null {
   if (!usage || typeof usage!=='object' || Array.isArray(usage)) return null;
   const u=usage as Record<string,unknown>;
   const aliases=(keys:string[])=>keys.filter(key=>Object.hasOwn(u,key)).map(key=>u[key]);
@@ -101,6 +102,12 @@ function usageCost(usage: unknown, price: Price, embedding: boolean) {
   if (!tokens(input)||!tokens(output)||!tokens(cached)||cached>input) return null;
   if (Object.hasOwn(u,'total_tokens') && (!tokens(u.total_tokens)||u.total_tokens!==input+output)) return null;
   if (Object.hasOwn(u,'prompt_cache_miss_tokens') && (!tokens(u.prompt_cache_miss_tokens)||u.prompt_cache_miss_tokens!==input-cached))return null;
+  return {input,output,cached};
+}
+function usageCost(usage: unknown, price: Price, embedding: boolean) {
+  const parsed=modelTokenUsage(usage,embedding);
+  if(!parsed)return null;
+  const {input,output,cached}=parsed;
   return {input,output,amount:money(((input-cached)*price.input_per_mtok+cached*(price.cached_per_mtok??price.input_per_mtok)
     +output*price.output_per_mtok)/1e6+(price.per_request??0))};
 }
@@ -173,7 +180,14 @@ export async function modelCostOverview(now?: Date, db: Db=sql) {
 
 /** Called under the global lock before the attempt row is created. */
 export async function reserveModelCost(db: Db, req: ReceiptRequest): Promise<ModelCostReservation | null> {
-  if(!isModelRequest(req)||!await modelCostPolicyEnabled(db))return null;
+  const benchmark=req.purpose==='verification_benchmark';
+  if(!isModelRequest(req)&&!benchmark)return null;
+  const p=await policy(db);
+  // Benchmarks require monetary protection for every new attempt, even after operator changes.
+  if(benchmark&&(!p.enabled||!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9))) {
+    throw new ModelCostBudgetError('评测必须启用金额策略且北京时间当日、滚动 24 小时上限均不超过 9 CNY','benchmark_policy');
+  }
+  if(!p.enabled)return null;
   if(!validBounds(req.modelBudget))throw new ModelCostBudgetError('请求没有可靠输入与输出 token 上界');
   const price=await readPrice(db,req.service,req.model??null,req.modelBudget.maxOutputTokens);
   if(!price)throw new ModelCostBudgetError('模型缺少经核对的 CNY 价格','missing_price');

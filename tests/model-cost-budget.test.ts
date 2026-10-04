@@ -4,7 +4,7 @@ import { after, before, beforeEach, test } from 'node:test';
 import { closeDb, sql } from '@aihot/backend/db';
 import { paidRequest, BudgetExceededError, logicalKeyFor, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from '@aihot/backend/providers/receipts';
 import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm';
-import { modelCostOverview } from '@aihot/backend/providers/model-cost';
+import { modelCostOverview, modelTokenUsage } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
 import { sha256 } from '@aihot/backend/lib/ids';
 import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
@@ -363,4 +363,54 @@ test('consistent input output and cache aliases still settle trusted usage',asyn
   await paidRequest(req,async()=>({response:{},usage:{prompt_tokens:1,input_tokens:1,completion_tokens:0,output_tokens:0,total_tokens:1,
     prompt_tokens_details:{cached_tokens:1},input_tokens_details:{cached_tokens:1},prompt_cache_hit_tokens:1,cached_tokens:1,prompt_cache_miss_tokens:0}}));
   const row=await attempt(req);assert.equal(row.model_cost_cny,.1);assert.equal(row.model_cost_state,'estimated');
+});
+
+for(const [name,change] of [
+  ['disabled policy',()=>sql`UPDATE model_cost_policy SET enabled=false WHERE id=1`],
+  ['day limit above nine yuan',()=>sql`UPDATE model_cost_policy SET day_limit_cny=10 WHERE id=1`],
+  ['rolling limit above nine yuan',()=>sql`UPDATE model_cost_policy SET rolling_limit_cny=10 WHERE id=1`],
+] as const) {
+  test(`each new benchmark send requires active nine yuan caps: ${name}`,async()=>{
+    const provider=await stub(()=>({ok:true,usage:{prompt_tokens:1,completion_tokens:0,total_tokens:1}}));
+    const call=async()=>{
+      const response=await (await fetch(provider.url)).json() as {usage:Record<string,unknown>};
+      return {response,usage:response.usage};
+    };
+    await enable();
+    const req={...request('benchmark-first'),purpose:'verification_benchmark'};
+    try {
+      const first=await paidRequest(req,call);assert.equal(provider.hits(),1);
+      await change();
+      const reused=await paidRequest(req,call);assert.equal(reused.receiptId,first.receiptId);assert.equal(reused.reused,true);
+      await assert.rejects(paidRequest({...request('benchmark-second'),purpose:'verification_benchmark'},call),BudgetExceededError);
+      assert.equal(provider.hits(),1,'no further provider requests after a policy change');
+      const [created]=await sql`SELECT count(*)::int AS n FROM receipts WHERE subject=${prefix+'-benchmark-second'}`;
+      assert.equal(created!.n,0,'refusal happens before a new attempt is created');
+    } finally {await provider.close();}
+  });
+}
+
+test('a missing policy fails new benchmark purchases closed while successful reuse remains available',async()=>{
+  await enable();const req={...request('benchmark-missing-policy'),purpose:'verification_benchmark'};
+  const first=await paidRequest(req,success);
+  const [saved]=await sql`SELECT * FROM model_cost_policy WHERE id=1`;
+  await sql`DELETE FROM model_cost_policy WHERE id=1`;
+  let sent=0;
+  try {
+    assert.equal((await paidRequest(req,async()=>{sent++;return success();})).receiptId,first.receiptId);
+    await assert.rejects(paidRequest({...request('benchmark-no-policy-new'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+    assert.equal(sent,0);
+  } finally {await sql`INSERT INTO model_cost_policy ${sql(saved!)}`;}
+});
+
+test('the shared modelTokenUsage parser exposes only trustworthy input output and cached tokens',()=>{
+  const parse=modelTokenUsage;
+  assert.equal(typeof parse,'function','the shared trusted-usage parser is exported');
+  assert.deepEqual(parse({prompt_tokens:81,input_tokens:81,completion_tokens:4,output_tokens:4,total_tokens:85,
+    prompt_tokens_details:{cached_tokens:40},cached_tokens:40,prompt_cache_hit_tokens:40}),{input:81,output:4,cached:40});
+  assert.deepEqual(parse({total_tokens:7},true),{input:7,output:0,cached:0});
+  assert.equal(parse({prompt_tokens:1,input_tokens:100,completion_tokens:0,output_tokens:100,total_tokens:1}),null);
+  assert.equal(parse({prompt_tokens:1,completion_tokens:0,total_tokens:1,prompt_tokens_details:{cached_tokens:1},cached_tokens:0}),null);
+  assert.equal(parse({prompt_tokens:1,input_tokens:'1',completion_tokens:0,total_tokens:1}),null);
+  assert.equal(parse(null),null);
 });
