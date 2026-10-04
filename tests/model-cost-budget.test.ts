@@ -543,3 +543,24 @@ test('unpriced production history is excluded from experiments but legacy unknow
   let sent=0;await assert.rejects(paidRequest({...request('experiment-with-legacy-unknown'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/unpriced_usage/);
   assert.equal(sent,0);
 });
+
+test('benchmark purpose includes legacy unknown attempts with no model and a custom service',async()=>{
+  const [receipt]=await sql<{id:number}[]>`INSERT INTO receipts(logical_key,service,model,purpose,subject,status,request,attempts)
+    VALUES(${prefix+'-legacy-unlabelled'},${service},NULL,'verification_benchmark',${prefix+'-legacy-unlabelled'},'unknown','{}'::jsonb,1) RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,model,status,error)
+    VALUES(${receipt!.id},1,${service},NULL,'unknown','provider outcome missing before model metadata existed')`;
+  const experiment=await benchmarkModelCostOverview();assert.equal(experiment.rolling.unpricedAttempts,1);assert.equal(experiment.blocked,true);
+  const production=await modelCostOverview();assert.equal(production.rolling.unpricedAttempts,1);assert.equal(production.blocked,false);
+  let sent=0;await assert.rejects(paidRequest({...request('benchmark-after-unlabelled'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/unpriced_usage/);
+  assert.equal(sent,0);
+});
+
+test('actual CNY charges on unlabelled legacy benchmark attempts still consume the independent quota',async()=>{
+  const [receipt]=await sql<{id:number}[]>`INSERT INTO receipts(logical_key,service,model,purpose,subject,status,request,attempts)
+    VALUES(${prefix+'-legacy-unlabelled-paid'},${service},NULL,'verification_benchmark',${prefix+'-legacy-unlabelled-paid'},'unknown','{}'::jsonb,1) RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,model,status,cost,currency,cost_basis)
+    VALUES(${receipt!.id},1,${service},NULL,'unknown',8.5,'CNY','actual')`;
+  const experiment=await benchmarkModelCostOverview();assert.equal(experiment.rolling.totalCny,8.5);assert.equal(experiment.rolling.unpricedAttempts,0);
+  let sent=0;await assert.rejects(paidRequest({...request('benchmark-after-unlabelled-paid'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/amount_day|amount_rolling/);
+  assert.equal(sent,0);
+});

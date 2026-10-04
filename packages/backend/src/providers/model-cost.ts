@@ -145,7 +145,8 @@ async function costOverview(scope: 'all_models'|'verification_benchmark', now?: 
     a.model_cost_cny,a.model_cost_state,r.request FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id
     WHERE a.origin='live' AND a.started_at>${new Date(at.getTime()-86400_000)} AND a.started_at<=${until}
       AND (${scope==='all_models'} OR r.purpose='verification_benchmark')
-      AND (a.model IS NOT NULL OR a.service IN ${db(MODEL_SERVICES)}) ORDER BY a.id`;
+      -- The benchmark purpose remains authoritative even if legacy model/service metadata is absent.
+      AND (r.purpose='verification_benchmark' OR a.model IS NOT NULL OR a.service IN ${db(MODEL_SERVICES)}) ORDER BY a.id`;
   const reasons:string[]=[];
   // Scoped to this view/transaction: no stale price or window survives into a later call.
   const prices=new Map<string,Price|null>();
