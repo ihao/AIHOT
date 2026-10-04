@@ -4,7 +4,7 @@ import { after, before, beforeEach, test } from 'node:test';
 import { closeDb, sql } from '@aihot/backend/db';
 import { paidRequest, BudgetExceededError, logicalKeyFor, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from '@aihot/backend/providers/receipts';
 import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm';
-import { modelCostOverview, modelTokenUsage } from '@aihot/backend/providers/model-cost';
+import { lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
 import { sha256 } from '@aihot/backend/lib/ids';
 import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
@@ -413,4 +413,36 @@ test('the shared modelTokenUsage parser exposes only trustworthy input output an
   assert.equal(parse({prompt_tokens:1,completion_tokens:0,total_tokens:1,prompt_tokens_details:{cached_tokens:1},cached_tokens:0}),null);
   assert.equal(parse({prompt_tokens:1,input_tokens:'1',completion_tokens:0,total_tokens:1}),null);
   assert.equal(parse(null),null);
+});
+
+test('a policy update waits until the checked reservation transaction commits',async()=>{
+  await enable();const checked=gate(),finish=gate();
+  const holding=sql.begin(async tx=>{
+    await lockModelCost(tx);
+    const reservation=await reserveModelCost(tx,{...request('benchmark-policy-lock'),purpose:'verification_benchmark'});
+    assert.equal(reservation?.amount,2);checked.open();await finish.promise;
+  });
+  await Promise.race([checked.promise,holding]);
+  try {
+    await assert.rejects(sql.begin(async tx=>{
+      await tx`SET LOCAL lock_timeout='100ms'`;
+      await tx`UPDATE model_cost_policy SET enabled=false,day_limit_cny=10,rolling_limit_cny=10 WHERE id=1`;
+    }), (error:unknown)=>(error as {code?:string}).code==='55P03','an ordinary concurrent policy UPDATE must wait for the reservation row lock');
+  } finally {finish.open();await holding;}
+  await sql`UPDATE model_cost_policy SET enabled=false,day_limit_cny=10,rolling_limit_cny=10 WHERE id=1`;
+  const [policy]=await sql`SELECT enabled,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
+  assert.deepEqual(policy,{enabled:false,day_limit_cny:10,rolling_limit_cny:10});
+});
+
+test('a read-only overview leaves policy changes available during its transaction',async()=>{
+  await enable();
+  await sql.begin(async tx=>{
+    await modelCostOverview(undefined,tx);
+    await sql.begin(async operator=>{
+      await operator`SET LOCAL lock_timeout='100ms'`;
+      await operator`UPDATE model_cost_policy SET enabled=false WHERE id=1`;
+    });
+  });
+  const [policy]=await sql`SELECT enabled FROM model_cost_policy WHERE id=1`;
+  assert.equal(policy!.enabled,false);
 });

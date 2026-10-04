@@ -46,8 +46,11 @@ export const isModelRequest = (req: Pick<ReceiptRequest,'service'|'model'|'model
 export async function lockModelCost(db: Db): Promise<void> {
   await db`SELECT pg_advisory_xact_lock(hashtext('budget:model-cost:global'))`;
 }
-async function policy(db: Db): Promise<Policy> {
-  const [row] = await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
+async function policy(db: Db, lockForReservation=false): Promise<Policy> {
+  // Operators use plain UPDATE, so the advisory money lock alone cannot prevent cap changes.
+  const [row] = lockForReservation
+    ? await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1 FOR SHARE`
+    : await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
   if (!row) throw new ModelCostBudgetError('金额策略记录缺失','missing_policy');
   return row;
 }
@@ -182,7 +185,7 @@ export async function modelCostOverview(now?: Date, db: Db=sql) {
 export async function reserveModelCost(db: Db, req: ReceiptRequest): Promise<ModelCostReservation | null> {
   const benchmark=req.purpose==='verification_benchmark';
   if(!isModelRequest(req)&&!benchmark)return null;
-  const p=await policy(db);
+  const p=await policy(db,true);
   // Benchmarks require monetary protection for every new attempt, even after operator changes.
   if(benchmark&&(!p.enabled||!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9))) {
     throw new ModelCostBudgetError('评测必须启用金额策略且北京时间当日、滚动 24 小时上限均不超过 9 CNY','benchmark_policy');
