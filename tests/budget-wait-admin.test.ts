@@ -16,6 +16,8 @@ test("budget waits are distinct from failures and reading them preserves retry a
     ["new", "Budget for dashscope exhausted (day)"],
     ["new", "Budget for dashscope exhausted (minute)"],
     ["new", "Budget for dashscope exhausted (stopped)"],
+    ["new", "Budget for model_cost exhausted (amount_day): 北京时间当天费用已满"],
+    ["new", "Budget for model_cost exhausted (amount_rolling): 滚动24小时金额已满"],
     ["failed", "Budget for dashscope exhausted (day)"],
     ["new", "extract: timeout"],
   ];
@@ -30,10 +32,10 @@ test("budget waits are distinct from failures and reading them preserves retry a
   const res = await app.inject({method:"GET",url:`/api/admin/review?source=${source}`});
   assert.equal(res.statusCode,200);
   const data=res.json();
-  assert.equal(data.budgetWaitCount,3);
+  assert.equal(data.budgetWaitCount,5);
   assert.equal(data.failureCount,2);
-  assert.deepEqual(new Set(data.budgetWaits.map((r: {id:string})=>r.id)),new Set(ids.slice(0,3)));
-  assert.deepEqual(new Set(data.failures.map((r: {id:string})=>r.id)),new Set(ids.slice(3)));
+  assert.deepEqual(new Set(data.budgetWaits.map((r: {id:string})=>r.id)),new Set(ids.slice(0,5)));
+  assert.deepEqual(new Set(data.failures.map((r: {id:string})=>r.id)),new Set(ids.slice(5)));
   assert.ok(data.budgetWaits.every((r: {retry_at:string})=>Number.isFinite(Date.parse(r.retry_at))));
   assert.deepEqual(await sql`SELECT id,processing_state,processing_error,processing_retry_at FROM articles WHERE source_id=${source} ORDER BY id`,before);
   assert.equal((await sql`SELECT count(*)::int n FROM publications WHERE source_id=${source}`)[0]!.n,0);

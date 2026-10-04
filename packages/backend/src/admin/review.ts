@@ -37,7 +37,7 @@ export async function listReviewQueue(limit = 40, sourceId?: string, view?: stri
       rows:[],failures:[],budgetWaits:[],automation};
   }
   // Budget exhaustion is an automatic wait, not a terminal content/provider failure.
-  const budgetWait = sql`processing_state = 'new' AND coalesce(processing_error ~ '^Budget for [a-zA-Z0-9_-]+ exhausted [(](minute|hour|day|stopped)[)]$', false)`;
+  const budgetWait = sql`processing_state = 'new' AND coalesce(processing_error ~ '^Budget for [a-zA-Z0-9_-]+ exhausted [(][a-zA-Z0-9_-]+[)](:.*)?$', false)`;
   const [counts] = await sql<{ pending: number; failures: number; budget_waits: number }[]>`
     SELECT (SELECT count(*)::int FROM articles a
       JOIN LATERAL (SELECT relevance, title_zh, summary_zh FROM analyses

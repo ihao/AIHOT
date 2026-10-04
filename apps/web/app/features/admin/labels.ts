@@ -5,6 +5,14 @@ export const HEALTH_LABEL: Record<string, string> = { ok: "正常", degraded: "�
 export const VISIBILITY_LABEL: Record<string, string> = { public: "公开", "summary-only": "仅摘要", withdrawn: "未公开" };
 
 export function processingErrorLabel(error: string): string {
+  const amount = /^Budget for model_cost exhausted \(([^)]+)\)(?::.*)?$/.exec(error);
+  if (amount) {
+    if (/price/.test(amount[1]!)) return '模型价格尚未核对，已暂停付费请求；补齐价格后自动重试。';
+    if (/unknown|usage|bound|unpriced/.test(amount[1]!)) return '模型费用或请求上界尚不能确认，已保留额度并暂停新请求。';
+    return /rolling/.test(amount[1]!)
+      ? '滚动 24 小时模型金额额度已满，等待费用退出窗口后自动重试。'
+      : '北京时间当天模型金额额度已满，等待次日额度恢复后自动重试。';
+  }
   const match = /^Budget for ([a-zA-Z0-9_-]+) exhausted \((minute|hour|day|stopped)\)$/.exec(error);
   if (!match) return error;
   const service = match[1] === "dashscope" ? "百炼" : match[1];

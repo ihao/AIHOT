@@ -6,8 +6,10 @@ import { sql } from "../db.ts";
 import { CAPABILITIES, invalidateModelCache, modelSources, type Capability, type CapabilityKey } from "../editorial/models.ts";
 import { MODELS } from "../providers/llm.ts";
 import { audit } from "./auth.ts";
+import { modelCostOverview } from "../providers/model-cost.ts";
 
 interface UsageRow {
+  service: string;
   purpose: string;
   model: string | null;
   prompt_version: string | null;
@@ -19,41 +21,46 @@ interface UsageRow {
   p95: number | null;
   tokens_in: string | null;
   tokens_out: string | null;
+  tokens_cached: string | null;
   actual_cost: string | null;
   currency: string | null;
 }
 
 export async function modelsOverview(days = 7) {
   const since = new Date(Date.now() - days * 86400_000);
-  const [sources, usage, prices, history, benches] = await Promise.all([
+  const [sources, usage, prices, history, benches, moneyBudget] = await Promise.all([
     modelSources(),
     sql<UsageRow[]>`
-      SELECT r.purpose, a.model, r.request->>'promptVersion' AS prompt_version, count(*)::int AS calls,
+      SELECT r.purpose, a.model, r.request->>'promptVersion' AS prompt_version, a.service, count(*)::int AS calls,
              count(*) FILTER (WHERE a.status = 'received')::int AS ok,
              count(*) FILTER (WHERE a.status = 'failed')::int AS failed,
              count(*) FILTER (WHERE a.status = 'unknown')::int AS unknown,
              percentile_disc(0.5) WITHIN GROUP (ORDER BY a.latency_ms) AS p50,
              percentile_disc(0.95) WITHIN GROUP (ORDER BY a.latency_ms) AS p95,
              sum((a.usage->>'prompt_tokens')::bigint) AS tokens_in, sum((a.usage->>'completion_tokens')::bigint) AS tokens_out,
+             sum(CASE WHEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0') ~ '^[0-9]+$'
+               THEN least(coalesce((a.usage->>'prompt_tokens')::bigint,0),coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::bigint) ELSE 0 END) AS tokens_cached,
              sum(a.cost) FILTER (WHERE a.cost_basis = 'actual') AS actual_cost, max(a.currency) AS currency
       FROM receipt_attempts a JOIN receipts r ON r.id = a.receipt_id
       WHERE a.started_at >= ${since} AND a.origin = 'live' AND a.model IS NOT NULL
-      GROUP BY 1, 2, 3 ORDER BY 1, 4 DESC`,
-    sql<{ service: string; model: string; currency: string; input_per_mtok: string | null; output_per_mtok: string | null }[]>`
-      SELECT service, model, currency, input_per_mtok, output_per_mtok FROM service_prices`,
+      GROUP BY 1, 2, 3, 4 ORDER BY 1, calls DESC`,
+    sql<{ service: string; model: string; currency: string; input_per_mtok: string | null; output_per_mtok: string | null; cached_per_mtok: string | null }[]>`
+      SELECT service, model, currency, input_per_mtok, output_per_mtok, cached_per_mtok FROM service_prices`,
     sql<{ at: Date; actor: string; subject: string; reason: string | null; before: unknown; after: unknown }[]>`
       SELECT created_at AS at, actor, subject, reason, before, after FROM audit_log WHERE action = 'models.switch' ORDER BY created_at DESC LIMIT 30`,
     sql<{ id: string; label: string; sample_size: number; prompt_version: string | null; models: string[]; summary: unknown; created_at: Date }[]>`
       SELECT id, label, sample_size, prompt_version, models,
              (SELECT coalesce(jsonb_object_agg(key, value - 'sweep'), '{}'::jsonb) FROM jsonb_each(r.summary)) AS summary,
-             created_at FROM selectbench_runs r ORDER BY created_at DESC LIMIT 8`,
+      created_at FROM selectbench_runs r ORDER BY created_at DESC LIMIT 8`,
+    modelCostOverview(),
   ]);
-  const serviceOf = (model: string) => Object.values(MODELS).find((m) => m.model === model || m.key === model)?.service ?? null;
   const priced = (u: UsageRow) => {
-    const service = u.model ? serviceOf(u.model) : null;
+    const service = u.service;
     const p = prices.find((x) => x.service === service && x.model === u.model) ?? prices.find((x) => x.service === service && x.model === "");
     if (!p || (!p.input_per_mtok && !p.output_per_mtok)) return null;
-    return { amount: (Number(u.tokens_in ?? 0) / 1e6) * Number(p.input_per_mtok ?? 0) + (Number(u.tokens_out ?? 0) / 1e6) * Number(p.output_per_mtok ?? 0), currency: p.currency };
+    const cached = Number(u.tokens_cached ?? 0);
+    return { amount: ((Number(u.tokens_in ?? 0)-cached)*Number(p.input_per_mtok ?? 0)
+      +cached*Number(p.cached_per_mtok ?? p.input_per_mtok ?? 0)+Number(u.tokens_out ?? 0)*Number(p.output_per_mtok ?? 0))/1e6, currency: p.currency };
   };
   const capabilities = (Object.entries(CAPABILITIES) as Array<[CapabilityKey, Capability]>).map(([key, c]) => ({
     key,
@@ -76,13 +83,14 @@ export async function modelsOverview(days = 7) {
         p95: u.p95,
         tokensIn: Number(u.tokens_in ?? 0),
         tokensOut: Number(u.tokens_out ?? 0),
+        cachedTokensIn: Number(u.tokens_cached ?? 0),
         actualCost: u.actual_cost === null ? null : Number(u.actual_cost),
         currency: u.currency,
         estimate: priced(u),
       })),
   }));
   const choices = Object.values(MODELS).map((m) => ({ key: m.key, service: m.service, vision: !!m.vision }));
-  return { days, capabilities, choices, history, benches };
+  return { days, capabilities, choices, history, benches, moneyBudget };
 }
 
 /** Switches a capability to another registered model (or back to the environment/default when null). */
