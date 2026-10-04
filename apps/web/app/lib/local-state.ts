@@ -2,6 +2,7 @@
 // silently. Keep the keys and formats once readers have data under them.
 import { useSyncExternalStore } from "react";
 import { beijingDate } from "@aihot/contracts/time";
+import type { BtcIngestionQuote } from "@aihot/contracts/market";
 
 export const KEYS = {
   starred: "aihot-starred-items",
@@ -25,6 +26,7 @@ export interface LocalStarredItem {
   publishedAt: string | null;
   score: number | null;
   aiSelected: boolean;
+  btcAtIngestion?: BtcIngestionQuote | null;
 }
 
 function storage(kind: "local" | "session"): Storage | null {
@@ -128,7 +130,17 @@ function normalizeStarred(v: Record<string, unknown>): LocalStarredItem {
     publishedAt: isDisplayableDate(v.publishedAt) ? v.publishedAt : null,
     score: typeof v.score === "number" ? v.score : null,
     aiSelected: v.aiSelected === true,
+    btcAtIngestion: normalizeIngestionQuote(v.btcAtIngestion),
   };
+}
+
+function normalizeIngestionQuote(value: unknown): BtcIngestionQuote | null {
+  if (!value || typeof value !== "object") return null;
+  const q = value as Record<string, unknown>;
+  if (typeof q.priceUsd !== "number" || !Number.isFinite(q.priceUsd) || q.priceUsd <= 0 || q.priceUsd >= 1e12 ||
+    q.currency !== "USD" || q.source !== "Coinbase" || !isDisplayableDate(q.quotedAt) ||
+    !isDisplayableDate(q.fetchedAt) || !isDisplayableDate(q.ingestedAt)) return null;
+  return { priceUsd: q.priceUsd, currency: "USD", source: "Coinbase", quotedAt: q.quotedAt, fetchedAt: q.fetchedAt, ingestedAt: q.ingestedAt };
 }
 
 export function getStarred(): LocalStarredItem[] {

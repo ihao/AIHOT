@@ -10,6 +10,7 @@ import { storyStatusFor } from "../events/digest.ts";
 import { itemUrl, storyApiUrl, storyUrl } from "./links.ts";
 import { SITE } from "@aihot/industry/site";
 import { curatedEvidence } from "../events/eligibility.ts";
+import { ingestionQuoteView, type IngestionQuoteRow } from "./market.ts";
 
 export type StoryLookup = { kind: "found"; storyId: number; publicId: string } | { kind: "merged"; target: string } | { kind: "not_found" };
 
@@ -36,7 +37,7 @@ export async function resolveStory(publicId: string): Promise<StoryLookup> {
   return { kind: "found", storyId: s!.id, publicId };
 }
 
-interface ReportRow {
+interface ReportRow extends IngestionQuoteRow {
   id: string;
   title: string;
   summary: string | null;
@@ -62,9 +63,11 @@ async function storyReports(storyId: number, now: Date): Promise<ReportRow[]> {
   return sql<ReportRow[]>`
     SELECT DISTINCT ON (p.article_id) p.article_id AS id, p.title, p.summary, p.url, p.selected,
       coalesce(p.published_at, p.discovered_at) AS at, s.id AS source_id, s.name AS source_name, s.kind AS source_kind,
-      p.first_party, s.icon_url, f.public_id AS fact_public_id, f.id AS fact_id
+      p.first_party, s.icon_url, f.public_id AS fact_public_id, f.id AS fact_id,
+      a.ingested_at, bq.price_usd AS btc_price_usd, bq.quoted_at AS btc_quoted_at, bq.fetched_at AS btc_fetched_at
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     JOIN sources s ON s.id = p.source_id
+    JOIN articles a ON a.id = p.article_id LEFT JOIN btc_usd_quotes bq ON bq.id = a.btc_quote_id
     WHERE f.story_id = ${storyId} AND ${curatedEvidence("p", now)} AND s.participation_mode = 'editorial'
     ORDER BY p.article_id, (fa.role = 'primary') DESC`;
 }
@@ -79,6 +82,7 @@ function reportView(r: ReportRow): StoryReportView {
     originalUrl: r.url,
     selected: r.selected,
     factId: r.fact_public_id,
+    btcAtIngestion: ingestionQuoteView(r),
   };
 }
 

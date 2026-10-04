@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import type { StoryFollowup, StoryFollowupsResponse, StoryRef } from "@aihot/contracts/site";
 import { MoreLink } from "../../components/ui/Page";
 import { relativeTime, shortSourceName } from "../../lib/format";
+import { BtcIngestionPrice } from "../market/BtcIngestionPrice";
 
 /**
  * "事件后续": the other developments of the event this report belongs to, newest first, with a link to
@@ -61,6 +62,7 @@ function Followups({items, more, story}: {items: StoryFollowup[]; more: boolean;
                 {shortSourceName(d.representative.source.name)} · {relativeTime(d.representative.timelineAt)}
               </span>
             </Link>
+            <BtcIngestionPrice quote={d.representative.btcAtIngestion} />
           </li>
         ))}
       </ul>

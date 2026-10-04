@@ -6,6 +6,7 @@ import { pageMeta } from "../lib/seo";
 import { exportBundle, importBundle, removeStar, useStarred, type ImportReport } from "../lib/local-state";
 import { fullDateTime, shortSourceName } from "../lib/format";
 import { IconBookmark, IconDownload, IconClose } from "../components/icons";
+import { BtcIngestionPrice } from "../features/market/BtcIngestionPrice";
 
 /** Shared caches may keep this page for five minutes. */
 export function headers() {
@@ -132,6 +133,7 @@ export default function StarredPage() {
                 {s.summary && <p className="mt-1.5 line-clamp-2 text-[14px] leading-[1.75] text-ink-3">{s.summary}</p>}
                 {unavailable && <p className="mt-2 text-[12.5px] text-hot">这条内容已不再公开，收藏会保留直到你手动移除。</p>}
                 {status === "summary-only" && <p className="mt-2 text-[12.5px] text-amber-ink">应来源方要求，这条内容现在只提供摘要。</p>}
+                <BtcIngestionPrice quote={s.btcAtIngestion} />
               </li>
             );
           })}

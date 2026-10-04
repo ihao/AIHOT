@@ -15,6 +15,8 @@ import { buttonClass } from "./components/ui/Controls";
 import { THEME_BOOT_SCRIPT } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
 import { useHydratedFlag } from "./lib/hydration";
+import type { BtcMarketResponse, BtcUsdQuote } from "@aihot/contracts/market";
+import { BtcPriceBar } from "./features/market/BtcPriceBar";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: "/favicon.ico", sizes: "any" },
@@ -29,11 +31,11 @@ interface SiteMeta {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  try {
-    return await apiGet<SiteMeta>("/api/site/meta", { signal: request.signal });
-  } catch {
-    return { changelogVersion: null } satisfies SiteMeta;
-  }
+  const [meta, market] = await Promise.all([
+    apiGet<SiteMeta>("/api/site/meta", { signal: request.signal }).catch(() => ({ changelogVersion: null })),
+    apiGet<BtcMarketResponse>("/api/site/market/btc", { signal: AbortSignal.any([request.signal, AbortSignal.timeout(2000)]) }).catch(() => ({ quote: null })),
+  ]);
+  return { ...meta, btcQuote: market.quote, btcAsOf: market.quote ? Date.now() : 0 };
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
@@ -67,7 +69,7 @@ export function meta({ error }: Route.MetaArgs) {
 }
 
 /** Sidebar, main column and phone tab bar around a page (or an error). */
-function SiteShell({ changelogVersion, children }: { changelogVersion: string | null; children: ReactNode }) {
+function SiteShell({ changelogVersion, btcQuote = null, btcAsOf = 0, children }: { changelogVersion: string | null; btcQuote?: BtcUsdQuote | null; btcAsOf?: number; children: ReactNode }) {
   const navigation = useNavigation();
   return (
     <div className="flex min-h-dvh">
@@ -79,7 +81,10 @@ function SiteShell({ changelogVersion, children }: { changelogVersion: string | 
       {/* Mobile shell (≤ 960px): one centred column, the tab bar below. Desktop: the page fills the main area
           up to the list width (--page-max-wide), centred beyond it. */}
       <main id="main" className="min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-7 lg:pb-[72px] lg:pt-6">
-        <div className="mx-auto w-full max-w-[640px] px-4 lg:max-w-[var(--page-max-wide)] lg:px-0">{children}</div>
+        <div className="mx-auto w-full max-w-[640px] px-4 lg:max-w-[var(--page-max-wide)] lg:px-0">
+          <BtcPriceBar initialQuote={btcQuote} initialNow={btcAsOf} />
+          {children}
+        </div>
       </main>
       <MobileTabBar changelogVersion={changelogVersion} />
       <BackToTop />
@@ -94,7 +99,7 @@ export default function App() {
   // The admin has its own chrome.
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return <Outlet />;
   return (
-    <SiteShell changelogVersion={meta.changelogVersion}>
+    <SiteShell changelogVersion={meta.changelogVersion} btcQuote={meta.btcQuote} btcAsOf={meta.btcAsOf}>
       <Outlet />
     </SiteShell>
   );
@@ -128,5 +133,5 @@ export function ErrorBoundary() {
   );
   // Admin errors stay inside the admin's own chrome.
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return body;
-  return <SiteShell changelogVersion={site?.changelogVersion ?? null}>{body}</SiteShell>;
+  return <SiteShell changelogVersion={site?.changelogVersion ?? null} btcQuote={site?.btcQuote ?? null} btcAsOf={site?.btcAsOf}>{body}</SiteShell>;
 }

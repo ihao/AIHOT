@@ -10,6 +10,7 @@ import { ScoreLabel } from "../../components/ui/Score";
 import { MediaThumbs, SourceLine, StarButton } from "./parts";
 import { GroupDevelopments, GroupSources, LatestDevelopment } from "./ReadingGroup";
 import { QuotedLine } from "../item/QuotedPost";
+import { BtcIngestionPrice } from "../market/BtcIngestionPrice";
 
 export interface FeedItemProps {
   item: FeedItemSummary;
@@ -98,6 +99,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
           <p className="line-clamp-2 text-[13px] leading-[1.65] text-ink-3 lg:line-clamp-none lg:leading-[1.75] lg:text-note">推荐理由：{item.reason}</p>
         </div>
       )}
+      <BtcIngestionPrice quote={item.btcAtIngestion} />
     </article>
   );
 });

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router";
 import { Collapse } from "../../components/ui/Presence";
 import type { Development, GroupInfo, GroupReport, TimelineFilters } from "@aihot/contracts/site";
+import { BtcIngestionPrice } from "../market/BtcIngestionPrice";
 import { IconArrowUpRight, IconChevronDown } from "../../components/icons";
 import { monthDayTime, shortSourceName } from "../../lib/format";
 import { isReload } from "./restore";
@@ -168,7 +169,8 @@ export function GroupSources({ group, filters, parentId }: { group: GroupInfo; f
       <Panel open={open}>
         <ul className="divide-y divide-line-soft">
           {others.map((r) => (
-            <li key={r.id} className="flex items-baseline gap-2 py-1.5 text-[13px]">
+            <li key={r.id} className="py-2 text-[13px]">
+              <div className="flex items-baseline gap-2">
               <span className="w-[108px] shrink-0 truncate text-ink-4">{shortSourceName(r.source.name)}</span>
               <Link to={`/items/${r.id}`} className="min-w-0 flex-1 truncate text-ink-2 hover:text-accent">
                 {r.title}
@@ -176,6 +178,8 @@ export function GroupSources({ group, filters, parentId }: { group: GroupInfo; f
               <a href={r.originalUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原文" className="shrink-0 text-ink-4 hover:text-accent">
                 <IconArrowUpRight size={13} />
               </a>
+              </div>
+              <BtcIngestionPrice quote={r.btcAtIngestion} />
             </li>
           ))}
         </ul>
@@ -215,6 +219,7 @@ export function GroupDevelopments({ group, filters, parentId }: { group: GroupIn
                 {shortSourceName(d.representative.source.name)} · <span className="num">{monthDayTime(d.representative.timelineAt)}</span>
                 {d.reportCount > 1 ? ` · ${d.reportCount} 篇报道` : ""}
               </div>
+              <BtcIngestionPrice quote={d.representative.btcAtIngestion} />
             </li>
           ))}
         </ol>

@@ -139,14 +139,19 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
   const newId = m.id ?? newArticleId();
   const hash = contentHash({ title, bodyText: m.bodyText, excerpt: m.excerpt });
   const [inserted] = await db<{ id: string }[]>`
+    WITH ingestion AS MATERIALIZED (SELECT clock_timestamp() AS at)
     INSERT INTO articles (id, source_id, identity_key, url, title, author, language, published_at, published_at_claim,
       discovered_at, source_updated_at, timeline_at, backfill, backfill_reason, revision, content_hash, excerpt,
-      body_text, body_html, body_status, media, x_post, raw)
-    VALUES (${newId}, ${m.sourceId}, ${identityKey}, ${m.url}, ${title}, ${m.author ?? null}, ${m.language ?? null},
+      body_text, body_html, body_status, media, x_post, raw, ingested_at, btc_quote_id)
+    SELECT ${newId}, ${m.sourceId}, ${identityKey}, ${m.url}, ${title}, ${m.author ?? null}, ${m.language ?? null},
       ${t.publishedAt}, ${m.publishedAt ?? null}, ${discoveredAt}, ${m.sourceUpdatedAt ?? null}, ${t.timelineAt},
       ${t.backfill}, ${t.backfillReason}, 1, ${hash}, ${m.excerpt ?? null}, ${m.bodyText ?? null}, ${m.bodyHtml ?? null},
       ${m.bodyStatus ?? (m.bodyText ? "ok" : "pending")}, ${db.json((m.media ?? []) as never)},
-      ${m.xPost ? db.json(m.xPost as never) : null}, ${m.raw === undefined ? null : db.json(m.raw as never)})
+      ${m.xPost ? db.json(m.xPost as never) : null}, ${m.raw === undefined ? null : db.json(m.raw as never)}, ingestion.at,
+      (SELECT q.id FROM btc_usd_quotes q WHERE q.fetched_at <= ingestion.at AND q.quoted_at <= ingestion.at
+         AND q.fetched_at >= ingestion.at - interval '5 minutes' AND q.quoted_at >= ingestion.at - interval '5 minutes'
+       ORDER BY q.fetched_at DESC, q.id DESC LIMIT 1)
+    FROM ingestion
     ON CONFLICT (identity_key) DO NOTHING RETURNING id`;
   if (inserted) {
     await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)

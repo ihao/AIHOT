@@ -18,6 +18,7 @@ import { StoryFollowups } from "../features/item/StoryFollowups";
 import { MediaGallery } from "../features/item/MediaGallery";
 import { QuotedPost } from "../features/item/QuotedPost";
 import { IconArrowLeft, IconCopy, IconDownload, IconExternal, IconImage, IconMenu, IconShare } from "../components/icons";
+import { BtcIngestionPrice } from "../features/market/BtcIngestionPrice";
 
 const PosterSheet = lazy(() => import("../features/item/PosterSheet"));
 
@@ -359,6 +360,8 @@ export default function ItemPage() {
             </a>
             <span> · {hostOf(item.links.original)}</span>
           </p>
+
+          <BtcIngestionPrice quote={item.btcAtIngestion} detail />
 
           {item.tags.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-1.5 lg:hidden">

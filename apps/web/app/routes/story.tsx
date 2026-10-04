@@ -7,6 +7,7 @@ import { data as routeData } from "react-router";
 import { breadcrumbLd, pageMeta, titled } from "../lib/seo";
 import { beijingDate, beijingTime, monthDayTime, relativeTime, shortSourceName } from "../lib/format";
 import { HeatChart } from "../features/story/HeatChart";
+import { BtcIngestionPrice } from "../features/market/BtcIngestionPrice";
 import { Badge, SelectedBadge } from "../components/ui/Badge";
 import { PillTabs } from "../components/ui/Tabs";
 import { Select } from "../components/ui/Controls";
@@ -145,6 +146,7 @@ function TimelineRow({ r }: { r: StoryReportView }) {
             )}
           </>
         )}
+        <BtcIngestionPrice quote={r.btcAtIngestion} />
       </div>
     </li>
   );
@@ -289,6 +291,7 @@ export default function StoryPage() {
                     <div className="mt-0.5 truncate text-[12.5px] text-ink-4">
                       {shortSourceName(d.representative.source.name)}：{d.representative.title}
                     </div>
+                    <BtcIngestionPrice quote={d.representative.btcAtIngestion} />
                   </li>
                 ))}
               </ol>
@@ -395,6 +398,7 @@ export default function StoryPage() {
                       {r.title}
                       <IconChevronRight size={13} className="ml-0.5 inline -translate-y-px text-ink-4 transition-transform group-hover:translate-x-0.5" />
                     </Link>
+                    <BtcIngestionPrice quote={r.btcAtIngestion} />
                   </li>
                 ))}
               </ul>

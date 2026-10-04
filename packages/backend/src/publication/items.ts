@@ -7,8 +7,9 @@ import { curatedEvidence } from "../events/eligibility.ts";
 import { sql, type Db } from "../db.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { displayTags } from "./rules.ts";
+import { ingestionQuoteView, type IngestionQuoteRow } from "./market.ts";
 
-export interface ItemRow {
+export interface ItemRow extends IngestionQuoteRow {
   id: string;
   revision: number;
   title: string;
@@ -58,7 +59,8 @@ export const ITEM_COLUMNS = sql`
   p.selected, p.eligible, p.channel, p.url, p.published_at, p.discovered_at, p.timeline_at, p.sort_at, p.first_party, p.visibility,
   p.body_mode, p.syndicate, p.indexable, p.visible_after, p.backfill, p.fact_id, p.story_id,
   s.id AS source_id, s.name AS source_name, s.kind AS source_kind, s.participation_mode AS source_mode, s.icon_url AS source_icon,
-  a.x_post, a.author, a.language,
+  a.x_post, a.author, a.language, a.ingested_at,
+  bq.price_usd AS btc_price_usd, bq.quoted_at AS btc_quoted_at, bq.fetched_at AS btc_fetched_at,
   st.public_id::text AS story_public_id, CASE WHEN st.id IS NOT NULL THEN p.title END AS story_title,
   CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
 
@@ -76,6 +78,7 @@ export const ITEM_FROM = sql`
   FROM publications p
   JOIN sources s ON s.id = p.source_id
   JOIN articles a ON a.id = p.article_id
+  LEFT JOIN btc_usd_quotes bq ON bq.id = a.btc_quote_id
   LEFT JOIN stories st ON st.id = p.story_id AND st.merged_into IS NULL
     AND ${curatedEvidence("p", null, true)}
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
@@ -156,6 +159,7 @@ export function xView(row: Pick<ItemRow, "x_post" | "zh_text"> & Partial<Pick<It
 export function toItemSummary(row: ItemRow): ItemSummary {
   const x = row.channel === "x" ? xView(row, true) : null;
   return {
+    btcAtIngestion: ingestionQuoteView(row),
     id: row.id,
     revision: row.revision,
     title: row.title,
@@ -188,6 +192,7 @@ export function toItemSummary(row: ItemRow): ItemSummary {
 export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
   const item = toItemSummary(row);
   return {
+    btcAtIngestion: item.btcAtIngestion ?? null,
     id: item.id, title: item.title, summary: item.summary, reason: item.reason,
     source: { name: item.source.name }, publishedAt: item.publishedAt, timelineAt: item.timelineAt,
     category: item.category, tags: item.tags, score: item.score, selected: item.selected, channel: item.channel,

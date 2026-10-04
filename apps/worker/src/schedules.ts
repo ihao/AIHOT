@@ -24,6 +24,7 @@ import { backupConfigured, runBackup } from "@aihot/backend/operations/backup";
 import { sourceHealthWeekly } from "@aihot/backend/operations/reports";
 import { markStalePendingReceipts } from "@aihot/backend/providers/receipts";
 import { markStaleDeliveries } from "@aihot/backend/notify/deliver";
+import { collectBtcUsdQuote } from "@aihot/backend/market/btc";
 
 interface Scheduled {
   name: string;
@@ -78,6 +79,7 @@ export const SCHEDULES: Scheduled[] = [
     : []),
   ...(collecting
     ? [
+        { name: "market.btc-usd", cron: "*/5 * * * *", run: () => collectBtcUsdQuote() },
         { name: "sources.schedule", cron: "* * * * *", run: () => scheduleDueSources() },
         { name: "sources.adapt-intervals", cron: "20 4 * * *", run: adaptIntervals },
         // WeChat official accounts (paid), each once per its interval.

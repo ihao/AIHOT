@@ -10,6 +10,7 @@ import { proxiedImage } from "../media/imgproxy.ts";
 import { ITEM_COLUMNS, ITEM_FROM, categoryCondition, channelCondition, selectedCondition, tagCondition, toItemSummary, topicCondition, type ItemRow } from "./items.ts";
 import { pickRepresentative } from "./timeline.ts";
 import { curatedEvidence } from "../events/eligibility.ts";
+import { ingestionQuoteView, type IngestionQuoteRow } from "./market.ts";
 
 export interface GroupReportsQuery {
   factPublicId: string;
@@ -31,13 +32,15 @@ export async function loadGroupReports(q: GroupReportsQuery, now = new Date()): 
   const [fact] = await sql<{ id: number }[]>`SELECT id FROM facts WHERE public_id = ${q.factPublicId}`;
   if (!fact) return { kind: "not_found" };
   const filters = sql`${channelCondition(q.channel)} ${categoryCondition(q.category)} ${tagCondition(q.tag)} ${topicCondition(q.topicTags)}`;
-  const members = await sql<{
+  const members = await sql<(IngestionQuoteRow & {
     id: string; title: string; summary: string | null; timeline_at: Date; url: string; selected: boolean;
     source_id: string; source_name: string; source_kind: string; first_party: boolean; icon_url: string | null;
-  }[]>`
+  })[]>`
     SELECT p.article_id AS id, p.title, p.summary, p.timeline_at, p.url, p.selected,
-           s.id AS source_id, s.name AS source_name, s.kind AS source_kind, p.first_party, s.icon_url
+           s.id AS source_id, s.name AS source_name, s.kind AS source_kind, p.first_party, s.icon_url,
+           a.ingested_at, bq.price_usd AS btc_price_usd, bq.quoted_at AS btc_quoted_at, bq.fetched_at AS btc_fetched_at
     FROM publications p JOIN sources s ON s.id = p.source_id
+    JOIN articles a ON a.id = p.article_id LEFT JOIN btc_usd_quotes bq ON bq.id = a.btc_quote_id
     WHERE p.article_id IN (SELECT article_id FROM fact_articles WHERE fact_id = ${fact.id})
       AND ${curatedEvidence("p", now)} ${filters}
     ORDER BY p.timeline_at DESC, p.article_id ASC`;
@@ -70,6 +73,7 @@ export async function loadGroupReports(q: GroupReportsQuery, now = new Date()): 
         timelineAt: m.timeline_at.toISOString(),
         originalUrl: m.url,
         selected: m.selected,
+        btcAtIngestion: ingestionQuoteView(m),
       })),
       nextCursor: next,
     },

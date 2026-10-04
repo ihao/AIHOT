@@ -66,3 +66,15 @@ test("valid dates and existing bookmarks survive import unchanged", async () => 
   assert.equal(saved!.savedAt, item.savedAt);
   assert.equal(saved!.publishedAt, item.publishedAt);
 });
+
+test("bookmarks retain a validated ingestion quote across export and import; old and invalid quotes stay missing", async () => {
+  const quote = { priceUsd: 61000.25, currency: "USD", source: "Coinbase", quotedAt: "2026-10-04T16:00:00Z", fetchedAt: "2026-10-04T16:00:01Z", ingestedAt: "2026-10-04T16:00:02Z" };
+  const { state } = await reader([{ id: "priced", title: "Priced", btcAtIngestion: quote }, { id: "old", title: "Old" }, { id: "bad", title: "Bad", btcAtIngestion: { ...quote, ingestedAt: "broken" } }]);
+  assert.deepEqual(state.getStarred()[0]!.btcAtIngestion, quote);
+  assert.equal(state.getStarred()[1]!.btcAtIngestion, null);
+  assert.equal(state.getStarred()[2]!.btcAtIngestion, null);
+  const exported = state.exportBundle();
+  const reopened = await reader();
+  reopened.state.importBundle(JSON.stringify(exported));
+  assert.deepEqual(reopened.state.getStarred()[0]!.btcAtIngestion, quote);
+});
