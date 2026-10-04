@@ -76,5 +76,5 @@ test("bookmarks retain a validated ingestion quote across export and import; old
   const exported = state.exportBundle();
   const reopened = await reader();
   reopened.state.importBundle(JSON.stringify(exported));
-  assert.deepEqual(reopened.state.getStarred()[0]!.btcAtIngestion, quote);
+  assert.deepEqual(reopened.state.getStarred().find((item) => item.id === "priced")!.btcAtIngestion, quote);
 });
