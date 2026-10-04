@@ -32,6 +32,7 @@ interface Models {
     rolling: {estimatedCny:number;reservedCny:number;totalCny:number;unpricedAttempts:number;startsAt:string};
     basis:'estimated';blocked:boolean;reasons:string[];
   };
+  benchmarkBudget: Models['moneyBudget'];
   days: number;
   capabilities: Array<{ key: string; label: string; env: string; defaultModel: string; vision: boolean; current: { model: string; source: "admin" | "env" | "default" }; usage: Usage[] }>;
   choices: Array<{ key: string; service: string; vision: boolean }>;
@@ -61,14 +62,16 @@ export default function ModelsAdmin({ loaderData: m }: Route.ComponentProps) {
       subtitle="每项能力当前用哪个模型、来自哪里（后台切换 > 环境变量 > 代码默认），以及近期的成功率、耗时与费用。切换只影响之后的新任务，已有结果不重算；换精选模型前先看 SelectBench 同批对比。"
       actions={<FilterChips param="days" options={[{ value: "1", label: "24 小时" }, { value: "", label: "7 天" }, { value: "30", label: "30 天" }]} />}
     >
-      <Card title="全部模型共同金额预算" right={<Badge tone={m.moneyBudget.blocked ? 'warn' : m.moneyBudget.policy.enabled ? 'accent' : 'muted'}>{m.moneyBudget.blocked ? '等待额度或核对' : m.moneyBudget.policy.enabled ? '已启用' : '未启用'}</Badge>}>
+      <Card title="模型费用与产出优化" right={<Badge tone={m.moneyBudget.blocked ? 'warn' : m.moneyBudget.policy.enabled ? 'accent' : 'muted'}>{m.moneyBudget.blocked ? '等待额度或核对' : m.moneyBudget.policy.enabled ? '全站硬限额已启用' : '统计费用，正常产出不设金额硬限额'}</Badge>}>
         <div className="grid gap-3 sm:grid-cols-2">
-          <p>北京时间今天：{money(m.moneyBudget.day.totalCny)} / {money(m.moneyBudget.policy.dayLimitCny)} 元<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.day.estimatedCny)} · 已预占 {money(m.moneyBudget.day.reservedCny)}</span></p>
-          <p>滚动 24 小时：{money(m.moneyBudget.rolling.totalCny)} / {money(m.moneyBudget.policy.rollingLimitCny)} 元<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.rolling.estimatedCny)} · 已预占 {money(m.moneyBudget.rolling.reservedCny)}</span></p>
+          <p>北京时间今天：{money(m.moneyBudget.day.totalCny)} 元{m.moneyBudget.policy.enabled&&` / ${money(m.moneyBudget.policy.dayLimitCny)} 元硬限额`}<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.day.estimatedCny)} · 已预占 {money(m.moneyBudget.day.reservedCny)}</span></p>
+          <p>滚动 24 小时：{money(m.moneyBudget.rolling.totalCny)} 元{m.moneyBudget.policy.enabled&&` / ${money(m.moneyBudget.policy.rollingLimitCny)} 元硬限额`}<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.rolling.estimatedCny)} · 已预占 {money(m.moneyBudget.rolling.reservedCny)}</span></p>
         </div>
-        <p className="mt-3 text-sm text-ink-3">包含各模型、向量与评测；并发请求先预占，结果未知继续占用。按已核对单价和返回用量估算，最终费用以供应商账单为准。</p>
+        <p className="mt-3 text-sm text-ink-3">目标是在保持信息密度、有效产出和持续更新的同时降低费用。包含各模型、向量与评测，按已核对单价和返回用量估算，最终费用以供应商账单为准。</p>
+        <p className="mt-2 text-sm text-ink-3">独立评测实验：今天 {money(m.benchmarkBudget.day.totalCny)} / {money(m.benchmarkBudget.policy.dayLimitCny)} 元，滚动 24 小时 {money(m.benchmarkBudget.rolling.totalCny)} / {money(m.benchmarkBudget.policy.rollingLimitCny)} 元。实验请求先预占，结果未知保留；实验额度不挤占正常生产任务。</p>
         <p className="mt-2 text-sm text-ink-3">普通一手信息分流：{m.verificationRouting.enabled ? `已启用 ${m.verificationRouting.ordinaryModel}` : '待质量评测通过后启用'}。二手媒体与风险内容继续使用下方配置的核验模型。</p>
-        {m.moneyBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">{m.moneyBudget.reasons.join('；')}</p>}
+        {m.moneyBudget.policy.enabled&&m.moneyBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">{m.moneyBudget.reasons.join('；')}</p>}
+        {m.benchmarkBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">评测：{m.benchmarkBudget.reasons.join('；')}</p>}
       </Card>
       <div className="grid gap-5">
         {m.capabilities.map((c) => {

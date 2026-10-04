@@ -5,6 +5,7 @@
 // 3. The raw response is saved before any business write; recovery reuses a received response.
 // 4. An unknown model outcome waits for an operator while the money policy is enabled.
 import { sql, type Db } from "../db.ts";
+import { checkProviderCapacity, ProviderBudgetExceededError } from './provider-capacity.ts';
 import { sha256, stableJson } from "../lib/ids.ts";
 import { BudgetExceededError, definitelyNotAccepted, isModelRequest, lockModelCost, modelCostPolicyEnabled,
   releaseModelCost, reserveModelCost, settleModelCost, type ModelBudgetBounds, type ModelCostReservation } from './model-cost.ts';
@@ -51,6 +52,8 @@ export interface ReceiptRequest {
   attemptTag?: string;
   /** Conservative per-attempt bounds; deliberately excluded from the logical request key. */
   modelBudget?: ModelBudgetBounds;
+  /** Opaque endpoint/credential capacity key; excluded from logical request identity. */
+  providerCapacityKey?: string;
 }
 
 export interface ReceiptResult {
@@ -119,6 +122,7 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
       }
       if (existing.status === "unknown") return { kind: "unknown" as const, row: existing };
       // failed: the provider did not take the request, or its answer was unusable; a new attempt is allowed.
+      if (req.providerCapacityKey) await checkProviderCapacity(tx, req.providerCapacityKey, req.service);
       const reservation = await reserveModelCost(tx, req);
       await checkBudget(tx, req.service);
       const [r] = await tx<{ attempts: number }[]>`
@@ -126,6 +130,7 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
       const attemptId = await startAttempt(tx, existing.id, r!.attempts, req, reservation);
       return { kind: "call" as const, id: existing.id, attemptId };
     }
+    if (req.providerCapacityKey) await checkProviderCapacity(tx, req.providerCapacityKey, req.service);
     const reservation = await reserveModelCost(tx, req);
     await checkBudget(tx, req.service);
     const [row] = await tx<{ id: number }[]>`
@@ -153,9 +158,10 @@ export async function paidRequest(req: ReceiptRequest, call: () => Promise<CallO
     const message = (error instanceof ProviderRejectedError ? error.message : String(error)).slice(0, 2000);
     await sql.begin(async (tx) => {
       await lockModelCost(tx);
-      const free = error instanceof ProviderRejectedError && definitelyNotAccepted(error.status);
-      const protectedModel = isModelRequest(req) && await modelCostPolicyEnabled(tx);
-      const status = error instanceof ProviderRejectedError && (free || !protectedModel) ? 'failed' : 'unknown';
+      const free = (error instanceof ProviderRejectedError && definitelyNotAccepted(error.status))
+        || (error instanceof ProviderBudgetExceededError && error.actualHttpRejection);
+      const protectedModel = req.purpose==='verification_benchmark' || (isModelRequest(req) && await modelCostPolicyEnabled(tx));
+      const status = free || (error instanceof ProviderRejectedError && !protectedModel) ? 'failed' : 'unknown';
       if (free && isModelRequest(req)) await releaseModelCost(tx, receiptId, attemptId);
       await tx`UPDATE receipts SET status = ${status}, error = ${message}, updated_at = now() WHERE id = ${receiptId}`;
       await tx`UPDATE receipt_attempts SET status = ${status}, error = ${message}, latency_ms = ${Date.now() - started}, finished_at = now() WHERE id = ${attemptId}`;

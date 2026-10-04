@@ -4,7 +4,7 @@ import { after, before, beforeEach, test } from 'node:test';
 import { closeDb, sql } from '@aihot/backend/db';
 import { paidRequest, BudgetExceededError, logicalKeyFor, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from '@aihot/backend/providers/receipts';
 import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm';
-import { lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
+import { benchmarkModelCostOverview, lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
 import { sha256 } from '@aihot/backend/lib/ids';
 import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
@@ -82,6 +82,58 @@ test('price snapshots settle cache-hit usage but never pretend to be a provider 
   await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;
 });
 
+test('disabled production caps still snapshot and settle prices while calls exceed nine yuan',async()=>{
+  const req={...request('disabled-snapshot'),modelBudget:{inputTokens:10,maxOutputTokens:1,bounded:true}};
+  let sent=0;
+  try {
+    await paidRequest(req,async()=>{
+      sent++;
+      await sql`UPDATE service_prices SET input_per_mtok=2000000 WHERE service=${service}`;
+      return {response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}};
+    });
+    const row=await attempt(req);
+    assert.equal(row.model_cost_reserved_cny,11);
+    assert.equal(row.model_cost_price.input_per_mtok,1000000);
+    assert.deepEqual(row.model_cost_bounds,req.modelBudget);
+    assert.equal(row.model_cost_cny,10);assert.equal(row.model_cost_state,'estimated');
+    assert.equal(row.cost,10);assert.equal(row.cost_basis,'estimated');
+    await paidRequest(request('disabled-after-nine'),async()=>{sent++;return success();});
+    const overview=await modelCostOverview();
+    assert.equal(sent,2);assert.equal(overview.rolling.totalCny,12);assert.equal(overview.blocked,false);
+    assert.equal((await attempt(req)).model_cost_cny,10,'later catalog changes cannot rewrite settled historical estimates');
+  } finally {await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;}
+});
+
+test('disabled production caps retain an unknown attempt at its original price without blocking other calls',async()=>{
+  const req=request('disabled-unknown-snapshot');
+  await assert.rejects(paidRequest(req,async()=>{throw new Error('socket lost after sending');}));
+  await sql`UPDATE service_prices SET input_per_mtok=2000000 WHERE service=${service}`;
+  try {
+    const row=await attempt(req);
+    assert.equal(row.status,'unknown');assert.equal(row.model_cost_cny,2);
+    assert.equal(row.model_cost_price.input_per_mtok,1000000);
+    assert.deepEqual(row.model_cost_bounds,req.modelBudget);
+    assert.equal((await modelCostOverview()).rolling.reservedCny,2);
+    await paidRequest(request('disabled-after-unknown'),success);
+    assert.equal((await modelCostOverview()).rolling.totalCny,4);
+  } finally {await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;}
+});
+
+test('disabled production caps allow missing prices and unreliable bounds while reporting unknown amounts',async()=>{
+  let sent=0;
+  const unpriced=request('disabled-missing-price');
+  const unbounded={...request('disabled-missing-bound',otherService),modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}};
+  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  try {
+    for(const req of [unpriced,unbounded]) {
+      await paidRequest(req,async()=>{sent++;return {response:{},usage:null};});
+      const row=await attempt(req);assert.equal(row.model_cost_cny,null);assert.equal(row.model_cost_price,null);assert.equal(row.model_cost_bounds,null);
+    }
+    const overview=await modelCostOverview();
+    assert.equal(sent,2);assert.equal(overview.rolling.unpricedAttempts,2);assert.equal(overview.blocked,false);
+  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+});
+
 test('absent, malformed and out-of-bound usage retains the full reservation', async () => {
   await enable(20,20);
   for(const [i,usage] of [null,{prompt_tokens:-1,completion_tokens:0},{prompt_tokens:2,completion_tokens:0,total_tokens:2},{prompt_tokens:1,completion_tokens:0,prompt_tokens_details:{cached_tokens:2}}].entries()) {
@@ -117,7 +169,7 @@ test('a fresh paid attempt after unusable output keeps the prior settled amount'
 });
 
 test('historic usage counts across request-count resets and unknown historic usage freezes',async()=>{
-  const old={...request('legacy'),requestSummary:{userChars:1,maxTokens:1}};await paidRequest(old,async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
+  const old={...request('legacy'),modelBudget:undefined,requestSummary:{userChars:1,maxTokens:1}};await paidRequest(old,async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
   await sql`INSERT INTO budgets(service,per_minute,per_hour,per_day,usage_reset_at) VALUES(${service},100,100,100,now()) ON CONFLICT(service) DO UPDATE SET usage_reset_at=now()`;
   await enable();await assert.rejects(paidRequest(request('blocked-by-history'),success),BudgetExceededError);
   await sql`UPDATE receipt_attempts SET usage=NULL WHERE receipt_id=${(await attempt(old)).receipt_id}`;
@@ -212,7 +264,7 @@ test('a provider actual bill remains distinct from the directory budget estimate
 });
 
 test('legacy conservative fallback requires an explicitly reliable bound',async()=>{
-  const req={...request('legacy-bound'),requestSummary:{inputTokenBound:1,maxTokens:1,modelBudgetBounded:true}};
+  const req={...request('legacy-bound'),modelBudget:undefined,requestSummary:{inputTokenBound:1,maxTokens:1,modelBudgetBounded:true}};
   await paidRequest(req,async()=>({response:{},usage:null}));
   await enable();assert.equal((await modelCostOverview()).rolling.totalCny,2);
   await sql`UPDATE receipts SET request='{"inputTokenBound":1,"maxTokens":1,"modelBudgetBounded":false}'::jsonb WHERE id=${(await attempt(req)).receipt_id}`;
@@ -366,7 +418,6 @@ test('consistent input output and cache aliases still settle trusted usage',asyn
 });
 
 for(const [name,change] of [
-  ['disabled policy',()=>sql`UPDATE model_cost_policy SET enabled=false WHERE id=1`],
   ['day limit above nine yuan',()=>sql`UPDATE model_cost_policy SET day_limit_cny=10 WHERE id=1`],
   ['rolling limit above nine yuan',()=>sql`UPDATE model_cost_policy SET rolling_limit_cny=10 WHERE id=1`],
 ] as const) {
@@ -445,4 +496,123 @@ test('a read-only overview leaves policy changes available during its transactio
   });
   const [policy]=await sql`SELECT enabled FROM model_cost_policy WHERE id=1`;
   assert.equal(policy!.enabled,false);
+});
+
+test('production above nine yuan continues and never consumes the separate disabled-policy benchmark quota',async()=>{
+  await paidRequest(request('production-large'),async()=>({response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}}));
+  await paidRequest(request('production-continues'),success);
+  const req={...request('isolated-benchmark'),purpose:'verification_benchmark'};
+  await paidRequest(req,success);
+  const row=await attempt(req);assert.equal(row.model_cost_reserved_cny,2);assert.equal(row.model_cost_cny,1);
+  const experiment=await benchmarkModelCostOverview();
+  const production=await modelCostOverview();
+  assert.equal(experiment.scope,'verification_benchmark');assert.equal(experiment.rolling.totalCny,1);
+  assert.equal(experiment.policy.enabled,true);assert.equal(experiment.policy.productionEnabled,false);
+  assert.equal(production.scope,'all_models');assert.equal(production.rolling.totalCny,12);
+  assert.equal(production.policy.enabled,false);assert.equal(production.blocked,false);
+});
+
+test('all benchmark datasets share atomic reservations while ordinary production remains unblocked',async()=>{
+  await sql`UPDATE model_cost_policy SET day_limit_cny=3,rolling_limit_cny=3 WHERE id=1`;
+  const hold=gate(),started=gate();let experimentSent=0,productionSent=0;
+  const firstReq={...request('experiment-dataset-a'),purpose:'verification_benchmark',identity:{dataset:'a'}};
+  const first=paidRequest(firstReq,async()=>{experimentSent++;started.open();await hold.promise;return success();});
+  await Promise.race([started.promise,first]);
+  try {
+    const overview=await benchmarkModelCostOverview();
+    assert.equal(overview.rolling.reservedCny,2);
+    await assert.rejects(paidRequest({...request('experiment-dataset-b',otherService),purpose:'verification_benchmark',identity:{dataset:'b'}},async()=>{experimentSent++;return success();}),BudgetExceededError);
+    await paidRequest(request('production-during-experiment'),async()=>{productionSent++;return {response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}};});
+    assert.equal(experimentSent,1);assert.equal(productionSent,1);
+  } finally {hold.open();await first;}
+});
+
+test('unknown and settled benchmark attempts both occupy experiment quota with production guard disabled',async()=>{
+  await sql`UPDATE model_cost_policy SET day_limit_cny=3,rolling_limit_cny=3 WHERE id=1`;
+  const first={...request('experiment-paid'),purpose:'verification_benchmark'};
+  await paidRequest(first,success);
+  const lost={...request('experiment-unknown'),purpose:'verification_benchmark'};
+  await assert.rejects(paidRequest(lost,async()=>{throw new Error('socket lost after sending');}));
+  const overview=await benchmarkModelCostOverview();
+  assert.equal(overview.rolling.estimatedCny,1);assert.equal(overview.rolling.reservedCny,2);assert.equal(overview.rolling.totalCny,3);
+  let sent=0;await assert.rejects(paidRequest({...request('experiment-over-limit'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+  await assert.rejects(paidRequest(lost,async()=>{sent++;return success();}));assert.equal(sent,0);
+});
+
+test('when production guard is enabled the experiment also observes the shared production limit',async()=>{
+  await paidRequest(request('production-eight'),async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
+  await enable();let sent=0;
+  await assert.rejects(paidRequest({...request('experiment-global-limit'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+  assert.equal(sent,0);
+});
+
+test('a disabled production guard never relaxes benchmark price and bound checks',async()=>{
+  let sent=0;
+  await assert.rejects(paidRequest({...request('experiment-unbounded'),purpose:'verification_benchmark',modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}},async()=>{sent++;return success();}),BudgetExceededError);
+  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  try {
+    await assert.rejects(paidRequest({...request('experiment-unpriced'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
+    assert.equal(sent,0);
+  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+});
+
+test('the read-only benchmark overview explicitly identifies its enforced experiment scope',async()=>{
+  const result=await benchmarkModelCostOverview();assert.equal(result.scope,'verification_benchmark');assert.equal(result.policy.enabled,true);
+  assert.equal(result.policy.productionEnabled,false);assert.equal(result.rolling.totalCny,0);
+});
+
+test('live experiment windows retain reservations in the clock read millisecond',async()=>{
+  const req={...request('same-millisecond'),purpose:'verification_benchmark'};
+  await paidRequest(req,async()=>({response:{},usage:null}));
+  await sql`UPDATE receipt_attempts SET started_at='2000-01-01T16:05:00.000500Z' WHERE receipt_id=${(await attempt(req)).receipt_id}`;
+  const clock=new Date('2000-01-01T16:05:00.000Z');
+  const observed=new Proxy(sql,{apply(target,thisArg,args) {
+    if(Array.isArray(args[0])&&args[0].join('').includes('SELECT clock_timestamp() AS at'))return Promise.resolve([{at:clock}]);
+    return Reflect.apply(target,thisArg,args);
+  }});
+  assert.equal((await benchmarkModelCostOverview(undefined,observed)).rolling.reservedCny,2);
+  assert.equal((await benchmarkModelCostOverview(clock,observed)).rolling.reservedCny,0,'explicit historical cutoffs retain their precise requested boundary');
+});
+
+for(const field of ['day_limit_cny','rolling_limit_cny'] as const) {
+  test(`disabled production still rejects enlarged experiment ${field} and keeps exact successful reuse`,async()=>{
+    let sent=0;const req={...request('experiment-off-cap-change'),purpose:'verification_benchmark'};
+    const call=async()=>{sent++;return success();};const first=await paidRequest(req,call);
+    if(field==='day_limit_cny')await sql`UPDATE model_cost_policy SET day_limit_cny=10 WHERE id=1`;
+    else await sql`UPDATE model_cost_policy SET rolling_limit_cny=10 WHERE id=1`;
+    const reused=await paidRequest(req,call);assert.equal(reused.reused,true);assert.equal(reused.receiptId,first.receiptId);
+    await assert.rejects(paidRequest({...request('experiment-off-cap-new'),purpose:'verification_benchmark'},call),/benchmark_policy/);
+    assert.equal(sent,1);
+  });
+}
+
+test('unpriced production history is excluded from experiments but legacy unknown experiment history freezes new purchases',async()=>{
+  const old={...request('legacy-production-unknown'),modelBudget:undefined};await assert.rejects(paidRequest(old,async()=>{throw new Error('unknown pre-protection outcome');}));
+  assert.equal((await modelCostOverview()).rolling.unpricedAttempts,1);
+  assert.equal((await benchmarkModelCostOverview()).rolling.unpricedAttempts,0);
+  await paidRequest({...request('experiment-with-production-unknown'),purpose:'verification_benchmark'},success);
+  await sql`UPDATE receipts SET purpose='verification_benchmark' WHERE id=${(await attempt(old)).receipt_id}`;
+  let sent=0;await assert.rejects(paidRequest({...request('experiment-with-legacy-unknown'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/unpriced_usage/);
+  assert.equal(sent,0);
+});
+
+test('benchmark purpose includes legacy unknown attempts with no model and a custom service',async()=>{
+  const [receipt]=await sql<{id:number}[]>`INSERT INTO receipts(logical_key,service,model,purpose,subject,status,request,attempts)
+    VALUES(${prefix+'-legacy-unlabelled'},${service},NULL,'verification_benchmark',${prefix+'-legacy-unlabelled'},'unknown','{}'::jsonb,1) RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,model,status,error)
+    VALUES(${receipt!.id},1,${service},NULL,'unknown','provider outcome missing before model metadata existed')`;
+  const experiment=await benchmarkModelCostOverview();assert.equal(experiment.rolling.unpricedAttempts,1);assert.equal(experiment.blocked,true);
+  const production=await modelCostOverview();assert.equal(production.rolling.unpricedAttempts,1);assert.equal(production.blocked,false);
+  let sent=0;await assert.rejects(paidRequest({...request('benchmark-after-unlabelled'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/unpriced_usage/);
+  assert.equal(sent,0);
+});
+
+test('actual CNY charges on unlabelled legacy benchmark attempts still consume the independent quota',async()=>{
+  const [receipt]=await sql<{id:number}[]>`INSERT INTO receipts(logical_key,service,model,purpose,subject,status,request,attempts)
+    VALUES(${prefix+'-legacy-unlabelled-paid'},${service},NULL,'verification_benchmark',${prefix+'-legacy-unlabelled-paid'},'unknown','{}'::jsonb,1) RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,model,status,cost,currency,cost_basis)
+    VALUES(${receipt!.id},1,${service},NULL,'unknown',8.5,'CNY','actual')`;
+  const experiment=await benchmarkModelCostOverview();assert.equal(experiment.rolling.totalCny,8.5);assert.equal(experiment.rolling.unpricedAttempts,0);
+  let sent=0;await assert.rejects(paidRequest({...request('benchmark-after-unlabelled-paid'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),/amount_day|amount_rolling/);
+  assert.equal(sent,0);
 });

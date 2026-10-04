@@ -244,7 +244,7 @@ async function release(id: number, error: string, actor: string, note: string, b
     await lockModelCost(tx);
     const [row] = await tx<{subject:string|null;purpose:string;service:string;model:string|null}[]>`SELECT subject,purpose,service,model FROM receipts WHERE id=${id} AND status='unknown' FOR UPDATE`;
     if (!row) return null;
-    if (billed===null && isModelRequest(row) && await modelCostPolicyEnabled(tx)) return null;
+    if (billed===null && (row.purpose==='verification_benchmark' || isModelRequest(row) && await modelCostPolicyEnabled(tx))) return null;
     if (billed===false) await releaseModelCost(tx,id);
     await tx`
     UPDATE receipts SET status = 'failed', error = ${error}, updated_at = now() WHERE id = ${id} AND status = 'unknown' RETURNING subject, purpose`;
@@ -281,6 +281,7 @@ export async function autoReleaseUnknownReceipts(now = Date.now()) {
   const rows = await sql<{ id: number }[]>`
     SELECT r.id FROM receipts r
     WHERE r.status = 'unknown' AND r.updated_at < ${new Date(now - AUTO_RELEASE_AFTER_MS)}
+      AND r.purpose <> 'verification_benchmark'
       AND (NOT ${moneyEnabled} OR (r.model IS NULL AND r.service NOT IN ('llm','embedding','dashscope','deepseek','zhipu','mimo')))
       AND NOT EXISTS (SELECT 1 FROM receipt_attempts a WHERE a.receipt_id = r.id AND a.error LIKE ${AUTO_RELEASE_NOTE + "%"})
     ORDER BY r.id LIMIT 200`;

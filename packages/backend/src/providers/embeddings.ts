@@ -6,6 +6,7 @@ import { config, credential } from "../config.ts";
 import { sql } from "../db.ts";
 import { sha256 } from "../lib/ids.ts";
 import { paidRequest, ProviderRejectedError } from "./receipts.ts";
+import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from './provider-capacity.ts';
 
 const own = !!credential("models", "EMBEDDING_API_KEY");
 export const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || (own ? "text-embedding-3-small" : "text-embedding-v4");
@@ -36,8 +37,9 @@ async function embedBatch(texts: string[], subject: string): Promise<number[][]>
   const base = own ? credential("models", "EMBEDDING_BASE_URL") ?? "https://api.openai.com/v1" : credential("models", "DASHSCOPE_BASE_URL") ?? "https://dashscope.aliyuncs.com/compatible-mode/v1";
   const key = own ? credential("models", "EMBEDDING_API_KEY") : credential("models", "DASHSCOPE_API_KEY");
   if (!key) throw new Error("EMBEDDING_API_KEY (or DASHSCOPE_API_KEY) missing");
+  const capacityKey = providerCapacityKey(base, key);
   const receipt = await paidRequest(
-    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) },
+    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, providerCapacityKey: capacityKey, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) },
       requestSummary: { count: texts.length,inputTokenBound:Buffer.byteLength(JSON.stringify(texts))+1024+texts.length*64,maxTokens:0,modelBudgetBounded:true },
       modelBudget:{inputTokens:Buffer.byteLength(JSON.stringify(texts))+1024+texts.length*64,maxOutputTokens:0,bounded:true} },
     async () => {
@@ -48,7 +50,16 @@ async function embedBatch(texts: string[], subject: string): Promise<number[][]>
         signal: AbortSignal.timeout(60_000),
       });
       const text = await res.text();
-      if (!res.ok) throw new ProviderRejectedError(`embeddings HTTP ${res.status}: ${text.slice(0, 200)}`, res.status, res.status === 429 || res.status >= 500);
+      if (!res.ok) {
+        let code: unknown;
+        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Preserve normal HTTP rejection handling. */ }
+        if (res.status === 429 && code === 'BudgetLimitExceeded') {
+          await recordProviderBudgetStop(capacityKey, SERVICE);
+          throw new ProviderBudgetExceededError(SERVICE, true);
+        }
+        throw new ProviderRejectedError(`embeddings HTTP ${res.status}: ${text.slice(0, 200)}`, res.status, res.status === 429 || res.status >= 500);
+      }
+      await clearProviderProbe(capacityKey);
       const json = JSON.parse(text) as { data: Array<{ embedding: number[]; index: number }>; usage?: Record<string, unknown> };
       return { response: json, usage: json.usage ?? null, cost: null };
     },

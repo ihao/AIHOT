@@ -1,4 +1,4 @@
-import { stub, tag, gate } from './setup.ts';
+import { stub, tag, gate, Reply } from './setup.ts';
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { config } from '../packages/backend/src/config.ts';
@@ -31,9 +31,10 @@ import { selectedSnapshot, selectedChanges } from '../packages/backend/src/publi
 import { loadItemShare } from '../packages/backend/src/publication/og.ts';
 import { loadDevelopments } from '../packages/backend/src/publication/groups.ts';
 import { processArticle } from '../packages/backend/src/jobs/content.ts';
-import { executionModelConfigHash } from '../packages/backend/src/editorial/verification-execution.ts';
+import { executionModelConfigHash, verificationRequest, ORDINARY_VERIFICATION_MODEL } from '../packages/backend/src/editorial/verification-execution.ts';
 import { buildApp } from '../apps/api/src/app.ts';
 import { loadTopicPage, seedTopics } from '../packages/backend/src/publication/topics.ts';
+import { ProviderBudgetExceededError, providerCapacityKey } from '../packages/backend/src/providers/provider-capacity.ts';
 const T = tag(),
   source = `verify-${T}`;
 const PRE_AMOUNT_GUARD_RULE_VERSION = 'automatic-publication-v1:2212ca55bcc7250900bfebde';
@@ -46,6 +47,8 @@ let serial = 0,
 let scoreAnswers: number[] = [];
 let rewriteSummary: string | null = null;
 let rewriteInvalid = false;
+let rewriteBudgetStops = 0, verifierBudgetStops = 0;
+let budgetRewriteRequests: unknown[] = [], budgetVerifierRequests: unknown[] = [];
 let preserveCore: boolean | undefined = true;
 let rewriteInput: Record<string, unknown> | null = null;
 let verifierInput: Record<string, unknown> | null = null;
@@ -74,7 +77,10 @@ const provider = await stub(async (_n, req) => {
   if (system.includes('事件注意力评分器')) return answer({ attentionScore: scoreAnswers.shift() ?? 75 });
   if (system.includes('内容理解编辑')) return answer({ itemType: 'protocol_upgrade', authorRole: 'principal', tags: [], editorialJudgment: '维护发布', titleZh: 'Bitcoin Core 新软件版本发布', summaryZh: 'Bitcoin Core 宣布新版客户端可用。' });
   if (system.includes('资料结构化助手')) return answer({ category: 'infrastructure', tags: [], subjects: [], fact: null });
-  if (system.includes('依据已抓取材料修正')) { rewriteInput=JSON.parse(userText); return {
+  if (system.includes('依据已抓取材料修正')) {
+    budgetRewriteRequests.push(request);
+    if (rewriteBudgetStops>0) {rewriteBudgetStops--;return new Reply(429,{error:{code:'BudgetLimitExceeded',message:'Free budget exhausted'}});}
+    rewriteInput=JSON.parse(userText); return {
     choices: [{
       message: {
         content: rewriteInvalid ? 'invalid-json' : JSON.stringify({
@@ -106,6 +112,8 @@ const provider = await stub(async (_n, req) => {
       }
     }]
   };
+  budgetVerifierRequests.push(request);
+  if (verifierBudgetStops>0) {verifierBudgetStops--;return new Reply(429,{error:{code:'BudgetLimitExceeded',message:'Free budget exhausted'}});}
   const user = JSON.parse(userText),
     currentVerdict = verdicts.shift() ?? verdict;
   verifierInput=user;
@@ -240,6 +248,90 @@ async function projection(id: string) {
 async function unanalyzedArticle(bodyHtml?: string) {
   return (await upsertMaterial({ sourceId: source, url: `https://bitcoincore.org/${T}/${++serial}`, title: 'Bitcoin Core release', bodyText: body, bodyHtml, bodyStatus: 'ok', via: 'fetch', publishedAt: new Date() })).articleId;
 }
+
+const capacityKey=()=>providerCapacityKey(`${provider.url}/v1`,'test-local-key');
+async function expireProviderWait(id:string) {
+  await sql`UPDATE settings SET value=value||jsonb_build_object('until',clock_timestamp()-interval '1 second') WHERE key=${capacityKey()}`;
+  await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;
+}
+test('confirmed free provider budget rejection preserves the single frozen rewrite opportunity',async()=>{
+  const id=await article();verdict='supported';verdicts=['contradicted','supported'];rewriteBudgetStops=1;budgetRewriteRequests=[];
+  try {
+    await assert.rejects(verifyAutomaticArticle(id),error=>error instanceof ProviderBudgetExceededError&&error.actualHttpRejection);
+    const [waiting]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(waiting.status,'waiting');assert.equal(waiting.stage,'rewrite');assert.equal(waiting.rewritten,false);assert.equal(waiting.failures,0);
+    const [receipt]=await sql`SELECT id,logical_key FROM receipts WHERE subject=${`article:${id}@1`} AND purpose='rewrite_verified_summary'`;
+    const [rejected]=await sql`SELECT status,model_cost_state,model_cost_cny,error FROM receipt_attempts WHERE receipt_id=${receipt.id}`;
+    assert.equal(rejected.status,'failed');assert.equal(rejected.model_cost_state,'released');assert.equal(rejected.model_cost_cny,0);assert.match(rejected.error,/^ProviderBudgetExceededError:/);
+    assert.ok(waiting.receipt_ids.map(Number).includes(receipt.id));
+    const hits=provider.hits();await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;
+    await assert.rejects(verifyAutomaticArticle(id),error=>error instanceof ProviderBudgetExceededError&&!error.actualHttpRejection);
+    assert.equal(provider.hits(),hits,'the active cooldown sends no probe');
+    await expireProviderWait(id);await verifyAutomaticArticle(id);
+    const [done]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(done.status,'accepted');assert.equal(done.verification_count,2);assert.equal(done.rewrite_model,waiting.rewrite_model);assert.equal(done.rewrite_config_hash,waiting.rewrite_config_hash);
+    const [attempts]=await sql`SELECT count(*)::int AS n,count(DISTINCT receipt_id)::int AS receipts FROM receipt_attempts WHERE receipt_id=${receipt.id}`;
+    assert.deepEqual(attempts,{n:2,receipts:1});assert.deepEqual(budgetRewriteRequests[0],budgetRewriteRequests[1],'resume keeps the exact frozen request');
+    assert.equal((await projection(id)).visibility,'public');
+  } finally {rewriteBudgetStops=0;verdicts=[];await sql`DELETE FROM settings WHERE key=${capacityKey()}`;}
+});
+test('three confirmed free provider budget probes do not exhaust verifier opportunities',async()=>{
+  const id=await article();verdict='supported';verdicts=[];verifierBudgetStops=3;budgetVerifierRequests=[];
+  try {
+    for(let i=0;i<3;i++) {
+      await assert.rejects(verifyAutomaticArticle(id),error=>error instanceof ProviderBudgetExceededError&&error.actualHttpRejection);
+      const [r]=await sql`SELECT status,stage,verification_count,failures,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+      assert.equal(r.status,'waiting');assert.equal(r.stage,'initial');assert.equal(r.verification_count,0);assert.equal(r.failures,0);assert.equal(r.receipt_ids.length,1);
+      await expireProviderWait(id);
+    }
+    await verifyAutomaticArticle(id);
+    const [done]=await sql`SELECT status,verification_count,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(done.status,'accepted');assert.equal(done.verification_count,1);assert.equal(done.receipt_ids.length,1);
+    const [usage]=await sql`SELECT count(*)::int AS attempts,count(DISTINCT rec.id)::int AS receipts FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id WHERE rec.subject=${`article:${id}@1`} AND rec.purpose='verify_summary'`;
+    assert.deepEqual(usage,{attempts:4,receipts:1});assert.equal(budgetVerifierRequests.length,4);
+    for(const request of budgetVerifierRequests)assert.deepEqual(request,budgetVerifierRequests[0],'probes and final success keep the frozen request');
+    assert.equal((await projection(id)).visibility,'public');
+  } finally {verifierBudgetStops=0;await sql`DELETE FROM settings WHERE key=${capacityKey()}`;}
+});
+test('confirmed free provider budget refusal at an ordinary recovery stage upgrades only to its frozen Max fallback',async()=>{
+  const id=await article();verdict='supported';verdicts=[];verifierBudgetStops=1;budgetVerifierRequests=[];
+  const oldBase=process.env.DASHSCOPE_BASE_URL,oldKey=process.env.DASHSCOPE_API_KEY;
+  process.env.DASHSCOPE_BASE_URL=`${provider.url}/v1`;process.env.DASHSCOPE_API_KEY='test-local-key';
+  try {
+    await sql`UPDATE automatic_verifications SET stage='evidence',evidence_fetched=true,verification_model=${ORDINARY_VERIFICATION_MODEL},
+      verification_config_hash=${executionModelConfigHash(ORDINARY_VERIFICATION_MODEL,'bounded-v1','verify-summary')},
+      fallback_model='qwen3.8-max',fallback_config_hash=${executionModelConfigHash('qwen3.8-max','bounded-v1','verify-summary')} WHERE article_id=${id}`;
+    const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+    const tag=`automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:evidence`;
+    await assert.rejects(chatJson(verificationRequest({copy:r.final_copy,original_copy:r.original_copy,originalTitle:'Bitcoin Core release',requiresPrimaryEvidence:false,materials:r.materials,rewritten:false},
+      ORDINARY_VERIFICATION_MODEL,'bounded-v1',tag,`article:${id}@1`)),error=>error instanceof ProviderBudgetExceededError&&error.actualHttpRejection);
+    const [oldReceipt]=await sql`SELECT id FROM receipts WHERE subject=${`article:${id}@1`} AND purpose='verify_summary'`;
+    await expireProviderWait(id);await verifyAutomaticArticle(id);
+    const [done]=await sql`SELECT status,verification_count,verification_model,fallback_model,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(done.status,'accepted');assert.equal(done.verification_count,1);assert.equal(done.verification_model,'qwen3.8-max');assert.equal(done.fallback_model,'qwen3.8-max');
+    assert.equal(budgetVerifierRequests.length,2);assert.equal((budgetVerifierRequests[1] as {model:string}).model,'qwen3.8-max');
+    assert.ok(done.receipt_ids.map(Number).includes(oldReceipt.id),'the unaccepted ordinary receipt remains audited');
+  } finally {
+    verifierBudgetStops=0;await sql`DELETE FROM settings WHERE key=${capacityKey()}`;
+    if(oldBase===undefined)delete process.env.DASHSCOPE_BASE_URL;else process.env.DASHSCOPE_BASE_URL=oldBase;
+    if(oldKey===undefined)delete process.env.DASHSCOPE_API_KEY;else process.env.DASHSCOPE_API_KEY=oldKey;
+  }
+});
+for(const [name,change] of [
+  ['unknown outcome',{status:'unknown'}],['unreleased cost',{model_cost_state:'retained'}],
+  ['nonzero cost',{model_cost_cny:.01}],['ordinary failure',{error:'HTTP 503: provider budget unavailable'}],
+] as const) test(`provider budget opportunity exclusion requires every durable proof: ${name}`,async()=>{
+  const id=await article();verdict='supported';verdicts=[];verifierBudgetStops=1;
+  try {
+    await assert.rejects(verifyAutomaticArticle(id),error=>error instanceof ProviderBudgetExceededError&&error.actualHttpRejection);
+    const [receipt]=await sql`SELECT id FROM receipts WHERE subject=${`article:${id}@1`} AND purpose='verify_summary'`;
+    await sql`UPDATE receipt_attempts SET ${sql(change)} WHERE receipt_id=${receipt.id}`;
+    await sql`UPDATE automatic_verifications SET retry_at=NULL WHERE article_id=${id}`;
+    const hits=provider.hits();await assert.rejects(verifyAutomaticArticle(id),error=>error instanceof ProviderBudgetExceededError&&!error.actualHttpRejection);
+    const [r]=await sql`SELECT status,verification_count,receipt_ids FROM automatic_verifications WHERE article_id=${id}`;
+    assert.equal(r.status,'waiting');assert.equal(r.verification_count,1);assert.ok(r.receipt_ids.map(Number).includes(receipt.id));assert.equal(provider.hits(),hits);
+  } finally {verifierBudgetStops=0;await sql`DELETE FROM settings WHERE key=${capacityKey()}`;}
+});
 
 test('a queued verification that expires or loses its source date spends no paid attempt', async () => {
   for (const date of [new Date(Date.now()-72*3600_000), null]) {

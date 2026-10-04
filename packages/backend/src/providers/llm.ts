@@ -6,6 +6,7 @@ import { config, credential } from "../config.ts";
 import { sha256 } from "../lib/ids.ts";
 import { completeReceipt, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
 import { sql } from "../db.ts";
+import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from './provider-capacity.ts';
 
 export interface ModelSpec {
   key: string;
@@ -236,6 +237,7 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   if (!baseUrl || !apiKey || !spec.model) throw new Error(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
 
   const { temperature, maxTokens, userText, receiptRequest } = chatJsonRequestIdentity(opts);
+  const capacityKey = providerCapacityKey(baseUrl, apiKey);
   const body: Record<string, unknown> = {
     model: spec.model,
     messages: [
@@ -251,7 +253,7 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   };
 
   const receipt = await paidRequest(
-    receiptRequest,
+    { ...receiptRequest, providerCapacityKey: capacityKey },
     async () => {
       const started = Date.now();
       let res: Response;
@@ -268,9 +270,16 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
       }
       const text = await res.text();
       if (!res.ok) {
+        let code: unknown;
+        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Preserve normal HTTP rejection handling. */ }
+        if (res.status === 429 && code === 'BudgetLimitExceeded') {
+          await recordProviderBudgetStop(capacityKey, spec.service);
+          throw new ProviderBudgetExceededError(spec.service, true);
+        }
         const retryable = res.status === 429 || res.status >= 500;
         throw new ProviderRejectedError(`HTTP ${res.status}: ${text.slice(0, 500)}`, res.status, retryable);
       }
+      await clearProviderProbe(capacityKey);
       let json: Record<string, unknown>;
       try {
         json = JSON.parse(text);

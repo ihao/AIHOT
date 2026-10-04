@@ -133,16 +133,20 @@ interface HistoricAttempt {
 }
 const emptyWindow = (): WindowAmount => ({estimatedCny:0,reservedCny:0,totalCny:0,unpricedAttempts:0});
 
-/** Read-only, including legacy attempts. Request-count usage_reset_at never affects this window. */
-export async function modelCostOverview(now?: Date, db: Db=sql) {
+/** Read-only, including legacy attempts. Request-count usage_reset_at never affects either scope. */
+async function costOverview(scope: 'all_models'|'verification_benchmark', now?: Date, db: Db=sql) {
   const p=await policy(db);
   const at=now ?? (await db<{at:Date}[]>`SELECT clock_timestamp() AS at`)[0]!.at;
+  // PostgreSQL is microsecond-precise; Date truncates its clock read. Include that live millisecond.
+  const until=now ? at : new Date(at.getTime()+1);
   const [time]=await db<{day_start:Date}[]>`SELECT date_trunc('day',${at}::timestamptz AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai' AS day_start`;
   const day=emptyWindow(),rolling=emptyWindow();
   const rows=await db<HistoricAttempt[]>`SELECT a.id,a.service,a.model,a.started_at,a.status,a.error,a.usage,a.cost,a.currency,a.cost_basis,
     a.model_cost_cny,a.model_cost_state,r.request FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id
-    WHERE a.origin='live' AND a.started_at>${new Date(at.getTime()-86400_000)} AND a.started_at<=${at}
-      AND (a.model IS NOT NULL OR a.service IN ${db(MODEL_SERVICES)}) ORDER BY a.id`;
+    WHERE a.origin='live' AND a.started_at>${new Date(at.getTime()-86400_000)} AND a.started_at<=${until}
+      AND (${scope==='all_models'} OR r.purpose='verification_benchmark')
+      -- The benchmark purpose remains authoritative even if legacy model/service metadata is absent.
+      AND (r.purpose='verification_benchmark' OR a.model IS NOT NULL OR a.service IN ${db(MODEL_SERVICES)}) ORDER BY a.id`;
   const reasons:string[]=[];
   // Scoped to this view/transaction: no stale price or window survives into a later call.
   const prices=new Map<string,Price|null>();
@@ -176,30 +180,52 @@ export async function modelCostOverview(now?: Date, db: Db=sql) {
   }
   if(day.totalCny>=p.day_limit_cny)reasons.push('北京时间当日额度已用完');
   if(rolling.totalCny>=p.rolling_limit_cny)reasons.push('滚动 24 小时额度已用完');
-  return {checkedAt:at.toISOString(),policy:{enabled:p.enabled,timezone:p.timezone,dayLimitCny:p.day_limit_cny,rollingLimitCny:p.rolling_limit_cny},
+  const enabled=scope==='verification_benchmark'||p.enabled;
+  if(scope==='verification_benchmark'&&(!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9)))reasons.push('评测实验自然日与滚动 24 小时限额必须均不超过 9 CNY');
+  return {scope,scopeLabel:scope==='all_models'?'全站模型（含评测）':'独立评测实验',checkedAt:at.toISOString(),
+    policy:{enabled,productionEnabled:p.enabled,timezone:p.timezone,dayLimitCny:p.day_limit_cny,rollingLimitCny:p.rolling_limit_cny},
     day:{...day,startsAt:time!.day_start.toISOString()},rolling:{...rolling,startsAt:new Date(at.getTime()-86400_000).toISOString()},
-    basis:'estimated' as const,blocked:p.enabled&&reasons.length>0,reasons:[...new Set(reasons)]};
+    basis:'estimated' as const,blocked:enabled&&reasons.length>0,reasons:[...new Set(reasons)]};
 }
+
+/** Whole-site reporting remains available while its opt-in production cap is disabled. */
+export function modelCostOverview(now?: Date, db: Db=sql) {return costOverview('all_models',now,db);}
+
+/** All experiments share one independent window, regardless of dataset or the production toggle. */
+export function benchmarkModelCostOverview(now?: Date, db: Db=sql) {return costOverview('verification_benchmark',now,db);}
 
 /** Called under the global lock before the attempt row is created. */
 export async function reserveModelCost(db: Db, req: ReceiptRequest): Promise<ModelCostReservation | null> {
   const benchmark=req.purpose==='verification_benchmark';
   if(!isModelRequest(req)&&!benchmark)return null;
   const p=await policy(db,true);
-  // Benchmarks require monetary protection for every new attempt, even after operator changes.
-  if(benchmark&&(!p.enabled||!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9))) {
-    throw new ModelCostBudgetError('评测必须启用金额策略且北京时间当日、滚动 24 小时上限均不超过 9 CNY','benchmark_policy');
+  // Only enabled controls ordinary production. Experiments always require their own bounded quota.
+  if(benchmark&&(!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9))) {
+    throw new ModelCostBudgetError('评测实验的北京时间当日、滚动 24 小时上限均必须不超过 9 CNY','benchmark_policy');
   }
-  if(!p.enabled)return null;
-  if(!validBounds(req.modelBudget))throw new ModelCostBudgetError('请求没有可靠输入与输出 token 上界');
+  const enforced=p.enabled||benchmark;
+  // Disabling production admission keeps the ledger's original price and reliable bounds when available.
+  if(!validBounds(req.modelBudget)) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('请求没有可靠输入与输出 token 上界');
+  }
   const price=await readPrice(db,req.service,req.model??null,req.modelBudget.maxOutputTokens);
-  if(!price)throw new ModelCostBudgetError('模型缺少经核对的 CNY 价格','missing_price');
+  if(!price) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('模型缺少经核对的 CNY 价格','missing_price');
+  }
   const amount=reserveAmount(price,req.modelBudget);
-  if(!nonnegative(amount))throw new ModelCostBudgetError('预占金额不可计算');
-  const overview=await modelCostOverview(undefined,db);
-  if(overview.rolling.unpricedAttempts)throw new ModelCostBudgetError(overview.reasons[0]!,'unpriced_usage');
-  if(overview.day.totalCny+amount>overview.policy.dayLimitCny)throw new ModelCostBudgetError('北京时间当日额度不足','amount_day');
-  if(overview.rolling.totalCny+amount>overview.policy.rollingLimitCny)throw new ModelCostBudgetError('滚动 24 小时额度不足','amount_rolling');
+  if(!nonnegative(amount)) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('预占金额不可计算');
+  }
+  const check=(overview:Awaited<ReturnType<typeof costOverview>>,label:string)=>{
+    if(overview.rolling.unpricedAttempts)throw new ModelCostBudgetError(`${label}：${overview.reasons[0]!}`,'unpriced_usage');
+    if(overview.day.totalCny+amount>overview.policy.dayLimitCny)throw new ModelCostBudgetError(`${label}北京时间当日额度不足`,'amount_day');
+    if(overview.rolling.totalCny+amount>overview.policy.rollingLimitCny)throw new ModelCostBudgetError(`${label}滚动 24 小时额度不足`,'amount_rolling');
+  };
+  if(benchmark)check(await benchmarkModelCostOverview(undefined,db),'评测实验');
+  if(p.enabled)check(await modelCostOverview(undefined,db),'全站生产模型');
   return {amount,price,bounds:req.modelBudget};
 }
 
