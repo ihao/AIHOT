@@ -75,16 +75,32 @@ function reserveAmount(price: Price, bounds: ModelBudgetBounds): number {
   return money((bounds.inputTokens*Math.max(price.input_per_mtok,price.cached_per_mtok??0)
     + bounds.maxOutputTokens*price.output_per_mtok)/1e6+(price.per_request??0));
 }
+function consistentTokens(values: unknown[]): number | null | undefined {
+  if (!values.length) return undefined;
+  if (!values.every(tokens) || values.some(value=>value!==values[0])) return null;
+  return values[0] as number;
+}
 function usageCost(usage: unknown, price: Price, embedding: boolean) {
   if (!usage || typeof usage!=='object' || Array.isArray(usage)) return null;
   const u=usage as Record<string,unknown>;
-  const input=u.prompt_tokens ?? u.input_tokens ?? (embedding ? u.total_tokens : undefined);
-  const output=u.completion_tokens ?? u.output_tokens ?? (embedding ? 0 : undefined);
-  const details=u.prompt_tokens_details;
-  if (details!==undefined && (details===null || typeof details!=='object' || Array.isArray(details))) return null;
-  const cached=(details as Record<string,unknown>|undefined)?.cached_tokens ?? u.prompt_cache_hit_tokens ?? u.cached_tokens ?? 0;
+  const aliases=(keys:string[])=>keys.filter(key=>Object.hasOwn(u,key)).map(key=>u[key]);
+  const inputAlias=consistentTokens(aliases(['prompt_tokens','input_tokens']));
+  const outputAlias=consistentTokens(aliases(['completion_tokens','output_tokens']));
+  const cachedValues=aliases(['prompt_cache_hit_tokens','cached_tokens']);
+  for(const field of ['prompt_tokens_details','input_tokens_details']) {
+    if (!Object.hasOwn(u,field)) continue;
+    const details=u[field];
+    if (!details||typeof details!=='object'||Array.isArray(details))return null;
+    if (Object.hasOwn(details,'cached_tokens')) cachedValues.push((details as Record<string,unknown>).cached_tokens);
+  }
+  const cachedAlias=consistentTokens(cachedValues);
+  if(inputAlias===null||outputAlias===null||cachedAlias===null)return null;
+  const input=inputAlias ?? (embedding ? u.total_tokens : undefined);
+  const output=outputAlias ?? (embedding ? 0 : undefined);
+  const cached=cachedAlias ?? 0;
   if (!tokens(input)||!tokens(output)||!tokens(cached)||cached>input) return null;
-  if (u.total_tokens!==undefined && (!tokens(u.total_tokens)||u.total_tokens!==input+output)) return null;
+  if (Object.hasOwn(u,'total_tokens') && (!tokens(u.total_tokens)||u.total_tokens!==input+output)) return null;
+  if (Object.hasOwn(u,'prompt_cache_miss_tokens') && (!tokens(u.prompt_cache_miss_tokens)||u.prompt_cache_miss_tokens!==input-cached))return null;
   return {input,output,amount:money(((input-cached)*price.input_per_mtok+cached*(price.cached_per_mtok??price.input_per_mtok)
     +output*price.output_per_mtok)/1e6+(price.per_request??0))};
 }
@@ -118,6 +134,8 @@ export async function modelCostOverview(now?: Date, db: Db=sql) {
     WHERE a.origin='live' AND a.started_at>${new Date(at.getTime()-86400_000)} AND a.started_at<=${at}
       AND (a.model IS NOT NULL OR a.service IN ${db(MODEL_SERVICES)}) ORDER BY a.id`;
   const reasons:string[]=[];
+  // Scoped to this view/transaction: no stale price or window survives into a later call.
+  const prices=new Map<string,Price|null>();
   for(const row of rows) {
     let amount=row.model_cost_cny,estimated=row.model_cost_state==='estimated';
     if(amount===null) {
@@ -127,7 +145,9 @@ export async function modelCostOverview(now?: Date, db: Db=sql) {
         const embedding=row.service==='embedding'||/^text-embedding/.test(row.model??'')||row.request?.count!==undefined;
         // Old userChars alone omits the system prompt, so it cannot safely reconstruct input tokens.
         const bound={inputTokens:Number(row.request?.inputTokenBound),maxOutputTokens:embedding?0:Number(row.request?.maxTokens),bounded:row.request?.modelBudgetBounded===true};
-        const price=await readPrice(db,row.service,row.model,embedding?0:1);
+        const priceKey=JSON.stringify([row.service,row.model,!embedding]);
+        if(!prices.has(priceKey))prices.set(priceKey,await readPrice(db,row.service,row.model,embedding?0:1));
+        const price=prices.get(priceKey)??null;
         const used=price ? usageCost(row.usage,price,embedding) : null;
         if(used) {amount=used.amount;estimated=true;}
         else if(price&&validBounds(bound)) {amount=reserveAmount(price,bound);estimated=false;}

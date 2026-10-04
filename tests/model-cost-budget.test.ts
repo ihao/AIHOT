@@ -6,6 +6,7 @@ import { paidRequest, BudgetExceededError, logicalKeyFor, ProviderRejectedError,
 import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm';
 import { modelCostOverview } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
+import { sha256 } from '@aihot/backend/lib/ids';
 import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
 import { z } from 'zod';
 
@@ -269,3 +270,97 @@ for(const [name,extra] of [
     }
   });
 }
+
+function requestWithExtra(extra: Record<string,unknown>) {
+  const oldModel=process.env.LLM_MODEL,oldExtra=process.env.LLM_EXTRA_JSON;
+  process.env.LLM_MODEL='extra-bound-test';process.env.LLM_EXTRA_JSON=JSON.stringify(extra);
+  try {return chatJsonRequestIdentity({model:'default',purpose:'test',promptVersion:'p',system:'s',user:'u'}).receiptRequest;}
+  finally {
+    if(oldModel===undefined)delete process.env.LLM_MODEL;else process.env.LLM_MODEL=oldModel;
+    if(oldExtra===undefined)delete process.env.LLM_EXTRA_JSON;else process.env.LLM_EXTRA_JSON=oldExtra;
+  }
+}
+
+for(const [name,value] of [['null',null],['false',false],['numeric string','1000'],['zero',0]] as const) {
+  test(`actual max_tokens must be a positive integer number: ${name}`,()=>{
+    assert.equal(requestWithExtra({enable_thinking:false,max_tokens:value}).modelBudget.bounded,false);
+  });
+}
+
+for(const [name,extra] of [
+  ['large JSON schema',{response_format:{type:'json_schema',json_schema:{description:'描述'.repeat(60000)}}}],
+  ['unknown input parameter',{unproven_context:'材料'.repeat(60000)}],
+  ['unexpected json_object instruction',{response_format:{type:'json_object',description:'材料'.repeat(60000)}}],
+  ['unknown thinking field',{thinking:{type:'disabled',instructions:'材料'.repeat(60000)}}],
+  ['nonstring thinking type',{thinking:{type:['disabled']}}],
+  ['malformed thinking switch',{enable_thinking:'false'}],
+] as const) {
+  test(`model extras without proven input bounds are refused: ${name}`,()=>{
+    assert.equal(requestWithExtra({enable_thinking:false,...extra}).modelBudget.bounded,false);
+  });
+}
+
+test('proven extra controls preserve the exact logical request identity',()=>{
+  const extra={enable_thinking:false,thinking:{type:'disabled'},max_tokens:1000,temperature:.2,top_p:.9,response_format:{type:'json_object'},n:1};
+  const req=requestWithExtra(extra);assert.equal(req.modelBudget.bounded,true);assert.equal(req.modelBudget.maxOutputTokens,1000);
+  assert.equal(logicalKeyFor(req),logicalKeyFor({service:'llm',model:'extra-bound-test',purpose:'test',identity:{model:'extra-bound-test',promptVersion:'p',system:sha256('s'),user:sha256('u'),temperature:.2,maxTokens:1500,extra}}));
+});
+
+test('the money policy blocks invalid output and unproven extra input without provider traffic',async()=>{
+  const provider=await stub(()=>({choices:[{message:{content:'{"ok":true}'}}],usage:{prompt_tokens:1,completion_tokens:0,total_tokens:1}}));
+  const previous=Object.fromEntries(['LLM_MODEL','LLM_EXTRA_JSON','LLM_BASE_URL','LLM_API_KEY'].map(key=>[key,process.env[key]]));
+  const model=prefix+'-invalid-extra';process.env.LLM_MODEL=model;process.env.LLM_BASE_URL=provider.url;process.env.LLM_API_KEY='test';
+  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on)
+    VALUES('llm',${model},'CNY',2,8,'https://example.invalid/verified',current_date)`;
+  await enable();
+  try {
+    for(const [i,extra] of [{max_tokens:null},{max_tokens:false},{max_tokens:'1000'},{max_tokens:0},
+      {response_format:{type:'json_schema',json_schema:{description:'材料'.repeat(60000)}}},{unproven_context:'材料'.repeat(60000)}].entries()) {
+      process.env.LLM_EXTRA_JSON=JSON.stringify({enable_thinking:false,...extra});
+      await assert.rejects(chatJson({model:'default',purpose:'test',subject:prefix+'-invalid-extra',promptVersion:'p',system:'s',user:String(i),schema:z.object({ok:z.boolean()})}),BudgetExceededError);
+    }
+    assert.equal(provider.hits(),0);
+  } finally {
+    await sql`DELETE FROM service_prices WHERE service='llm' AND model=${model}`;
+    for(const [key,value] of Object.entries(previous))if(value===undefined)delete process.env[key];else process.env[key]=value;
+    await provider.close();
+  }
+});
+
+for(const [name,usage] of [
+  ['input/output disagreement',{prompt_tokens:1,input_tokens:100,completion_tokens:0,output_tokens:100,total_tokens:1}],
+  ['cached alias disagreement',{prompt_tokens:1,completion_tokens:0,total_tokens:1,prompt_tokens_details:{cached_tokens:1},prompt_cache_hit_tokens:0,cached_tokens:1}],
+  ['invalid input alias',{prompt_tokens:1,input_tokens:'1',completion_tokens:0,total_tokens:1}],
+  ['invalid output alias',{prompt_tokens:1,completion_tokens:0,output_tokens:-1,total_tokens:1}],
+  ['invalid cached alias',{prompt_tokens:1,completion_tokens:0,total_tokens:1,prompt_tokens_details:{cached_tokens:1},cached_tokens:'1'}],
+] as const) {
+  test(`all usage aliases must agree and contain integers: ${name}`,async()=>{
+    await enable();const req=request('usage-alias');await paidRequest(req,async()=>({response:{},usage}));
+    const row=await attempt(req);assert.equal(row.model_cost_cny,2);assert.equal(row.model_cost_state,'retained');
+  });
+}
+
+test('one overview reuses prices for legacy attempts and the next overview reads prices afresh',async()=>{
+  const [receipt]=await sql<{id:number}[]>`INSERT INTO receipts(logical_key,service,model,purpose,subject,status,request,attempts)
+    VALUES(${prefix+'-many-legacy'},${service},'bounded','money-test',${prefix+'-many-legacy'},'received','{}'::jsonb,25) RETURNING id`;
+  const rows=Array.from({length:25},(_,i)=>({receipt_id:receipt!.id,attempt:i+1,service,model:'bounded',status:'received',usage:{prompt_tokens:1,completion_tokens:0,total_tokens:1}}));
+  await sql`INSERT INTO receipt_attempts ${sql(rows)}`;
+  let priceReads=0;
+  const observed=new Proxy(sql,{apply(target,thisArg,args) {
+    if(Array.isArray(args[0])&&args[0].join('').includes('FROM service_prices'))priceReads++;
+    return Reflect.apply(target,thisArg,args);
+  }});
+  const first=await modelCostOverview(undefined,observed);assert.equal(first.rolling.totalCny,25);assert.equal(priceReads,1);
+  await sql`UPDATE service_prices SET input_per_mtok=2000000 WHERE service=${service}`;
+  try {
+    priceReads=0;const second=await modelCostOverview(undefined,observed);
+    assert.equal(second.rolling.totalCny,50);assert.equal(priceReads,1);
+  } finally {await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;}
+});
+
+test('consistent input output and cache aliases still settle trusted usage',async()=>{
+  await enable();const req=request('valid-usage-aliases');
+  await paidRequest(req,async()=>({response:{},usage:{prompt_tokens:1,input_tokens:1,completion_tokens:0,output_tokens:0,total_tokens:1,
+    prompt_tokens_details:{cached_tokens:1},input_tokens_details:{cached_tokens:1},prompt_cache_hit_tokens:1,cached_tokens:1,prompt_cache_miss_tokens:0}}));
+  const row=await attempt(req);assert.equal(row.model_cost_cny,.1);assert.equal(row.model_cost_state,'estimated');
+});

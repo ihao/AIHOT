@@ -164,6 +164,29 @@ function isConnectFailure(error: unknown): boolean {
 
 type ChatIdentityOptions = Pick<ChatJsonOptions<z.ZodType>, "model" | "purpose" | "promptVersion" | "system" | "user" | "temperature" | "maxTokens" | "attemptTag"> & { subject?: string };
 
+/** These controls add no model input and cannot expand the single bounded output. */
+function boundedModelExtras(extra: Record<string,unknown>): boolean {
+  if (!extra || typeof extra!=='object' || Array.isArray(extra)) return false;
+  return Object.entries(extra).every(([key,value])=>{
+    if (key==='enable_thinking'||key==='clear_thinking') return typeof value==='boolean';
+    if (key==='max_tokens') return typeof value==='number'&&Number.isSafeInteger(value)&&value>0;
+    if (key==='n') return value===1;
+    if (['temperature','top_p','presence_penalty','frequency_penalty','seed'].includes(key)) return typeof value==='number'&&Number.isFinite(value);
+    if (key==='thinking') {
+      if (!value||typeof value!=='object'||Array.isArray(value)) return false;
+      const thinking=value as Record<string,unknown>;
+      return (thinking.type==='enabled'||thinking.type==='disabled')&&Object.entries(thinking).every(([field,v])=>
+        field==='type'||(field==='clear_thinking'&&typeof v==='boolean'));
+    }
+    if (key==='response_format') {
+      if (!value||typeof value!=='object'||Array.isArray(value)) return false;
+      const format=value as Record<string,unknown>;
+      return (format.type==='json_object'||format.type==='text')&&Object.keys(format).every(field=>field==='type');
+    }
+    return false;
+  });
+}
+
 /** Shared pure normalization for both paid calls and exact successful-cache recovery. */
 export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const spec = MODELS[opts.model];
@@ -171,18 +194,17 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const temperature = opts.temperature ?? 0.2;
   const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.key.endsWith("-think") ? 4000 : 0);
   const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
-  const messages = [...(opts.system ? [{role:'system',content:opts.system}] : []),{role:'user',content:opts.user}];
+  const messages = [...(opts.system ? [{role:'system',content:opts.system}] : []),{role:'user',content:typeof opts.user==='string'||Array.isArray(opts.user)?opts.user:userText}];
   // A byte-level token bound deliberately overestimates text. Framing covers protocol tokens.
   const inputTokenBound = Buffer.byteLength(JSON.stringify(messages),'utf8') + 1024 + messages.length*64;
   const extra = spec.extra ?? {};
-  const actualMaxTokens = Object.hasOwn(extra,'max_tokens') ? Number(extra.max_tokens) : maxTokens;
+  const actualMaxTokens = Object.hasOwn(extra,'max_tokens') ? extra.max_tokens : maxTokens;
   const thinking = extra.thinking as {type?:string}|undefined;
   const explicitlyNoThinking = extra.enable_thinking===false || thinking?.type==='disabled';
   const reasoning = extra.enable_thinking===true || thinking?.type==='enabled' || spec.key.endsWith('-think');
   const hasImage = Array.isArray(opts.user) && opts.user.some(part=>part.type==='image_url');
-  const boundedOutput = Number.isSafeInteger(actualMaxTokens) && actualMaxTokens>=0
-    && extra.max_completion_tokens===undefined && (extra.n===undefined||extra.n===1);
-  const boundedInput = !Object.hasOwn(extra,'messages')&&!Object.hasOwn(extra,'model')&&!Object.hasOwn(extra,'tools')&&!Object.hasOwn(extra,'functions');
+  const boundedOutput = typeof actualMaxTokens==='number'&&Number.isSafeInteger(actualMaxTokens)&&actualMaxTokens>0;
+  const boundedInput = boundedModelExtras(extra);
   // Any enabled signal wins over conflicting disable fields: reasoning has no proven billable bound.
   const modelBudgetBounded=boundedInput&&boundedOutput&&!hasImage&&!spec.vision&&!reasoning
     && (spec.key!=='default'||explicitlyNoThinking);
@@ -194,7 +216,7 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
     identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
     requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length,
       systemBytes:Buffer.byteLength(opts.system),userBytes:Buffer.byteLength(userText),inputTokenBound,modelBudgetBounded,temperature,maxTokens:actualMaxTokens },
-    modelBudget: {inputTokens:inputTokenBound,maxOutputTokens:actualMaxTokens,bounded:modelBudgetBounded},
+    modelBudget: {inputTokens:inputTokenBound,maxOutputTokens:typeof actualMaxTokens==='number'?actualMaxTokens:0,bounded:modelBudgetBounded},
     attemptTag: opts.attemptTag,
   } satisfies ReceiptRequest;
   return { spec, temperature, maxTokens, userText, receiptRequest };
