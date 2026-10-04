@@ -26,6 +26,15 @@ test('model overview exposes shared amount windows and prices trusted cached inp
     const invalid=(await modelsOverview(1)).capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
     assert.equal(invalid.cachedTokensIn,0,'invalid cache counts never discount the estimate');
     assert.equal(invalid.estimate!.amount,0.0156);
+    await sql`UPDATE receipt_attempts SET usage='{"prompt_tokens":1000,"completion_tokens":100,"prompt_tokens_details":{"cached_tokens":800},"prompt_cache_hit_tokens":0}' WHERE receipt_id=${receipt!.id}`;
+    const conflict=(await modelsOverview(1)).capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
+    assert.equal(conflict.cachedTokensIn,0);assert.equal(conflict.estimate!.amount,0.0156);
+    await sql`UPDATE receipt_attempts SET usage='{"input_tokens":1000,"output_tokens":100,"input_tokens_details":{"cached_tokens":800}}' WHERE receipt_id=${receipt!.id}`;
+    const alias=(await modelsOverview(1)).capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
+    assert.equal(alias.cachedTokensIn,800);assert.equal(alias.estimate!.amount,0.0072);
+    await sql`UPDATE receipt_attempts SET usage='{"prompt_tokens":"broken","completion_tokens":1.5}' WHERE receipt_id=${receipt!.id}`;
+    const malformed=(await modelsOverview(1)).capabilities.find(c=>c.key==='verification')!.usage.find(u=>u.model===model)!;
+    assert.equal(malformed.estimate,null,'malformed usage does not break the budget page or imply a numeric estimate');
   } finally {
     await sql`DELETE FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
     await sql`DELETE FROM receipts WHERE id=${receipt!.id}`;

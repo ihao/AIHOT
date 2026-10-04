@@ -33,6 +33,15 @@ test('assessment preflight can inspect fixtures but refuses paid evaluation when
     await sql`UPDATE model_cost_policy SET enabled=true WHERE id=1`;
     await assert.rejects(exec(process.execPath,args,{env,timeout:20_000}),error=>/live article\/source snapshot differs/.test(String((error as {stderr?:string}).stderr)));
     assert.equal(provider.hits(),0,'fabricated assessment snapshots cannot trigger a provider call');
+    const prepared=JSON.parse(await readFile(output,'utf8'));
+    prepared.results=[{id:'p0',family:'official_supported',expectedPublic:true,public:true,structureValid:true,citationsValid:true,receiptId:1,requestHash:'tampered',verifier:{}}];
+    await writeFile(output,JSON.stringify(prepared));
+    await assert.rejects(exec(process.execPath,[...args,'--dry-run'],{env,timeout:20_000}),error=>/resume identity differs/.test(String((error as {stderr?:string}).stderr)));
+    assert.equal(provider.hits(),0,'edited cached judgments cannot count as assessed evidence');
+    const oversized=fixture().map(c=>({...c,originalBodyText:'Beta '.repeat(13_000),sourceSpanEnd:65_000,evidenceQuote:'Beta ',materials:c.materials.map(m=>({...m,bodyText:'Beta '.repeat(13_000)}))}));
+    await writeFile(dataset,JSON.stringify(oversized));
+    await assert.rejects(exec(process.execPath,[...args,'--dry-run'],{env,timeout:20_000}),error=>/exceeds production input limit/.test(String((error as {stderr?:string}).stderr)));
+    assert.equal(provider.hits(),0,'all packets are checked against the production input bound before any paid evaluation');
   } finally {
     await sql`UPDATE model_cost_policy SET enabled=${previous!.enabled} WHERE id=1`;
     await provider.close();await rm(dir,{recursive:true,force:true});

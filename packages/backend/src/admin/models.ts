@@ -6,7 +6,7 @@ import { sql } from "../db.ts";
 import { CAPABILITIES, invalidateModelCache, modelSources, type Capability, type CapabilityKey } from "../editorial/models.ts";
 import { MODELS } from "../providers/llm.ts";
 import { audit } from "./auth.ts";
-import { modelCostOverview } from "../providers/model-cost.ts";
+import { modelCostOverview,modelTokenUsage } from "../providers/model-cost.ts";
 import { ORDINARY_VERIFICATION_MODEL,VERIFICATION_ROUTING_SETTING } from '../editorial/verification-execution.ts';
 
 interface UsageRow {
@@ -20,9 +20,7 @@ interface UsageRow {
   unknown: number;
   p50: number | null;
   p95: number | null;
-  tokens_in: string | null;
-  tokens_out: string | null;
-  tokens_cached: string | null;
+  token_usages: unknown[];
   actual_cost: string | null;
   currency: string | null;
 }
@@ -38,10 +36,7 @@ export async function modelsOverview(days = 7) {
              count(*) FILTER (WHERE a.status = 'unknown')::int AS unknown,
              percentile_disc(0.5) WITHIN GROUP (ORDER BY a.latency_ms) AS p50,
              percentile_disc(0.95) WITHIN GROUP (ORDER BY a.latency_ms) AS p95,
-             sum((a.usage->>'prompt_tokens')::bigint) AS tokens_in, sum((a.usage->>'completion_tokens')::bigint) AS tokens_out,
-             sum(CASE WHEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0') ~ '^[0-9]+$'
-               THEN CASE WHEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::numeric <= coalesce((a.usage->>'prompt_tokens')::numeric,0)
-                 THEN coalesce(a.usage->'prompt_tokens_details'->>'cached_tokens',a.usage->>'prompt_cache_hit_tokens',a.usage->>'cached_tokens','0')::numeric ELSE 0 END ELSE 0 END) AS tokens_cached,
+             jsonb_agg(a.usage) AS token_usages,
              sum(a.cost) FILTER (WHERE a.cost_basis = 'actual') AS actual_cost, max(a.currency) AS currency
       FROM receipt_attempts a JOIN receipts r ON r.id = a.receipt_id
       WHERE a.started_at >= ${since} AND a.origin = 'live' AND a.model IS NOT NULL
@@ -57,13 +52,27 @@ export async function modelsOverview(days = 7) {
     modelCostOverview(),
     sql<{value:{enabled?:boolean;ordinaryModel?:string;datasetHash?:string;assessmentHash?:string}}[]>`SELECT value FROM settings WHERE key=${VERIFICATION_ROUTING_SETTING}`,
   ]);
-  const priced = (u: UsageRow) => {
+  const tokenTotals=(u:UsageRow)=>u.token_usages.reduce<{input:number;output:number;cached:number;unknown:boolean}>((sum,raw)=>{
+    if(raw===null)return sum;
+    const trusted=modelTokenUsage(raw);
+    if(trusted)return {input:sum.input+trusted.input,output:sum.output+trusted.output,cached:sum.cached+trusted.cached,unknown:sum.unknown};
+    // Invalid cache aliases earn no discount. Invalid base usage has no trustworthy estimate.
+    const value=raw as Record<string,unknown>;
+    const count=(keys:string[])=>{
+      const values=keys.filter(k=>Object.hasOwn(value,k)).map(k=>value[k]);
+      return values.length&&values.every(n=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=0&&n===values[0])?values[0] as number:null;
+    };
+    if(!value||typeof value!=='object'||Array.isArray(value))return {...sum,unknown:true};
+    const input=count(['prompt_tokens','input_tokens']),output=count(['completion_tokens','output_tokens']);
+    if(input===null||output===null||Object.hasOwn(value,'total_tokens')&&value.total_tokens!==input+output)return {...sum,unknown:true};
+    return {...sum,input:sum.input+input,output:sum.output+output};
+  },{input:0,output:0,cached:0,unknown:false});
+  const priced = (u: UsageRow,tokens:ReturnType<typeof tokenTotals>) => {
     const service = u.service;
     const p = prices.find((x) => x.service === service && x.model === u.model) ?? prices.find((x) => x.service === service && x.model === "");
-    if (!p || (!p.input_per_mtok && !p.output_per_mtok)) return null;
-    const cached = Number(u.tokens_cached ?? 0);
-    return { amount: ((Number(u.tokens_in ?? 0)-cached)*Number(p.input_per_mtok ?? 0)
-      +cached*Number(p.cached_per_mtok ?? p.input_per_mtok ?? 0)+Number(u.tokens_out ?? 0)*Number(p.output_per_mtok ?? 0))/1e6, currency: p.currency };
+    if (tokens.unknown || !p || (!p.input_per_mtok && !p.output_per_mtok)) return null;
+    return { amount: ((tokens.input-tokens.cached)*Number(p.input_per_mtok ?? 0)
+      +tokens.cached*Number(p.cached_per_mtok ?? p.input_per_mtok ?? 0)+tokens.output*Number(p.output_per_mtok ?? 0))/1e6, currency: p.currency };
   };
   const capabilities = (Object.entries(CAPABILITIES) as Array<[CapabilityKey, Capability]>).map(([key, c]) => ({
     key,
@@ -74,7 +83,7 @@ export async function modelsOverview(days = 7) {
     current: sources[key]!,
     usage: usage
       .filter((u) => c.purposes.includes(u.purpose))
-      .map((u) => ({
+      .map((u) => {const tokens=tokenTotals(u);return ({
         purpose: u.purpose,
         model: u.model,
         promptVersion: u.prompt_version,
@@ -84,13 +93,13 @@ export async function modelsOverview(days = 7) {
         unknown: u.unknown,
         p50: u.p50,
         p95: u.p95,
-        tokensIn: Number(u.tokens_in ?? 0),
-        tokensOut: Number(u.tokens_out ?? 0),
-        cachedTokensIn: Number(u.tokens_cached ?? 0),
+        tokensIn: tokens.input,
+        tokensOut: tokens.output,
+        cachedTokensIn: tokens.cached,
         actualCost: u.actual_cost === null ? null : Number(u.actual_cost),
         currency: u.currency,
-        estimate: priced(u),
-      })),
+        estimate: priced(u,tokens),
+      });}),
   }));
   const choices = Object.values(MODELS).map((m) => ({ key: m.key, service: m.service, vision: !!m.vision }));
   const ordinaryModel=routing[0]?.value.ordinaryModel??ORDINARY_VERIFICATION_MODEL;

@@ -22,8 +22,9 @@ export function validateAssessmentCases(input:unknown):VerificationAssessmentCas
     ids.add(c.id);
     const original=c.materials?.find(m=>m.id==='original');
     if(typeof c.originalBodyText!=='string'||!original||original.primary!==c.firstParty||original.url!==c.sourceUrl
-      ||!Number.isInteger(c.sourceSpanStart)||!Number.isInteger(c.sourceSpanEnd)||c.sourceSpanStart<0||c.sourceSpanEnd<=c.sourceSpanStart
-      ||c.sourceSpanEnd>c.originalBodyText.length||original.bodyText!==c.originalBodyText.slice(c.sourceSpanStart,c.sourceSpanEnd)
+      ||c.materials.length!==1||original.role!=='original_source'
+      ||c.sourceSpanStart!==0||c.sourceSpanEnd!==c.originalBodyText.length||!c.originalBodyText.length
+      ||original.bodyText!==c.originalBodyText
       ||!c.evidenceQuote||!original.bodyText.includes(c.evidenceQuote))throw new Error(`snapshot/span/literal evidence invalid: ${c.id}`);
     if(!['official_supported','official_negative','secondary_boundary','risk_boundary'].includes(c.family))throw new Error('unknown assessment family');
     if(c.family.startsWith('official_')&&(!c.firstParty||c.expectedPublic!==(c.family==='official_supported')))throw new Error('official labels do not match their declared family');
@@ -48,4 +49,24 @@ export function assessVerificationCase(c:Pick<VerificationAssessmentCase,'copy'|
   const citationsValid=parsed.success&&!full.reasons.some(r=>/quote_invalid|material_ids_not_unique/.test(r))
     &&parsed.data.claims.every(claim=>claim.verdict!=='supported'||claim.evidence.length>0);
   return {decision:full,structureValid:parsed.success,citationsValid};
+}
+
+export interface AssessmentResult {
+  id:string;family:string;expectedPublic:boolean;public:boolean;structureValid:boolean;citationsValid:boolean;
+  reasons:string[];receiptId:number|null;requestHash:string;verifier?:unknown;usage?:unknown;error?:string;differenceReview?:string;
+}
+/** Private review notes are editable; paid identities and derived quality verdicts are not. */
+export function resumeAssessmentResults(cases:readonly VerificationAssessmentCase[],input:unknown,requestHashes:Map<string,string>):AssessmentResult[] {
+  if(!Array.isArray(input))throw new Error('assessment results must be an array');
+  const byId=new Map(cases.map(c=>[c.id,c])),seen=new Set<string>();
+  return input.map(raw=>{
+    const r=raw as AssessmentResult,c=byId.get(r?.id);
+    if(!c||seen.has(r.id)||r.family!==c.family||r.expectedPublic!==c.expectedPublic||r.requestHash!==requestHashes.get(c.id)
+      ||!Number.isSafeInteger(r.receiptId)||r.receiptId!<=0)throw new Error('assessment resume identity differs from the current dataset/request');
+    seen.add(r.id);
+    const note=typeof r.differenceReview==='string'?r.differenceReview.trim():undefined;
+    if(r.error){if(r.verifier!==undefined)throw new Error('invalid output cannot contain a valid verifier');return {...r,public:false,structureValid:false,citationsValid:false,reasons:['model_output_invalid'],differenceReview:note};}
+    const checked=assessVerificationCase(c,r.verifier);
+    return {...r,public:checked.decision.public,structureValid:checked.structureValid,citationsValid:checked.citationsValid,reasons:checked.decision.reasons,differenceReview:note};
+  });
 }
