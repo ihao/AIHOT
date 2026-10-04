@@ -284,7 +284,11 @@ const RewriteSchema = z.object({
   category: z.enum(CATEGORY_KEYS)
 });
 
-/** Count sent attempts from receipts even when a crash occurred before business persistence. */
+// A durable, explicitly unaccepted provider stop spends no editorial opportunity. All other
+// attempts (including unknown outcomes and unusable answers) still count; the HTTP ledger stays intact.
+const freeProviderBudgetRejection=sql`ra.status='failed' AND ra.model_cost_state='released'
+  AND ra.model_cost_cny=0 AND ra.error LIKE 'ProviderBudgetExceededError:%'`;
+/** Count effective attempts, retaining every receipt even after a free provider rejection. */
 async function verificationUsage(r: Round): Promise<{
   count: number;
   ids: number[];
@@ -293,7 +297,7 @@ async function verificationUsage(r: Round): Promise<{
   const [usage] = await sql<{
     count: number;
     ids: number[];
-  }[]>`SELECT count(ra.id)::int AS count,
+  }[]>`SELECT (count(ra.id) FILTER(WHERE NOT coalesce(${freeProviderBudgetRejection},false)))::int AS count,
    coalesce(array_agg(DISTINCT receipts.id),'{}'::bigint[]) AS ids
    FROM receipt_attempts ra JOIN receipts ON receipts.id=ra.receipt_id
    WHERE receipts.purpose='verify_summary' AND receipts.logical_key LIKE ${prefix}`;
@@ -308,11 +312,18 @@ function stageReceiptKey(model:string, purpose:string, controls: ReturnType<type
 }
 async function stageUsage(r: Round, purpose: string, expectedKey?: string) {
   const prefix = `%:automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:%`;
-  const [usage] = await sql<{count:number}[]>`SELECT count(ra.id)::int AS count FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id
+  const [usage] = await sql<{count:number}[]>`SELECT (count(ra.id) FILTER(WHERE NOT coalesce(${freeProviderBudgetRejection},false)))::int AS count FROM receipt_attempts ra JOIN receipts rec ON rec.id=ra.receipt_id
     WHERE rec.purpose=${purpose} AND rec.logical_key LIKE ${prefix}`;
   const [receipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose=${purpose}
     AND (${expectedKey ? sql`logical_key=${expectedKey}` : sql`logical_key LIKE ${prefix}`}) ORDER BY id DESC LIMIT 1`;
   return {count:usage?.count??0,id:receipt?.id??null,status:receipt?.status??null,success:receipt?.status==='received'||receipt?.status==='completed'};
+}
+async function verifierReceiptFor(key:string) {
+  const [receipt]=await sql<{id:number;status:string;provider_budget_only:boolean}[]>`SELECT rec.id,rec.status,
+    rec.status='failed' AND coalesce((SELECT bool_and(coalesce(${freeProviderBudgetRejection},false))
+      FROM receipt_attempts ra WHERE ra.receipt_id=rec.id),false) AS provider_budget_only
+    FROM receipts rec WHERE rec.purpose='verify_summary' AND rec.logical_key=${key}`;
+  return receipt;
 }
 async function rejectRound(r:Round, token:string, reason:string) {
   const usage=await verificationUsage(r);
@@ -508,15 +519,15 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       const verificationInput={copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:r.materials};
       let request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
       let verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
-      let [verifierReceipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary'
-        AND logical_key=${verificationKey}`;
+      let verifierReceipt = await verifierReceiptFor(verificationKey);
       let settled = verifierReceipt && ['received','completed'].includes(verifierReceipt.status);
       if (verifierReceipt?.status==='pending') throw new ReceiptBusyError('verifier receipt is in flight');
       if (verifierReceipt?.status==='unknown') throw new ReceiptUnknownError(verifierReceipt.id,'verifier outcome unknown; wait for trusted resolution');
       // Recovery can add risk material or risk copy after initial routing. Conservatively upgrade
-      // every new ordinary recovery stage, while exact already-sent requests remain immutable.
+      // every unaccepted ordinary recovery stage. Successful/unknown outcomes stay immutable;
+      // an existing receipt permits upgrade only when every attempt proves a free budget refusal.
       if (r.execution_policy==='bounded-v1' && r.verification_model===ORDINARY_VERIFICATION_MODEL && (r.stage!=='initial'||r.rewritten) && !settled) {
-        if (verifierReceipt) {
+        if (verifierReceipt && !verifierReceipt.provider_budget_only) {
           await rejectRound(r,token,'ordinary_recovery_receipt_not_reusable');
           return;
         }
@@ -525,12 +536,14 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
           WHERE id=${r.id} AND lease_token=${token} AND execution_policy='bounded-v1' AND status='running'
             AND verification_model=${r.verification_model} AND verification_config_hash=${r.verification_config_hash}
             AND fallback_model=${r.fallback_model} AND fallback_config_hash=${r.fallback_config_hash}
-            AND NOT EXISTS(SELECT 1 FROM receipts WHERE purpose='verify_summary' AND logical_key=${verificationKey})`;
+            AND NOT EXISTS(SELECT 1 FROM receipts rec WHERE rec.purpose='verify_summary' AND rec.logical_key=${verificationKey}
+              AND (rec.status<>'failed' OR NOT coalesce((SELECT bool_and(coalesce(${freeProviderBudgetRejection},false))
+                FROM receipt_attempts ra WHERE ra.receipt_id=rec.id),false)))`;
         if (!changed.count) throw new ReceiptBusyError('recovery verifier upgrade raced another request or lease');
         r={...r,verification_model:r.fallback_model,verification_config_hash:r.fallback_config_hash};
         request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
         verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
-        [verifierReceipt]=await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary' AND logical_key=${verificationKey}`;
+        verifierReceipt=await verifierReceiptFor(verificationKey);
         settled=verifierReceipt&&['received','completed'].includes(verifierReceipt.status);
         if (verifierReceipt?.status==='pending') throw new ReceiptBusyError('verifier receipt is in flight');
         if (verifierReceipt?.status==='unknown') throw new ReceiptUnknownError(verifierReceipt.id,'verifier outcome unknown; wait for trusted resolution');
