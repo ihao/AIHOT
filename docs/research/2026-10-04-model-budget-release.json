@@ -1,0 +1,167 @@
+{
+  "runtimeCommit": "14ba61e9d12e91e907e0dcde26f21b80a75511f5",
+  "image": "ninebtc-model-budget:14ba61e9d12e",
+  "imageId": "sha256:503b541155e0f22835a135f9214a9ad47943fb0e3c2b5b095bb079261342a9d6",
+  "phase1ReleasedAt": "2026-10-04T15:30:23Z",
+  "goal": "site model directory estimate under10 CNY;9 CNY Beijing-day androlling24h guard",
+  "actualSupplierBillVerified": false,
+  "preservation": {
+    "checked": [
+      "rule",
+      "publicHash",
+      "selectedHash",
+      "sourcePolicyHash",
+      "requestBudgetHash",
+      "modelsHash"
+    ],
+    "passed": true,
+    "publicCount": 1308,
+    "selectedCount": 99,
+    "rule": "automatic-publication-v1:743f241ab8a474544fda3e20"
+  },
+  "moneyAtRelease": {
+    "checkedAt": "2026-10-04T15:30:23.392Z",
+    "policy": {
+      "enabled": true,
+      "timezone": "Asia/Shanghai",
+      "dayLimitCny": 9,
+      "rollingLimitCny": 9
+    },
+    "day": {
+      "estimatedCny": 10.181595103,
+      "reservedCny": 0,
+      "totalCny": 10.181595103,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T16:00:00.000Z"
+    },
+    "rolling": {
+      "estimatedCny": 10.386872111,
+      "reservedCny": 0,
+      "totalCny": 10.386872111,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T15:30:23.392Z"
+    },
+    "basis": "estimated",
+    "blocked": true,
+    "reasons": [
+      "北京时间当日额度已用完",
+      "滚动 24 小时额度已用完"
+    ]
+  },
+  "routing": {
+    "reason": "assessment_pending",
+    "enabled": false,
+    "ordinaryModel": "dashscope-deepseek-v4.1-flash"
+  },
+  "isolatedAcceptance": {
+    "node": "24.21",
+    "postgres": "17",
+    "externalModelAccess": false,
+    "backend": {
+      "passed": 451,
+      "failed": 0
+    },
+    "frontend": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "httpSmoke": {
+      "passed": 30,
+      "failed": 0
+    },
+    "productionImageNetworkNone": {
+      "passed": 6,
+      "failed": 0
+    }
+  },
+  "productionPublicSmoke": {
+    "passed": 30,
+    "failed": 0
+  },
+  "assessment": {
+    "state": "blocked",
+    "reason": "amount_day",
+    "evaluated": 0,
+    "attempts": 0,
+    "estimatedCny": 0,
+    "cases": 100,
+    "articles": 60,
+    "sources": 36,
+    "labelBasis": "agent_literal_source_review",
+    "datasetHash": "3cba7c338e729ae3827dd242cdc9ae6d1695e19293d7af7bbbaecba34c36272d",
+    "executionHash": "a14992e69b8f1536efb79d6ade0631e56c1b1f7443704e5f8f656d87ce1f0803"
+  },
+  "historicalOpeningForecast": {
+    "basis": "read-only historical-window forecast; excludes future new costs; never used for request admission",
+    "current": {
+      "checkedAt": "2026-10-04T15:38:45.387Z",
+      "policy": {
+        "enabled": true,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 10.181595103,
+        "reservedCny": 0,
+        "totalCny": 10.181595103,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 10.386872111,
+        "reservedCny": 0,
+        "totalCny": 10.386872111,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T15:38:45.387Z"
+      },
+      "basis": "estimated",
+      "blocked": true,
+      "reasons": [
+        "北京时间当日额度已用完",
+        "滚动 24 小时额度已用完"
+      ]
+    },
+    "reservationBounds": {
+      "min": 0.049366,
+      "median": 0.05762,
+      "max": 0.075196
+    },
+    "historicalOpeningForLargestRequest": "2026-10-04T16:27:43.232Z",
+    "forecastAtOpening": {
+      "checkedAt": "2026-10-04T16:27:43.232Z",
+      "policy": {
+        "enabled": true,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 0,
+        "reservedCny": 0,
+        "totalCny": 0,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-04T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 8.900726499,
+        "reservedCny": 0,
+        "totalCny": 8.900726499,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T16:27:43.232Z"
+      },
+      "basis": "estimated",
+      "blocked": false,
+      "reasons": []
+    }
+  },
+  "cleanup": {
+    "remoteTestContainers": true,
+    "remoteTestNetwork": true,
+    "remoteTestImages": true,
+    "localTestServers": true,
+    "productionAndRollbackPreserved": true
+  }
+}
