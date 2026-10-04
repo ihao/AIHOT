@@ -7,6 +7,7 @@ import { CAPABILITIES, invalidateModelCache, modelSources, type Capability, type
 import { MODELS } from "../providers/llm.ts";
 import { audit } from "./auth.ts";
 import { modelCostOverview } from "../providers/model-cost.ts";
+import { ORDINARY_VERIFICATION_MODEL,VERIFICATION_ROUTING_SETTING } from '../editorial/verification-execution.ts';
 
 interface UsageRow {
   service: string;
@@ -28,7 +29,7 @@ interface UsageRow {
 
 export async function modelsOverview(days = 7) {
   const since = new Date(Date.now() - days * 86400_000);
-  const [sources, usage, prices, history, benches, moneyBudget] = await Promise.all([
+  const [sources, usage, prices, history, benches, moneyBudget, routing] = await Promise.all([
     modelSources(),
     sql<UsageRow[]>`
       SELECT r.purpose, a.model, r.request->>'promptVersion' AS prompt_version, a.service, count(*)::int AS calls,
@@ -54,6 +55,7 @@ export async function modelsOverview(days = 7) {
              (SELECT coalesce(jsonb_object_agg(key, value - 'sweep'), '{}'::jsonb) FROM jsonb_each(r.summary)) AS summary,
       created_at FROM selectbench_runs r ORDER BY created_at DESC LIMIT 8`,
     modelCostOverview(),
+    sql<{value:{enabled?:boolean;ordinaryModel?:string;datasetHash?:string;assessmentHash?:string}}[]>`SELECT value FROM settings WHERE key=${VERIFICATION_ROUTING_SETTING}`,
   ]);
   const priced = (u: UsageRow) => {
     const service = u.service;
@@ -91,7 +93,9 @@ export async function modelsOverview(days = 7) {
       })),
   }));
   const choices = Object.values(MODELS).map((m) => ({ key: m.key, service: m.service, vision: !!m.vision }));
-  return { days, capabilities, choices, history, benches, moneyBudget };
+  const ordinaryModel=routing[0]?.value.ordinaryModel??ORDINARY_VERIFICATION_MODEL;
+  const verificationRouting = {enabled:routing[0]?.value.enabled===true&&ordinaryModel===ORDINARY_VERIFICATION_MODEL,ordinaryModel,datasetHash:routing[0]?.value.datasetHash??null,assessmentHash:routing[0]?.value.assessmentHash??null};
+  return { days, capabilities, choices, history, benches, moneyBudget, verificationRouting };
 }
 
 /** Switches a capability to another registered model (or back to the environment/default when null). */

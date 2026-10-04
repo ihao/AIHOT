@@ -25,6 +25,7 @@ interface Usage {
 }
 
 interface Models {
+  verificationRouting:{enabled:boolean;ordinaryModel:string;datasetHash:string|null;assessmentHash:string|null};
   moneyBudget: {
     policy: {enabled:boolean;timezone:string;dayLimitCny:number;rollingLimitCny:number};
     day: {estimatedCny:number;reservedCny:number;totalCny:number;unpricedAttempts:number;startsAt:string};
@@ -66,6 +67,7 @@ export default function ModelsAdmin({ loaderData: m }: Route.ComponentProps) {
           <p>滚动 24 小时：{money(m.moneyBudget.rolling.totalCny)} / {money(m.moneyBudget.policy.rollingLimitCny)} 元<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.rolling.estimatedCny)} · 已预占 {money(m.moneyBudget.rolling.reservedCny)}</span></p>
         </div>
         <p className="mt-3 text-sm text-ink-3">包含各模型、向量与评测；并发请求先预占，结果未知继续占用。按已核对单价和返回用量估算，最终费用以供应商账单为准。</p>
+        <p className="mt-2 text-sm text-ink-3">普通一手信息分流：{m.verificationRouting.enabled ? `已启用 ${m.verificationRouting.ordinaryModel}` : '待质量评测通过后启用'}。二手媒体与风险内容继续使用下方配置的核验模型。</p>
         {m.moneyBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">{m.moneyBudget.reasons.join('；')}</p>}
       </Card>
       <div className="grid gap-5">
