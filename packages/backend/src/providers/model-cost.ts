@@ -203,12 +203,22 @@ export async function reserveModelCost(db: Db, req: ReceiptRequest): Promise<Mod
   if(benchmark&&(!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9))) {
     throw new ModelCostBudgetError('评测实验的北京时间当日、滚动 24 小时上限均必须不超过 9 CNY','benchmark_policy');
   }
-  if(!p.enabled&&!benchmark)return null;
-  if(!validBounds(req.modelBudget))throw new ModelCostBudgetError('请求没有可靠输入与输出 token 上界');
+  const enforced=p.enabled||benchmark;
+  // Disabling production admission keeps the ledger's original price and reliable bounds when available.
+  if(!validBounds(req.modelBudget)) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('请求没有可靠输入与输出 token 上界');
+  }
   const price=await readPrice(db,req.service,req.model??null,req.modelBudget.maxOutputTokens);
-  if(!price)throw new ModelCostBudgetError('模型缺少经核对的 CNY 价格','missing_price');
+  if(!price) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('模型缺少经核对的 CNY 价格','missing_price');
+  }
   const amount=reserveAmount(price,req.modelBudget);
-  if(!nonnegative(amount))throw new ModelCostBudgetError('预占金额不可计算');
+  if(!nonnegative(amount)) {
+    if(!enforced)return null;
+    throw new ModelCostBudgetError('预占金额不可计算');
+  }
   const check=(overview:Awaited<ReturnType<typeof costOverview>>,label:string)=>{
     if(overview.rolling.unpricedAttempts)throw new ModelCostBudgetError(`${label}：${overview.reasons[0]!}`,'unpriced_usage');
     if(overview.day.totalCny+amount>overview.policy.dayLimitCny)throw new ModelCostBudgetError(`${label}北京时间当日额度不足`,'amount_day');

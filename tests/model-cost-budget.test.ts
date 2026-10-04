@@ -82,6 +82,58 @@ test('price snapshots settle cache-hit usage but never pretend to be a provider 
   await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;
 });
 
+test('disabled production caps still snapshot and settle prices while calls exceed nine yuan',async()=>{
+  const req={...request('disabled-snapshot'),modelBudget:{inputTokens:10,maxOutputTokens:1,bounded:true}};
+  let sent=0;
+  try {
+    await paidRequest(req,async()=>{
+      sent++;
+      await sql`UPDATE service_prices SET input_per_mtok=2000000 WHERE service=${service}`;
+      return {response:{},usage:{prompt_tokens:10,completion_tokens:0,total_tokens:10}};
+    });
+    const row=await attempt(req);
+    assert.equal(row.model_cost_reserved_cny,11);
+    assert.equal(row.model_cost_price.input_per_mtok,1000000);
+    assert.deepEqual(row.model_cost_bounds,req.modelBudget);
+    assert.equal(row.model_cost_cny,10);assert.equal(row.model_cost_state,'estimated');
+    assert.equal(row.cost,10);assert.equal(row.cost_basis,'estimated');
+    await paidRequest(request('disabled-after-nine'),async()=>{sent++;return success();});
+    const overview=await modelCostOverview();
+    assert.equal(sent,2);assert.equal(overview.rolling.totalCny,12);assert.equal(overview.blocked,false);
+    assert.equal((await attempt(req)).model_cost_cny,10,'later catalog changes cannot rewrite settled historical estimates');
+  } finally {await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;}
+});
+
+test('disabled production caps retain an unknown attempt at its original price without blocking other calls',async()=>{
+  const req=request('disabled-unknown-snapshot');
+  await assert.rejects(paidRequest(req,async()=>{throw new Error('socket lost after sending');}));
+  await sql`UPDATE service_prices SET input_per_mtok=2000000 WHERE service=${service}`;
+  try {
+    const row=await attempt(req);
+    assert.equal(row.status,'unknown');assert.equal(row.model_cost_cny,2);
+    assert.equal(row.model_cost_price.input_per_mtok,1000000);
+    assert.deepEqual(row.model_cost_bounds,req.modelBudget);
+    assert.equal((await modelCostOverview()).rolling.reservedCny,2);
+    await paidRequest(request('disabled-after-unknown'),success);
+    assert.equal((await modelCostOverview()).rolling.totalCny,4);
+  } finally {await sql`UPDATE service_prices SET input_per_mtok=1000000 WHERE service=${service}`;}
+});
+
+test('disabled production caps allow missing prices and unreliable bounds while reporting unknown amounts',async()=>{
+  let sent=0;
+  const unpriced=request('disabled-missing-price');
+  const unbounded={...request('disabled-missing-bound',otherService),modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}};
+  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  try {
+    for(const req of [unpriced,unbounded]) {
+      await paidRequest(req,async()=>{sent++;return {response:{},usage:null};});
+      const row=await attempt(req);assert.equal(row.model_cost_cny,null);assert.equal(row.model_cost_price,null);assert.equal(row.model_cost_bounds,null);
+    }
+    const overview=await modelCostOverview();
+    assert.equal(sent,2);assert.equal(overview.rolling.unpricedAttempts,2);assert.equal(overview.blocked,false);
+  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+});
+
 test('absent, malformed and out-of-bound usage retains the full reservation', async () => {
   await enable(20,20);
   for(const [i,usage] of [null,{prompt_tokens:-1,completion_tokens:0},{prompt_tokens:2,completion_tokens:0,total_tokens:2},{prompt_tokens:1,completion_tokens:0,prompt_tokens_details:{cached_tokens:2}}].entries()) {
@@ -117,7 +169,7 @@ test('a fresh paid attempt after unusable output keeps the prior settled amount'
 });
 
 test('historic usage counts across request-count resets and unknown historic usage freezes',async()=>{
-  const old={...request('legacy'),requestSummary:{userChars:1,maxTokens:1}};await paidRequest(old,async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
+  const old={...request('legacy'),modelBudget:undefined,requestSummary:{userChars:1,maxTokens:1}};await paidRequest(old,async()=>({response:{},usage:{prompt_tokens:8,completion_tokens:0,total_tokens:8}}));
   await sql`INSERT INTO budgets(service,per_minute,per_hour,per_day,usage_reset_at) VALUES(${service},100,100,100,now()) ON CONFLICT(service) DO UPDATE SET usage_reset_at=now()`;
   await enable();await assert.rejects(paidRequest(request('blocked-by-history'),success),BudgetExceededError);
   await sql`UPDATE receipt_attempts SET usage=NULL WHERE receipt_id=${(await attempt(old)).receipt_id}`;
@@ -212,7 +264,7 @@ test('a provider actual bill remains distinct from the directory budget estimate
 });
 
 test('legacy conservative fallback requires an explicitly reliable bound',async()=>{
-  const req={...request('legacy-bound'),requestSummary:{inputTokenBound:1,maxTokens:1,modelBudgetBounded:true}};
+  const req={...request('legacy-bound'),modelBudget:undefined,requestSummary:{inputTokenBound:1,maxTokens:1,modelBudgetBounded:true}};
   await paidRequest(req,async()=>({response:{},usage:null}));
   await enable();assert.equal((await modelCostOverview()).rolling.totalCny,2);
   await sql`UPDATE receipts SET request='{"inputTokenBound":1,"maxTokens":1,"modelBudgetBounded":false}'::jsonb WHERE id=${(await attempt(req)).receipt_id}`;
@@ -535,7 +587,7 @@ for(const field of ['day_limit_cny','rolling_limit_cny'] as const) {
 }
 
 test('unpriced production history is excluded from experiments but legacy unknown experiment history freezes new purchases',async()=>{
-  const old=request('legacy-production-unknown');await assert.rejects(paidRequest(old,async()=>{throw new Error('unknown pre-protection outcome');}));
+  const old={...request('legacy-production-unknown'),modelBudget:undefined};await assert.rejects(paidRequest(old,async()=>{throw new Error('unknown pre-protection outcome');}));
   assert.equal((await modelCostOverview()).rolling.unpricedAttempts,1);
   assert.equal((await benchmarkModelCostOverview()).rolling.unpricedAttempts,0);
   await paidRequest({...request('experiment-with-production-unknown'),purpose:'verification_benchmark'},success);
