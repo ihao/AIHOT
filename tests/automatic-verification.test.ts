@@ -31,6 +31,7 @@ import { selectedSnapshot, selectedChanges } from '../packages/backend/src/publi
 import { loadItemShare } from '../packages/backend/src/publication/og.ts';
 import { loadDevelopments } from '../packages/backend/src/publication/groups.ts';
 import { processArticle } from '../packages/backend/src/jobs/content.ts';
+import { executionModelConfigHash } from '../packages/backend/src/editorial/verification-execution.ts';
 import { buildApp } from '../apps/api/src/app.ts';
 import { loadTopicPage, seedTopics } from '../packages/backend/src/publication/topics.ts';
 const T = tag(),
@@ -292,7 +293,12 @@ test('oversized verification input is rejected before sending a paid request',as
  assert.equal((await projection(id)).visibility,'withdrawn');
 });
 async function preCostOversizedReceipt(id:string) {
- const [r]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+ const [created]=await sql`SELECT * FROM automatic_verifications WHERE article_id=${id}`;
+ // This historical fixture predates bounded execution and retains the exact 16k config/input.
+ await sql`UPDATE automatic_verifications SET execution_policy='legacy-v1',
+  verification_config_hash=${executionModelConfigHash(created.verification_model,'legacy-v1')},
+  rewrite_config_hash=${executionModelConfigHash(created.rewrite_model,'legacy-v1','rewrite-verified-summary')} WHERE id=${created.id}`;
+ const [r]=await sql`SELECT * FROM automatic_verifications WHERE id=${created.id}`;
  return chatJson({model:r.verification_model,purpose:'verify_summary',subject:`article:${id}@1`,promptVersion:promptVersion('verify-summary'),system:promptText('verify-summary'),
   user:stableJson({copy:r.final_copy,requiresPrimaryEvidence:false,primaryEvidenceScope:'claims',rewritten:false,original_copy:r.original_copy,originalTitle:'Bitcoin Core release',materials:promptMaterials(r.materials)}),
   schema:VerificationSchema,temperature:0,maxTokens:16384,attemptTag:`automatic:${r.id}:${r.automatic_rule_version}:analysis:${r.analysis_id}:initial`});

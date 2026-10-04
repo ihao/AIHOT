@@ -3,7 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { SELECTION } from '@aihot/industry/selection';
-import { EVIDENCE_CONFIG, CLAIM_QUOTE_VERSION, approvedPrimaryUrl, approvedEvidenceCandidate, originalPrimaryLinks, fetchPrimaryMaterial, fetchPrimaryMaterialWithDiagnostic, promptMaterials, validatedPrimaryMaterial, type Material } from './evidence-materials.ts';
+import { EVIDENCE_CONFIG, CLAIM_QUOTE_VERSION, approvedPrimaryUrl, approvedEvidenceCandidate, originalPrimaryLinks, fetchPrimaryMaterial, fetchPrimaryMaterialWithDiagnostic, validatedPrimaryMaterial, type Material } from './evidence-materials.ts';
 export { approvedPrimaryUrl, originalPrimaryLinks, fetchPrimaryMaterial } from './evidence-materials.ts';
 import { acceptedAutomaticRuleVersions, auditedLegacyCopyProofs, compatibleAcceptedCopy } from '@aihot/industry/automatic-rule-compatibility';
 import { CATEGORY_KEYS } from '@aihot/contracts/taxonomy';
@@ -12,14 +12,15 @@ import { config } from '../config.ts';
 import { automaticFreshnessReason } from '../content/freshness.ts';
 import { sql, type Db, type Tx } from '../db.ts';
 import { sha256, stableJson } from '../lib/ids.ts';
-import { chatJson, chatJsonRequestIdentity, ModelOutputError, MODELS } from '../providers/llm.ts';
+import { chatJson, chatJsonRequestIdentity, ModelOutputError } from '../providers/llm.ts';
 import { BudgetExceededError, ReceiptBusyError, completeReceipt, ReceiptUnknownError, logicalKeyFor } from '../providers/receipts.ts';
 import { modelFor } from './models.ts';
 import { getReviewProposal } from './review.ts';
-import { promptText, promptVersion } from './prompts.ts';
+import { promptVersion } from './prompts.ts';
 import { VERIFICATION_RECOVERY_VERSION, nextRecoveryStage, canRequestStage, coreCopyConflicts } from './verification-recovery.ts';
-import { AUTOMATIC_POLICY_VERSION, CLAIM_EVIDENCE_POLICY_VERSION, criticalClaimFlags, VerificationSchema, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
+import { AUTOMATIC_POLICY_VERSION, CLAIM_EVIDENCE_POLICY_VERSION, criticalClaimFlags, evaluateAutomaticPublication, type VerificationMaterial } from './automatic-policy.ts';
 import { enqueue, QUEUES } from '../jobs/queue.ts';
+import { executionConfig, executionMaterials, executionModelConfigHash, verificationRequest, executeVerification, routeVerificationModel, VERIFICATION_ROUTING_SETTING, NEW_VERIFICATION_EXECUTION_POLICY, type VerificationExecutionPolicy, type VerificationRoutingSettings } from './verification-execution.ts';
 export const AUTOMATIC_AMOUNT_GUARD_VERSION = 'currency-amounts-v2';
 export const AUTOMATIC_RULE_VERSION = `${AUTOMATIC_POLICY_VERSION}:${sha256(stableJson({
   amountGuard: AUTOMATIC_AMOUNT_GUARD_VERSION,
@@ -72,6 +73,7 @@ interface Round {
   automatic_rule_version: string;
   verification_model: string;
   verification_config_hash: string;
+  execution_policy: VerificationExecutionPolicy;
   rewrite_model: string | null;
   rewrite_config_hash: string | null;
   original_fingerprint: string | null;
@@ -96,21 +98,8 @@ interface Round {
   failures: number;
   lease_token: string | null;
 }
-function modelConfigHash(model: string, kind: "verify-summary" | "rewrite-verified-summary"): string {
-  const spec = MODELS[model];
-  return sha256(stableJson({
-    model: spec?.model,
-    service: spec?.service,
-    extra: spec?.extra ?? null,
-    jsonMode: spec?.jsonMode,
-    system: promptText(kind),
-    promptVersion: promptVersion(kind),
-    temperature: kind === 'verify-summary' ? 0 : 0.2,
-    maxTokens: kind === 'verify-summary' ? 16_384 : 4096
-  }));
-}
-const verificationConfigHash = (model: string) => modelConfigHash(model, "verify-summary");
-const rewriteConfigHash = (model: string) => modelConfigHash(model, "rewrite-verified-summary");
+const verificationConfigHash = (model: string, profile: VerificationExecutionPolicy) => executionModelConfigHash(model, profile);
+const rewriteConfigHash = (model: string, profile: VerificationExecutionPolicy) => executionModelConfigHash(model, profile, "rewrite-verified-summary");
 export const automaticCopyHash = (copy: AutomaticCopy) => sha256(stableJson(copy));
 
 /** Parameterized version checks also work before a connection has learned PostgreSQL array OIDs. */
@@ -210,13 +199,15 @@ export async function queueAutomaticVerificationTx(tx: Tx, articleId: string): P
   const copy = copyOf(a),
     hash = automaticCopyHash(copy);
   const proposal = await getReviewProposal(articleId, tx);
-  const model = await modelFor("verification");
+  const [routing] = await tx<{value:VerificationRoutingSettings}[]>`SELECT value FROM settings WHERE key=${VERIFICATION_ROUTING_SETTING}`;
+  const profile = NEW_VERIFICATION_EXECUTION_POLICY;
+  const model = routeVerificationModel({...a,conflicts:deterministicCopyConflicts(copy,[{id:'original',bodyText:a.body_text??'',primary:a.first_party}])},await modelFor("verification"),routing?.value);
   const rewriteModel = await modelFor("understand");
   const [round] = await tx<{
     id: number;
   }[]>`INSERT INTO automatic_verifications(article_id,article_revision,analysis_id,
- automatic_rule_version,verification_model,verification_config_hash,rewrite_model,rewrite_config_hash,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
- VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model)},${rewriteModel},${rewriteConfigHash(rewriteModel)},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
+ automatic_rule_version,verification_model,verification_config_hash,rewrite_model,rewrite_config_hash,execution_policy,source_policy_version,original_fingerprint,final_fingerprint,original_copy_hash,final_copy_hash,original_copy,final_copy,materials)
+ VALUES(${articleId},${a.revision},${a.analysis_id},${AUTOMATIC_RULE_VERSION},${model},${verificationConfigHash(model,profile)},${rewriteModel},${rewriteConfigHash(rewriteModel,profile)},${profile},${a.source_policy_version ?? 0},${proposal?.fingerprint ?? null},${proposal?.fingerprint ?? null},${hash},${hash},
  ${tx.json(copy as never)},${tx.json(copy as never)},${tx.json([{
     id: 'original',
     role: 'original_source',
@@ -308,8 +299,8 @@ async function verificationUsage(r: Round): Promise<{
     ids: []
   };
 }
-function stageReceiptKey(model:string, purpose:string, prompt:string, user:string, temperature:number, maxTokens:number, tag:string) {
-  const { receiptRequest } = chatJsonRequestIdentity({model,purpose,promptVersion:promptVersion(prompt),system:promptText(prompt),user,temperature,maxTokens,attemptTag:tag});
+function stageReceiptKey(model:string, purpose:string, controls: ReturnType<typeof executionConfig>, user:string, tag:string) {
+  const { receiptRequest } = chatJsonRequestIdentity({model,purpose,...controls,user,attemptTag:tag});
   return logicalKeyFor(receiptRequest);
 }
 async function stageUsage(r: Round, purpose: string, expectedKey?: string) {
@@ -374,7 +365,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
   AND (retry_at IS NULL OR retry_at<=now()) RETURNING *`;
     if (!r) return null;
     const proposal = await getReviewProposal(articleId, tx);
-    if (!proposal || proposal.fingerprint !== r.final_fingerprint || (r.verification_config_hash !== verificationConfigHash(r.verification_model) || !r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model)) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a)) || (await manuallyHeld(tx, articleId))) {
+    if (!proposal || proposal.fingerprint !== r.final_fingerprint || (r.verification_config_hash !== verificationConfigHash(r.verification_model,r.execution_policy) || !r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model,r.execution_policy)) || r.analysis_id !== a.analysis_id || r.source_policy_version !== (a.source_policy_version ?? 0) || r.final_copy_hash !== automaticCopyHash(copyOf(a)) || (await manuallyHeld(tx, articleId))) {
       await tx`UPDATE automatic_verifications SET status='stale',selected=false,retry_at=NULL,reasons='["input_changed_or_manual_hold"]',lease_token=NULL,lease_until=NULL WHERE id=${r.id}`;
       const {publishArticleTx}=await import('../publication/publish.ts');
       await publishArticleTx(tx,articleId);
@@ -446,9 +437,10 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
       }
       if (r.stage === 'rewrite' && !r.rewritten) {
         await checkAutomaticSourcePause(articleId);
-        if (!r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model)) throw new Error('rewrite configuration changed');
-        const rewriteUser=stableJson({copy:r.final_copy,original_copy:r.original_copy,originalTitle:a.title,verification:r.verification,materials:promptMaterials(r.materials)});
-        const rewriteKey=stageReceiptKey(r.rewrite_model,'rewrite_verified_summary','rewrite-verified-summary',rewriteUser,0.2,4096,`${tag}:rewrite`);
+        if (!r.rewrite_model || r.rewrite_config_hash !== rewriteConfigHash(r.rewrite_model,r.execution_policy)) throw new Error('rewrite configuration changed');
+        const rewriteControls=executionConfig(r.execution_policy,'rewrite-verified-summary');
+        const rewriteUser=stableJson({copy:r.final_copy,original_copy:r.original_copy,originalTitle:a.title,verification:r.verification,materials:executionMaterials(r.materials,r.execution_policy)});
+        const rewriteKey=stageReceiptKey(r.rewrite_model,'rewrite_verified_summary',rewriteControls,rewriteUser,`${tag}:rewrite`);
         const rewriteUsage = await stageUsage(r, 'rewrite_verified_summary', rewriteKey);
         if (!canRequestStage(rewriteUsage.count, rewriteUsage.success, rewriteUsage.status)) {
           if (rewriteUsage.status === 'pending') throw new ReceiptBusyError('rewrite receipt is in flight');
@@ -468,12 +460,9 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
           model: r.rewrite_model,
           purpose: 'rewrite_verified_summary',
           subject: `article:${articleId}@${a.revision}`,
-          promptVersion: promptVersion('rewrite-verified-summary'),
-          system: promptText('rewrite-verified-summary'),
+          ...rewriteControls,
           user: rewriteUser,
           schema: RewriteSchema,
-          temperature: 0.2,
-          maxTokens: 4096,
           attemptTag: `${tag}:rewrite`
         });
         const copy = rewrite.data,
@@ -513,8 +502,10 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         };
       }
       const usageBefore = await verificationUsage(r);
-      const verificationUser=stableJson({copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),primaryEvidenceScope:'claims',rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:promptMaterials(r.materials)});
-      const verificationKey=stageReceiptKey(r.verification_model,'verify_summary','verify-summary',verificationUser,0,16_384,tag);
+      const verificationInput={copy:r.final_copy,requiresPrimaryEvidence:requiresPrimaryEvidence(a),rewritten:r.rewritten,original_copy:r.original_copy,originalTitle:a.title,materials:r.materials};
+      const request=verificationRequest(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
+      const verificationUser=request.user;
+      const verificationKey=logicalKeyFor(chatJsonRequestIdentity(request).receiptRequest);
       const [verifierReceipt] = await sql<{id:number;status:string}[]>`SELECT id,status FROM receipts WHERE purpose='verify_summary'
         AND logical_key=${verificationKey}`;
       const settled = verifierReceipt && ['received','completed'].includes(verifierReceipt.status);
@@ -535,18 +526,7 @@ export async function verifyAutomaticArticle(articleId: string, opts: {
         return;
       }
       await checkAutomaticSourcePause(articleId);
-      const response = await chatJson({
-        model: r.verification_model,
-        purpose: 'verify_summary',
-        subject: `article:${articleId}@${a.revision}`,
-        promptVersion: promptVersion('verify-summary'),
-        system: promptText('verify-summary'),
-        user: verificationUser,
-        schema: VerificationSchema,
-        temperature: 0,
-        maxTokens: 16_384,
-        attemptTag: tag
-      });
+      const response = await executeVerification(verificationInput,r.verification_model,r.execution_policy,tag,`article:${articleId}@${a.revision}`);
       const usageAfter = await verificationUsage(r);
       r = {
         ...r,

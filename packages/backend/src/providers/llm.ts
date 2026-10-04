@@ -75,6 +75,11 @@ export const MODELS: Record<string, ModelSpec> = {
     baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
     extra: { enable_thinking: false }, jsonMode: true,
   },
+  "dashscope-deepseek-v4.1-flash": {
+    key: "dashscope-deepseek-v4.1-flash", service: "dashscope", model: "deepseek-v4.1-flash",
+    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  },
   "mimo-v2.6-flash": {
     key: "mimo-v2.6-flash", service: "mimo", model: "mimo-v2.6-flash",
     baseUrlEnv: "XIAOMI_MIMO_BASE_URL", apiKeyEnv: "XIAOMI_MIMO_API_KEY",

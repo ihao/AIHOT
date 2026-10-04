@@ -16,3 +16,11 @@ test("qwen3.8-max verification preset shares the DashScope endpoint and sends st
   assert.equal(CAPABILITIES.verification.env, "VERIFICATION_MODEL");
   assert.equal(CAPABILITIES.verification.default, "default");
 });
+
+test("the ordinary DeepSeek verifier uses DashScope credentials and disables thinking in JSON mode", () => {
+  assert.deepEqual(MODELS["dashscope-deepseek-v4.1-flash"], {
+    key: "dashscope-deepseek-v4.1-flash", service: "dashscope", model: "deepseek-v4.1-flash",
+    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  });
+});
