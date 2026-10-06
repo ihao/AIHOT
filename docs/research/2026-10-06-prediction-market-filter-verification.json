@@ -1,0 +1,321 @@
+{
+  "at": "2026-10-06T02:02:36.434Z",
+  "sources": [
+    {
+      "id": "casino-org-prediction-markets",
+      "name": "Casino.org 预测市场新闻",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_fetch_at": "2026-10-06T01:40:29.991Z",
+      "last_ok_at": "2026-10-06T01:40:29.991Z",
+      "next_fetch_at": "2026-10-06T02:40:29.991Z",
+      "last_error": null
+    },
+    {
+      "id": "cnbc-prediction-markets",
+      "name": "CNBC 预测市场报道",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_fetch_at": "2026-10-06T01:36:28.940Z",
+      "last_ok_at": "2026-10-06T01:36:28.940Z",
+      "next_fetch_at": "2026-10-06T02:36:28.940Z",
+      "last_error": null
+    },
+    {
+      "id": "fos-prediction-markets",
+      "name": "Front Office Sports 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_fetch_at": "2026-10-06T01:35:28.768Z",
+      "last_ok_at": "2026-10-06T01:35:28.768Z",
+      "next_fetch_at": "2026-10-06T02:35:28.768Z",
+      "last_error": null
+    },
+    {
+      "id": "igb-prediction-markets",
+      "name": "iGaming Business 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_fetch_at": "2026-10-06T01:35:28.815Z",
+      "last_ok_at": "2026-10-06T01:35:28.815Z",
+      "next_fetch_at": "2026-10-06T02:35:28.815Z",
+      "last_error": null
+    },
+    {
+      "id": "sportico-prediction-markets",
+      "name": "Sportico 预测市场",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_fetch_at": "2026-10-06T01:32:28.569Z",
+      "last_ok_at": "2026-10-06T01:32:28.569Z",
+      "next_fetch_at": "2026-10-06T02:32:28.569Z",
+      "last_error": null
+    }
+  ],
+  "fetches": [
+    {
+      "source_id": "igb-prediction-markets",
+      "status": "ok",
+      "runs": 47,
+      "found": 200,
+      "new": 0,
+      "last_at": "2026-10-06T01:35:28.705Z"
+    },
+    {
+      "source_id": "cnbc-prediction-markets",
+      "status": "ok",
+      "runs": 47,
+      "found": 1410,
+      "new": 1,
+      "last_at": "2026-10-06T01:36:28.730Z"
+    },
+    {
+      "source_id": "sportico-prediction-markets",
+      "status": "ok",
+      "runs": 47,
+      "found": 99,
+      "new": 0,
+      "last_at": "2026-10-06T01:32:28.507Z"
+    },
+    {
+      "source_id": "fos-prediction-markets",
+      "status": "ok",
+      "runs": 47,
+      "found": 1250,
+      "new": 0,
+      "last_at": "2026-10-06T01:35:28.704Z"
+    },
+    {
+      "source_id": "casino-org-prediction-markets",
+      "status": "ok",
+      "runs": 47,
+      "found": 1880,
+      "new": 1,
+      "last_at": "2026-10-06T01:40:28.836Z"
+    }
+  ],
+  "publicRows": [
+    {
+      "article_id": "ld7ej7rfe5r5635c99dpt703f",
+      "title": "美众议员提出法案禁止联邦候选人交易自身选举预测市场合约",
+      "source_id": "cnbc-prediction-markets",
+      "tags": [
+        "政策/监管",
+        "预测市场"
+      ],
+      "score": 38,
+      "selected": false,
+      "published_at": "2026-10-05T21:24:25.000Z",
+      "timeline_at": "2026-10-05T21:32:27.789Z"
+    },
+    {
+      "article_id": "fbfvwuf2vibsvd70923th73tq",
+      "title": "FT 報導：約 30 名名校學生組「Alpha」群組押注 Polymarket，自 2024 年以來估計賺進約 4,000 萬美元",
+      "source_id": "blocktempo-news-zh",
+      "tags": [
+        "研究/数据",
+        "预测市场"
+      ],
+      "score": 21,
+      "selected": false,
+      "published_at": "2026-10-05T13:39:16.000Z",
+      "timeline_at": "2026-10-05T14:17:26.081Z"
+    },
+    {
+      "article_id": "y9t1conwbxzdv27fw4bmfyxro",
+      "title": "Polymarket CEO 暗示将在 Token2049 发言，引发社区对其发行代币的猜测",
+      "source_id": "protos-news",
+      "tags": [
+        "项目/商业",
+        "预测市场"
+      ],
+      "score": 18,
+      "selected": false,
+      "published_at": "2026-10-05T13:14:53.000Z",
+      "timeline_at": "2026-10-05T13:24:25.228Z"
+    },
+    {
+      "article_id": "uqlpvlqil47q5adzjhey26wrn",
+      "title": "Polymarket 創辦人出席 Token 2049 並對比 Hyperliquid 數據，社群猜測將公布代幣訊息",
+      "source_id": "blocktempo-news-zh",
+      "tags": [
+        "项目/商业",
+        "预测市场"
+      ],
+      "score": 21,
+      "selected": false,
+      "published_at": "2026-10-05T04:56:56.000Z",
+      "timeline_at": "2026-10-05T05:09:37.550Z"
+    },
+    {
+      "article_id": "ntr4ecbj4rqisel4rv8fpcllz",
+      "title": "Novig 称悉尼·斯威尼广告推动交易量增94%及新用户增218%，遭女运动员批评",
+      "source_id": "cnbc-prediction-markets",
+      "tags": [
+        "项目/商业",
+        "预测市场"
+      ],
+      "score": 18,
+      "selected": false,
+      "published_at": "2026-10-03T13:30:48.000Z",
+      "timeline_at": "2026-10-03T13:30:48.000Z"
+    },
+    {
+      "article_id": "nd5mqzj0095fqc9cxm38ldth5",
+      "title": "9月Crypto VC融资额环比增71.1%，Polymarket获投后估值210亿美元",
+      "source_id": "techflow-articles-zh",
+      "tags": [
+        "项目/商业",
+        "预测市场",
+        "稳定币",
+        "RWA"
+      ],
+      "score": 40,
+      "selected": false,
+      "published_at": "2026-10-02T05:04:27.000Z",
+      "timeline_at": "2026-10-02T19:37:14.576Z"
+    },
+    {
+      "article_id": "mpvnkbb6za9xb1v29a91v5rqy",
+      "title": "European Lotteries呼吁建立预测市场统一监管框架",
+      "source_id": "igb-prediction-markets",
+      "tags": [
+        "政策/监管",
+        "预测市场"
+      ],
+      "score": 42,
+      "selected": false,
+      "published_at": "2026-10-02T09:25:59.000Z",
+      "timeline_at": "2026-10-02T09:25:59.000Z"
+    },
+    {
+      "article_id": "l9na5m3xlpcemnb4glap0en9n",
+      "title": "Galaxy Research发布Polymarket国际平台交易者链上行为分析报告",
+      "source_id": "galaxy",
+      "tags": [
+        "研究/数据",
+        "链上数据",
+        "研究报告",
+        "预测市场"
+      ],
+      "score": 64,
+      "selected": false,
+      "published_at": "2026-10-01T00:00:00.000Z",
+      "timeline_at": "2026-10-01T18:59:22.689Z"
+    },
+    {
+      "article_id": "ngzro4zyhitvqfsqaqcv8nd2z",
+      "title": "预测市场经济学解析：价格形成机制、参与者激励与概率偏差因素",
+      "source_id": "quicknode-blog",
+      "tags": [
+        "研究/数据",
+        "DeFi",
+        "预测市场"
+      ],
+      "score": 30,
+      "selected": false,
+      "published_at": "2026-09-29T04:00:00.000Z",
+      "timeline_at": "2026-09-29T04:00:00.000Z"
+    },
+    {
+      "article_id": "q3l262tlzhnmm3men5c7x7kas",
+      "title": "MetaMask Agent Wallet 交易 Polymarket 预测市场的九项操作指南",
+      "source_id": "metamask-news",
+      "tags": [
+        "DeFi/产品",
+        "去中心化交易",
+        "预测市场"
+      ],
+      "score": 22,
+      "selected": false,
+      "published_at": "2026-09-29T00:00:00.000Z",
+      "timeline_at": "2026-09-29T00:00:00.000Z"
+    },
+    {
+      "article_id": "nluhp8qmagmjbrag56xmqrfd7",
+      "title": "Trueo 宣布部署至以太坊，但低费率理由与去中心化现状存疑",
+      "source_id": "kol-christine-kim",
+      "tags": [
+        "项目/商业",
+        "DeFi",
+        "Ethereum",
+        "entity:ethereum",
+        "预测市场"
+      ],
+      "score": 28,
+      "selected": false,
+      "published_at": "2026-09-25T00:00:33.000Z",
+      "timeline_at": "2026-09-25T00:00:33.000Z"
+    },
+    {
+      "article_id": "nc4cujj006aaznuqsfkoe44wy",
+      "title": "RawVentures 提案：将 ETH 质押奖励转化为风投资本并由 Futarchy 治理",
+      "source_id": "ethereum-research",
+      "tags": [
+        "DeFi/产品",
+        "治理",
+        "Ethereum",
+        "entity:ethereum",
+        "预测市场"
+      ],
+      "score": 26,
+      "selected": false,
+      "published_at": "2026-09-17T18:56:10.000Z",
+      "timeline_at": "2026-09-17T18:56:10.000Z"
+    }
+  ],
+  "selected": [],
+  "publicAcceptance": {
+    "at": "2026-10-06T02:16:39.533Z",
+    "results": [
+      {
+        "path": "/",
+        "desktopMobileTabs": true,
+        "topicPosition": 3,
+        "selectedHighlight": false
+      },
+      {
+        "path": "/?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA",
+        "desktopMobileTabs": true,
+        "topicPosition": 3,
+        "selectedHighlight": true
+      },
+      {
+        "path": "/all",
+        "desktopMobileTabs": true,
+        "topicPosition": 3,
+        "selectedHighlight": false
+      },
+      {
+        "path": "/all?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA",
+        "desktopMobileTabs": true,
+        "topicPosition": 3,
+        "selectedHighlight": true
+      }
+    ],
+    "total": 13,
+    "selectedCards": 0,
+    "articleIds": [
+      "zzy2r7gt5xxx7wpmv2wxvf1gx",
+      "ld7ej7rfe5r5635c99dpt703f",
+      "fbfvwuf2vibsvd70923th73tq",
+      "y9t1conwbxzdv27fw4bmfyxro",
+      "uqlpvlqil47q5adzjhey26wrn",
+      "ntr4ecbj4rqisel4rv8fpcllz",
+      "nd5mqzj0095fqc9cxm38ldth5",
+      "mpvnkbb6za9xb1v29a91v5rqy",
+      "l9na5m3xlpcemnb4glap0en9n",
+      "ngzro4zyhitvqfsqaqcv8nd2z",
+      "q3l262tlzhnmm3men5c7x7kas",
+      "nluhp8qmagmjbrag56xmqrfd7",
+      "nc4cujj006aaznuqsfkoe44wy"
+    ],
+    "latestTitle": "亚洲融资周报：稳定币与预测市场交易主导，三星及软银加码AI基建"
+  },
+  "publicIdentityPreserved": true
+}
