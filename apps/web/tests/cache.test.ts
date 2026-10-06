@@ -7,6 +7,7 @@ import type { AddressInfo } from "node:net";
 import { after, before, test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
+import { load } from "cheerio";
 import { releaseBoundCache } from "../app/lib/api.server.ts";
 
 let web: ChildProcess;
@@ -25,10 +26,14 @@ const api = createServer((req, res) => {
     return metaDelayMs ? setTimeout(respond, metaDelayMs) : respond();
   }
   if (url.pathname === "/api/site/timeline") {
-    const filters = { channel: "all", category: url.searchParams.get("category"), tag: null, topic: null };
+    const filters = { channel: url.searchParams.get("channel") ?? "all", category: url.searchParams.get("category"), tag: url.searchParams.get("tag"), topic: null };
     res.setHeader("X-Accel-Expires", `@${deadline}`);
     res.setHeader("Cache-Control", "public, max-age=30, s-maxage=30");
     return res.end(JSON.stringify({ filters, cards: [], nextCursor: null, refreshAt, dayCounts: [], hot: null, generatedAt: "2026-09-28T00:00:00Z" }));
+  }
+  if (url.pathname === "/api/site/pool") {
+    const filters = { channel: url.searchParams.get("channel") ?? "all", category: url.searchParams.get("category"), tag: url.searchParams.get("tag"), topic: null, q: null, tab: "time" };
+    return res.end(JSON.stringify({ filters, items: [], page: 1, pageCount: 1, total: 0, todayCount: 0, freshness: new Date().toISOString() }));
   }
   if (url.pathname === "/api/site/hot") return res.end(JSON.stringify({ entries: [] }));
   if (url.pathname === "/api/site/echo-client") return res.end(JSON.stringify({ forwarded: req.headers["x-forwarded-for"], real: req.headers["x-real-ip"] }));
@@ -74,6 +79,37 @@ after(async () => {
   }
   api.closeAllConnections();
   await new Promise<void>((resolve) => api.close(() => resolve()));
+});
+
+test("prediction-market filters remain available with no items and replace other feed choices", async () => {
+  for (const base of ["/", "/all"]) {
+    for (const query of ["", "?category=policy&channel=firstParty&page=2", "?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA"]) {
+      const res = await fetch(origin + base + query);
+      assert.equal(res.status, 200);
+      const $ = load(await res.text());
+      const navs = $('nav[aria-label="筛选"]');
+      assert.equal(navs.length, 2, "desktop and mobile filter controls");
+      navs.each((_, nav) => {
+        const topic = $(nav).find('a').filter((_, a) => $(a).text() === "预测市场");
+        assert.equal(topic.length, 1, "prediction markets has a visible filter");
+        const target = new URL(topic.attr("href")!, origin);
+        assert.equal(target.pathname, base);
+        assert.deepEqual([...target.searchParams], [["tag", "预测市场"]]);
+        if (query.startsWith("?tag=")) {
+          assert.equal(topic.attr("aria-current"), "page");
+          $(nav).find('a').not(topic).each((_, a) => {
+            assert.equal(new URL($(a).attr("href")!, origin).searchParams.has("tag"), false, "switching away clears the topic");
+          });
+        }
+      });
+      if (query.startsWith("?tag=")) {
+        const tagInputs = $('form[role="search"] input[name="tag"]');
+        assert.ok(tagInputs.length >= 1, "search preserves the topic");
+        assert.equal(tagInputs.first().attr("value"), "预测市场");
+        if (base === "/") assert.ok($('a').toArray().some(a => $(a).text().includes("查看相关全部动态") && new URL($(a).attr("href")!, origin).searchParams.get("tag") === "预测市场"));
+      }
+    }
+  }
 });
 
 test("public route subsets produce the same complete navigation data; filters still differ", async () => {

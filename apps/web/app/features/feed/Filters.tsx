@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Form, Link, useNavigation, useSearchParams } from "react-router";
 import { CATEGORY_KEYS, CATEGORY_LABELS, CHANNEL_LABELS, type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
+import { FEED_TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { IconClose, IconSearch } from "../../components/icons";
 import { PillTabs } from "../../components/ui/Tabs";
 
@@ -19,18 +20,21 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
 }
 
 /**
- * The feed's one filter row (精选 and 全部动态 alike): 全部, 一手, then the categories. One choice at a
- * time: picking 一手 clears the category and picking a category clears 一手. Older 资讯 / X links
+ * The feed's one filter row (精选 and 全部动态 alike): 全部, 一手, cross-category topics, then categories.
+ * Each choice clears the other filters. Older 资讯 / X links
  * still filter; the row then shows 全部.
  */
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
+  const tag = params.get("tag")?.trim();
   const items = [
-    { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
-    { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty" }) },
-    ...CATEGORY_KEYS.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
+    { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null, tag: null, topic: null }) },
+    { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty", tag: null, topic: null }) },
+    ...FEED_TOPIC_TAGS.map((t) => ({ key: `tag:${t}`, label: t, to: hrefWith(base, params, { category: null, channel: null, tag: t, topic: null }) })),
+    ...CATEGORY_KEYS.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null, tag: null, topic: null }) })),
   ];
-  const active = channel === "firstParty" ? "firstParty" : (category ?? "all");
+  const active = !category && channel === "all" && FEED_TOPIC_TAGS.some(t => t === tag)
+    ? `tag:${tag}` : channel === "firstParty" ? "firstParty" : (category ?? "all");
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
 
@@ -133,8 +137,9 @@ export function SearchField({ action = "/all", defaultValue = "", keep = {}, var
 
 /** Mobile home: the search icon at the end of the category row opens search on 全部动态. */
 export function SearchIconLink() {
+  const [params] = useSearchParams();
   return (
-    <Link to="/all?search=1" aria-label="搜索" className="flex size-9 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-bg-sunk hover:text-ink">
+    <Link to={hrefWith("/all", params, { search: "1" })} aria-label="搜索" className="flex size-9 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-bg-sunk hover:text-ink">
       <IconSearch size={19} />
     </Link>
   );

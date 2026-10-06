@@ -17,6 +17,8 @@ export const ITEM_TYPES = ["protocol_upgrade", "defi_product_change", "stablecoi
 /** 每篇资料的首个标签必须是一个分类标签。 */
 export const CATEGORY_TAGS = ["公链/基础设施", "DeFi/产品", "稳定币/RWA", "安全事件", "政策/监管", "项目/商业", "研究/数据"] as const;
 export const TOPIC_TAGS = ["公链", "协议升级", "扩容", "跨链", "DeFi", "借贷", "去中心化交易", "稳定币", "RWA", "预测市场", "安全", "治理", "链上数据", "研究报告"] as const;
+/** 筛选栏中的跨类别主题；仍按标签筛选，保留资讯原来的内容分类。 */
+export const FEED_TOPIC_TAGS = ["预测市场"] as const satisfies readonly (typeof TOPIC_TAGS)[number][];
 export const ENTITY_TAGS = ["Bitcoin", "Ethereum", "Solana", "Uniswap", "Aave", "Chainlink", "SEC", "CFTC"] as const;
 
 /** 近义词只做明确的词汇归一；资产代码不会映射到项目主体。 */
