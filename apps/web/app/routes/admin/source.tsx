@@ -1,72 +1,31 @@
-import { SITE } from "@aihot/industry/site";
+import { SITE } from "@aihot/site";
 import { useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/source";
+import { REPLACEABLE_SOURCE_KINDS, type AdminSource, type AdminSourceDetail, type AdminSourcePreview, type AdminSourceUpdate } from "@aihot/contracts/admin";
 import { adminGet } from "../../lib/admin.server";
 import { useAdminAction } from "../../features/admin/action";
 import { bj, duration, num } from "../../features/admin/format";
 import { HEALTH_LABEL, KIND_LABEL, MODE_LABEL, TIER_LABEL, VISIBILITY_LABEL } from "../../features/admin/labels";
 import { AdminPage, Badge, Button, Card, DataTable, Dot, Empty, Field, healthTone, Input, Json, KV, ReasonDialog, Select, Stat, Textarea, Time } from "../../features/admin/ui";
 
-interface Source {
-  id: string;
-  name: string;
-  kind: string;
-  config: Record<string, unknown>;
-  tags: string[];
-  first_party: boolean;
-  owner_entity_id: string | null;
-  tier: string;
-  participation_mode: string;
-  signal_group_id: string | null;
-  interval_minutes: number;
-  site_fulltext: boolean;
-  syndicate_fulltext: boolean;
-  enabled: boolean;
-  health: string;
-  fail_count: number;
-  last_fetch_at: string | null;
-  last_ok_at: string | null;
-  last_error: string | null;
-  cursor: Record<string, unknown> | null;
-  next_fetch_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 /** X runs: pages read, and older stretches still to read (backlog) or given up (dropped). */
-interface RunDetail {
-  pages?: number;
-  backlog?: number;
-  dropped?: number;
-}
 
-interface Detail {
-  source: Source;
-  autoPolicy: { enabled: boolean; version: number; reason: string | null };
-  runs: Array<{ id: number; started_at: string; finished_at: string | null; status: string; found_count: number | null; new_count: number | null; error: string | null; detail: RunDetail | null }>;
-  items: Array<{ id: string; title: string; url: string; discovered_at: string; published_at: string | null; processing_state: string; selected: boolean | null; visibility: string | null; title_zh: string | null }>;
-  stats: { total: number; last7d: number; selected: number };
-  history: Array<{ created_at: string; actor: string; action: string; reason: string | null; before: unknown; after: unknown }>;
-}
 
-interface Preview {
-  ms: number;
-  count: number;
-  items: Array<{ title: string; url: string; publishedAt: string | null; excerpt: string }>;
-}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  return adminGet<Detail>(request, `/api/admin/sources/${encodeURIComponent(params.id)}`);
+  return adminGet<AdminSourceDetail>(request, `/api/admin/sources/${encodeURIComponent(params.id)}`);
 }
 
 export const meta: Route.MetaFunction = ({ loaderData }) => [{ title: `${loaderData?.source.name ?? "信源"} · ${SITE.name} 后台` }];
 
-type Draft = Pick<Source, "name" | "interval_minutes" | "tier" | "participation_mode" | "signal_group_id" | "first_party" | "owner_entity_id" | "site_fulltext" | "syndicate_fulltext"> & { tags: string; config: string };
+type Draft = Pick<AdminSource, "name" | "kind" | "interval_minutes" | "tier" | "participation_mode" | "signal_group_id" | "first_party" | "owner_entity_id" | "site_fulltext" | "syndicate_fulltext"> & { tags: string; config: string };
 
-function draftOf(s: Source): Draft {
+function draftOf(s: AdminSource): Draft {
   return {
     name: s.name,
+    kind: s.kind,
     interval_minutes: s.interval_minutes,
     tier: s.tier,
     participation_mode: s.participation_mode,
@@ -81,12 +40,12 @@ function draftOf(s: Source): Draft {
 }
 
 export default function SourceDetail({ loaderData }: Route.ComponentProps) {
-  const { source: s, runs, items, stats, history, autoPolicy } = loaderData;
+  const { source: s, runs, items, stats, history } = loaderData;
   const { run, pending } = useAdminAction();
   const [draft, setDraft] = useState<Draft>(() => draftOf(s));
   const [draftFor, setDraftFor] = useState(s.updated_at);
-  const [preview, setPreview] = useState<Preview | null>(null);
-  const [dialog, setDialog] = useState<null | "save" | "toggle" | "auto-public">(null);
+  const [preview, setPreview] = useState<AdminSourcePreview | null>(null);
+  const [dialog, setDialog] = useState<null | "save" | "toggle">(null);
   const [configError, setConfigError] = useState<string | null>(null);
   if (draftFor !== s.updated_at) {
     // The source changed (our own save or someone else's): start from the saved state.
@@ -95,7 +54,7 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
   }
   const base = `/api/admin/sources/${encodeURIComponent(s.id)}`;
 
-  const patch = (): Record<string, unknown> | null => {
+  const patch = (): AdminSourceUpdate["patch"] | null => {
     let config: unknown;
     try {
       config = JSON.parse(draft.config);
@@ -118,7 +77,8 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
       const was = k === "tags" ? s.tags : k === "config" ? s.config : before[k];
       if (JSON.stringify(v) !== JSON.stringify(was)) changed[k] = v;
     }
-    return changed;
+    if (draft.kind !== s.kind) changed.config = config;
+    return changed as AdminSourceUpdate["patch"];
   };
   const changes = (() => {
     try {
@@ -143,11 +103,15 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
           <Button
             busy={pending === "preview"}
             onClick={async () => {
-              const r = await run<Preview>("POST", `${base}/preview`, {}, { label: "preview", revalidate: false });
+              const p = patch();
+              if (!p) return;
+              const r = changes && (REPLACEABLE_SOURCE_KINDS as readonly string[]).includes(draft.kind)
+                ? await run<AdminSourcePreview>("POST", "/api/admin/sources/preview", { id: s.id, kind: draft.kind, config: p.config ?? s.config, participation_mode: draft.participation_mode }, { label: "preview", revalidate: false })
+                : await run<AdminSourcePreview>("POST", `${base}/preview`, {}, { label: "preview", revalidate: false });
               if (r) setPreview(r);
             }}
           >
-            预览抓取
+            预览当前配置
           </Button>
           <Button busy={pending === "fetch"} onClick={() => run("POST", `${base}/fetch`, {}, { label: "fetch", success: "已加入采集队列" })}>
             立即采集
@@ -200,6 +164,13 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
               <Field label="名称">
                 <Input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
               </Field>
+              {(REPLACEABLE_SOURCE_KINDS as readonly string[]).includes(s.kind) && (
+                <Field label="采集方式" hint="调整后保留信源与历史内容；请填写对应的完整配置并预览">
+                  <Select value={draft.kind} onChange={(e) => { setDraft({ ...draft, kind: e.target.value }); setPreview(null); }}>
+                    {REPLACEABLE_SOURCE_KINDS.map(kind => <option key={kind} value={kind}>{KIND_LABEL[kind]}</option>)}
+                  </Select>
+                </Field>
+              )}
               <Field label="采集间隔（分钟）">
                 <Input type="number" min={1} max={1440} value={draft.interval_minutes} onChange={(e) => setDraft({ ...draft, interval_minutes: Number(e.target.value) })} />
               </Field>
@@ -208,7 +179,7 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
                   {Object.entries(MODE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </Select>
               </Field>
-              <Field label="等级">
+              <Field label="等级" hint="仅 T1 为一手信源">
                 <Select value={draft.tier} onChange={(e) => setDraft({ ...draft, tier: e.target.value })}>
                   {Object.entries(TIER_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </Select>
@@ -224,7 +195,6 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
               </Field>
               <div className="flex flex-col justify-end gap-2 text-[13px] text-ink-2">
                 {([
-                  ["first_party", "一手信源（官方账号或官网）"],
                   ["site_fulltext", "站内可展示全文"],
                   ["syndicate_fulltext", "对外接口可带全文"],
                 ] as const).map(([k, label]) => (
@@ -269,14 +239,6 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
         </div>
 
         <div className="space-y-5">
-          <Card title="信源自动发布授权">
-            <p className="text-[13px] text-ink-3">自动模式中，此设置授权信源参与自动发布；每条内容仍须通过评分、证据核验与发布规则，精选和日报按各自条件自动处理。手动模式保留仅限一手官方 RSS 常规软件版本更新的自动动态规则，其余内容由人工决定。</p>
-            <div className="mt-3 flex items-center justify-between gap-3">
-              <Badge tone={autoPolicy.enabled ? "warn" : "muted"}>{autoPolicy.enabled ? "已允许" : "关闭"}</Badge>
-              <Button tone={autoPolicy.enabled ? "danger" : "primary"} onClick={() => setDialog("auto-public")}>{autoPolicy.enabled ? "关闭自动发布" : "允许自动发布"}</Button>
-            </div>
-            {autoPolicy.reason && <p className="mt-2 text-[12px] text-ink-4">上次原因：{autoPolicy.reason}</p>}
-          </Card>
           <Card title="状态">
             <KV
               items={[
@@ -330,28 +292,16 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
       </div>
 
       <ReasonDialog
-        open={dialog === "auto-public"}
-        title={autoPolicy.enabled ? "关闭自动发布" : "允许此信源自动发布"}
-        description="自动模式仍须逐条通过证据核验与发布规则；手动模式按限定的常规更新规则处理。此设置变更会重新评估该信源已有内容。"
-        danger={autoPolicy.enabled}
-        confirmLabel={autoPolicy.enabled ? "关闭" : "允许"}
-        busy={pending === "auto-public"}
-        onClose={() => setDialog(null)}
-        onSubmit={async (reason) => {
-          const r = await run("POST", `${base}/auto-public`, { enabled: !autoPolicy.enabled, version: autoPolicy.version, reason }, { label: "auto-public", success: "自动发布设置已更新" });
-          return r !== null;
-        }}
-      />
-      <ReasonDialog
         open={dialog === "save"}
         title="保存信源设置"
-        description={`将修改：${Object.keys(patchPreview(draft, s)).join("、") || "无"}`}
+        description={`${draft.kind !== s.kind ? `采集方式由 ${KIND_LABEL[s.kind]} 调整为 ${KIND_LABEL[draft.kind]}，保留历史内容。` : ""}将修改：${Object.keys(patchPreview(draft, s)).join("、") || "无"}`}
         busy={pending === "save"}
         onClose={() => setDialog(null)}
         onSubmit={async (reason) => {
           const p = patch();
           if (!p) return false;
-          const r = await run("PATCH", base, { patch: p, version: new Date(s.updated_at).toISOString(), reason }, { label: "save", success: "已保存" });
+          const body: AdminSourceUpdate = { patch: p, version: new Date(s.updated_at).toISOString(), reason };
+          const r = await run("PATCH", base, body, { label: "save", success: "已保存" });
           return r !== null;
         }}
       />
@@ -373,7 +323,7 @@ export default function SourceDetail({ loaderData }: Route.ComponentProps) {
 }
 
 /** Field names that differ from the saved source (for the confirmation text). */
-function patchPreview(draft: Draft, s: Source): Record<string, true> {
+function patchPreview(draft: Draft, s: AdminSource): Record<string, true> {
   const out: Record<string, true> = {};
   const saved = draftOf(s);
   for (const k of Object.keys(draft) as Array<keyof Draft>) {

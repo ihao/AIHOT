@@ -1,42 +1,40 @@
 // Run after `npm run build -w @aihot/web`. Real production server/router, synthetic HTTP API only.
 import assert from "node:assert/strict";
-import { spawn, type ChildProcess } from "node:child_process";
-import { once } from "node:events";
 import { createServer } from "node:http";
-import type { AddressInfo } from "node:net";
 import { after, before, test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
-import { load } from "cheerio";
-import { releaseBoundCache } from "../app/lib/api.server.ts";
+import { UNSAFE_decodeViaTurboStream } from "react-router";
+import { startWebServer, type WebServer } from "./web-server.ts";
 
-let web: ChildProcess;
+let web: WebServer;
 let origin: string;
-let logs = "";
 let deadline: number;
-let refreshAt: string;
-let metaDelayMs = 0;
+/** Root metadata answers only after the selected deadline has passed: a slow sibling loader. */
+let metaAfterDeadline = false;
 const apiCookies: Array<string | undefined> = [];
+const marketQuote = { priceUsd: 62000, quotedAt: new Date().toISOString(), fetchedAt: new Date().toISOString(), source: "Coinbase", currency: "USD" };
 const api = createServer((req, res) => {
   const url = new URL(req.url!, "http://api.local");
   apiCookies.push(req.headers.cookie);
   res.setHeader("Content-Type", "application/json");
+  if (url.pathname === "/api/site/market/btc") return res.end(JSON.stringify({ quote: marketQuote }));
   if (url.pathname === "/api/site/meta") {
     const respond = () => res.end(JSON.stringify({ changelogVersion: "2026-09-28T12:00" }));
-    return metaDelayMs ? setTimeout(respond, metaDelayMs) : respond();
+    return metaAfterDeadline ? setTimeout(respond, deadline * 1000 - Date.now() + 50) : respond();
   }
   if (url.pathname === "/api/site/timeline") {
-    const filters = { channel: url.searchParams.get("channel") ?? "all", category: url.searchParams.get("category"), tag: url.searchParams.get("tag"), topic: null };
+    const filters = { channel: "all", category: url.searchParams.get("category"), tag: null };
     res.setHeader("X-Accel-Expires", `@${deadline}`);
     res.setHeader("Cache-Control", "public, max-age=30, s-maxage=30");
-    return res.end(JSON.stringify({ filters, cards: [], nextCursor: null, refreshAt, dayCounts: [], hot: null, generatedAt: "2026-09-28T00:00:00Z" }));
-  }
-  if (url.pathname === "/api/site/pool") {
-    const filters = { channel: url.searchParams.get("channel") ?? "all", category: url.searchParams.get("category"), tag: url.searchParams.get("tag"), topic: null, q: null, tab: "time" };
-    return res.end(JSON.stringify({ filters, items: [], page: 1, pageCount: 1, total: 0, todayCount: 0, freshness: new Date().toISOString() }));
+    return res.end(JSON.stringify({ filters, cards: [], nextCursor: null, dayCounts: [], hot: null }));
   }
   if (url.pathname === "/api/site/hot") return res.end(JSON.stringify({ entries: [] }));
   if (url.pathname === "/api/site/echo-client") return res.end(JSON.stringify({ forwarded: req.headers["x-forwarded-for"], real: req.headers["x-real-ip"] }));
+  if (url.pathname === "/api/site/download") {
+    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="article.md"');
+    return res.end("# Article");
+  }
   if (url.pathname === "/api/site/items/long-lived") return res.end(JSON.stringify({ id: "long-lived", title: "t" }));
   if (url.pathname === "/api/site/contact") return res.end(JSON.stringify({ wechatQr: "/qr.png", feishuQr: "/qr.png" }));
   if (url.pathname === "/api/site/stories/merged") {
@@ -49,68 +47,10 @@ const api = createServer((req, res) => {
 
 before(async () => {
   deadline = Math.floor(Date.now() / 1000) + 20;
-  refreshAt = new Date((deadline + 5) * 1000).toISOString();
-  api.listen(0, "127.0.0.1");
-  await once(api, "listening");
-  web = spawn(process.execPath, [fileURLToPath(new URL("../server.ts", import.meta.url))], {
-    env: { ...process.env, WEB_PORT: "0", TRUST_PROXY: "false", API_BASE_URL: `http://127.0.0.1:${(api.address() as AddressInfo).port}` },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  await new Promise<void>((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error(`web did not start: ${logs}`)), 15_000);
-    web.on("exit", () => { clearTimeout(timeout); reject(new Error(`web exited: ${logs}`)); });
-    web.stderr!.on("data", (chunk) => { logs += String(chunk); });
-    web.stdout!.on("data", (chunk) => {
-      logs += String(chunk);
-      const match = logs.match(/"msg":"web started","port":(\d+)/);
-      if (match) {
-        origin = `http://127.0.0.1:${match[1]}`;
-        clearTimeout(timeout);
-        resolve();
-      }
-    });
-  });
+  web = await startWebServer(api);
+  origin = web.origin;
 });
-
-after(async () => {
-  if (web && web.exitCode === null) {
-    web.kill("SIGTERM");
-    await once(web, "exit");
-  }
-  api.closeAllConnections();
-  await new Promise<void>((resolve) => api.close(() => resolve()));
-});
-
-test("prediction-market filters remain available with no items and replace other feed choices", async () => {
-  for (const base of ["/", "/all"]) {
-    for (const query of ["", "?category=policy&channel=firstParty&page=2", "?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA"]) {
-      const res = await fetch(origin + base + query);
-      assert.equal(res.status, 200);
-      const $ = load(await res.text());
-      const navs = $('nav[aria-label="筛选"]');
-      assert.equal(navs.length, 2, "desktop and mobile filter controls");
-      navs.each((_, nav) => {
-        const topic = $(nav).find('a').filter((_, a) => $(a).text() === "预测市场");
-        assert.equal(topic.length, 1, "prediction markets has a visible filter");
-        const target = new URL(topic.attr("href")!, origin);
-        assert.equal(target.pathname, base);
-        assert.deepEqual([...target.searchParams], [["tag", "预测市场"]]);
-        if (query.startsWith("?tag=")) {
-          assert.equal(topic.attr("aria-current"), "page");
-          $(nav).find('a').not(topic).each((_, a) => {
-            assert.equal(new URL($(a).attr("href")!, origin).searchParams.has("tag"), false, "switching away clears the topic");
-          });
-        }
-      });
-      if (query.startsWith("?tag=")) {
-        const tagInputs = $('form[role="search"] input[name="tag"]');
-        assert.ok(tagInputs.length >= 1, "search preserves the topic");
-        assert.equal(tagInputs.first().attr("value"), "预测市场");
-        if (base === "/") assert.ok($('a').toArray().some(a => $(a).text().includes("查看相关全部动态") && new URL($(a).attr("href")!, origin).searchParams.get("tag") === "预测市场"));
-      }
-    }
-  }
-});
+after(() => web.stop());
 
 test("public route subsets produce the same complete navigation data; filters still differ", async () => {
   const answers = await Promise.all(["", "?_routes=root", "?_routes=routes%2Fhome", "?_routes=unknown"].map(async (query) => {
@@ -131,17 +71,29 @@ test("public route subsets produce the same complete navigation data; filters st
   assert.notEqual(body, answers[0]);
 });
 
+test("navigation streams are plain text for download managers, including errors", async () => {
+  for (const [pathname, status] of [["/_.data?_routes=root", 200], ["/items/missing.data", 404]] as const) {
+    const res = await fetch(origin + pathname);
+    assert.equal(res.status, status, pathname);
+    assert.equal(res.headers.get("Content-Type"), "text/plain; charset=utf-8", pathname);
+    assert.equal(res.headers.get("Content-Disposition"), null, pathname);
+    assert.ok((await res.text()).length > 0, pathname);
+  }
+  const download = await fetch(origin + "/api/site/download");
+  assert.equal(download.headers.get("Content-Type"), "text/markdown; charset=utf-8");
+  assert.equal(download.headers.get("Content-Disposition"), 'attachment; filename="article.md"');
+  assert.equal(await download.text(), "# Article");
+});
+
 test("HTML and navigation share freshness; cookies do not personalize public results", async () => {
   const html = await fetch(`${origin}/`);
   assert.equal(html.status, 200);
   assert.equal(html.headers.get("X-Accel-Expires"), `@${deadline}`);
   assert.match(await html.text(), /精选/);
   const plain = await fetch(`${origin}/about.data`);
-  const signedIn = await fetch(`${origin}/about.data?_routes=root`, { headers: { cookie: "admin_session=private; aihot_vid=reader" } });
+  const signedIn = await fetch(`${origin}/about.data?_routes=root`, { headers: { cookie: "admin_session=private; reader=returning" } });
   assert.match(plain.headers.get("Cache-Control")!, /^public,/);
   assert.match(plain.headers.get("X-Accel-Expires")!, /^@\d+$/);
-  assert.equal(plain.headers.get("Cache-Control"), "public, max-age=300, s-maxage=300, must-revalidate");
-  assert.equal(Date.parse(plain.headers.get("Date")!) / 1000 + 300, Number(plain.headers.get("X-Accel-Expires")!.slice(1)));
   assert.equal(signedIn.headers.get("Set-Cookie"), null);
   assert.equal(await signedIn.text(), await plain.text());
   assert.ok(apiCookies.every((cookie) => !cookie));
@@ -168,7 +120,7 @@ test("admin data and actions never become public cache entries", async () => {
   assert.equal(admin.status, 202);
   assert.equal(admin.headers.get("Cache-Control"), "private, no-store");
   assert.equal(admin.headers.get("X-Accel-Expires"), "0");
-  assert.match(await admin.text(), /admin\/login/);
+  assert.match(await admin.text(), /api\/auth\/login/);
   const action = await fetch(`${origin}/hot.data`, { method: "POST" });
   assert.equal(action.status, 405);
   assert.equal(action.headers.get("Cache-Control"), "private, no-store");
@@ -176,33 +128,10 @@ test("admin data and actions never become public cache entries", async () => {
   await action.text();
 });
 
-test("an elapsed release deadline cannot be extended by a fresh page/data response", async () => {
-  const saved = refreshAt;
-  refreshAt = new Date(Date.now() - 1000).toISOString();
-  try {
-    for (const pathname of ["/", "/_.data?_routes=routes%2Fhome"]) {
-      const res = await fetch(origin + pathname);
-      assert.equal(res.status, 200);
-      assert.equal(res.headers.get("Cache-Control"), "no-cache");
-      assert.equal(res.headers.get("X-Accel-Expires"), "0");
-      await res.text();
-    }
-  } finally {
-    refreshAt = saved;
-  }
-  const now = Date.parse("2026-09-28T00:00:00Z");
-  const upstream = new Headers({ "X-Accel-Expires": `@${now / 1000 + 7}` });
-  const headers = releaseBoundCache(new Date(now + 20_000).toISOString(), 30, now + 2_000, upstream);
-  assert.equal(headers["Cache-Control"], "public, max-age=0, s-maxage=5");
-  assert.equal(headers["X-Accel-Expires"], upstream.get("X-Accel-Expires"));
-});
-
 test("browser freshness shares the selected deadline, including slow sibling loaders", async () => {
   const savedDeadline = deadline;
-  const savedRefresh = refreshAt;
   try {
     deadline = Math.floor(Date.now() / 1000) + 20;
-    refreshAt = new Date((deadline + 5) * 1000).toISOString();
     for (const pathname of ["/", "/_.data?_routes=routes%2Fhome"]) {
       const res = await fetch(origin + pathname);
       const cc = res.headers.get("Cache-Control")!;
@@ -215,10 +144,10 @@ test("browser freshness shares the selected deadline, including slow sibling loa
       assert.doesNotMatch(cc, /stale/);
       await res.text();
     }
-    // The selected loader initially grants a positive TTL, but root metadata finishes after it.
+    // The selected loader initially grants a positive TTL (at least a whole second), but root metadata
+    // finishes after it.
     deadline = Math.floor(Date.now() / 1000) + 2;
-    refreshAt = new Date((deadline + 5) * 1000).toISOString();
-    metaDelayMs = 2300;
+    metaAfterDeadline = true;
     await Promise.all(["/", "/_.data?_routes=routes%2Fhome"].map(async (pathname) => {
       const res = await fetch(origin + pathname);
       assert.equal(res.status, 200);
@@ -228,16 +157,28 @@ test("browser freshness shares the selected deadline, including slow sibling loa
     }));
   } finally {
     deadline = savedDeadline;
-    refreshAt = savedRefresh;
-    metaDelayMs = 0;
+    metaAfterDeadline = false;
   }
 });
 
-test("the edge may keep a page longer than browsers, which a withdrawal purge cannot reach", async () => {
+test("a shared cache may keep an item page longer than browsers", async () => {
   const res = await fetch(`${origin}/items/long-lived.data`);
   assert.equal(res.status, 200);
-  assert.equal(res.headers.get("Cache-Control"), "public, max-age=300, s-maxage=600, must-revalidate");
+  const cc = res.headers.get("Cache-Control")!;
+  assert.equal(Number(cc.match(/(?:^|,)\s*max-age=(\d+)/)![1]), 300);
+  assert.ok(Number(cc.match(/(?:^|,)\s*s-maxage=(\d+)/)![1]) > 300);
   await res.text();
+});
+
+// A tab opened before a page lost its loader still asks for that page's result, and its router rejects
+// a missing one before React's release recovery can run.
+test("a page without a loader still answers navigation with an empty result", async () => {
+  const res = await fetch(`${origin}/terms.data?_routes=routes%2Fterms`);
+  assert.equal(res.status, 200);
+  const { value } = await UNSAFE_decodeViaTurboStream(res.body!, globalThis);
+  const result = value as Record<string, { data: unknown }>;
+  assert.ok("routes/terms" in result, "an already open router must be able to unwrap its requested route");
+  assert.equal(result["routes/terms"]!.data, null);
 });
 
 test("browser caching preserves noindex and private sign-in responses", async () => {

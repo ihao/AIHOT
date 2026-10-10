@@ -7,7 +7,7 @@ import { chatJsonRequestIdentity, chatJson } from '@aihot/backend/providers/llm'
 import { benchmarkModelCostOverview, lockModelCost, modelCostOverview, modelTokenUsage, reserveModelCost } from '@aihot/backend/providers/model-cost';
 import { ensureEmbeddings } from '@aihot/backend/providers/embeddings';
 import { sha256 } from '@aihot/backend/lib/ids';
-import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/admin/runs';
+import { autoReleaseUnknownReceipts, releaseReceipt } from '@aihot/backend/operations/recover';
 import { z } from 'zod';
 
 const prefix = `money-${tag()}`;
@@ -17,8 +17,10 @@ before(async () => {
   // Only this disposable DB is touched; restore earlier suites' timestamps on exit.
   previousTimes = await sql<{ id: number; started_at: Date }[]>`SELECT id,started_at FROM receipt_attempts WHERE started_at>now()-interval '24 hours'`;
   await sql`UPDATE receipt_attempts SET started_at=now()-interval '2 days' WHERE started_at>now()-interval '24 hours'`;
-  for (const s of [service,otherService]) await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,cached_per_mtok,source_url,verified_on)
-    VALUES(${s},'bounded','CNY',1000000,1000000,100000,'https://example.invalid/operator-verified',current_date)`;
+  for (const s of [service,otherService]) {
+    await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,cached_per_mtok) VALUES(${s},'bounded','CNY',1000000,1000000,100000)`;
+    await sql`INSERT INTO ninebtc_model_price_evidence(service,model,source_url,verified_on) VALUES(${s},'bounded','https://example.invalid/operator-verified',current_date)`;
+  }
 });
 beforeEach(async () => {
   await sql`DELETE FROM receipts WHERE service IN (${service},${otherService}) OR subject LIKE ${prefix+'%'}`;
@@ -28,6 +30,7 @@ after(async () => {
   await sql`UPDATE model_cost_policy SET enabled=false,day_limit_cny=9,rolling_limit_cny=9 WHERE id=1`;
   await sql`DELETE FROM receipts WHERE service IN (${service},${otherService}) OR subject LIKE ${prefix+'%'}`;
   await sql`DELETE FROM service_prices WHERE service IN (${service},${otherService})`;
+  await sql`DELETE FROM ninebtc_model_price_evidence WHERE service IN (${service},${otherService})`;
   for (const r of previousTimes) await sql`UPDATE receipt_attempts SET started_at=${r.started_at} WHERE id=${r.id}`;
   await closeDb();
 });
@@ -61,11 +64,11 @@ test('all model services atomically share the money limit before sending', async
 test('missing verified CNY price or reliable bounds freezes only new purchases', async () => {
   const req=request('reuse');const saved=await paidRequest(req,success);
   await enable();
-  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  await sql`UPDATE ninebtc_model_price_evidence SET verified_on=NULL WHERE service=${service}`;
   try {
     assert.equal((await paidRequest(req,async()=>assert.fail('cache cannot send'))).receiptId,saved.receiptId);
     await assert.rejects(paidRequest(request('new'),success),BudgetExceededError);
-  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+  } finally {await sql`UPDATE ninebtc_model_price_evidence SET verified_on=current_date WHERE service=${service}`;}
   await assert.rejects(paidRequest({...request('unbounded'),modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}} as ReceiptRequest,success),BudgetExceededError);
 });
 
@@ -123,7 +126,7 @@ test('disabled production caps allow missing prices and unreliable bounds while 
   let sent=0;
   const unpriced=request('disabled-missing-price');
   const unbounded={...request('disabled-missing-bound',otherService),modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}};
-  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  await sql`UPDATE ninebtc_model_price_evidence SET verified_on=NULL WHERE service=${service}`;
   try {
     for(const req of [unpriced,unbounded]) {
       await paidRequest(req,async()=>{sent++;return {response:{},usage:null};});
@@ -131,7 +134,7 @@ test('disabled production caps allow missing prices and unreliable bounds while 
     }
     const overview=await modelCostOverview();
     assert.equal(sent,2);assert.equal(overview.rolling.unpricedAttempts,2);assert.equal(overview.blocked,false);
-  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+  } finally {await sql`UPDATE ninebtc_model_price_evidence SET verified_on=current_date WHERE service=${service}`;}
 });
 
 test('absent, malformed and out-of-bound usage retains the full reservation', async () => {
@@ -231,15 +234,18 @@ test('metadata bounds the max_tokens value actually sent when model extras overr
 });
 
 test('embedding batches reserve actual serialized text and settle input-only usage',async()=>{
-  const provider=await stub((_hit,req)=>({data:JSON.parse(req.body).input.map((_t:string,index:number)=>({index,embedding:[1,0]})),usage:{prompt_tokens:4,total_tokens:4}}));
+  const provider=await stub((_hit,req)=>({data:JSON.parse(req.body).input.map((_t:string,index:number)=>({index,embedding:Array.from({length:1024},(_,i)=>i===0?1:0)})),usage:{prompt_tokens:4,total_tokens:4}}));
   const [previous]=await sql`SELECT * FROM service_prices WHERE service='dashscope' AND model='text-embedding-v4'`;
-  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on)
-    VALUES('dashscope','text-embedding-v4','CNY',.5,NULL,'https://example.invalid/verified',current_date)
-    ON CONFLICT(service,model) DO UPDATE SET currency='CNY',input_per_mtok=.5,output_per_mtok=NULL,verified_on=current_date`;
+  const [previousEvidence]=await sql`SELECT * FROM ninebtc_model_price_evidence WHERE service='dashscope' AND model='text-embedding-v4'`;
+  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok)
+    VALUES('dashscope','text-embedding-v4','CNY',.5,NULL)
+    ON CONFLICT(service,model) DO UPDATE SET currency='CNY',input_per_mtok=.5,output_per_mtok=NULL`;
+  await sql`INSERT INTO ninebtc_model_price_evidence(service,model,source_url,verified_on) VALUES('dashscope','text-embedding-v4','https://example.invalid/verified',current_date) ON CONFLICT(service,model) DO UPDATE SET verified_on=current_date`;
   process.env.DASHSCOPE_BASE_URL=provider.url;process.env.DASHSCOPE_API_KEY='test';
   await enable();
   try {
-    const id=prefix+'-vector';await ensureEmbeddings('article',[{id,text:'中文😀'}]);
+    const id=prefix+'-vector';const vectors=await ensureEmbeddings([{id,text:'中文😀'}]);
+    assert.equal(vectors.get(id)?.length,1024,'the real embedding dimension contract remains unchanged');
     const row=(await sql`SELECT a.* FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id WHERE r.subject=${'article:'+id}`)[0]!;
     assert.ok(row.model_cost_reserved_cny>0);assert.equal(row.model_cost_cny,.000002);assert.equal(row.model_cost_state,'estimated');
     assert.ok(row.model_cost_bounds.inputTokens>=Buffer.byteLength(JSON.stringify(['中文😀'])));
@@ -249,6 +255,8 @@ test('embedding batches reserve actual serialized text and settle input-only usa
     await sql`DELETE FROM embeddings WHERE ref_id=${prefix+'-vector'}`;
     await sql`DELETE FROM service_prices WHERE service='dashscope' AND model='text-embedding-v4'`;
     if(previous)await sql`INSERT INTO service_prices ${sql(previous)}`;
+    await sql`DELETE FROM ninebtc_model_price_evidence WHERE service='dashscope' AND model='text-embedding-v4'`;
+    if(previousEvidence)await sql`INSERT INTO ninebtc_model_price_evidence ${sql(previousEvidence)}`;
     await provider.close();
   }
 });
@@ -309,14 +317,16 @@ for(const [name,extra] of [
     const previous=Object.fromEntries(['LLM_MODEL','LLM_EXTRA_JSON','LLM_BASE_URL','LLM_API_KEY'].map(key=>[key,process.env[key]]));
     const model=prefix+'-conflicting-thinking';
     process.env.LLM_MODEL=model;process.env.LLM_EXTRA_JSON=JSON.stringify(extra);process.env.LLM_BASE_URL=provider.url;process.env.LLM_API_KEY='test';
-    await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on)
-      VALUES('llm',${model},'CNY',2,8,'https://example.invalid/verified',current_date)`;
+    await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok)
+      VALUES('llm',${model},'CNY',2,8)`;
+    await sql`INSERT INTO ninebtc_model_price_evidence(service,model,source_url,verified_on) VALUES('llm',${model},'https://example.invalid/verified',current_date)`;
     await enable();
     try {
       await assert.rejects(chatJson({model:'default',purpose:'test',subject:prefix+'-conflicting-thinking',promptVersion:'p',system:'s',user:name,schema:z.object({ok:z.boolean()})}),BudgetExceededError);
       assert.equal(provider.hits(),0);
     } finally {
       await sql`DELETE FROM service_prices WHERE service='llm' AND model=${model}`;
+    await sql`DELETE FROM ninebtc_model_price_evidence WHERE service='llm' AND model=${model}`;
       for(const [key,value] of Object.entries(previous))if(value===undefined)delete process.env[key];else process.env[key]=value;
       await provider.close();
     }
@@ -362,8 +372,9 @@ test('the money policy blocks invalid output and unproven extra input without pr
   const provider=await stub(()=>({choices:[{message:{content:'{"ok":true}'}}],usage:{prompt_tokens:1,completion_tokens:0,total_tokens:1}}));
   const previous=Object.fromEntries(['LLM_MODEL','LLM_EXTRA_JSON','LLM_BASE_URL','LLM_API_KEY'].map(key=>[key,process.env[key]]));
   const model=prefix+'-invalid-extra';process.env.LLM_MODEL=model;process.env.LLM_BASE_URL=provider.url;process.env.LLM_API_KEY='test';
-  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok,source_url,verified_on)
-    VALUES('llm',${model},'CNY',2,8,'https://example.invalid/verified',current_date)`;
+  await sql`INSERT INTO service_prices(service,model,currency,input_per_mtok,output_per_mtok)
+    VALUES('llm',${model},'CNY',2,8)`;
+    await sql`INSERT INTO ninebtc_model_price_evidence(service,model,source_url,verified_on) VALUES('llm',${model},'https://example.invalid/verified',current_date)`;
   await enable();
   try {
     for(const [i,extra] of [{max_tokens:null},{max_tokens:false},{max_tokens:'1000'},{max_tokens:0},
@@ -374,6 +385,7 @@ test('the money policy blocks invalid output and unproven extra input without pr
     assert.equal(provider.hits(),0);
   } finally {
     await sql`DELETE FROM service_prices WHERE service='llm' AND model=${model}`;
+    await sql`DELETE FROM ninebtc_model_price_evidence WHERE service='llm' AND model=${model}`;
     for(const [key,value] of Object.entries(previous))if(value===undefined)delete process.env[key];else process.env[key]=value;
     await provider.close();
   }
@@ -549,11 +561,11 @@ test('when production guard is enabled the experiment also observes the shared p
 test('a disabled production guard never relaxes benchmark price and bound checks',async()=>{
   let sent=0;
   await assert.rejects(paidRequest({...request('experiment-unbounded'),purpose:'verification_benchmark',modelBudget:{inputTokens:1,maxOutputTokens:1,bounded:false}},async()=>{sent++;return success();}),BudgetExceededError);
-  await sql`UPDATE service_prices SET verified_on=NULL WHERE service=${service}`;
+  await sql`UPDATE ninebtc_model_price_evidence SET verified_on=NULL WHERE service=${service}`;
   try {
     await assert.rejects(paidRequest({...request('experiment-unpriced'),purpose:'verification_benchmark'},async()=>{sent++;return success();}),BudgetExceededError);
     assert.equal(sent,0);
-  } finally {await sql`UPDATE service_prices SET verified_on=current_date WHERE service=${service}`;}
+  } finally {await sql`UPDATE ninebtc_model_price_evidence SET verified_on=current_date WHERE service=${service}`;}
 });
 
 test('the read-only benchmark overview explicitly identifies its enforced experiment scope',async()=>{

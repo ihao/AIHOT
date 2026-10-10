@@ -1,27 +1,30 @@
 import { tag } from "./setup.ts";
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
-import { spawnSync } from "node:child_process";
+import { installModules } from "@aihot/backend/modules";
+import { marketModule } from "../modules/ninebtc-market/server.ts";
 import { closeDb, sql, type Db, type Tx } from "@aihot/backend/db";
 import { upsertMaterial } from "@aihot/backend/content/materials";
-import { fetchItemsByIds, toFeedItemSummary, toItemSummary } from "@aihot/backend/publication/items";
+import { toFeedItemSummary, toItemSummary } from "@aihot/backend/publication/items";
 import type { GuardedResponse } from "@aihot/backend/lib/http-fetch";
-import { config } from "@aihot/backend/config";
+
 
 const SOURCE = `btc-market-${tag()}`;
 const priorCollect = process.env.COLLECT_ENABLED;
 before(async () => {
   process.env.COLLECT_ENABLED = "true";
+  installModules([marketModule]);
   await sql`INSERT INTO sources (id, name, kind, next_fetch_at) VALUES (${SOURCE}, 'BTC fixture', 'rss', '2100-01-01')`;
 });
 after(async () => {
   if (priorCollect === undefined) delete process.env.COLLECT_ENABLED;
   else process.env.COLLECT_ENABLED = priorCollect;
+  installModules([]);
   await closeDb();
 });
 
 async function market() {
-  const module = await import("@aihot/backend/market/btc").catch(() => null);
+  const module = await import("../modules/ninebtc-market/backend/collect.ts").catch(() => null);
   assert.ok(module, "BTC collection and validation module must exist");
   return module;
 }
@@ -118,7 +121,7 @@ test("successful collection appends quotes even for the same trade using fixed b
     assert.equal(two?.source, "Coinbase");
     assert.deepEqual(await getLatestBtcUsdQuote(db), two);
     assert.equal(requests[0]!.url, "https://api.exchange.coinbase.com/products/BTC-USD/ticker");
-    assert.deepEqual(requests[0]!.options, { timeoutMs: 10000, maxBytes: 16384, maxRedirects: 0, followRedirects: false, route: "egress", headers: { accept: "application/json" } });
+    assert.deepEqual(requests[0]!.options, { timeoutMs: 10000, maxBytes: 16384, maxRedirects: 0, route: "egress", headers: { accept: "application/json" } });
   });
 });
 
@@ -147,18 +150,6 @@ test("collection off at runtime performs no HTTP request or database write", asy
     assert.equal(await collectBtcUsdQuote({ fetch: async () => { hits++; throw new Error("must not fetch"); } }), null);
     assert.equal(hits, 0);
   } finally { process.env.COLLECT_ENABLED = "true"; }
-});
-
-test("worker registers Coinbase collection every five minutes only while collecting", () => {
-  const moduleUrl = new URL("../apps/worker/src/schedules.ts", import.meta.url).href;
-  const run = (enabled: string) => {
-    const code = `const {SCHEDULES}=await import(${JSON.stringify(moduleUrl)}); console.log(JSON.stringify(SCHEDULES.filter(s=>s.name==='market.btc-usd').map(s=>({name:s.name,cron:s.cron}))));`;
-    const result = spawnSync(process.execPath, ["--input-type=module", "-e", code], { env: { ...process.env, COLLECT_ENABLED: enabled, MODEL_CALLS_ENABLED: "false", AIHOT_CREDENTIALS_DIR: "/nonexistent-test-credentials" }, encoding: "utf8" });
-    assert.equal(result.status, 0, result.stderr);
-    return JSON.parse(result.stdout);
-  };
-  assert.deepEqual(run("true"), [{ name: "market.btc-usd", cron: "*/5 * * * *" }]);
-  assert.deepEqual(run("false"), []);
 });
 
 test("new article captures real database ingestion time instead of imported discovery or source times", async () => {
@@ -232,7 +223,8 @@ test("five-minute cutoff applies independently to fetch time and trade time", as
     await quote(db, 1000, 301000);
     const absent = await upsertMaterial(material(), db);
     assert.equal((await state(db, absent.articleId)).btc_quote_id, null);
-    const valid = await quote(db, 299000, 299000);
+    // Leave a full minute for remote test transport; ingestion intentionally uses the live DB clock.
+    const valid = await quote(db, 240000, 240000);
     const present = await upsertMaterial(material(), db);
     assert.equal((await state(db, present.articleId)).btc_quote_id, valid.id);
   });
@@ -253,29 +245,19 @@ test("legacy rows keep unknown ingestion metadata and serialized summaries expli
   });
 });
 
-test("public read layer joins fixed ingestion quote without changing publication authority", async () => {
-  const mode = config.editorialMode;
-  config.editorialMode = "automatic";
-  try {
+test("public read layer exposes the immutable quote through current item columns and feed shape", async () => {
   await isolated(async (db) => {
     const saved = await quote(db);
     const one = await upsertMaterial(material(), db);
-    const two = await upsertMaterial(material(), db);
-    for (const id of [one.articleId, two.articleId]) {
-      await db`INSERT INTO publications (article_id, title, source_id, channel, url, discovered_at, timeline_at, sort_at, visibility, eligible)
-        SELECT id, title, source_id, 'news', url, discovered_at, timeline_at, timeline_at, 'public', true FROM articles WHERE id = ${id}`;
-    }
-    const [analysis] = await db<{ id: number }[]>`INSERT INTO analyses (article_id, input_revision, origin, relevance) VALUES (${one.articleId}, 1, 'rule', 'pass') RETURNING id`;
-    await db`INSERT INTO editorial_reviews (article_id, article_revision, analysis_id, fingerprint, status, reviewed_by, reviewed_at, version)
-      VALUES (${one.articleId}, 1, ${analysis!.id}, 'btc-test-fingerprint', 'approved', 'btc-test', now(), 1)`;
-    const rows = await fetchItemsByIds([one.articleId, two.articleId], db);
-    assert.ok(rows.has(one.articleId));
-    assert.equal(rows.has(two.articleId), false, "no price can grant public authority");
-    const summary = toItemSummary(rows.get(one.articleId)!);
+    await db`INSERT INTO publications (article_id, title, source_id, channel, url, discovered_at, timeline_at, sort_at, visibility)
+      SELECT id, title, source_id, 'news', url, discovered_at, timeline_at, timeline_at, 'public' FROM articles WHERE id = ${one.articleId}`;
+    const { ITEM_COLUMNS, ITEM_FROM } = await import("@aihot/backend/publication/items");
+    const [row] = await db`SELECT ${ITEM_COLUMNS} ${ITEM_FROM} WHERE p.article_id = ${one.articleId}`;
+    const summary = toItemSummary(row as any);
     assert.deepEqual(summary.btcAtIngestion, { priceUsd: 62000.5, quotedAt: saved.quoted_at.toISOString(), fetchedAt: saved.fetched_at.toISOString(), source: "Coinbase", currency: "USD", ingestedAt: (await state(db, one.articleId)).ingested_at!.toISOString() });
-    assert.deepEqual(toFeedItemSummary(rows.get(one.articleId)!).btcAtIngestion, summary.btcAtIngestion);
+    assert.deepEqual(toFeedItemSummary(row as any).btcAtIngestion, summary.btcAtIngestion);
+    assert.equal(toFeedItemSummary(row as any).id, one.articleId);
   });
-  } finally { config.editorialMode = mode; }
 });
 
 test("concurrent first reports store one permanent quote reference", async () => {

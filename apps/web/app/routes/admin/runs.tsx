@@ -1,55 +1,33 @@
-import { SITE } from "@aihot/industry/site";
 import { useState } from "react";
+import { SITE } from "@aihot/site";
 import { Link, useFetcher } from "react-router";
 import { useEffect } from "react";
 import type { Route } from "./+types/runs";
+import type { AdminDeliveryIssue, AdminReceiptIssue, AdminRuns } from "@aihot/contracts/admin";
 import { adminGet } from "../../lib/admin.server";
 import { useAdminAction } from "../../features/admin/action";
 import { ago, bj, duration, num } from "../../features/admin/format";
 import { AdminPage, Badge, Button, Card, DataTable, Dot, Empty, Field, Json, ReasonDialog, Select, Stat, Time } from "../../features/admin/ui";
-
-type Row = Record<string, any>;
-interface Runs {
-  checkedAt: string;
-  automatic?: { counts: Record<string,number>; acceptanceRate: number | null; failed: number; missingEvidence: number;
-    disagreement: number; reasons: Row[]; recent: Row[]; sourcePauses: Row[];
-    current: { collected: number; passed: number; scoreQualified: number; public: number; selected: number;
-      counts: Record<string,number>; acceptanceRate: number|null; reasons: Array<{reason:string;n:number}>;
-      diagnostics: Array<{reason:string;n:number}>; historicalReasons: Array<{reason:string;n:number}>;
-      historicalDiagnostics: Array<{reason:string;n:number}>; highScoreWaiting:number; oldestHighScoreAt:string|null;
-      selected24h:number; selectionState:string } };
-  processes: Array<{ role: string; pid: number; host: string; release: string; startedAt: string; at: string; alive: boolean }>;
-  jobs: Row[];
-  timeline: Row[];
-  queues: Array<{ name: string; state: string; n: number; oldest: string }>;
-  failedJobs: Row[];
-  lagging: Row[];
-  receipts: { counts: Record<string, number>; issues: Row[] };
-  deliveries: Row[];
-  errors: Row[];
-  retrying: { count: number; next: string | null };
-  ingest: Row[];
-  leaderboard: { at: string; sources: Array<{ key: string; ok: boolean; at: string; lastOkAt: string | null; changed?: boolean; rows?: number; error?: string }> } | null;
-}
+import { loadParts } from "../../site-modules";
 
 
 export async function loader({ request }: Route.LoaderArgs) {
-  return adminGet<Runs>(request, "/api/admin/runs");
+  return adminGet<AdminRuns>(request, "/api/admin/runs");
 }
 
 export const meta: Route.MetaFunction = () => [{ title: `运行 · ${SITE.name} 后台` }];
 
-const DIAGNOSTIC_LABEL: Record<string,string> = {quote_invalid:'引用与原文不一致',primary_evidence_unverified:'一手证据未获核验支持',
-  unsupported_entry:'取证入口不支持',fetch_failed:'证据抓取失败',identity_mismatch:'官方身份不符',pdf_unreadable:'PDF 无法读取',body_unreadable:'正文无法读取'};
 const STATE_LABEL: Record<string, string> = { created: "排队", retry: "等待重试", active: "执行中" };
+
+const PARTS = await loadParts((m) => m.admin?.runs);
 
 export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
   const refresh = useFetcher<typeof loader>();
   const r = refresh.data ?? loaderData;
   const { run, pending } = useAdminAction();
-  const [receipt, setReceipt] = useState<Row | null>(null);
+  const [receipt, setReceipt] = useState<AdminReceiptIssue | null>(null);
   const [billed, setBilled] = useState("false");
-  const [delivery, setDelivery] = useState<Row | null>(null);
+  const [delivery, setDelivery] = useState<AdminDeliveryIssue | null>(null);
   const [outcome, setOutcome] = useState<"sent" | "drop" | "resend">("sent");
   // Failure group to put back into processing ("" = every failure of the last 30 days).
   const [requeue, setRequeue] = useState<string | null>(null);
@@ -80,54 +58,21 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
         <Stat label="投递待核实" value={num(r.deliveries.filter((d) => d.status === "unknown").length)} tone={r.deliveries.some((d) => d.status === "unknown") ? "bad" : "ok"} />
       </div>
 
-      {r.automatic && <Card title="当前文章 · 最近24小时采集">
-        <p className="mb-3 text-sm text-ink-3">每篇文章只计一次，使用当前原文版本的最新分析；公开与精选按读者当前可见的内容统计。</p>
-        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <Stat label="采集文章" value={num(r.automatic.current.collected)} />
-          <Stat label="相关性通过" value={num(r.automatic.current.passed)} />
-          <Stat label="评分达标" value={num(r.automatic.current.scoreQualified)} hint="完整评分均达到当前来源门槛，分差不超过20" />
-          <Stat label="实际公开" value={num(r.automatic.current.public)} />
-          <Stat label="实际精选" value={num(r.automatic.current.selected)} />
-        </div>
-        <p className="mb-3 text-sm">当前核验接受比例：{r.automatic.current.acceptanceRate === null ? '—' : `${Math.round(r.automatic.current.acceptanceRate*100)}%`}
-          <span className="ml-2 text-ink-3">接受 {r.automatic.current.counts.accepted??0} · 拒绝 {r.automatic.current.counts.rejected??0} · 等待 {r.automatic.current.counts.waiting??0}；仅统计与当前内容匹配的决定</span>
-        </p>
-        {r.automatic.current.selectionState==='investigate' && <p role="status" className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
-          需要检查：{r.automatic.current.highScoreWaiting} 篇新鲜文章连续评分达标已满4小时，仍未公开；最近24小时没有新增可见精选。请查看取证和核验原因。
-        </p>}
-        <p className="mb-4 text-sm text-ink-3">本次核验记录的取证问题（文章数，可含已解决问题）：{r.automatic.current.diagnostics.map(d=>`${DIAGNOSTIC_LABEL[d.reason]??'其他取证问题'} ${d.n}`).join(' · ') || '暂无'}</p>
-        <details className="mb-4"><summary className="cursor-pointer text-sm">历史核验轮次 · 最近24小时</summary>
-        <p className="my-3 text-xs text-ink-3">同一文章的不同规则、重试会分别计数，轮次比例不代表当前文章接受比例。</p>
-        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat label="轮次接受比例" value={r.automatic.acceptanceRate === null ? "—" : `${Math.round(r.automatic.acceptanceRate * 100)}%`} hint={`接受 ${r.automatic.counts.accepted ?? 0} · 拒绝 ${r.automatic.counts.rejected ?? 0} · 等待 ${r.automatic.counts.waiting ?? 0}`} />
-          <Stat label="缺少证据" value={num(r.automatic.missingEvidence)} />
-          <Stat label="评分分歧" value={num(r.automatic.disagreement)} />
-          <Stat label="请求失败" value={num(r.automatic.failed)} />
-        </div>
-        <p className="mb-3 text-xs text-ink-3">旧决定保留的取证问题（文章数）：{r.automatic.current.historicalDiagnostics.map(d=>`${DIAGNOSTIC_LABEL[d.reason]??'其他取证问题'} ${d.n}`).join(' · ') || '暂无'}</p>
-        </details>
-        <p className="mb-3 text-sm text-ink-3">连续五条终止核验明确矛盾时，该来源的新分析与核验暂停30分钟；已核验公开内容继续可读。</p>
-        <DataTable dense rows={r.automatic.sourcePauses} rowKey={s=>s.source_id} empty="来源尚无异常暂停记录" columns={[
-          {key:"source",label:"来源",render:s=>s.source_name},
-          {key:"state",label:"自动处理",render:s=><Badge tone={s.paused ? "warn" : "ok"}>{s.paused ? "暂时暂停" : "运行"}</Badge>},
-          {key:"until",label:"暂停截止",render:s=><Time at={s.until} />},
-          {key:"streak",label:"连续明确矛盾",render:s=>s.streak},
-        ]} />
-        <details className="mt-4"><summary className="cursor-pointer text-sm">最近20条决定与原因</summary>
-          <DataTable dense rows={r.automatic.recent} rowKey={d=>d.id} columns={[
-            {key:"article",label:"内容",render:d=><Link to={`/admin/content/${d.article_id}`} className="font-mono text-xs">{d.article_id}</Link>},
-            {key:"status",label:"结果",render:d=>`${d.status} · ${d.verdict ?? "未终止"}`},
-            {key:"reasons",label:"原因",render:d=>d.reasons.join(" · ") || "核验通过"},
-            {key:"scores",label:"注意力评分",render:d=>(d.scores ?? []).join(" / ")},
-            {key:"usage",label:"核验请求",render:d=>d.verification_count},
+      {r.grouping.waiting > 0 && (
+        <Card className="mb-5" title="等待去重确认的精选" right={<span>{num(r.grouping.waiting)} 条等待 · {num(r.grouping.needsAttention)} 条超过 10 分钟</span>} pad={false} scrollable>
+          <p className="px-4 py-3 text-[13px] text-ink-3">这些新闻已达到精选条件，确认是否重复后才会进入精选。最多展示等待最久的 30 条。</p>
+          <DataTable scrollable dense rows={r.grouping.items} rowKey={(item) => item.articleId} columns={[
+            { key: "title", label: "新闻", render: (item) => <Link className="text-accent" to={`/admin/content/${item.articleId}`}>{item.title}</Link> },
+            { key: "since", label: "开始等待", render: (item) => <Time at={item.since} /> },
+            { key: "recovery", label: "下一步", render: (item) => <Badge tone={item.recovery === "manual" ? "bad" : "warn"}>{item.recovery === "manual" ? "需处理后恢复" : item.recovery === "receipt" ? "等待付费结果自动恢复" : "自动处理中"}</Badge> },
+            { key: "error", label: "原因", render: (item) => <span className="line-clamp-2 text-[12px] text-ink-3">{item.receiptId ? `回执 #${item.receiptId} · ` : ""}{item.error ?? "等待身份确认"}</span> },
           ]} />
-          <p className="mt-3 text-xs text-ink-3">原因计数：{r.automatic.reasons.map(d=>`${d.reason} ${d.n}`).join(" · ") || "暂无"}</p>
-        </details>
-      </Card>}
+        </Card>
+      )}
 
       <div className="grid gap-5 xl:grid-cols-2">
-        <Card title="队列" pad={false}>
-          <DataTable
+        <Card title="队列" pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={[...backlog.entries()]}
             rowKey={([name]) => name}
@@ -144,8 +89,8 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
             ]}
           />
         </Card>
-        <Card title="定时任务" pad={false}>
-          <DataTable
+        <Card title="定时任务" pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={r.jobs}
             rowKey={(j) => j.job}
@@ -161,8 +106,8 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
       </div>
 
       {r.failedJobs.length > 0 && (
-        <Card className="mt-5" title="24 小时内失败的队列任务" pad={false}>
-          <DataTable
+        <Card className="mt-5" title="24 小时内失败的队列任务" pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={r.failedJobs}
             rowKey={(j) => j.name}
@@ -177,8 +122,8 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
       )}
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <Card title="需要核对的付费回执" right={<span>{Object.entries(r.receipts.counts).map(([k, v]) => `${k} ${v}`).join(" · ")}</span>} pad={false}>
-          <DataTable
+        <Card title="需要核对的付费回执" right={<span>{Object.entries(r.receipts.counts).map(([k, v]) => `${k} ${v}`).join(" · ")}</span>} pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={r.receipts.issues}
             rowKey={(x) => x.id}
@@ -193,8 +138,8 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
             ]}
           />
         </Card>
-        <Card title="需要核实的投递" pad={false}>
-          <DataTable
+        <Card title="需要核实的投递" pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={r.deliveries}
             rowKey={(d) => d.id}
@@ -211,8 +156,8 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <Card title="延迟或失败的信源" right={<Link className="text-accent" to="/admin/sources?health=failing">全部失败信源</Link>} pad={false}>
-          <DataTable
+        <Card title="延迟或失败的信源" right={<Link className="text-accent" to="/admin/sources?health=failing">全部失败信源</Link>} pad={false} scrollable>
+          <DataTable scrollable
             dense
             rows={r.lagging}
             rowKey={(s) => s.id}
@@ -234,9 +179,9 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
               {r.errors.length > 0 && <Button size="sm" onClick={() => setRequeue("")}>全部重新处理</Button>}
             </span>
           }
-          pad={false}
+          pad={false} scrollable
         >
-          <DataTable
+          <DataTable scrollable
             dense
             rows={r.errors}
             rowKey={(e) => e.error}
@@ -252,49 +197,25 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
         </Card>
       </div>
 
-      {r.leaderboard && (
-        <Card
-          className="mt-5"
-          title="模型榜评测来源"
-          right={<span>最近抓取 {bj(r.leaderboard.at)} · 成功 {r.leaderboard.sources.filter((x) => x.ok).length}/{r.leaderboard.sources.length}</span>}
-          pad={false}
-        >
-          <div className="max-h-[360px] overflow-y-auto">
-            <DataTable
-              dense
-              rows={r.leaderboard.sources}
-              rowKey={(x) => x.key}
-              columns={[
-                { key: "k", label: "来源", render: (x) => <span className="font-mono text-[12.5px]">{x.key}</span> },
-                { key: "s", label: "上次抓取", render: (x) => <Badge tone={x.ok ? "ok" : "bad"}>{x.ok ? (x.changed ? "有更新" : "无变化") : "失败"}</Badge> },
-                { key: "ok", label: "上次成功", render: (x) => <Time at={x.lastOkAt} /> },
-                { key: "n", label: "行数", align: "right", render: (x) => (x.rows == null ? "—" : num(x.rows)) },
-                { key: "e", label: "错误", render: (x) => <span className="line-clamp-1 text-[12px] text-ink-3" title={x.error ?? ""}>{x.error}</span> },
-              ]}
-            />
-          </div>
-        </Card>
-      )}
+      {PARTS.map(({ name, part: Part }) => (r.modules[name] != null ? <Part key={name} data={r.modules[name]} /> : null))}
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
-        <Card title="任务时间线" pad={false}>
-          <div className="max-h-[420px] overflow-y-auto">
-            <DataTable
-              dense
-              rows={r.timeline}
-              rowKey={(t) => t.id}
-              columns={[
-                { key: "at", label: "开始", render: (t) => <span className="num whitespace-nowrap">{bj(t.started_at)}</span> },
-                { key: "j", label: "任务", render: (t) => <span className="font-mono text-[12px]">{t.job}</span> },
-                { key: "s", label: "结果", render: (t) => <Badge tone={t.status === "ok" ? "ok" : t.status === "failed" ? "bad" : "muted"} title={t.error ?? undefined}>{t.status ?? "运行中"}</Badge> },
-                { key: "d", label: "耗时", align: "right", render: (t) => duration(t.started_at, t.finished_at) },
-              ]}
-            />
-          </div>
+        <Card title="任务时间线" pad={false} scrollable>
+          <DataTable scrollable
+            dense
+            rows={r.timeline}
+            rowKey={(t) => t.id}
+            columns={[
+              { key: "at", label: "开始", render: (t) => <span className="num whitespace-nowrap">{bj(t.started_at)}</span> },
+              { key: "j", label: "任务", render: (t) => <span className="font-mono text-[12px]">{t.job}</span> },
+              { key: "s", label: "结果", render: (t) => <Badge tone={t.status === "ok" ? "ok" : t.status === "failed" ? "bad" : "muted"} title={t.error ?? undefined}>{t.status ?? "运行中"}</Badge> },
+              { key: "d", label: "耗时", align: "right", render: (t) => duration(t.started_at, t.finished_at) },
+            ]}
+          />
         </Card>
-        <Card title="外部上报" pad={false}>
+        <Card title="外部上报" pad={false} scrollable>
           {r.ingest.length ? (
-            <DataTable
+            <DataTable scrollable
               dense
               rows={r.ingest}
               rowKey={(e) => `${e.client}-${e.created_at}`}
@@ -307,7 +228,7 @@ export default function RunsAdmin({ loaderData }: Route.ComponentProps) {
               ]}
             />
           ) : (
-            <Empty>还没有外部上报（公众号截图监控、采集脚本）</Empty>
+            <Empty>还没有外部上报（采集脚本）</Empty>
           )}
         </Card>
       </div>

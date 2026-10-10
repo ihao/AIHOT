@@ -33,18 +33,9 @@ export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
   "prediction market": "预测市场", "prediction markets": "预测市场", "預測市場": "预测市场",
 };
 
-export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
-  protocol_upgrade: "公链/基础设施",
-  defi_product_change: "DeFi/产品",
-  stablecoin_rwa_event: "稳定币/RWA",
-  security_incident: "安全事件",
-  policy_event: "政策/监管",
-  governance_business_change: "项目/商业",
-  research_analysis: "研究/数据",
-};
 
 /** 项目、网络与机构；BTC、ETH、SOL 是资产，不是这里的别名。 */
-export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[] }> = {
+export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; otherNames?: string[] }> = {
   bitcoin: { name: "Bitcoin", displayTag: "Bitcoin", aliases: ["Bitcoin network", "Bitcoin protocol", "Bitcoin Core", "比特币网络", "比特币协议"] },
   ethereum: { name: "Ethereum", displayTag: "Ethereum", aliases: ["Ethereum network", "Ethereum protocol", "以太坊网络", "以太坊协议"] },
   solana: { name: "Solana", displayTag: "Solana", aliases: ["Solana network", "Solana protocol", "索拉纳网络", "索拉纳协议"] },
@@ -77,3 +68,7 @@ export const PUBLISHER_DOMAINS: ReadonlyArray<{ entityId: string; domains: reado
 ];
 
 export const IDENTITY_CONTEXT_ALIASES: ReadonlyArray<{ entityId: string; pattern: RegExp }> = [];
+
+/** No single launch kind applies to all Web3 events. */
+export const RELEASE: { category: string; tag: string; unit: string } | null = null;
+export const PLAIN_TERMS: readonly string[] = ["web3", "api", "defi", "rwa", "dex", "dao", "btc", "eth", "sol", "tvl", "l1", "l2"];

@@ -1,12 +1,14 @@
 // OpenAI-compatible chat calls, always through receipts. One model is enough: `default` is whatever the
-// deployment names in LLM_BASE_URL / LLM_API_KEY / LLM_MODEL, and every capability uses it unless an
-// environment variable or the admin's model page picks one of the named presets below.
+// deployment names in LLM_BASE_URL / LLM_API_KEY / LLM_MODEL, and every capability uses it unless the
+// site, an environment variable or the admin's model page picks one of the site's named presets
+// (site/models.ts).
 import type { z } from "zod";
+import { PRESETS } from "@aihot/site/models";
 import { config, credential } from "../config.ts";
 import { sha256 } from "../lib/ids.ts";
-import { completeReceipt, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
-import { sql } from "../db.ts";
-import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from './provider-capacity.ts';
+import { assertAccepted, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
+
+import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from "./provider-capacity.ts";
 
 export interface ModelSpec {
   key: string;
@@ -16,6 +18,8 @@ export interface ModelSpec {
   apiKeyEnv: string;
   /** Extra request fields, e.g. switching reasoning off for short structured tasks. */
   extra?: Record<string, unknown>;
+  /** Output tokens added to every call's own limit for a reasoning model, which reasons before it answers. */
+  reasoningTokens?: number;
   jsonMode: boolean;
   vision?: boolean;
 }
@@ -29,68 +33,24 @@ function extraFromEnv(value: string | undefined): Record<string, unknown> | unde
   }
 }
 
+function reasoningTokensFromEnv(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  if (!/^\d+$/.test(value)) throw new Error("LLM_REASONING_TOKENS must be a non-negative integer, e.g. 4000");
+  return Number(value);
+}
+
 export const MODELS: Record<string, ModelSpec> = {
   // Read from the environment at call time.
   default: {
     key: "default", service: "llm", baseUrlEnv: "LLM_BASE_URL", apiKeyEnv: "LLM_API_KEY",
     get model() { return process.env.LLM_MODEL ?? ""; },
     get extra() { return extraFromEnv(process.env.LLM_EXTRA_JSON); },
+    get reasoningTokens() { return reasoningTokensFromEnv(process.env.LLM_REASONING_TOKENS); },
     get jsonMode() { return process.env.LLM_JSON_MODE !== "false"; },
     get vision() { return process.env.LLM_VISION === "true"; },
   },
-  // Named presets (the models AIHOT itself runs on); each needs its own key.
-  // GLM 5.3 Flash always reasons; the lowest effort keeps short structured tasks fast.
-  "glm-5.3-flash": {
-    key: "glm-5.3-flash", service: "zhipu", model: "glm-5.3-flash",
-    baseUrlEnv: "ZHIPU_BASE_URL", apiKeyEnv: "ZHIPU_API_KEY",
-    extra: { thinking: { type: "enabled" }, reasoning_effort: "low" }, jsonMode: true,
-  },
-  // The scorer's parameters for glm-5.3-flash (score calls; temperature 1 is set per call).
-  "glm-5.3-flash-selection": {
-    key: "glm-5.3-flash-selection", service: "zhipu", model: "glm-5.3-flash",
-    baseUrlEnv: "ZHIPU_BASE_URL", apiKeyEnv: "ZHIPU_API_KEY",
-    extra: { thinking: { type: "enabled", clear_thinking: false }, reasoning_effort: "high", top_p: 0.95 }, jsonMode: true,
-  },
-  // DeepSeek Flash reasons by default; structured tasks switch it off unless the -think variant is used.
-  "deepseek-flash": {
-    key: "deepseek-flash", service: "deepseek", model: "deepseek-flash",
-    baseUrlEnv: "DEEPSEEK_BASE_URL", apiKeyEnv: "DEEPSEEK_API_KEY",
-    extra: { thinking: { type: "disabled" } }, jsonMode: true,
-  },
-  "deepseek-flash-think": {
-    key: "deepseek-flash-think", service: "deepseek", model: "deepseek-flash",
-    baseUrlEnv: "DEEPSEEK_BASE_URL", apiKeyEnv: "DEEPSEEK_API_KEY", jsonMode: true,
-  },
-  "qwen3.7-flash": {
-    key: "qwen3.7-flash", service: "dashscope", model: "qwen3.7-flash",
-    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
-    extra: { enable_thinking: false }, jsonMode: true,
-  },
-  "qwen3.8-flash": {
-    key: "qwen3.8-flash", service: "dashscope", model: "qwen3.8-flash",
-    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
-    extra: { enable_thinking: false }, jsonMode: true,
-  },
-  "qwen3.8-max": {
-    key: "qwen3.8-max", service: "dashscope", model: "qwen3.8-max",
-    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
-    extra: { enable_thinking: false }, jsonMode: true,
-  },
-  "dashscope-deepseek-v4.1-flash": {
-    key: "dashscope-deepseek-v4.1-flash", service: "dashscope", model: "deepseek-v4.1-flash",
-    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
-    extra: { enable_thinking: false }, jsonMode: true,
-  },
-  "mimo-v2.6-flash": {
-    key: "mimo-v2.6-flash", service: "mimo", model: "mimo-v2.6-flash",
-    baseUrlEnv: "XIAOMI_MIMO_BASE_URL", apiKeyEnv: "XIAOMI_MIMO_API_KEY",
-    extra: { thinking: { type: "disabled" } }, jsonMode: true,
-  },
-  "qwen3-vl-flash": {
-    key: "qwen3-vl-flash", service: "dashscope", model: "qwen3-vl-flash",
-    baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
-    extra: { enable_thinking: false }, jsonMode: false, vision: true,
-  },
+  // The pack's named presets, each with its own address and key.
+  ...Object.fromEntries(Object.entries(PRESETS).map(([key, preset]) => [key, { key, ...preset }])),
 };
 
 export type ContentPart = { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } };
@@ -128,7 +88,7 @@ export class ModelOutputError extends Error {
   }
 }
 
-export function extractJson(text: string): unknown {
+function extractJson(text: string): unknown {
   let t = text.trim();
   const fence = /^```(?:json)?\s*([\s\S]*?)\s*```$/i.exec(t);
   if (fence) t = fence[1]!;
@@ -165,7 +125,7 @@ export function escapeControlCharsInStrings(json: string): string {
 
 function isConnectFailure(error: unknown): boolean {
   const code = (error as { cause?: { code?: string } })?.cause?.code ?? (error as { code?: string })?.code;
-  return ["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT", "ECONNRESET_BEFORE_SEND", "CERT_HAS_EXPIRED"].includes(code ?? "");
+  return ["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT", "CERT_HAS_EXPIRED"].includes(code ?? "");
 }
 
 type ChatIdentityOptions = Pick<ChatJsonOptions<z.ZodType>, "model" | "purpose" | "promptVersion" | "system" | "user" | "temperature" | "maxTokens" | "attemptTag"> & { subject?: string };
@@ -198,7 +158,7 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const spec = MODELS[opts.model];
   if (!spec) throw new Error(`Unknown model ${opts.model}`);
   const temperature = opts.temperature ?? 0.2;
-  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.key.endsWith("-think") ? 4000 : 0);
+  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.reasoningTokens ?? 0);
   const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
   const messages = [...(opts.system ? [{role:'system',content:opts.system}] : []),{role:'user',content:typeof opts.user==='string'||Array.isArray(opts.user)?opts.user:userText}];
   // A byte-level token bound deliberately overestimates text. Framing covers protocol tokens.
@@ -207,7 +167,7 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   const actualMaxTokens = Object.hasOwn(extra,'max_tokens') ? extra.max_tokens : maxTokens;
   const thinking = extra.thinking as {type?:string}|undefined;
   const explicitlyNoThinking = extra.enable_thinking===false || thinking?.type==='disabled';
-  const reasoning = extra.enable_thinking===true || thinking?.type==='enabled' || spec.key.endsWith('-think');
+  const reasoning = extra.enable_thinking===true || thinking?.type==='enabled' || (spec.reasoningTokens ?? 0) > 0;
   const hasImage = Array.isArray(opts.user) && opts.user.some(part=>part.type==='image_url');
   const boundedOutput = typeof actualMaxTokens==='number'&&Number.isSafeInteger(actualMaxTokens)&&actualMaxTokens>0;
   const boundedInput = boundedModelExtras(extra);
@@ -269,20 +229,20 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
         throw error;
       }
       const text = await res.text();
-      if (!res.ok) {
+      if (res.status === 429) {
         let code: unknown;
-        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Preserve normal HTTP rejection handling. */ }
-        if (res.status === 429 && code === 'BudgetLimitExceeded') {
+        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Keep normal HTTP rejection handling. */ }
+        if (code === "BudgetLimitExceeded") {
           await recordProviderBudgetStop(capacityKey, spec.service);
           throw new ProviderBudgetExceededError(spec.service, true);
         }
-        const retryable = res.status === 429 || res.status >= 500;
-        throw new ProviderRejectedError(`HTTP ${res.status}: ${text.slice(0, 500)}`, res.status, retryable);
       }
+      assertAccepted(spec.service, res.status, text);
       await clearProviderProbe(capacityKey);
       let json: Record<string, unknown>;
       try {
         json = JSON.parse(text);
+        if (!json || typeof json !== "object" || Array.isArray(json)) throw new Error("Expected a response object");
       } catch {
         json = { unparsable: text.slice(0, 20000) };
       }
@@ -302,13 +262,13 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   try {
     parsed = opts.schema.parse(opts.parse ? opts.parse(content) : extractJson(content));
   } catch (error) {
-    // Unusable output: record it and let a later attempt pay for a fresh answer.
-    await rejectReceivedResponse(receipt.receiptId, `unusable output: ${String(error).slice(0, 500)}`);
-    throw new ModelOutputError(`Model ${opts.model} returned unusable output for ${opts.subject}: ${String(error).slice(0, 300)}`, receipt.receiptId);
+    // Unusable output: record it and let a later attempt pay for a fresh answer. A reasoning model that
+    // reasoned up to the output limit leaves an empty or cut-off answer; say so, and where to give it room.
+    const detail = response.choices?.[0]?.finish_reason === "length"
+      ? `output token limit reached (finish_reason=length): a reasoning model may have spent it reasoning; give it room with ${spec.key === "default" ? "LLM_REASONING_TOKENS" : `reasoningTokens on preset ${spec.key}`}. ${String(error)}`
+      : String(error);
+    await rejectReceivedResponse(receipt.receiptId, `unusable output: ${detail.slice(0, 500)}`);
+    throw new ModelOutputError(`Model ${opts.model} returned unusable output for ${opts.subject}: ${detail.slice(0, 300)}`, receipt.receiptId);
   }
   return { data: parsed, receiptId: receipt.receiptId, reused: receipt.reused, model: spec.key, usage: response.usage ?? null };
-}
-
-export async function markReceiptsCompleted(ids: number[]): Promise<void> {
-  for (const id of ids) await completeReceipt(sql, id);
 }

@@ -10,6 +10,21 @@ async function module() {
 const BASE = Date.parse("2026-10-04T16:00:00Z");
 const quote = (at = BASE, priceUsd = 62000.5): BtcUsdQuote => ({ priceUsd, quotedAt: new Date(at).toISOString(), fetchedAt: new Date(at).toISOString(), source: "Coinbase", currency: "USD" });
 const flush = async () => { for (let i = 0; i < 8; i++) await Promise.resolve(); };
+
+test("SSR clock is stable for empty, fresh and delayed quotes and preserves the exact age threshold", async () => {
+  const { btcRenderClock, btcQuoteDelayed } = await module();
+  assert.equal(btcRenderClock(null, BASE), 0);
+  assert.equal(btcRenderClock(null, BASE + 1000), 0);
+  for (const q of [quote(), { ...quote(), fetchedAt: new Date(BASE - 1000).toISOString() }, { ...quote(), quotedAt: new Date(BASE - 1000).toISOString() }]) {
+    const oldest = Math.min(Date.parse(q.quotedAt), Date.parse(q.fetchedAt));
+    const fresh = btcRenderClock(q, oldest + 899_000);
+    assert.equal(fresh, btcRenderClock(q, oldest + 900_000));
+    assert.equal(btcQuoteDelayed(q, fresh, false), false);
+    const delayed = btcRenderClock(q, oldest + 900_001);
+    assert.equal(delayed, btcRenderClock(q, oldest + 960_000));
+    assert.equal(btcQuoteDelayed(q, delayed, false), true);
+  }
+});
 function harness() {
   let now = BASE, visible = true, seq = 0;
   const timers = new Map<number, { at:number; run:()=>void }>();

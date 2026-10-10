@@ -1,34 +1,18 @@
-import { SITE } from "@aihot/industry/site";
+import { SITE } from "@aihot/site";
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router";
 import { CATEGORY_KEYS, CATEGORY_LABELS } from "@aihot/contracts/taxonomy";
 import type { Route } from "./+types/content-item";
+import type { AdminContentChain } from "@aihot/contracts/admin";
 import { adminGet } from "../../lib/admin.server";
 import { useAdminAction } from "../../features/admin/action";
 import { bj, money } from "../../features/admin/format";
-import { KIND_LABEL, MODE_LABEL, VISIBILITY_LABEL, processingErrorLabel } from "../../features/admin/labels";
+import { KIND_LABEL, MODE_LABEL, VISIBILITY_LABEL } from "../../features/admin/labels";
 import { AdminPage, Badge, Button, Card, Empty, Field, Input, Json, KV, ReasonDialog, Select, Textarea } from "../../features/admin/ui";
-import { automaticReasonLabel } from "@aihot/contracts/automatic-content";
 
-type Row = Record<string, any>;
-const VERIFICATION_LABELS:Record<string,string>={queued:'待自动核验',running:'核验中',waiting:'等待自动恢复',accepted:'核验通过',rejected:'已自动结束',stale:'核验已失效'};
-interface Chain {
-  article: Row;
-  discoveries: Row[];
-  revisions: Row[];
-  analyses: Row[];
-  publication: Row | null;
-  override: { fields: Record<string, unknown>; visibility: string | null; reason: string | null; version: number; updated_by: string; updated_at: string } | null;
-  ledger: Row[];
-  membership: Row[];
-  decisions: Row[];
-  deliveries: Row[];
-  history: Row[];
-  automaticVerifications: Row[];
-}
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  return adminGet<Chain>(request, `/api/admin/content/${encodeURIComponent(params.id)}`);
+  return adminGet<AdminContentChain>(request, `/api/admin/content/${encodeURIComponent(params.id)}`);
 }
 
 export const meta: Route.MetaFunction = ({ loaderData }) => [{ title: `${loaderData?.publication?.title ?? loaderData?.article.title ?? "内容"} · ${SITE.name} 后台` }];
@@ -57,7 +41,7 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
   const { run, pending } = useAdminAction();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [visibility, setVisibility] = useState<string>(p?.visibility ?? "public");
-  const [fields, setFields] = useState({ title: "", summary: "", reason: "", category: "", tags: "", selected: "", silent: "" });
+  const [fields, setFields] = useState({ title: "", summary: "", reason: "", category: "", tags: "", scoreMode: "", score: "", selected: "", silent: "" });
   const [mergeInto, setMergeInto] = useState("");
   const version = c.override?.version ?? 0;
   const base = `/api/admin/content/${encodeURIComponent(a.id)}`;
@@ -72,6 +56,8 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
       reason: String(f.reason ?? ""),
       category: String(f.category ?? ""),
       tags: Array.isArray(f.tags) ? (f.tags as string[]).join(", ") : "",
+      scoreMode: f.score === null ? "none" : typeof f.score === "number" ? "value" : "",
+      score: typeof f.score === "number" ? String(f.score) : "",
       selected: f.selected === undefined ? "" : String(f.selected),
       silent: f.silent === undefined ? "" : String(f.silent),
     });
@@ -113,7 +99,7 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
         <Badge>处理 {a.processing_state}</Badge>
         {c.override && <Badge tone="info" title={c.override.reason ?? undefined}>有人工设置 v{c.override.version}</Badge>}
       </div>
-      {a.processing_error && <div className="mb-5 rounded-card bg-hot-soft px-4 py-3 text-[13px] text-hot ring-1 ring-hot/20">{processingErrorLabel(a.processing_error)}</div>}
+      {a.processing_error && <div className="mb-5 rounded-card bg-hot-soft px-4 py-3 text-[13px] text-hot ring-1 ring-hot/20">{a.processing_error}</div>}
 
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <Card title="处理链路">
@@ -168,9 +154,9 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
                       </div>
                       {an.title_zh && <div className="mt-2 font-medium text-ink">{an.title_zh}</div>}
                       {an.reason_zh && <div className="mt-1 text-[12.5px] leading-relaxed text-ink-3">{an.reason_zh}</div>}
-                      {(an.receipts as Row[]).length > 0 && (
+                      {an.receipts.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5 text-[11.5px]">
-                          {(an.receipts as Row[]).map((r) => (
+                          {an.receipts.map((r) => (
                             <span key={r.id} className="num rounded bg-surface px-1.5 py-0.5 text-ink-3 ring-1 ring-line">
                               回执 #{r.id} · {r.status} · {r.model ?? r.service}{r.cost !== null ? ` · ${money(r.cost)}` : ""}
                             </span>
@@ -183,24 +169,6 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
               ) : (
                 <span className="text-ink-4">{a.participation_mode === "editorial" ? "还没有判断（等待队列或失败）" : "氛围信源不做编辑判断"}</span>
               )}
-            </Step>
-            <Step title="自动证据核验" meta={`${c.automaticVerifications.length} 轮记录`} tone={c.automaticVerifications.length ? "accent" : "muted"}>
-              <div className="space-y-3">{c.automaticVerifications.map(v=><div key={v.id} className="rounded-control bg-bg-sunk/60 p-3 ring-1 ring-line">
-                <div className="flex flex-wrap gap-2 text-[12px]">
-                  <Badge tone={v.status==='accepted'?'ok':'muted'}>{VERIFICATION_LABELS[v.status]??v.status}</Badge>
-                  <span>输入 v{v.article_revision} · 核验 {v.verification_count}/3 次 · 故障 {v.failures} 次 · {bj(v.updated_at)}</span>
-                </div>
-                <p className="mt-2 text-[12px] text-ink-3">{(v.reasons as string[]).map(automaticReasonLabel).join('；')||'证据核验已完成，公开资格仍以当前版本和来源授权为准。'}</p>
-                {v.status==='waiting' && v.retry_at && <p className="mt-1 text-[12px] text-ink-3">下次自动恢复 {bj(v.retry_at,true)}</p>}
-                <details className="mt-2 text-[12px]"><summary className="cursor-pointer text-ink-3">查看证据与核验主张</summary>
-                  {(v.materials as Row[]).map(m=><div key={m.id} className="mt-2">
-                    <a href={m.url} target="_blank" rel="noopener noreferrer" className="break-all text-accent hover:underline">{m.primary?'一手材料':'原始报道'}：{m.url}</a>
-                    <p className="mt-1 whitespace-pre-wrap">{m.excerpt}</p>
-                  </div>)}
-                  <Json value={{rule:v.automatic_rule_version,verification:v.verification,receiptIds:v.receipt_ids}}/>
-                </details>
-              </div>)}</div>
-              {!c.automaticVerifications.length && <span className="text-ink-4">该内容没有自动核验记录。</span>}
             </Step>
             <Step title="公开" tone={p ? (p.visibility === "withdrawn" ? "bad" : "accent") : "muted"} meta={p ? `更新于 ${bj(p.updated_at, true)}` : undefined}>
               {p ? (
@@ -379,6 +347,9 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
           else if (c.override?.fields.category !== undefined) clear.push("category");
           if (fields.tags.trim()) next.tags = fields.tags.split(/[,，]/).map((t) => t.trim()).filter(Boolean);
           else if (c.override?.fields.tags !== undefined) clear.push("tags");
+          if (fields.scoreMode === "none") next.score = null;
+          else if (fields.scoreMode === "value") next.score = Number(fields.score);
+          else if (c.override?.fields.score !== undefined) clear.push("score");
           for (const k of ["selected", "silent"] as const) {
             if (fields[k] === "true" || fields[k] === "false") next[k] = fields[k] === "true";
             else if (c.override?.fields[k] !== undefined) clear.push(k);
@@ -397,6 +368,14 @@ export default function ContentItem({ loaderData }: Route.ComponentProps) {
             </Select>
           </Field>
           <Field label="标签（逗号分隔）"><Input value={fields.tags} onChange={(e) => setFields({ ...fields, tags: e.target.value })} /></Field>
+          <Field label="评分">
+            <Select value={fields.scoreMode} onChange={(e) => setFields({ ...fields, scoreMode: e.target.value })}>
+              <option value="">按模型</option>
+              <option value="none">撤销评分</option>
+              <option value="value">人工评分</option>
+            </Select>
+          </Field>
+          {fields.scoreMode === "value" && <Field label="分数（0–100）"><Input type="number" min={0} max={100} step="any" required value={fields.score} onChange={(e) => setFields({ ...fields, score: e.target.value })} /></Field>}
           <Field label="精选">
             <Select value={fields.selected} onChange={(e) => setFields({ ...fields, selected: e.target.value })}>
               <option value="">按模型</option>

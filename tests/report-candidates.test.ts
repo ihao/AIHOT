@@ -1,173 +1,180 @@
-import { gate, tag } from "./setup.ts";
-import assert from "node:assert/strict";
+import { editionAt, gate, tag } from "./setup.ts";
+// A selected item released across the daily edition time must appear in the next issue exactly once.
 import { after, before, test } from "node:test";
+import assert from "node:assert/strict";
 import { setTimeout as delay } from "node:timers/promises";
-import { beijingDate } from "@aihot/contracts/time";
 import { closeDb, sql } from "@aihot/backend/db";
 import { upsertMaterial } from "@aihot/backend/content/materials";
-import { proposeReview } from "@aihot/backend/editorial/review";
-import { decideArticleReview } from "@aihot/backend/editorial/decision";
 import { stopBoss } from "@aihot/backend/jobs/queue";
-import { publishArticleTx } from "@aihot/backend/publication/publish";
-import { loadReport } from "@aihot/backend/publication/reports";
-import { createDailyDraft, publishDailyDraft } from "@aihot/backend/reports/editorial";
+import { publishArticle, publishArticleTx } from "@aihot/backend/publication/publish";
+import { composeDaily } from "@aihot/backend/reports/compose";
+import { candidates } from "@aihot/backend/reports/edition";
 
-const suffix = tag();
-const sourceId = `report-cutoff-${suffix}`;
-const issueKeys: string[] = [];
-let previousLaunch: unknown;
-let firstCutoff: Date;
-let secondCutoff: Date;
-let thirdCutoff: Date;
-let serial = 0;
+const T = tag();
+const SOURCE = `test-report-boundary-${T}`;
 
 before(async () => {
-  const [last] = await sql<{ window_end: Date }[]>`
-    SELECT window_end FROM published_reports WHERE kind='daily' ORDER BY window_end DESC LIMIT 1`;
-  const base = Math.max(Date.now(), last?.window_end.getTime() ?? 0) + 48 * 3600_000;
-  firstCutoff = new Date(base + 5 * 60_000);
-  secondCutoff = new Date(firstCutoff.getTime() + 24 * 3600_000);
-  thirdCutoff = new Date(secondCutoff.getTime() + 24 * 3600_000);
-  const [setting] = await sql<{ value: unknown }[]>`SELECT value FROM settings WHERE key='report_launch_start'`;
-  previousLaunch = setting?.value;
-  await sql`UPDATE settings SET value=${sql.json({ at: new Date(base - 3600_000).toISOString() })}
-    WHERE key='report_launch_start'`;
-  await sql`INSERT INTO sources (id,name,kind,tier,participation_mode,first_party,next_fetch_at)
-    VALUES (${sourceId},'Report cutoff fixture','rss','T1','editorial',true,'2100-01-01')`;
+  await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, next_fetch_at)
+            VALUES (${SOURCE}, 'Report boundary test', 'rss', 'T1', 'editorial', '2100-01-01')`;
 });
-
 after(async () => {
-  await sql`DELETE FROM reports WHERE kind='daily' AND key = ANY(${issueKeys}::text[])`;
-  await sql`UPDATE publications SET visibility='withdrawn',selected=false WHERE source_id=${sourceId}`;
-  if (previousLaunch) await sql`UPDATE settings SET value=${sql.json(previousLaunch as never)} WHERE key='report_launch_start'`;
   await stopBoss();
   await closeDb();
 });
 
-async function reviewable(label: string) {
-  const at = new Date();
+async function analyzed(label: string, timelineAt: Date): Promise<string> {
   const { articleId, backfill } = await upsertMaterial({
-    sourceId, url: `https://official.example.org/report-cutoff-${suffix}-${++serial}`,
-    title: `Official Web3 release ${label}`, bodyText: `Official release notes for ${label}.`,
-    bodyStatus: "ok", via: "fetch", publishedAt: at, discoveredAt: at,
+    sourceId: SOURCE,
+    url: `https://example.com/report-boundary-${T}-${label}`,
+    title: `Report boundary ${label}`,
+    bodyText: `Report boundary ${label} body`,
+    bodyStatus: "ok",
+    publishedAt: timelineAt,
+    discoveredAt: timelineAt,
+    via: "fetch",
   });
   assert.equal(backfill, false);
-  await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,category,title_zh,summary_zh,score,selected)
-    VALUES (${articleId},1,'rule','pass','infrastructure',${`官方发布 ${label}`},${`经核对的发布说明 ${label}`},80,true)`;
-  await sql`UPDATE articles SET processing_state='analyzed',grouped_at=${new Date(at.getTime() - 60_000)}
-    WHERE id=${articleId}`;
-  const proposal = await proposeReview(articleId);
-  assert.ok(proposal);
-  const [review] = await sql<{ version: number }[]>`SELECT version FROM editorial_reviews WHERE article_id=${articleId}`;
-  return { articleId, proposal, reviewVersion: review!.version };
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, score, selected)
+            VALUES (${articleId}, 1, 'rule', 'pass', 'infrastructure', ${`标题 ${label}`}, ${`摘要 ${label}`}, 90, true)`;
+  return articleId;
 }
 
-async function selected(label: string) {
-  const item = await reviewable(label);
-  await decideArticleReview(item.articleId, {
-    status: "approved", curated: true, fingerprint: item.proposal.fingerprint,
-    version: item.reviewVersion, reason: "Checked official release and Chinese summary",
-  }, "report-editor");
-  const [publication] = await sql<{ selected: boolean; visible_after: Date }[]>`
-    SELECT selected,visible_after FROM publications WHERE article_id=${item.articleId}`;
-  assert.equal(publication?.selected, true);
-  return { ...item, visibleAfter: publication!.visible_after };
+async function selected(label: string, timelineAt: Date, releasedAt: Date): Promise<string> {
+  const articleId = await analyzed(label, timelineAt);
+  const published = await publishArticle(articleId, { now: releasedAt, releasedAt });
+  assert.equal(published?.selected, true);
+  return articleId;
 }
 
-function citedIds(content: { sections: Array<{ items: Record<string, unknown>[] }>; flashes: Record<string, unknown>[] }) {
-  const ids = [...content.sections.flatMap((section) => section.items), ...content.flashes].map((item) => item.itemId);
-  assert.ok(ids.every((id) => typeof id === "string"));
-  return ids as string[];
-}
+test("reports assign delayed and boundary releases to the period readers first see them", async () => {
+  const onTime = await selected("on-time", editionAt("daily", "2020-01-02", -120), editionAt("daily", "2020-01-02", -60));
+  const delayed = await selected("delayed", editionAt("daily", "2020-01-02", -60), editionAt("daily", "2020-01-02", 120));
+  const atBoundary = await selected("at-boundary", editionAt("daily", "2020-01-02", -60), editionAt("daily", "2020-01-02"));
+  const groupedBefore = await analyzed("grouped-before", editionAt("daily", "2020-01-02", -120));
+  await publishArticle(groupedBefore, { now: editionAt("daily", "2020-01-02", -120) });
+  await sql`UPDATE articles SET grouping_status = 'complete', grouped_at = ${editionAt("daily", "2020-01-02", -60)} WHERE id = ${groupedBefore}`;
+  await publishArticle(groupedBefore, { now: editionAt("daily", "2020-01-02", -50) });
+  const groupedLate = await analyzed("grouped-late", editionAt("daily", "2020-01-02", -120));
+  await publishArticle(groupedLate, { now: editionAt("daily", "2020-01-02", -120) }); // waits for identity confirmation
+  await sql`UPDATE articles SET grouping_status = 'complete', grouped_at = ${editionAt("daily", "2020-01-02", -10)} WHERE id = ${groupedLate}`;
+  const boundary = editionAt("daily", "2020-01-02");
+  const previous = new Set((await candidates(editionAt("daily", "2020-01-01"), boundary)).map((c) => c.itemId));
 
+  assert.equal(previous.has(onTime), true);
+  assert.equal(previous.has(groupedBefore), true);
+  for (const id of [delayed, atBoundary, groupedLate]) assert.equal(previous.has(id), false);
+
+  await composeDaily("2020-01-02");
+  await publishArticle(groupedLate, { now: editionAt("daily", "2020-01-02", 10) });
+  const [release] = await sql<{ visible_after: Date }[]>`SELECT visible_after FROM publications WHERE article_id = ${groupedLate}`;
+  assert.equal(release!.visible_after.toISOString(), editionAt("daily", "2020-01-02", 10).toISOString());
+  const next = new Set((await candidates(boundary, editionAt("daily", "2020-01-03"))).map((c) => c.itemId));
+  assert.equal(next.has(onTime), false);
+  assert.equal(next.has(groupedBefore), false);
+  for (const id of [delayed, atBoundary, groupedLate]) assert.equal(next.has(id), true);
+  await composeDaily("2020-01-03");
+  const reports = await sql<{ key: string; content: { sections: Array<{ items: Array<{ itemId: string }> }>; flashes: Array<{ itemId: string }> } }[]>`
+    SELECT key, content FROM reports WHERE kind = 'daily' AND key IN ('2020-01-02', '2020-01-03')`;
+  // An issue carries an item as an entry or as a flash (one source fills at most two entries).
+  const items = (key: string) => {
+    const content = reports.find((r) => r.key === key)!.content;
+    return new Set([...content.sections.flatMap((s) => s.items), ...content.flashes].map((i) => i.itemId));
+  };
+  assert.equal(items("2020-01-02").has(onTime), true);
+  assert.equal(items("2020-01-02").has(groupedBefore), true);
+  assert.equal(items("2020-01-02").has(delayed), false);
+  assert.equal(items("2020-01-02").has(atBoundary), false);
+  assert.equal(items("2020-01-02").has(groupedLate), false);
+  assert.equal(items("2020-01-03").has(onTime), false);
+  assert.equal(items("2020-01-03").has(groupedBefore), false);
+  assert.equal(items("2020-01-03").has(delayed), true);
+  assert.equal(items("2020-01-03").has(atBoundary), true);
+  assert.equal(items("2020-01-03").has(groupedLate), true);
+});
+
+/** Observe an actual PostgreSQL lock wait before advancing the clock or releasing the transaction. */
 async function waitForBlocked(blocker: number, operation: Promise<unknown>) {
   const deadline = performance.now() + 5_000;
   while (!(await sql`SELECT 1 FROM pg_stat_activity WHERE ${blocker} = ANY(pg_blocking_pids(pid))`)[0]) {
-    if (performance.now() >= deadline) assert.fail("draft did not wait for the publication transaction");
-    await Promise.race([operation.then(() => assert.fail("draft finished before publication committed")), delay(10)]);
+    if (performance.now() >= deadline) assert.fail("operation did not wait for the held transaction");
+    await Promise.race([operation.then(() => assert.fail("operation finished before the held transaction committed")), delay(10)]);
   }
 }
 
-test("manual cutoffs allocate each reviewed selection to exactly one published issue", async (t) => {
-  t.mock.timers.enable({ apis: ["Date"], now: new Date(firstCutoff.getTime() - 5 * 60_000) });
-  const before = await selected("before cutoff");
-  assert.ok(before.visibleAfter < firstCutoff);
+for (const lock of ["article", "fact seat", "report snapshot"] as const) {
+  test(`a release waiting for the ${lock} lock uses the time after the cutoff`, async (t) => {
+    const id = await analyzed(`waiting-${lock}`, editionAt("daily", "2020-01-02", -120));
+    await publishArticle(id, { now: editionAt("daily", "2020-01-02", -120) });
+    await sql`UPDATE articles SET grouping_status = 'complete', grouped_at = ${editionAt("daily", "2020-01-02", -60)} WHERE id = ${id}`;
+    const [fact] = lock === "fact seat" ? await sql<{ id: number }[]>`INSERT INTO facts (public_id, title) VALUES (${`report-seat-${T}`}, 'fact') RETURNING id` : [];
+    if (fact) await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${fact.id}, ${id}, 'report')`;
+    const acquired = gate<number>();
+    const release = gate();
+    const holding = sql.begin(async (tx) => {
+      if (lock === "article") await tx`SELECT 1 FROM articles WHERE id = ${id} FOR UPDATE`;
+      else if (fact) await tx`SELECT pg_advisory_xact_lock(hashtext(${`seat:${fact.id}`}))`;
+      else await tx`SELECT pg_advisory_xact_lock(hashtext('report_candidates'))`;
+      const [row] = await tx<{ pid: number }[]>`SELECT pg_backend_pid() AS pid`;
+      acquired.open(row!.pid);
+      await release.promise;
+    });
+    let publication: Promise<unknown> | undefined;
+    try {
+      const pid = await Promise.race([acquired.promise, holding.then(() => assert.fail("lock holder exited before acquiring its lock"))]);
+      t.mock.timers.enable({ apis: ["Date"], now: editionAt("daily", "2020-01-02", -1) });
+      publication = publishArticle(id);
+      await waitForBlocked(pid, publication);
+      t.mock.timers.setTime(editionAt("daily", "2020-01-02", 10).getTime());
+      release.open();
+      await holding;
+      await publication;
 
-  t.mock.timers.setTime(firstCutoff.getTime());
-  const at = await selected("at cutoff");
-  assert.ok(at.visibleAfter >= firstCutoff);
-  const first = await createDailyDraft("report-editor", firstCutoff);
-  issueKeys.push(first.key);
-  assert.equal(first.key, beijingDate(firstCutoff));
-  assert.deepEqual(citedIds(first.content).filter((id) => [before.articleId, at.articleId].includes(id)), [before.articleId]);
-  assert.equal(await loadReport("daily", first.key), null, "a draft never auto-releases");
-  await publishDailyDraft(first.draftId, "report-editor", "Checked first cutoff and citations");
+      const [published] = await sql<{ visible_after: Date; visible_at: Date }[]>`
+        SELECT p.visible_after, l.visible_at FROM publications p JOIN selected_ledger l ON l.article_id = p.article_id
+        WHERE p.article_id = ${id} ORDER BY l.seq DESC LIMIT 1`;
+      assert.equal(published!.visible_after.toISOString(), editionAt("daily", "2020-01-02", 10).toISOString());
+      assert.equal(published!.visible_at.toISOString(), published!.visible_after.toISOString());
+      const boundary = editionAt("daily", "2020-01-02");
+      assert.equal((await candidates(editionAt("daily", "2020-01-01"), boundary)).some((c) => c.itemId === id), false);
+      assert.equal((await candidates(boundary, editionAt("daily", "2020-01-03"))).some((c) => c.itemId === id), true);
+    } finally {
+      release.open();
+      await Promise.allSettled([holding, publication]);
+    }
+  });
+}
 
-  t.mock.timers.setTime(firstCutoff.getTime() + 60_000);
-  const afterCutoff = await selected("after cutoff");
-  assert.ok(afterCutoff.visibleAfter > firstCutoff);
-  t.mock.timers.setTime(secondCutoff.getTime());
-  const second = await createDailyDraft("report-editor", secondCutoff);
-  issueKeys.push(second.key);
-  assert.equal(second.key, beijingDate(secondCutoff));
-  assert.deepEqual(new Set(citedIds(second.content)), new Set([at.articleId, afterCutoff.articleId]));
-  assert.equal(await loadReport("daily", second.key), null, "the next issue is private until approval");
-  await publishDailyDraft(second.draftId, "report-editor", "Checked second cutoff and citations");
-
-  const [firstVersion, secondVersion] = await sql<{ citations: Array<{ articleId: string }> }[]>`
-    SELECT v.citations FROM report_versions v JOIN reports r ON r.id=v.report_id
-    WHERE r.kind='daily' AND r.key IN (${first.key},${second.key}) ORDER BY v.window_end`;
-  const counts = [firstVersion, secondVersion].flatMap((version) => version!.citations.map((citation) => citation.articleId));
-  for (const id of [before.articleId, at.articleId, afterCutoff.articleId]) {
-    assert.equal(counts.filter((candidate) => candidate === id).length, 1, `${id} appears in exactly one issue`);
-  }
-  assert.deepEqual(firstVersion!.citations.map((c) => c.articleId), [before.articleId]);
-  assert.deepEqual(new Set(secondVersion!.citations.map((c) => c.articleId)),
-    new Set([at.articleId, afterCutoff.articleId]));
-});
-
-test("draft waits for an in-flight reviewed release, then rejects a changed candidate", async (t) => {
-  t.mock.timers.enable({ apis: ["Date"], now: new Date(thirdCutoff.getTime() - 60_000) });
-  const item = await reviewable("transaction held before cutoff");
+test("daily composition waits for a pre-cutoff release to commit instead of losing it between issues", async (t) => {
+  const id = await analyzed("commit-after-cutoff", editionAt("daily", "2020-01-04", -120));
+  await publishArticle(id, { now: editionAt("daily", "2020-01-04", -120) });
+  await sql`UPDATE articles SET grouping_status = 'complete', grouped_at = ${editionAt("daily", "2020-01-04", -60)} WHERE id = ${id}`;
+  t.mock.timers.enable({ apis: ["Date"], now: editionAt("daily", "2020-01-04", -1) });
   const written = gate<number>();
   const commit = gate();
   const publication = sql.begin(async (tx) => {
-    await tx`UPDATE editorial_reviews SET status='approved',version=version+1,reviewed_by='report-editor',
-      reason='Checked release',reviewed_at=now() WHERE article_id=${item.articleId}`;
-    await tx`INSERT INTO editorial_curations
-      (article_id,status,fingerprint,review_version,reviewed_by,reason,reviewed_at)
-      VALUES (${item.articleId},'approved',${item.proposal.fingerprint},${item.reviewVersion + 1},
-        'report-editor','Checked curation',now())`;
-    await publishArticleTx(tx, item.articleId);
+    await publishArticleTx(tx, id);
     const [row] = await tx<{ pid: number }[]>`SELECT pg_backend_pid() AS pid`;
     written.open(row!.pid);
     await commit.promise;
   });
-  let draft: ReturnType<typeof createDailyDraft> | undefined;
+  let report: ReturnType<typeof composeDaily> | undefined;
   try {
-    const pid = await Promise.race([written.promise, publication.then(() => assert.fail("publication exited before commit gate"))]);
-    t.mock.timers.setTime(thirdCutoff.getTime());
-    draft = createDailyDraft("report-editor", thirdCutoff);
-    await waitForBlocked(pid, draft);
+    const pid = await Promise.race([written.promise, publication.then(() => assert.fail("publication exited before the commit gate"))]);
+    t.mock.timers.setTime(editionAt("daily", "2020-01-04", 10).getTime());
+    report = composeDaily("2020-01-04");
+    await waitForBlocked(pid, report);
     commit.open();
     await publication;
-    const result = await draft;
-    issueKeys.push(result.key);
-    assert.equal(citedIds(result.content).includes(item.articleId), true,
-      "a pre-cutoff release that commits during snapshot acquisition is not omitted");
-    assert.equal(await loadReport("daily", result.key), null);
-
-    const [original] = await sql<{ body_text: string }[]>`SELECT body_text FROM articles WHERE id=${item.articleId}`;
-    await sql`UPDATE articles SET body_text='Changed after draft approval' WHERE id=${item.articleId}`;
-    await assert.rejects(() => publishDailyDraft(result.draftId, "report-editor", "Checked stale draft"),
-      /变化|重新/, "a stale citation cannot be published");
-    await sql`UPDATE articles SET body_text=${original!.body_text} WHERE id=${item.articleId}`;
-    const published = await publishDailyDraft(result.draftId, "report-editor", "Rechecked restored candidate");
-    assert.equal(published.version, 1);
-    assert.equal((await loadReport("daily", result.key))?.sections.flatMap((section) => section.items)
-      .some((candidate) => candidate.itemId === item.articleId), true);
+    await report;
+    await assert.rejects(composeDaily("2020-01-05"), /nothing judged/);
+    const reports = await sql<{ key: string; content: { sections: Array<{ items: Array<{ itemId: string }> }> } }[]>`
+      SELECT key, content FROM reports WHERE kind = 'daily' AND key IN ('2020-01-04', '2020-01-05')`;
+    const hasItem = (key: string) => reports.find((r) => r.key === key)!.content.sections.some((s) => s.items.some((item) => item.itemId === id));
+    assert.equal(hasItem("2020-01-04"), true);
+    assert.equal(reports.some((r) => r.key === "2020-01-05"), false);
+    assert.equal((await candidates(editionAt("daily", "2020-01-04"), editionAt("daily", "2020-01-05"))).some((c) => c.itemId === id), false);
   } finally {
     commit.open();
-    await Promise.allSettled([publication, draft]);
+    await Promise.allSettled([publication, report]);
   }
 });

@@ -32,7 +32,7 @@ interface Price {
   per_request: number | null; verified_on: Date | string; source_url: string | null;
 }
 interface Policy {
-  enabled: boolean; timezone: string; day_limit_cny: number; rolling_limit_cny: number;
+  enabled: boolean; timezone: string; day_limit_cny: number; rolling_limit_cny: number; updated_at: Date;
 }
 export interface ModelCostReservation {
   amount: number; price: Price; bounds: ModelBudgetBounds;
@@ -49,8 +49,8 @@ export async function lockModelCost(db: Db): Promise<void> {
 async function policy(db: Db, lockForReservation=false): Promise<Policy> {
   // Operators use plain UPDATE, so the advisory money lock alone cannot prevent cap changes.
   const [row] = lockForReservation
-    ? await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1 FOR SHARE`
-    : await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny FROM model_cost_policy WHERE id=1`;
+    ? await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny,updated_at FROM model_cost_policy WHERE id=1 FOR SHARE`
+    : await db<Policy[]>`SELECT enabled,timezone,day_limit_cny,rolling_limit_cny,updated_at FROM model_cost_policy WHERE id=1`;
   if (!row) throw new ModelCostBudgetError('金额策略记录缺失','missing_policy');
   return row;
 }
@@ -65,8 +65,9 @@ const validBounds = (b: ModelBudgetBounds | null | undefined): b is ModelBudgetB
 
 async function readPrice(db: Db, service: string, model: string | null, outputTokens: number): Promise<Price | null> {
   if (!model) return null;
-  const [row] = await db<Price[]>`SELECT service,model,currency,input_per_mtok,output_per_mtok,cached_per_mtok,per_request,verified_on,source_url
-    FROM service_prices WHERE service=${service} AND model=${model}`;
+  const [row] = await db<Price[]>`SELECT p.service,p.model,p.currency,p.input_per_mtok,p.output_per_mtok,p.cached_per_mtok,e.per_request,e.verified_on,e.source_url
+    FROM service_prices p LEFT JOIN ninebtc_model_price_evidence e ON e.service=p.service AND e.model=p.model
+    WHERE p.service=${service} AND p.model=${model}`;
   if (!row || row.currency!=='CNY' || !row.verified_on || !nonnegative(row.input_per_mtok)
     || (outputTokens>0 && !nonnegative(row.output_per_mtok))
     || (row.cached_per_mtok!==null && !nonnegative(row.cached_per_mtok))
@@ -183,7 +184,7 @@ async function costOverview(scope: 'all_models'|'verification_benchmark', now?: 
   const enabled=scope==='verification_benchmark'||p.enabled;
   if(scope==='verification_benchmark'&&(!(p.day_limit_cny<=9)||!(p.rolling_limit_cny<=9)))reasons.push('评测实验自然日与滚动 24 小时限额必须均不超过 9 CNY');
   return {scope,scopeLabel:scope==='all_models'?'全站模型（含评测）':'独立评测实验',checkedAt:at.toISOString(),
-    policy:{enabled,productionEnabled:p.enabled,timezone:p.timezone,dayLimitCny:p.day_limit_cny,rollingLimitCny:p.rolling_limit_cny},
+    policy:{enabled,productionEnabled:p.enabled,updatedAt:p.updated_at.toISOString(),timezone:p.timezone,dayLimitCny:p.day_limit_cny,rollingLimitCny:p.rolling_limit_cny},
     day:{...day,startsAt:time!.day_start.toISOString()},rolling:{...rolling,startsAt:new Date(at.getTime()-86400_000).toISOString()},
     basis:'estimated' as const,blocked:enabled&&reasons.length>0,reasons:[...new Set(reasons)]};
 }

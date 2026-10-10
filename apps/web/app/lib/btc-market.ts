@@ -1,14 +1,21 @@
 import type { BtcMarketResponse, BtcUsdQuote } from "@aihot/contracts/market";
-import { toBeijingIso } from "@aihot/contracts/time";
 
 const REFRESH_MS = 10 * 60_000;
 const DELAY_MS = 15 * 60_000;
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const formatBtcUsd = (price: number) => `${usd.format(price)} USD`;
-export const formatBtcTime = (iso: string) => `${toBeijingIso(iso).slice(0, 19).replace("T", " ")}（北京时间）`;
+export const formatBtcTime = (iso: string) => `${new Date(Date.parse(iso) + 8 * 3600_000).toISOString().slice(0, 19).replace("T", " ")}（北京时间）`;
 
 export function btcQuoteDelayed(quote: BtcUsdQuote | null, now: number, failed: boolean): boolean {
   return !!quote && (failed || now - Date.parse(quote.quotedAt) > DELAY_MS || now - Date.parse(quote.fetchedAt) > DELAY_MS);
+}
+
+/** The SSR markup shows only fresh/delayed, not elapsed time. Equivalent quotes and states therefore
+ * share a render clock, including cached hydration; the mounted poller resumes the real clock. */
+export function btcRenderClock(quote: BtcUsdQuote | null, now: number): number {
+  if (!quote) return 0;
+  const oldest = Math.min(Date.parse(quote.quotedAt), Date.parse(quote.fetchedAt));
+  return btcQuoteDelayed(quote, now, false) ? oldest + DELAY_MS + 1 : oldest;
 }
 
 export interface BtcMarketState { quote: BtcUsdQuote | null; failed: boolean; now: number }

@@ -25,7 +25,7 @@ test('a provider budget stop releases the known free refusal and blocks fresh ch
     assert.equal(rejected!.status,'failed');assert.equal(rejected!.model_cost_cny,0,'a known 429 refusal is free');
     const hits=provider.hits();
     await assert.rejects(ask('blocked','qwen3.8-max'),BudgetExceededError);
-    await assert.rejects(ensureEmbeddings('article',[{id:prefix,text:'Current article'}]),BudgetExceededError);
+    await assert.rejects(ensureEmbeddings([{id:prefix,text:'Current article'}]),BudgetExceededError);
     assert.equal(provider.hits(),hits,'same endpoint/key pauses all fresh model traffic');
     assert.equal((await sql`SELECT 1 FROM receipts WHERE subject=${prefix+'-blocked'}`).length,0,'preflight waits create no attempted call');
     const reuse=await ask('cached');assert.equal(reuse.receiptId,cached.receiptId);assert.equal(reuse.reused,true);
