@@ -1,121 +1,6 @@
 {
-  "$comment": "9BTC approved catalog: 109 retained configurations; 80 enabled and 29 paused after the owner-authorized audits and five prediction-market media additions on 2026-10-03. The limit is 100 enabled sources; paused sources and retained history do not count. All fifteen newly added media sources explicitly cap first import at one month and three items; automatic ingestion/processing remains limited to reliable source dates within 48 hours. Public/syndicated full text stays off. Seed adds missing IDs only; automatic-publication grants remain separately audited, and development collection/model valves remain off.",
+  "createdAt": "2026-10-01",
   "sources": [
-    {
-      "id": "bitcoin-core-releases",
-      "name": "Bitcoin Core 版本说明",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bitcoincore.org/en/releasesrss.xml",
-        "summaryIsBody": true,
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "ethereum-foundation",
-      "name": "Ethereum Foundation Blog",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://blog.ethereum.org/en/feed.xml",
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "coin-metrics",
-      "name": "Coin Metrics State of the Network",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://coinmetrics.substack.com/feed",
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "chainalysis",
-      "name": "Chainalysis 研究与安全",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.chainalysis.com/blog/feed/",
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "participation_mode": "editorial",
-      "interval_minutes": 180,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "panews-articles-zh",
-      "name": "PANews 中文文章",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "sec-press-releases",
-      "name": "SEC 新闻稿",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.sec.gov/news/pressreleases.rss",
-        "sortByPublishedAt": true,
-        "_aihot": {
-          "initialBackfillLimit": 3
-        }
-      },
-      "tier": "T1",
-      "first_party": true,
-      "participation_mode": "editorial",
-      "interval_minutes": 120,
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
     {
       "id": "arbitrum-blog",
       "name": "Arbitrum Blog",
@@ -614,7 +499,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "render-blog",
@@ -639,7 +524,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "eigenlabs-blog",
@@ -739,7 +624,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "glassnode",
@@ -789,7 +674,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "stellar-blog",
@@ -914,7 +799,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "trail-of-bits",
@@ -939,7 +824,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "bis",
@@ -1021,7 +906,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "ipfs",
@@ -1075,7 +960,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "monero",
@@ -1150,7 +1035,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "kol-vitalik",
@@ -1175,7 +1060,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "reth-release",
@@ -1225,7 +1110,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "geth-release",
@@ -1275,7 +1160,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "kol-lopp",
@@ -1350,7 +1235,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "kol-molly-white",
@@ -1400,7 +1285,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "a16z-crypto",
@@ -1450,7 +1335,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "halborn",
@@ -1475,7 +1360,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "metamask-news",
@@ -1550,7 +1435,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "sfc-circulars",
@@ -1575,7 +1460,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "hkma",
@@ -1600,7 +1485,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "cftc",
@@ -1669,7 +1554,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "polygon-blog",
@@ -1861,7 +1746,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "paxos-blog",
@@ -1925,7 +1810,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "pyth-blog",
@@ -2375,7 +2260,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "layerzero-blog",
@@ -2634,7 +2519,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "eba",
@@ -2699,7 +2584,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "safe",
@@ -2825,7 +2710,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "zama",
@@ -3158,7 +3043,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "starknet-blog",
@@ -3223,7 +3108,7 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "bnb-blog",
@@ -3479,884 +3364,18 @@
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false,
-      "enabled": false
-    },
-    {
-      "id": "coindesk-news",
-      "name": "CoinDesk News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.coindesk.com/arc/outboundfeeds/rss/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "denyCategories": [
-          "Opinion",
-          "Live News",
-          "live_news",
-          "Crypto Markets Today",
-          "Crypto Daybook Americas"
-        ],
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "cointelegraph-news",
-      "name": "Cointelegraph News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://cointelegraph.com/rss",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "denyCategories": [
-          "Magazine"
-        ],
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "decrypt-news",
-      "name": "Decrypt News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://decrypt.co/feed",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "denyCategories": [
-          "Opinion",
-          "Gaming",
-          "Our Company"
-        ],
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "odaily-articles-zh",
-      "name": "Odaily 星球日报文章",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://rss.odaily.news/rss/post",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        },
-        "summaryIsBody": true
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "blocktempo-news-zh",
-      "name": "BlockTempo 動區動趨",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.blocktempo.com/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "denyCategories": [
-          "遊戲",
-          "獨立觀點"
-        ],
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "bitcoin-magazine-news",
-      "name": "Bitcoin Magazine News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://bitcoinmagazine.com/feed",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟"
-          ],
-          "keepIfMatches": [
-            "tokenization",
-            "custody",
-            "regulation",
-            "ETF approval",
-            "exploit",
-            "hack",
-            "security",
-            "upgrade",
-            "shutdown",
-            "launch",
-            "stablecoin",
-            "代币化",
-            "代幣化",
-            "托管",
-            "監管",
-            "监管",
-            "批准",
-            "攻击",
-            "攻擊",
-            "漏洞",
-            "被黑",
-            "安全",
-            "升级",
-            "升級",
-            "關閉",
-            "关闭",
-            "推出",
-            "发布",
-            "發布",
-            "稳定币",
-            "穩定幣"
-          ]
-        },
-        "denyCategories": [
-          "PRESS RELEASES",
-          "Press Release",
-          "VIDEOS",
-          "Video",
-          "SPONSORED",
-          "INDUSTRY EVENTS",
-          "PRINT"
-        ]
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "chaincatcher-articles-zh",
-      "name": "ChainCatcher 链捕手文章",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.chaincatcher.com/rss/clist",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟",
-            "WasabiCard",
-            "Side Event",
-            "Gold Sponsor",
-            "Gold partner",
-            "SpaceX",
-            "Nike",
-            "TOKEN2049",
-            "Token2049",
-            "金牌赞助",
-            "铂金赞助",
-            "白金赞助"
-          ]
-        },
-        "allowCategories": [
-          "文章"
-        ]
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "techflow-articles-zh",
-      "name": "TechFlow 深潮 Web3 文章",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.techflowpost.com/rss/v2/feed.xml?lang=zh-CN&type=article&topic=web3&tag=all",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟",
-            "WasabiCard",
-            "Side Event",
-            "Gold Sponsor",
-            "Gold partner",
-            "SpaceX",
-            "Nike",
-            "TOKEN2049",
-            "Token2049",
-            "金牌赞助",
-            "铂金赞助",
-            "白金赞助"
-          ]
-        },
-        "summaryIsBody": true
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "protos-news",
-      "name": "Protos Crypto News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://protos.com/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟",
-            "WasabiCard",
-            "Side Event",
-            "Gold Sponsor",
-            "Gold partner",
-            "SpaceX",
-            "Nike"
-          ]
-        },
-        "allowCategories": [
-          "Crypto"
-        ],
-        "denyCategories": [
-          "AI",
-          "CHART"
-        ]
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "beincrypto-news",
-      "name": "BeInCrypto News",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://beincrypto.com/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "price prediction",
-            "price analysis",
-            "price surges",
-            "price rallies",
-            "price dips",
-            "price falls",
-            "price hits",
-            "heads higher",
-            "press release",
-            "sponsored",
-            "Nvidia",
-            "OpenAI",
-            "Anthropic",
-            "AI 改名",
-            "特戰英豪",
-            "英雄聯盟",
-            "WasabiCard",
-            "Side Event",
-            "Gold Sponsor",
-            "Gold partner",
-            "SpaceX",
-            "Nike"
-          ]
-        },
-        "denyCategories": [
-          "Stocks",
-          "Stock Market News",
-          "AI Companies",
-          "AI Technology Trends",
-          "Trading",
-          "Altcoin Analysis",
-          "Commodities",
-          "Gold (XAU) News"
-        ]
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "cnbc-prediction-markets",
-      "name": "CNBC 预测市场报道",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkers": [
-            ""
-          ],
-          "keepIfMatches": [
-            "polymarket",
-            "kalshi",
-            "prediction market",
-            "prediction-market",
-            "event contract",
-            "novig"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "fos-prediction-markets",
-      "name": "Front Office Sports 预测市场",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "promo code",
-            "bonus code",
-            "sign-up bonus",
-            "signup bonus",
-            "best prediction market",
-            "how to bet",
-            "picks for",
-            "betting picks",
-            "betting odds"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "sportico-prediction-markets",
-      "name": "Sportico 预测市场",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.sportico.com/t/prediction-markets/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "promo code",
-            "bonus code",
-            "sign-up bonus",
-            "signup bonus",
-            "best prediction market",
-            "how to bet",
-            "picks for",
-            "betting picks",
-            "betting odds"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "igb-prediction-markets",
-      "name": "iGaming Business 预测市场",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://igamingbusiness.com/tag/prediction-markets/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "promo code",
-            "bonus code",
-            "sign-up bonus",
-            "signup bonus",
-            "best prediction market",
-            "how to bet",
-            "picks for",
-            "betting picks",
-            "betting odds"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
-      "enabled": true
-    },
-    {
-      "id": "casino-org-prediction-markets",
-      "name": "Casino.org 预测市场新闻",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
-        "sortByPublishedAt": true,
-        "fetchPublicContent": true,
-        "_aihot": {
-          "initialBackfillMonths": 1,
-          "initialBackfillLimit": 3
-        },
-        "ingestNoiseFilter": {
-          "dropMarkersTitleOnly": [
-            "promo code",
-            "bonus code",
-            "sign-up bonus",
-            "signup bonus",
-            "best prediction market",
-            "how to bet",
-            "picks for",
-            "betting picks",
-            "betting odds"
-          ]
-        }
-      },
-      "tier": "T2",
-      "participation_mode": "editorial",
-      "interval_minutes": 60,
-      "first_party": false,
-      "tags": [],
-      "site_fulltext": false,
-      "syndicate_fulltext": false,
       "enabled": true
     }
-  ]
+  ],
+  "excluded": {
+    "akash": "RSS文章链接全部指向 undefined",
+    "kol-andre-cronje": "个人站履历与工程目录变更，非持续文章流",
+    "solana-status": "无近12个月事件，保留状态查询入口",
+    "kol-nic-carter": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-andreas": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-chris-dixon": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-dovey-wan": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-mindao": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-mudit-gupta": "可解析，但最近样本已超过首次回填12个月窗口"
+  }
 }

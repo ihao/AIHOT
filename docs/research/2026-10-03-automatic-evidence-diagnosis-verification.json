@@ -1,0 +1,730 @@
+{
+  "statisticsAt": "2026-10-03T14:48:18.571932+00:00",
+  "detailsSnapshotAt": "2026-10-03T14:50:59.046Z",
+  "cohortReconstruction": "Details snapshot filtered by createdAt <= statisticsAt; resulting counts match first repeatable-read snapshot and user screenshot. Terminal decisions are preserved.",
+  "readOnly": true,
+  "modelCalls": 0,
+  "productionWrites": 0,
+  "counts": {
+    "rejected": 252,
+    "accepted": 17,
+    "stale": 6
+  },
+  "acceptanceRate": 0.06181818181818182,
+  "missingEvidence": 219,
+  "uniqueArticles": 166,
+  "articlesWithMultipleRounds": 108,
+  "latestPerArticle": {
+    "rejected": 144,
+    "accepted": 17,
+    "stale": 5
+  },
+  "rules": {
+    "automatic-publication-v1:5c0e3a85b0b01eeb31df0874": 119,
+    "automatic-publication-v1:d7cc9c407669a5f9b1c67141": 156
+  },
+  "noNewPrimaryEvidence": 194,
+  "noNewPrimaryEvidenceWithNoAttemptedLinks": 194,
+  "initialRejectionMetricsNonExclusive": {
+    "initial_primary_missing": 216,
+    "initial_only_primary_missing": 74,
+    "initial_verifier_supported": 176,
+    "initial_quote_invalid": 117,
+    "initial_copy_incomplete": 21,
+    "initial_checks_failed": 52,
+    "initial_verifier_contradicted": 8,
+    "text_only_primary_required": 90,
+    "no_new_initial_supported": 148,
+    "extra_material_accepted": 1,
+    "extra_material_rejected": 36
+  },
+  "bySource": [
+    {
+      "source": "Cointelegraph News",
+      "total": 52,
+      "accepted": 0,
+      "rejected": 51,
+      "no_new_primary_evidence": 38
+    },
+    {
+      "source": "TechFlow 深潮 Web3 文章",
+      "total": 29,
+      "accepted": 3,
+      "rejected": 26,
+      "no_new_primary_evidence": 25
+    },
+    {
+      "source": "Decrypt News",
+      "total": 26,
+      "accepted": 0,
+      "rejected": 26,
+      "no_new_primary_evidence": 19
+    },
+    {
+      "source": "CoinDesk News",
+      "total": 24,
+      "accepted": 1,
+      "rejected": 23,
+      "no_new_primary_evidence": 14
+    },
+    {
+      "source": "PANews 中文文章",
+      "total": 21,
+      "accepted": 1,
+      "rejected": 20,
+      "no_new_primary_evidence": 18
+    },
+    {
+      "source": "BlockTempo 動區動趨",
+      "total": 17,
+      "accepted": 4,
+      "rejected": 12,
+      "no_new_primary_evidence": 11
+    },
+    {
+      "source": "ChainCatcher 链捕手文章",
+      "total": 17,
+      "accepted": 2,
+      "rejected": 15,
+      "no_new_primary_evidence": 14
+    },
+    {
+      "source": "Bitcoin Magazine News",
+      "total": 14,
+      "accepted": 0,
+      "rejected": 14,
+      "no_new_primary_evidence": 8
+    },
+    {
+      "source": "BeInCrypto News",
+      "total": 11,
+      "accepted": 2,
+      "rejected": 7,
+      "no_new_primary_evidence": 7
+    },
+    {
+      "source": "Protos Crypto News",
+      "total": 10,
+      "accepted": 0,
+      "rejected": 10,
+      "no_new_primary_evidence": 4
+    },
+    {
+      "source": "Odaily 星球日报文章",
+      "total": 9,
+      "accepted": 0,
+      "rejected": 9,
+      "no_new_primary_evidence": 9
+    },
+    {
+      "source": "Sky 治理论坛",
+      "total": 7,
+      "accepted": 0,
+      "rejected": 7,
+      "no_new_primary_evidence": 7
+    },
+    {
+      "source": "Galaxy Research",
+      "total": 6,
+      "accepted": 0,
+      "rejected": 6,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Compound Community Forum",
+      "total": 5,
+      "accepted": 0,
+      "rejected": 5,
+      "no_new_primary_evidence": 4
+    },
+    {
+      "source": "Ethereum Research",
+      "total": 4,
+      "accepted": 0,
+      "rejected": 4,
+      "no_new_primary_evidence": 2
+    },
+    {
+      "source": "Arbitrum 治理论坛",
+      "total": 4,
+      "accepted": 0,
+      "rejected": 4,
+      "no_new_primary_evidence": 4
+    },
+    {
+      "source": "Aave 治理论坛",
+      "total": 4,
+      "accepted": 0,
+      "rejected": 4,
+      "no_new_primary_evidence": 4
+    },
+    {
+      "source": "Molly White",
+      "total": 3,
+      "accepted": 0,
+      "rejected": 3,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Ethereum Magicians EIP/ERC 讨论论坛",
+      "total": 2,
+      "accepted": 0,
+      "rejected": 2,
+      "no_new_primary_evidence": 2
+    },
+    {
+      "source": "Polkadot Forum",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 1,
+      "no_new_primary_evidence": 1
+    },
+    {
+      "source": "Delving Bitcoin",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Glassnode Research",
+      "total": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Safe",
+      "total": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Solana 官方新闻",
+      "total": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Pyth Network Blog",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 1,
+      "no_new_primary_evidence": 1
+    },
+    {
+      "source": "Uniswap Labs Blog",
+      "total": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Christine D. Kim",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 1,
+      "no_new_primary_evidence": 1
+    },
+    {
+      "source": "SEC 新闻稿",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 0,
+      "no_new_primary_evidence": 0
+    },
+    {
+      "source": "Bitcoin Optech",
+      "total": 1,
+      "accepted": 0,
+      "rejected": 1,
+      "no_new_primary_evidence": 1
+    }
+  ],
+  "productionImage": "sha256:c4b98ce9369fe7decedb0c57e8e598697c96c642fdc09340f7b0ee5265d2ebe2",
+  "runningApiWorkerWebSameImage": true,
+  "productionCodeHashesMatchLocal": {
+    "packages/backend/src/admin/runs.ts": "6bc8e8cf17541c93f1510b0cac9b134893b43c021f1a1d4c643a5ffe603b9b3e",
+    "packages/backend/src/editorial/automatic-policy.ts": "320d6d23e465f9350ccc194930fa65a356aa5f2d554d7e66dd8ea150e351465d",
+    "packages/backend/src/editorial/automatic-verification.ts": "888ea94b3cf45a6fcd392d3fa85d5ce64183e6be9c8f0f953af741205343a882",
+    "industry/evidence.ts": "8802c72d177d99ac127eaef903fa368e925e04085e61bb00a1949b3538fa8df1",
+    "industry/prompts/verify-summary.md": "71644daecff871e985616400e2271452944b1129b66f7880c5328dfdebe1eb76"
+  },
+  "samples": [
+    {
+      "id": 2110,
+      "articleId": "t9q6vadq84bu9recjhykijtu0",
+      "source": "Decrypt News",
+      "url": "https://decrypt.co/379772/dogecoin-getting-apps-dogeos-public-testnet",
+      "title": "Dogecoin Is Getting Apps as DogeOS Opens Its Public Testnet",
+      "category": "infrastructure",
+      "copy": {
+        "titleZh": "DogeOS 为 Dogecoin 推出 EVM 兼容应用层公共测试网，尚无主网上线日期",
+        "category": "infrastructure",
+        "reasonZh": null,
+        "summaryZh": "DogeOS 于9月30日开启其基于 Dogecoin 的 EVM 兼容应用层公共测试网，手续费以 DOGE 支付。Superposition Finance、Derps 等团队正在该网络构建借贷协议、永续交易所及稳定币等项目。目前尚未确定主网上线日期。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "proposal",
+          "context": "se changing Dogecoin itself is slow. The DogeOS team submitted a proposal in July 2025 to bring zero-knowledge proofs to the base layer. Dogecoin has no formal "
+        },
+        {
+          "term": "governance",
+          "context": "wledge proofs to the base layer. Dogecoin has no formal on-chain governance, so a change like that needs contributor review, community discussion, security audi"
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://www.globenewswire.com/news-release/2026/09/30/3372073/0/en/dogeos-opens-public-testnet-as-builders-bring-new-apps-to-dogecoin.html",
+          "text": " press release",
+          "approved": false
+        },
+        {
+          "url": "https://decrypt.co/5678/dogecoin-crypto-cryptocurrency-guide-how-to-buy-doge",
+          "text": " created Dogecoin",
+          "approved": false
+        },
+        {
+          "url": "https://myriad.markets/events/xrp-price-on-october-5-4pm-utc",
+          "text": "Myriad: Where does XRP go next? Click to make your prediction",
+          "approved": false
+        },
+        {
+          "url": "https://docs.dogeos.com/en/getting-started/overview",
+          "text": " documentation",
+          "approved": false
+        },
+        {
+          "url": "https://docs.dogeos.com/en/developers/transaction-fees-on-dogeos",
+          "text": "paid in DOGE",
+          "approved": false
+        },
+        {
+          "url": "https://docs.dogeos.com/en/getting-started/user-guide/faucet",
+          "text": " faucet",
+          "approved": false
+        },
+        {
+          "url": "https://decrypt.co/324435/dogecoin-flood-games-dogeos-playsout",
+          "text": "planned ",
+          "approved": false
+        },
+        {
+          "url": "https://decrypt.co/331207/dogecould-could-get-massive-network-upgrade-heres-how",
+          "text": " submitted a proposal",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 2,
+      "currentRevision": 2,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing"
+      ]
+    },
+    {
+      "id": 2112,
+      "articleId": "j8537mrgo9c12xgzc7u4j2bq1",
+      "source": "CoinDesk News",
+      "url": "https://www.coindesk.com/tech/2026/10/01/dogecoin-gets-defi-testnet-as-dogeos-bets-miners-will-eventually-secure-its-apps",
+      "title": "Dogecoin gets DeFi testnet as DogeOS bets miners will eventually secure its apps",
+      "category": "infrastructure",
+      "copy": {
+        "titleZh": "DogeOS 上线 Dogecoin DeFi 测试网，拟通过升级让矿工验证证明",
+        "category": "infrastructure",
+        "reasonZh": null,
+        "summaryZh": "DogeOS 推出兼容以太坊的公共测试网，支持使用测试 DOGE 构建借贷、交易及稳定币应用。该网络初期依赖选定运营商与安全委员会，计划通过 OP_CHECKZKP 提案让 Dogecoin 矿工最终验证其证明。目前主网启动日期未定，且面临此前同类项目 TVL 大幅萎缩的市场需求质疑。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "proposal",
+          "context": "ade to Dogecoin Core, the main software running the network. Its proposal, called OP_CHECKZKP , would add a rule allowing computers on Dogecoin to check proofs "
+        },
+        {
+          "term": "proposal",
+          "context": "ks its own work until Dogecoin can. (Shaurya Malwa/CoinDesk) The proposal was published in July 2025. A separate implementation submitted in December remains a "
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://github.com/dogecoin/dogecoin/discussions/3869",
+          "text": "proposal, called OP_CHECKZKP",
+          "approved": false
+        },
+        {
+          "url": "https://www.coindesk.com/markets/2026/09/14/dogecoin-etfs-struggled-for-buyers-while-rival-xrp-and-solana-funds-pulled-in-usd3-billion",
+          "text": "Dogecoin ETFs struggled for buyers while rival XRP and Solana funds pulled in $3 billion",
+          "approved": false
+        },
+        {
+          "url": "https://www.coindesk.com/business/2022/08/17/dogecoin-jumps-as-dogechain-gains-traction-among-retail-crypto-traders",
+          "text": "Dogecoin jumps as Dogechain gains traction among retail crypto traders",
+          "approved": false
+        },
+        {
+          "url": "https://www.coindesk.com/research/the-definitive-stablecoin-landscape-series-asia-pacific",
+          "text": "View Full Report",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 2,
+      "currentRevision": 2,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing",
+        "claim_5_primary_evidence_missing",
+        "claim_6_primary_evidence_missing",
+        "claim_7_primary_evidence_missing"
+      ]
+    },
+    {
+      "id": 2127,
+      "articleId": "jwnq4a63zy6whq073r626wd40",
+      "source": "BeInCrypto News",
+      "url": "https://beincrypto.com/korean-crypto-drawdown-kospi-kosdaq-2026/",
+      "title": "South Korea's Crypto Market Is Getting Older, Quieter, and Smaller",
+      "category": "research",
+      "copy": {
+        "titleZh": "韩国监管调查：2026上半年加密市场市值缩水33%，交易量降44%",
+        "category": "research",
+        "reasonZh": null,
+        "summaryZh": "韩国金融情报局（KoFIU）与金融监督院10月1日发布半年度调查显示，2026年上半年韩国国内交易所加密资产市值下降33%至58.9万亿韩元，日均交易量减少44%。40多岁用户成为最大年龄群体，交易所合并营业利润暴跌78%至816亿韩元。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "regulator",
+          "context": ", users holding under 1 million won rose 4% to 8.63 million. The regulator separately flagged risks in smaller listings. Of 234 tokens traded on only one exchan"
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://www.fsc.go.kr/eng/pr010101/87833",
+          "text": "survey",
+          "approved": false
+        },
+        {
+          "url": "https://beincrypto.com/upbit-record-hourly-trading-volume-xrp-trump/",
+          "text": "activity fell further ",
+          "approved": false
+        },
+        {
+          "url": "https://beincrypto.com/kospi-sidecar-chip-rebound-stalls/",
+          "text": "still exceeded both stock indices",
+          "approved": false
+        },
+        {
+          "url": "https://www.fsc.go.kr/eng/pr010101/86533",
+          "text": "decline",
+          "approved": false
+        },
+        {
+          "url": "https://go.beincrypto.com/beincrypto-X",
+          "text": "Follow us on X",
+          "approved": false
+        },
+        {
+          "url": "https://beincrypto.com/south-korean-won-1400-kospi-volatility/",
+          "text": "extreme price volatility.",
+          "approved": false
+        },
+        {
+          "url": "https://go.beincrypto.com/beincrypto-youtube",
+          "text": "Subscribe to our YouTube",
+          "approved": false
+        },
+        {
+          "url": "https://beincrypto.com/korean-crypto-drawdown-kospi-kosdaq-2026/",
+          "text": "South Korea's Crypto Market Is Getting Older, Quieter, and Smaller",
+          "approved": false
+        },
+        {
+          "url": "https://beincrypto.com/",
+          "text": "BeInCrypto",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 1,
+      "currentRevision": 1,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing"
+      ]
+    },
+    {
+      "id": 2153,
+      "articleId": "gz3yhc73riqqeladagquju7hm",
+      "source": "TechFlow 深潮 Web3 文章",
+      "url": "https://www.techflowpost.com/article/34349",
+      "title": "2026 年 Q3 Web3 招聘求职市场报告",
+      "category": "research",
+      "copy": {
+        "titleZh": "Moledao发布2026年Q3 Web3招聘报告：岗位总量增三倍但超九成企业收缩，合规与工程岗主导",
+        "category": "research",
+        "reasonZh": null,
+        "summaryZh": "Moledao数据显示，2026年Q3 Web3岗位总量达2487条，较Q2增长三倍，但参与招聘企业数锐减超三成，增量高度集中于Binance、Coinbase等头部交易所。行业呈现结构性分化，合规风控与技术基建岗位占比近半，而销售、客服等通用岗位持续缩水。此外，高级职级岗位占比超七成，北美地域主导且远程岗位存在严格属地限制，薪资方面美国岗位均价显著高于其他区域。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "监管",
+          "context": "，平台新增岗位仍以工程、产品等核心技术岗为主，贴合行业常规扩招逻辑；但进入季度中后期，招聘重心明显偏移，新增岗位集中在英国反洗钱、监管法务、市场监察等合规风控类岗位。 一边是头部机构加码合规团队、持续补编，另一边是行业尾部主体持续出清。老牌交易平台BitMEX正式关停交易业务，彻底收缩团队。同一轮上涨行情里，行业走出了"
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://cryptojobslist.com/trends",
+          "text": "https://cryptojobslist.com/trends",
+          "approved": false
+        },
+        {
+          "url": "https://jobs.ashbyhq.com/kraken.com",
+          "text": "https://jobs.ashbyhq.com/kraken.com",
+          "approved": false
+        },
+        {
+          "url": "https://support.bitmex.com/hc/en-gb/articles/38998289094557-Why-has-BitMEX-closed",
+          "text": "https://support.bitmex.com/hc/en-gb/articles/38998289094557-Why-has-BitMEX-closed",
+          "approved": false
+        },
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs",
+          "text": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs",
+          "approved": false
+        },
+        {
+          "url": "https://boards-api.greenhouse.io/v1/boards/okx/jobs",
+          "text": "https://boards-api.greenhouse.io/v1/boards/okx/jobs",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 1,
+      "currentRevision": 1,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing",
+        "claim_5_primary_evidence_missing",
+        "claim_6_primary_evidence_missing",
+        "claim_7_primary_evidence_missing",
+        "claim_8_primary_evidence_missing",
+        "claim_9_primary_evidence_missing"
+      ]
+    },
+    {
+      "id": 2069,
+      "articleId": "sqm8smce3vu5gaq9mpgasjblw",
+      "source": "Aave 治理论坛",
+      "url": "https://governance.aave.com/t/gho-stewards-october-2026-gho-borrow-rate-update/25754",
+      "title": "[GHO Stewards] October 2026 - GHO Borrow Rate Update",
+      "category": "defi",
+      "copy": {
+        "titleZh": "TokenLogic 提议上调 Aave V3 GHO 借款利率以匹配储蓄率",
+        "category": "defi",
+        "reasonZh": "原文详细列出了GHO在Core和Prime实例的利率调整幅度及执行机制，并分析了当前套利成本与储备状况，有助于理解该稳定币的风险管理逻辑。",
+        "summaryZh": "TokenLogic 提议将 Aave V3 Ethereum Core 上的 GHO 借款利率从 4.25% APR 上调至 4.50%，并将 Ethereum Prime 的基础利率从 2.75% 上调至 3.00%。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "proposal",
+          "context": "n borrowed GHO. Aave Institutional The [ARFC] Aave Institutional proposal identifies matched sGHO inflows, secondary market liquidity and GSM redemption reserve"
+        },
+        {
+          "term": "proposal",
+          "context": "ation . The scope of this engagement is available via this forum proposal . TokenLogic supports and maintains an independent delegate voting platform within the"
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://governance.aave.com/u/tokenlogic",
+          "text": "@TokenLogic",
+          "approved": false
+        },
+        {
+          "url": "https://europe1.discourse-cdn.com/flex013/uploads/aave/original/2X/e/e264a3af13cbc3d9e0692a4c8ee5ab672c08d4ca.png",
+          "text": "",
+          "approved": false
+        },
+        {
+          "url": "https://europe1.discourse-cdn.com/flex013/uploads/aave/original/2X/9/979ba86b4ceded0fe1e7881149f695f712be9856.png",
+          "text": "",
+          "approved": false
+        },
+        {
+          "url": "https://governance.aave.com/t/arfc-aave-institutional/25692",
+          "text": "[ARFC] Aave Institutional",
+          "approved": false
+        },
+        {
+          "url": "https://europe1.discourse-cdn.com/flex013/uploads/aave/original/2X/1/1f435abc17eb34477289740ae0a04cba0059be73.png",
+          "text": "",
+          "approved": false
+        },
+        {
+          "url": "https://aave.tokenlogic.xyz/financials/expenses",
+          "text": "100086",
+          "approved": false
+        },
+        {
+          "url": "https://governance.aave.com/t/arfc-service-provider-compensation-reform-for-v4-alignment/23246",
+          "text": "publication",
+          "approved": false
+        },
+        {
+          "url": "https://governance.aave.com/t/arfc-tokenlogic-phase-ii-extension/24846",
+          "text": "proposal",
+          "approved": false
+        },
+        {
+          "url": "https://governance.aave.com/t/tokenlogic-delegate-platform/12516",
+          "text": "delegate voting platform",
+          "approved": false
+        },
+        {
+          "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "text": "CC0",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 2,
+      "currentRevision": 2,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [
+        "governance_execution"
+      ],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing"
+      ]
+    },
+    {
+      "id": 2101,
+      "articleId": "ciw1ptdag09ze1i752qhbyd22",
+      "source": "CoinDesk News",
+      "url": "https://www.coindesk.com/business/2026/09/30/bny-in-talks-with-kraken-parent-payward-over-infrastructure-partnership",
+      "title": "BNY in talks with Kraken parent Payward over infrastructure partnership",
+      "category": "industry",
+      "copy": {
+        "titleZh": "BNY与Kraken母公司Payward洽谈数字资产及金融基础设施合作",
+        "category": "industry",
+        "reasonZh": null,
+        "summaryZh": "据知情人士透露，BNY正与Kraken母公司Payward洽谈涵盖数字资产、托管及支付等领域的广泛基础设施合作。该潜在协议可能类似Payward近期与Nasdaq达成的基础设施部分，但双方均未置评且谈判尚无定论。"
+      },
+      "firstParty": false,
+      "triggerCategory": false,
+      "triggerItemType": false,
+      "triggerTerms": [
+        {
+          "term": "regulatory",
+          "context": "Payward’s xStocks ecosystem while preserving shareholder rights, regulatory protections and issuer control. Payward operates the crypto exchange Kraken alongsid"
+        }
+      ],
+      "evidenceLinks": [],
+      "eligibleLinks": [],
+      "anchors": [
+        {
+          "url": "https://www.payward.com/services",
+          "text": "Payward Services",
+          "approved": false
+        },
+        {
+          "url": "https://ir.nasdaq.com/news-releases/news-release-details/nasdaq-deepens-relationship-payward-advance-tokenized-equities",
+          "text": "Payward’s recent agreement with Nasdaq",
+          "approved": false
+        },
+        {
+          "url": "https://www.bny.com/corporate/global/en/about-us/newsroom/company-news/bny-extends-digital-cash-capabilities-for-institutional-clients.html",
+          "text": "tokenized deposits",
+          "approved": false
+        },
+        {
+          "url": "https://ir.nasdaq.com/news-releases/news-release-details/nasdaq-launch-equity-token-design-putting-issuers-center",
+          "text": "Nasdaq Equity Tokens",
+          "approved": false
+        },
+        {
+          "url": "https://www.coindesk.com/business/2026/04/17/kraken-s-parent-company-payward-to-acquire-derivatives-exchange-bitnomial-for-usd550-million-in-cash-and-stock",
+          "text": "Bitnomial",
+          "approved": false
+        },
+        {
+          "url": "https://www.coindesk.com/research/the-definitive-stablecoin-landscape-series-asia-pacific",
+          "text": "View Full Report",
+          "approved": false
+        }
+      ],
+      "originalSnapshotMatches": true,
+      "articleRevision": 2,
+      "currentRevision": 2,
+      "initialVerdict": "supported",
+      "initialRiskFlags": [],
+      "initialReasons": [
+        "claim_0_primary_evidence_missing",
+        "claim_1_primary_evidence_missing",
+        "claim_2_quote_invalid",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing",
+        "claim_5_primary_evidence_missing"
+      ]
+    }
+  ],
+  "limitations": [
+    "Not a human truth adjudication of all articles. Model supported means the verifier found support in supplied text, not independent truth.",
+    "Source flags are currently stored values. Governance forum authors are not individually authenticated by this audit.",
+    "An eligible domain or URL does not establish relevant evidence. Unlisted source domains were not fetched in this read-only diagnosis.",
+    "Source pages and article bodies can change; retained snapshot match fields are recorded for each example."
+  ]
+}

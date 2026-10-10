@@ -1,0 +1,717 @@
+{
+  "at": "2026-10-02T18:37:46.994Z",
+  "counts": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  },
+  "sources": [
+    {
+      "id": "beincrypto-news",
+      "name": "BeInCrypto News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:36:12.841Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "bitcoin-magazine-news",
+      "name": "Bitcoin Magazine News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.312Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "blocktempo-news-zh",
+      "name": "BlockTempo 動區動趨",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.299Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "chaincatcher-articles-zh",
+      "name": "ChainCatcher 链捕手文章",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:36:11.727Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "coindesk-news",
+      "name": "CoinDesk News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.222Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "cointelegraph-news",
+      "name": "Cointelegraph News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.222Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "decrypt-news",
+      "name": "Decrypt News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.162Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "odaily-articles-zh",
+      "name": "Odaily 星球日报文章",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:25:42.901Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "protos-news",
+      "name": "Protos Crypto News",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:36:12.830Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    },
+    {
+      "id": "techflow-articles-zh",
+      "name": "TechFlow 深潮 Web3 文章",
+      "enabled": true,
+      "health": "ok",
+      "fail_count": 0,
+      "last_ok_at": "2026-10-02T18:36:13.633Z",
+      "last_error": null,
+      "import_limits": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_public_enabled": true,
+      "policy_version": 1
+    }
+  ],
+  "fetches": [
+    {
+      "source_id": "beincrypto-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:36:12.396Z",
+      "finished_at": "2026-10-02T18:36:12.846Z",
+      "found_count": 12,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "bitcoin-magazine-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:42.002Z",
+      "finished_at": "2026-10-02T18:25:42.314Z",
+      "found_count": 10,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "blocktempo-news-zh",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:41.986Z",
+      "finished_at": "2026-10-02T18:25:42.302Z",
+      "found_count": 10,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "chaincatcher-articles-zh",
+      "status": "ok",
+      "started_at": "2026-10-02T18:36:08.955Z",
+      "finished_at": "2026-10-02T18:36:11.732Z",
+      "found_count": 671,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "coindesk-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:41.855Z",
+      "finished_at": "2026-10-02T18:25:42.225Z",
+      "found_count": 25,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "cointelegraph-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:41.859Z",
+      "finished_at": "2026-10-02T18:25:42.225Z",
+      "found_count": 30,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "decrypt-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:41.867Z",
+      "finished_at": "2026-10-02T18:25:42.219Z",
+      "found_count": 39,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "odaily-articles-zh",
+      "status": "ok",
+      "started_at": "2026-10-02T18:25:41.984Z",
+      "finished_at": "2026-10-02T18:25:42.906Z",
+      "found_count": 10,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "protos-news",
+      "status": "ok",
+      "started_at": "2026-10-02T18:36:12.360Z",
+      "finished_at": "2026-10-02T18:36:12.837Z",
+      "found_count": 10,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    },
+    {
+      "source_id": "techflow-articles-zh",
+      "status": "ok",
+      "started_at": "2026-10-02T18:36:11.754Z",
+      "finished_at": "2026-10-02T18:36:13.637Z",
+      "found_count": 50,
+      "new_count": 3,
+      "error": null,
+      "detail": {
+        "freshness": {
+          "skipped": {
+            "future": 0,
+            "expired": 0,
+            "undated": 0
+          },
+          "accepted": 3,
+          "windowHours": 48
+        }
+      }
+    }
+  ],
+  "freshness": [
+    {
+      "source_id": "beincrypto-news",
+      "total": 3,
+      "oldest": "2026-10-02T12:58:12.000Z",
+      "newest": "2026-10-02T16:31:52.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "bitcoin-magazine-news",
+      "total": 3,
+      "oldest": "2026-10-01T21:09:53.000Z",
+      "newest": "2026-10-02T18:12:28.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "blocktempo-news-zh",
+      "total": 3,
+      "oldest": "2026-10-02T12:51:52.000Z",
+      "newest": "2026-10-02T15:41:01.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "chaincatcher-articles-zh",
+      "total": 3,
+      "oldest": "2026-10-02T07:04:13.000Z",
+      "newest": "2026-10-02T10:29:26.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "coindesk-news",
+      "total": 3,
+      "oldest": "2026-10-02T17:12:48.000Z",
+      "newest": "2026-10-02T17:34:40.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "cointelegraph-news",
+      "total": 3,
+      "oldest": "2026-10-02T15:27:31.000Z",
+      "newest": "2026-10-02T16:20:24.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "decrypt-news",
+      "total": 3,
+      "oldest": "2026-10-02T11:28:41.000Z",
+      "newest": "2026-10-02T17:47:06.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "odaily-articles-zh",
+      "total": 3,
+      "oldest": "2026-10-02T04:09:00.000Z",
+      "newest": "2026-10-02T10:00:00.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "protos-news",
+      "total": 3,
+      "oldest": "2026-10-01T17:42:54.000Z",
+      "newest": "2026-10-02T18:05:45.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    },
+    {
+      "source_id": "techflow-articles-zh",
+      "total": 3,
+      "oldest": "2026-10-02T06:36:27.000Z",
+      "newest": "2026-10-02T08:15:01.000Z",
+      "undated": 0,
+      "older_than_month": 0,
+      "older_than_48h": 0
+    }
+  ],
+  "processing": [
+    {
+      "source_id": "beincrypto-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    },
+    {
+      "source_id": "bitcoin-magazine-news",
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "count": 3
+    },
+    {
+      "source_id": "blocktempo-news-zh",
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "count": 2
+    },
+    {
+      "source_id": "blocktempo-news-zh",
+      "processing_state": "blocked",
+      "processing_error": null,
+      "count": 1
+    },
+    {
+      "source_id": "chaincatcher-articles-zh",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    },
+    {
+      "source_id": "coindesk-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    },
+    {
+      "source_id": "cointelegraph-news",
+      "processing_state": "blocked",
+      "processing_error": null,
+      "count": 1
+    },
+    {
+      "source_id": "cointelegraph-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 2
+    },
+    {
+      "source_id": "decrypt-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    },
+    {
+      "source_id": "odaily-articles-zh",
+      "processing_state": "analyzed",
+      "processing_error": null,
+      "count": 2
+    },
+    {
+      "source_id": "odaily-articles-zh",
+      "processing_state": "blocked",
+      "processing_error": null,
+      "count": 1
+    },
+    {
+      "source_id": "protos-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    },
+    {
+      "source_id": "techflow-articles-zh",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "count": 3
+    }
+  ],
+  "verifications": [
+    {
+      "source_id": "bitcoin-magazine-news",
+      "status": "rejected",
+      "stage": "evidence",
+      "count": 2
+    },
+    {
+      "source_id": "bitcoin-magazine-news",
+      "status": "rejected",
+      "stage": "rewrite",
+      "count": 1
+    },
+    {
+      "source_id": "blocktempo-news-zh",
+      "status": "accepted",
+      "stage": "initial",
+      "count": 2
+    },
+    {
+      "source_id": "odaily-articles-zh",
+      "status": "rejected",
+      "stage": "evidence",
+      "count": 2
+    }
+  ],
+  "public": [
+    {
+      "article_id": "x81qxncnd8ynubgrsp7a5d42o",
+      "source_id": "blocktempo-news-zh",
+      "title": "以太坊 L2 网络 Blast 宣布永久关闭，要求用户在10月26日前撤出资产",
+      "summary": "以太坊 Layer 2 网络 Blast 于10月2日宣布将永久关闭，官方称维持网络的成本已超过其产生的收入，经济上无法自我维持。团队呼吁所有用户在2026年10月26日前通过一般界面将资产提取回以太坊主网，提款延迟时间已缩短至24小时。",
+      "published_at": "2026-10-02T15:41:01.000Z",
+      "discovered_at": "2026-10-02T18:25:42.149Z",
+      "selected": false
+    },
+    {
+      "article_id": "dnnpn1p4nhfweiu832ejtfnx8",
+      "source_id": "blocktempo-news-zh",
+      "title": "Cboe 拟推 VIX 永续期货，处于早期规划阶段",
+      "summary": "据彭博报道，Cboe 正为 VIX 指数规划永续期货合约，目前处于早期阶段且尚未提交规格。该设计借鉴加密市场模式，旨在通过资金费率机制免除到期换月成本。分析师提醒，VIX 缺乏现货避险工具，基差风险依然存在。",
+      "published_at": "2026-10-02T13:47:16.000Z",
+      "discovered_at": "2026-10-02T18:25:42.236Z",
+      "selected": false
+    }
+  ],
+  "new_jobs": [
+    {
+      "name": "content.analyze",
+      "state": "completed",
+      "count": 59
+    },
+    {
+      "name": "content.extract-body",
+      "state": "completed",
+      "count": 9
+    },
+    {
+      "name": "content.verify-automatic",
+      "state": "completed",
+      "count": 7
+    },
+    {
+      "name": "events.group",
+      "state": "completed",
+      "count": 8
+    },
+    {
+      "name": "sources.fetch",
+      "state": "completed",
+      "count": 10
+    }
+  ],
+  "paused_state": [
+    {
+      "id": "circle-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "electric-coin",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "filecoin-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "flashbots-writings",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "icp-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "immunefi",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "kol-bluematt",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "kol-dankrad",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "kol-peter-todd",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "kol-samczsun",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "ottersec",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "paxos-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "phantom",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "render-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "starknet-blog",
+      "enabled": false,
+      "health": "paused"
+    },
+    {
+      "id": "wormhole-blog",
+      "enabled": false,
+      "health": "paused"
+    }
+  ],
+  "pending_paused_jobs": {
+    "n": 0
+  },
+  "panews": {
+    "id": "panews-articles-zh",
+    "enabled": true,
+    "health": "ok"
+  }
+}
