@@ -1,5 +1,5 @@
 // Daily, weekly and monthly reports. Windows are Beijing calendar based and written into the report;
-// missed schedule points are caught up; regeneration creates a revision. What every issue carries is
+// missing current issues are generated; optional historical catch-up and explicit regeneration retain revisions. What every issue carries is
 // decided by rule: a daily from edition.ts without a model; a weekly or monthly is compiled from its
 // dailies and a model only writes its overview and introductions, from the brief in the industry pack
 // (industry/prompts/report-period*.md).
@@ -287,9 +287,9 @@ const nextMonth = (label: string) => {
 };
 
 /**
- * The scheduled run (every half hour): every issue due by `now` that does not exist yet, oldest first.
- * The newest one appears at the first run after it falls due (above); a long stop or an older gap is
- * filled too. A kind with no issue yet only gets its latest due one. An issue that fails does not hold
+ * The scheduled run (every half hour): each enabled kind's latest due issue, when it is missing.
+ * Packs may opt into historical gap recovery; 9BTC does not spend model budget backfilling old gaps.
+ * A kind with no issue yet only gets its latest due one. An issue that fails does not hold
  * up the others; at most `limit` issues are written per run, the next run continues.
  */
 export async function composeDueReports(now = new Date(), limit = 8): Promise<{ generated: string[]; failed: string[] }> {
@@ -301,8 +301,9 @@ export async function composeDueReports(now = new Date(), limit = 8): Promise<{ 
     { kind: "monthly", due: dueMonthly(now), next: nextMonth, compose: composeMonthly },
   ];
   kinds: for (const k of kinds) {
+    if (!REPORTS.automaticKinds.includes(k.kind)) continue;
     const have = new Set((await sql<{ key: string }[]>`SELECT key FROM reports WHERE kind = ${k.kind}`).map((r) => r.key));
-    const first = [...have].sort()[0] ?? k.due;
+    const first = REPORTS.catchUpHistory ? [...have].sort()[0] ?? k.due : k.due;
     for (let key = first; key <= k.due; key = k.next(key)) {
       if (have.has(key)) continue;
       if (shutdownSignal.signal.aborted || generated.length >= limit) break kinds;

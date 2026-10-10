@@ -72,8 +72,8 @@ export default function AllPage() {
   const navigation = useNavigation();
   const f = data.filters;
   const busy = navigation.state === "loading" && navigation.location?.pathname === "/all";
-  const { channel, category } = filterParams(f);
-  const keep = { channel, category };
+  const { channel, category, tag } = filterParams(f);
+  const keep = { channel, category, tag };
   const searchTabHref = (tab: "time" | "relevance") => {
     const sp = new URLSearchParams(params);
     sp.delete("page");
@@ -97,7 +97,7 @@ export default function AllPage() {
       {/* Phones: the feed bar, or for a search the query (tap to change it) and back to 全部. */}
       {f.q ? (
         <PhoneBar
-          back={{ to: "/all", label: "全部" }}
+          back={{ to: listPath("/all", filterParams(f)), label: "全部" }}
           center={
             <button type="button" onClick={(event) => openSearch(f.q ?? "", event.currentTarget)} className="flex h-11 min-w-0 max-w-full items-center gap-2 rounded-full bg-bg-sunk px-3.5 text-[15px] text-ink ring-1 ring-inset ring-line-soft dark:bg-bg-muted/60">
               <IconSearch size={16} className="shrink-0 text-ink-4" />

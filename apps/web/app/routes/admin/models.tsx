@@ -40,7 +40,19 @@ export default function ModelsAdmin({ loaderData: m }: Route.ComponentProps) {
       subtitle="每项能力当前用哪个模型、来自哪里（后台切换 > 环境变量 > 代码默认），以及近期的成功率、耗时与费用。切换只影响之后的新任务，已有结果不重算；换精选模型前先看 SelectBench 同批对比。"
       actions={<FilterChips param="days" options={[{ value: "1", label: "24 小时" }, { value: "", label: "7 天" }, { value: "30", label: "30 天" }]} />}
     >
-      <div className="grid grid-cols-1 gap-5">
+      <Card title="模型费用预算" right={<Badge tone={m.moneyBudget.blocked ? "warn" : m.moneyBudget.policy.enabled ? "accent" : "muted"}>{m.moneyBudget.blocked ? "等待额度或核对" : m.moneyBudget.policy.enabled ? "全站金额限额已启用" : "统计费用，金额限额未启用"}</Badge>}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <p>北京时间今天：{money(m.moneyBudget.day.totalCny)} 元{m.moneyBudget.policy.enabled && ` / ${money(m.moneyBudget.policy.dayLimitCny)} 元`}<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.day.estimatedCny)} · 已预占 {money(m.moneyBudget.day.reservedCny)}</span></p>
+          <p>滚动 24 小时：{money(m.moneyBudget.rolling.totalCny)} 元{m.moneyBudget.policy.enabled && ` / ${money(m.moneyBudget.policy.rollingLimitCny)} 元`}<br /><span className="text-ink-3">用量估算 {money(m.moneyBudget.rolling.estimatedCny)} · 已预占 {money(m.moneyBudget.rolling.reservedCny)}</span></p>
+        </div>
+        <p className="mt-3 text-sm text-ink-3">政策更新时间：{bj(m.moneyBudget.policy.updatedAt)}（北京时间）。</p>
+        <p className="mt-2 text-sm text-ink-3">各模型、向量与评测按已核对单价和返回用量估算，最终费用以供应商账单为准。结果未知的请求保留预占金额。</p>
+        <p className="mt-2 text-sm text-ink-3">独立评测实验：今天 {money(m.benchmarkBudget.day.totalCny)} / {money(m.benchmarkBudget.policy.dayLimitCny)} 元，滚动 24 小时 {money(m.benchmarkBudget.rolling.totalCny)} / {money(m.benchmarkBudget.policy.rollingLimitCny)} 元。全站金额限额启用时，评测同时计入全站额度。</p>
+        {m.moneyBudget.day.unpricedAttempts + m.moneyBudget.rolling.unpricedAttempts > 0 && <p className="mt-2 text-sm text-hot">存在缺少可信价格或用量的历史尝试，费用暂不完整。</p>}
+        {m.moneyBudget.policy.enabled && m.moneyBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">{m.moneyBudget.reasons.join("；")}</p>}
+        {m.benchmarkBudget.reasons.length > 0 && <p className="mt-2 text-sm text-hot">评测：{m.benchmarkBudget.reasons.join("；")}</p>}
+      </Card>
+      <div className="mt-5 grid grid-cols-1 gap-5">
         {m.capabilities.map((c) => {
           const total = c.usage.reduce((a, u) => a + u.calls, 0);
           return (

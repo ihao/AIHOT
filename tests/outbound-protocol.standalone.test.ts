@@ -67,6 +67,7 @@ for (const route of ["direct", "proxy", "secure-proxy", "dns"] as const) {
       // the proxy paths exercise their real CONNECT and TLS implementation without interception.
       const connect = tls.connect;
       tls.connect = function(options, ...rest) {
+        if (options.servername && net.isIP(options.servername)) options = { ...options, servername: '' };
         if (options.host === '93.184.216.34') options = { ...options, host: '127.0.0.1', port: origin.address().port };
         return connect.call(this, options, ...rest);
       };
@@ -83,7 +84,7 @@ for (const route of ["direct", "proxy", "secure-proxy", "dns"] as const) {
           const response = await fetch('https://outbound.invalid/item', { dispatcher: agent, signal: AbortSignal.timeout(2000) });
           if (await response.text() !== 'ok') throw new Error('response lost');
         }
-      } catch (failure) { error = String(failure); }
+      } catch (failure) { error = String(failure) + " cause=" + String(failure.cause); }
       finally {
         await agent?.destroy();
         for (const socket of sockets) socket.destroy();

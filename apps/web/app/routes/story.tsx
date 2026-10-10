@@ -1,3 +1,4 @@
+import { BtcIngestionPrice } from "../features/market/BtcIngestionPrice";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { IntentLink } from "../components/ui/IntentLink";
 import { Link, useLoaderData, useLocation } from "react-router";
@@ -168,6 +169,7 @@ function TimelineRow({ r }: { r: StoryReportView }) {
             )}
           </>
         )}
+        <BtcIngestionPrice quote={r.btcAtIngestion} />
       </div>
     </li>
   );

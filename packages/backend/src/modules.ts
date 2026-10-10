@@ -128,6 +128,8 @@ export interface SitemapEntry {
  * that made the change and, given one, inside its transaction.
  */
 export interface EngineHooks {
+  /** A newly inserted material, inside its transaction; never fired for rediscovery or revision. */
+  articleIngested: (change: { id: string }, tx: Db) => Promise<void>;
   /**
    * An article's public content changed; a former event is included when its membership moved.
    * `reduced`: something public is now shown less, as publication judged it (`PublishResult`).

@@ -1,0 +1,203 @@
+{
+  "status": "assessment_only_no_production_mutation",
+  "at": "2026-10-03T01:38:16.404Z",
+  "topics": [
+    {
+      "slug": "bitcoin",
+      "name": "Bitcoin",
+      "group": "company",
+      "definition": "Bitcoin 网络、协议与生态进展；BTC 资产行情本身不自动归入项目主体。",
+      "total": 10,
+      "recent": 0,
+      "indexable": false,
+      "latestAt": "2026-08-19T16:44:48.000Z"
+    },
+    {
+      "slug": "ethereum",
+      "name": "Ethereum",
+      "group": "company",
+      "definition": "Ethereum 网络升级、扩容与生态进展；ETH 资产行情本身不自动归入项目主体。",
+      "total": 24,
+      "recent": 4,
+      "indexable": true,
+      "latestAt": "2026-10-01T20:53:20.849Z"
+    },
+    {
+      "slug": "solana",
+      "name": "Solana",
+      "group": "company",
+      "definition": "Solana 网络、客户端、性能与生态进展。",
+      "total": 3,
+      "recent": 2,
+      "indexable": false,
+      "latestAt": "2026-09-28T15:00:00.000Z"
+    },
+    {
+      "slug": "defi",
+      "name": "DeFi",
+      "group": "field",
+      "definition": "去中心化交易、借贷及其他链上金融协议的产品与机制变化。",
+      "total": 20,
+      "recent": 7,
+      "indexable": true,
+      "latestAt": "2026-10-01T14:57:39.138Z"
+    },
+    {
+      "slug": "stablecoins",
+      "name": "稳定币与 RWA",
+      "group": "field",
+      "definition": "稳定币的发行、储备和赎回，以及真实世界资产上链的可核实进展。",
+      "total": 9,
+      "recent": 3,
+      "indexable": false,
+      "latestAt": "2026-09-23T13:00:45.000Z"
+    },
+    {
+      "slug": "security",
+      "name": "安全事件",
+      "group": "genre",
+      "definition": "已核实的漏洞、攻击、资产损失和后续处置，明确区分传闻与确认事实。",
+      "total": 16,
+      "recent": 6,
+      "indexable": false,
+      "latestAt": "2026-10-01T22:53:21.555Z"
+    },
+    {
+      "slug": "regulation",
+      "name": "政策与监管",
+      "group": "genre",
+      "definition": "政策文件、立法、执法与监管声明，区分草案、裁定和生效规则。",
+      "total": 7,
+      "recent": 3,
+      "indexable": false,
+      "latestAt": "2026-10-01T21:36:21.275Z"
+    },
+    {
+      "slug": "research",
+      "name": "研究与数据",
+      "group": "genre",
+      "definition": "有来源、方法和范围说明的链上数据分析、技术研究与市场研究。",
+      "total": 10,
+      "recent": 6,
+      "indexable": false,
+      "latestAt": "2026-10-01T22:53:21.555Z"
+    }
+  ],
+  "api": {
+    "status": 200,
+    "topics": [
+      {
+        "slug": "bitcoin",
+        "name": "Bitcoin",
+        "group": "company",
+        "definition": "Bitcoin 网络、协议与生态进展；BTC 资产行情本身不自动归入项目主体。",
+        "total": 10,
+        "recent": 0,
+        "indexable": false,
+        "latestAt": "2026-08-19T16:44:48.000Z"
+      },
+      {
+        "slug": "ethereum",
+        "name": "Ethereum",
+        "group": "company",
+        "definition": "Ethereum 网络升级、扩容与生态进展；ETH 资产行情本身不自动归入项目主体。",
+        "total": 24,
+        "recent": 4,
+        "indexable": true,
+        "latestAt": "2026-10-01T20:53:20.849Z"
+      },
+      {
+        "slug": "solana",
+        "name": "Solana",
+        "group": "company",
+        "definition": "Solana 网络、客户端、性能与生态进展。",
+        "total": 3,
+        "recent": 2,
+        "indexable": false,
+        "latestAt": "2026-09-28T15:00:00.000Z"
+      },
+      {
+        "slug": "defi",
+        "name": "DeFi",
+        "group": "field",
+        "definition": "去中心化交易、借贷及其他链上金融协议的产品与机制变化。",
+        "total": 20,
+        "recent": 7,
+        "indexable": true,
+        "latestAt": "2026-10-01T14:57:39.138Z"
+      },
+      {
+        "slug": "stablecoins",
+        "name": "稳定币与 RWA",
+        "group": "field",
+        "definition": "稳定币的发行、储备和赎回，以及真实世界资产上链的可核实进展。",
+        "total": 9,
+        "recent": 3,
+        "indexable": false,
+        "latestAt": "2026-09-23T13:00:45.000Z"
+      },
+      {
+        "slug": "security",
+        "name": "安全事件",
+        "group": "genre",
+        "definition": "已核实的漏洞、攻击、资产损失和后续处置，明确区分传闻与确认事实。",
+        "total": 16,
+        "recent": 6,
+        "indexable": false,
+        "latestAt": "2026-10-01T22:53:21.555Z"
+      },
+      {
+        "slug": "regulation",
+        "name": "政策与监管",
+        "group": "genre",
+        "definition": "政策文件、立法、执法与监管声明，区分草案、裁定和生效规则。",
+        "total": 7,
+        "recent": 3,
+        "indexable": false,
+        "latestAt": "2026-10-01T21:36:21.275Z"
+      },
+      {
+        "slug": "research",
+        "name": "研究与数据",
+        "group": "genre",
+        "definition": "有来源、方法和范围说明的链上数据分析、技术研究与市场研究。",
+        "total": 10,
+        "recent": 6,
+        "indexable": false,
+        "latestAt": "2026-10-01T22:53:21.555Z"
+      }
+    ]
+  },
+  "page": {
+    "status": 200,
+    "allEightNamesPresent": true
+  },
+  "predictionMarket": {
+    "rawTitleCandidates": {
+      "raw": 28,
+      "recent30d": 12
+    },
+    "publicTitleOrSummaryCandidates": {
+      "public": 18,
+      "selected": 0
+    },
+    "formalTaggedRecords": 0,
+    "candidateMethod": "public projection title-or-summary keyword candidate search; not manual semantic validation",
+    "publicExampleIds": [
+      "l9na5m3xlpcemnb4glap0en9n",
+      "ngiakiehdk7lix7cuft5zhwuj",
+      "ngzro4zyhitvqfsqaqcv8nd2z",
+      "q3l262tlzhnmm3men5c7x7kas",
+      "nluhp8qmagmjbrag56xmqrfd7"
+    ],
+    "candidatePattern": "(Polymarket|Kalshi|预测市场|預測市場|prediction markets?|event contracts?)",
+    "publicCandidateAt": "2026-10-03T01:41:24.674Z",
+    "rawRecentDateColumn": "articles.published_at"
+  },
+  "limitations": [
+    "Keyword candidates are not semantically validated topic membership.",
+    "Topic pages currently display selected public publications.",
+    "No paid model calls, source changes, production writes, or score changes."
+  ],
+  "topicRecentDateColumn": "publications.timeline_at"
+}

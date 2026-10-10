@@ -12,10 +12,12 @@ let deadline: number;
 /** Root metadata answers only after the selected deadline has passed: a slow sibling loader. */
 let metaAfterDeadline = false;
 const apiCookies: Array<string | undefined> = [];
+const marketQuote = { priceUsd: 62000, quotedAt: new Date().toISOString(), fetchedAt: new Date().toISOString(), source: "Coinbase", currency: "USD" };
 const api = createServer((req, res) => {
   const url = new URL(req.url!, "http://api.local");
   apiCookies.push(req.headers.cookie);
   res.setHeader("Content-Type", "application/json");
+  if (url.pathname === "/api/site/market/btc") return res.end(JSON.stringify({ quote: marketQuote }));
   if (url.pathname === "/api/site/meta") {
     const respond = () => res.end(JSON.stringify({ changelogVersion: "2026-09-28T12:00" }));
     return metaAfterDeadline ? setTimeout(respond, deadline * 1000 - Date.now() + 50) : respond();

@@ -1,0 +1,664 @@
+{
+  "scope": "Read-only public feed probes from local machine. Guessed candidate endpoints are hypotheses, not publisher endorsements. No production collector, database, model, or X API requests.",
+  "observedAt": "2026-10-01T05:38:03.958232+00:00",
+  "sources": [
+    {
+      "id": "bitcoin-core",
+      "requestedUrl": "https://bitcoincore.org/en/releasesrss.xml",
+      "checkedAt": "2026-10-01T05:37:42.545452+00:00",
+      "result": "request-failed",
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+    },
+    {
+      "id": "ethereum-foundation",
+      "requestedUrl": "https://blog.ethereum.org/en/feed.xml",
+      "checkedAt": "2026-10-01T05:37:42.546075+00:00",
+      "status": 200,
+      "finalUrl": "https://blog.ethereum.org/en/feed.xml",
+      "contentType": "application/xml",
+      "bytes": 528443,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 640,
+      "datedEntries": 640,
+      "linkedEntries": 640,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Glamsterdam Testnet Announcement",
+          "url": "https://blog.ethereum.org/en/2026/09/17/glamsterdam-testnet-announcement",
+          "published": "Mon, 28 Sep 2026 00:00:00 GMT"
+        },
+        {
+          "title": "Join Us: EF Protocol Reddit AMA - September 16th, 2026",
+          "url": "https://blog.ethereum.org/en/2026/09/09/reddit-ama",
+          "published": "Wed, 09 Sep 2026 00:00:00 GMT"
+        }
+      ]
+    },
+    {
+      "id": "coin-metrics",
+      "requestedUrl": "https://coinmetrics.substack.com/feed",
+      "checkedAt": "2026-10-01T05:37:42.546265+00:00",
+      "status": 200,
+      "finalUrl": "https://coinmetrics.substack.com/feed",
+      "contentType": "application/xml; charset=utf-8",
+      "bytes": 973779,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 20,
+      "datedEntries": 20,
+      "linkedEntries": 20,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Hot Sectors Leading Altcoin Rally",
+          "url": "https://coinmetrics.substack.com/p/hot-sectors-leading-altcoin-rally",
+          "published": "Tue, 29 Sep 2026 13:02:18 GMT"
+        },
+        {
+          "title": "The Race for Tokenized Stocks and the Path Ahead",
+          "url": "https://coinmetrics.substack.com/p/the-race-for-tokenized-stocks-and",
+          "published": "Tue, 22 Sep 2026 13:00:40 GMT"
+        }
+      ]
+    },
+    {
+      "id": "chainalysis",
+      "requestedUrl": "https://www.chainalysis.com/blog/feed/",
+      "checkedAt": "2026-10-01T05:37:42.546383+00:00",
+      "status": 200,
+      "finalUrl": "https://www.chainalysis.com/blog/feed/",
+      "contentType": "application/rss+xml; charset=UTF-8",
+      "bytes": 12042,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 10,
+      "datedEntries": 10,
+      "linkedEntries": 10,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "OFAC Sanctions Tren de Aragua Fugitive Who Laundered ATM Heists With Crypto",
+          "url": "https://www.chainalysis.com/blog/ofac-sanctions-tren-de-aragua-crypto-laundering-september-2026/",
+          "published": "Wed, 30 Sep 2026 20:08:34 +0000"
+        },
+        {
+          "title": "Singapore Leads Central & Southeast Asia and Oceania’s Crypto Industry",
+          "url": "https://www.chainalysis.com/blog/central-southeast-asia-oceania-crypto-adoption-2026/",
+          "published": "Wed, 30 Sep 2026 12:55:33 +0000"
+        }
+      ]
+    },
+    {
+      "id": "panews",
+      "requestedUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+      "checkedAt": "2026-10-01T05:37:42.546543+00:00",
+      "status": 200,
+      "finalUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 1427312,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 100,
+      "datedEntries": 100,
+      "linkedEntries": 100,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Meme日报，一图了解过去24小时热门Meme（2026.10.1）",
+          "url": "https://www.panewslab.com/zh/articles/01a0f588-fd2a-754c-968a-470492a2af56",
+          "published": "Thu, 01 Oct 2026 03:36:00 GMT"
+        },
+        {
+          "title": "AI&Emerging Onchain Assets将于TOKEN2049期间在新加坡举行，聚焦AI与链上资产的真实应用",
+          "url": "https://www.panewslab.com/zh/articles/01a0f586-22fb-7325-95c7-25e8c147924d",
+          "published": "Thu, 01 Oct 2026 03:27:00 GMT"
+        }
+      ]
+    },
+    {
+      "id": "sec",
+      "requestedUrl": "https://www.sec.gov/news/pressreleases.rss",
+      "checkedAt": "2026-10-01T05:37:47.756276+00:00",
+      "status": 200,
+      "finalUrl": "https://www.sec.gov/news/pressreleases.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 18527,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 25,
+      "datedEntries": 25,
+      "linkedEntries": 25,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "SEC Charges Meyer Global Management and Its CEO With Defrauding Retail Investors in Private Funds That Held Interests in SpaceX and Other Pre-IPO Securities",
+          "url": "https://www.sec.gov/newsroom/press-releases/2026-98-sec-charges-meyer-global-management-its-ceo-defrauding-retail-investors-private-funds-held-interests",
+          "published": "Wed, 30 Sep 2026 14:30:01 -0400"
+        },
+        {
+          "title": "SEC Charges Two Individuals With Orchestrating Fraud Scheme That Targeted Veterans",
+          "url": "https://www.sec.gov/newsroom/press-releases/2026-97-sec-charges-two-individuals-orchestrating-fraud-scheme-targeted-veterans",
+          "published": "Wed, 30 Sep 2026 12:42:15 -0400"
+        }
+      ]
+    },
+    {
+      "id": "bitcoin-optech",
+      "requestedUrl": "https://bitcoinops.org/feed.xml",
+      "checkedAt": "2026-10-01T05:37:48.150750+00:00",
+      "result": "request-failed",
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+    },
+    {
+      "id": "vitalik",
+      "requestedUrl": "https://vitalik.ca/feed.xml",
+      "checkedAt": "2026-10-01T05:37:48.742414+00:00",
+      "result": "request-failed",
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+    },
+    {
+      "id": "ethresearch",
+      "requestedUrl": "https://ethresear.ch/latest.rss",
+      "checkedAt": "2026-10-01T05:37:48.800394+00:00",
+      "status": 200,
+      "finalUrl": "https://ethresear.ch/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 874745,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "PQ spending for Stealth Address Protocol",
+          "url": "https://ethresear.ch/t/pq-spending-for-stealth-address-protocol/26095",
+          "published": "Mon, 28 Sep 2026 01:09:06 +0000"
+        },
+        {
+          "title": "PQ anonymity for Stealth Address Protocol",
+          "url": "https://ethresear.ch/t/pq-anonymity-for-stealth-address-protocol/26094",
+          "published": "Mon, 28 Sep 2026 01:05:52 +0000"
+        }
+      ]
+    },
+    {
+      "id": "ethereum-magicians",
+      "requestedUrl": "https://ethereum-magicians.org/latest.rss",
+      "checkedAt": "2026-10-01T05:37:49.211147+00:00",
+      "status": 200,
+      "finalUrl": "https://ethereum-magicians.org/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 169928,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Sealed-Bid Award Mechanism for Task Tenders (companion to ERC-8183 / 8195 / 8414)",
+          "url": "https://ethereum-magicians.org/t/sealed-bid-award-mechanism-for-task-tenders-companion-to-erc-8183-8195-8414/29814",
+          "published": "Wed, 30 Sep 2026 19:14:52 +0000"
+        },
+        {
+          "title": "EIP-8430: AA Transaction Type (Split out from 8130)",
+          "url": "https://ethereum-magicians.org/t/eip-8430-aa-transaction-type-split-out-from-8130/29810",
+          "published": "Wed, 30 Sep 2026 12:00:45 +0000"
+        }
+      ]
+    },
+    {
+      "id": "aave-forum",
+      "requestedUrl": "https://governance.aave.com/latest.rss",
+      "checkedAt": "2026-10-01T05:37:49.382926+00:00",
+      "status": 200,
+      "finalUrl": "https://governance.aave.com/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 284546,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "[ARFC] Onboard OUSD to Aave V3 Core Instance and Aave V4 Core Hub",
+          "url": "https://governance.aave.com/t/arfc-onboard-ousd-to-aave-v3-core-instance-and-aave-v4-core-hub/25735",
+          "published": "Wed, 30 Sep 2026 15:11:10 +0000"
+        },
+        {
+          "title": "[Direct-to-AIP] Onboard PT-USDG-25FEB2027 on X Layer",
+          "url": "https://governance.aave.com/t/direct-to-aip-onboard-pt-usdg-25feb2027-on-x-layer/25733",
+          "published": "Wed, 30 Sep 2026 11:29:39 +0000"
+        }
+      ]
+    },
+    {
+      "id": "uniswap-forum",
+      "requestedUrl": "https://gov.uniswap.org/latest.rss",
+      "checkedAt": "2026-10-01T05:37:50.246835+00:00",
+      "status": 200,
+      "finalUrl": "https://gov.uniswap.org/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 378641,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "[Temp Check] Protocol Fee Expansion: Arc",
+          "url": "https://gov.uniswap.org/t/temp-check-protocol-fee-expansion-arc/26287",
+          "published": "Fri, 18 Sep 2026 14:39:50 +0000"
+        },
+        {
+          "title": "[Temp Check] Rotate Sentinel Addresses on the DUNI-Owned Uniswap Earn Vaults",
+          "url": "https://gov.uniswap.org/t/temp-check-rotate-sentinel-addresses-on-the-duni-owned-uniswap-earn-vaults/26281",
+          "published": "Thu, 10 Sep 2026 17:01:43 +0000"
+        }
+      ]
+    },
+    {
+      "id": "lido-forum",
+      "requestedUrl": "https://research.lido.fi/latest.rss",
+      "checkedAt": "2026-10-01T05:37:51.031570+00:00",
+      "status": 200,
+      "finalUrl": "https://research.lido.fi/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 179149,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "[Security Disclosure] MetaMask Staking Precautionary Out of Order Exits",
+          "url": "https://research.lido.fi/t/security-disclosure-metamask-staking-precautionary-out-of-order-exits/11961",
+          "published": "Wed, 30 Sep 2026 23:40:48 +0000"
+        },
+        {
+          "title": "LEGO Grant Proposal: trace-interop, cross-client trace_* API standardization",
+          "url": "https://research.lido.fi/t/lego-grant-proposal-trace-interop-cross-client-trace-api-standardization/11959",
+          "published": "Tue, 29 Sep 2026 09:54:26 +0000"
+        }
+      ]
+    },
+    {
+      "id": "arbitrum-forum",
+      "requestedUrl": "https://forum.arbitrum.foundation/latest.rss",
+      "checkedAt": "2026-10-01T05:37:53.856457+00:00",
+      "status": 200,
+      "finalUrl": "https://forum.arbitrum.foundation/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 253221,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "[Final Report] Salt : Permissionless MPC Treasury Management",
+          "url": "https://forum.arbitrum.foundation/t/final-report-salt-permissionless-mpc-treasury-management/31525",
+          "published": "Wed, 30 Sep 2026 21:39:07 +0000"
+        },
+        {
+          "title": "Stylus Manager - Final Report & Grant Completion",
+          "url": "https://forum.arbitrum.foundation/t/stylus-manager-final-report-grant-completion/31524",
+          "published": "Wed, 30 Sep 2026 14:34:11 +0000"
+        }
+      ]
+    },
+    {
+      "id": "optimism-forum",
+      "requestedUrl": "https://gov.optimism.io/latest.rss",
+      "checkedAt": "2026-10-01T05:37:54.167528+00:00",
+      "status": 200,
+      "finalUrl": "https://gov.optimism.io/latest.rss",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 266316,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 30,
+      "datedEntries": 30,
+      "linkedEntries": 30,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Exploring execution-time authorization for Superchain applications",
+          "url": "https://gov.optimism.io/t/exploring-execution-time-authorization-for-superchain-applications/10882",
+          "published": "Thu, 24 Sep 2026 07:31:44 +0000"
+        },
+        {
+          "title": "Season 8 Growth Grants - TVL Impact Review",
+          "url": "https://gov.optimism.io/t/season-8-growth-grants-tvl-impact-review/10878",
+          "published": "Tue, 22 Sep 2026 18:55:34 +0000"
+        }
+      ]
+    },
+    {
+      "id": "glassnode",
+      "requestedUrl": "https://insights.glassnode.com/rss/",
+      "checkedAt": "2026-10-01T05:37:55.809451+00:00",
+      "result": "request-failed",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "slowmist",
+      "requestedUrl": "https://slowmist.medium.com/feed",
+      "checkedAt": "2026-10-01T05:37:57.617698+00:00",
+      "status": 200,
+      "finalUrl": "https://slowmist.medium.com/feed",
+      "contentType": "text/xml; charset=UTF-8",
+      "bytes": 202431,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 10,
+      "datedEntries": 10,
+      "linkedEntries": 10,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "FATF Report | How to Understand and Address Risks in Gaming and Gambling",
+          "url": "https://slowmist.medium.com/fatf-report-how-to-understand-and-address-risks-in-gaming-and-gambling-3834a3953915?source=rss-4ceeedda40e8------2",
+          "published": "Wed, 23 Sep 2026 06:33:17 GMT"
+        },
+        {
+          "title": "Analysis | Joint Report by Japan, the US, Australia, and Germany: Job-Seeking Phishing and Laptop…",
+          "url": "https://slowmist.medium.com/analysis-joint-report-by-japan-the-us-australia-and-germany-job-seeking-phishing-and-laptop-d98a57bdfc3f?source=rss-4ceeedda40e8------2",
+          "published": "Tue, 22 Sep 2026 08:28:23 GMT"
+        }
+      ]
+    },
+    {
+      "id": "ipfs",
+      "requestedUrl": "https://blog.ipfs.tech/index.xml",
+      "checkedAt": "2026-10-01T05:37:58.194154+00:00",
+      "status": 200,
+      "finalUrl": "https://blog.ipfs.tech/index.xml",
+      "contentType": "application/xml",
+      "bytes": 12872,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 27,
+      "datedEntries": 27,
+      "linkedEntries": 27,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "IPFS is moving beyond the sponsored gateways",
+          "url": "https://blog.ipfs.tech/2026-08-beyond-sponsored-gateways/",
+          "published": "Tue, 25 Aug 2026 00:00:00 GMT"
+        },
+        {
+          "title": "Just released: Kubo 0.43.0!",
+          "url": "https://github.com/ipfs/kubo/releases/tag/v0.43.0",
+          "published": "Mon, 03 Aug 2026 00:00:00 GMT"
+        }
+      ]
+    },
+    {
+      "id": "chainlink-old-feed",
+      "requestedUrl": "https://blog.chain.link/feed/",
+      "checkedAt": "2026-10-01T05:37:58.435225+00:00",
+      "status": 200,
+      "finalUrl": "https://chain.link/blog",
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 363076,
+      "feedVersion": "",
+      "parseWarning": true,
+      "entries": 0,
+      "datedEntries": 0,
+      "linkedEntries": 0,
+      "result": "not-a-usable-feed",
+      "samples": []
+    },
+    {
+      "id": "rekt",
+      "requestedUrl": "https://rekt.news/rss.xml",
+      "checkedAt": "2026-10-01T05:37:59.426417+00:00",
+      "result": "request-failed",
+      "error": "HTTP Error 500: Internal Server Error"
+    },
+    {
+      "id": "unchained",
+      "requestedUrl": "https://unchainedcrypto.com/feed/",
+      "checkedAt": "2026-10-01T05:38:00.142129+00:00",
+      "result": "request-failed",
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+    },
+    {
+      "id": "wublockchain",
+      "requestedUrl": "https://wublockchain.substack.com/feed",
+      "checkedAt": "2026-10-01T05:38:00.306410+00:00",
+      "status": 200,
+      "finalUrl": "https://wublockchain.substack.com/feed",
+      "contentType": "application/xml; charset=utf-8",
+      "bytes": 3080,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 1,
+      "datedEntries": 1,
+      "linkedEntries": 1,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Chinese journalist, provide you the most exclusive news about Chinese crypto mining industry, regulation and exchanges weekly, won the 2013 China News Award",
+          "url": "https://wublockchain.substack.com/p/coming-soon",
+          "published": "Sat, 09 Jan 2021 17:44:51 GMT"
+        }
+      ]
+    },
+    {
+      "id": "wublock-official",
+      "requestedUrl": "https://wublock.substack.com/feed",
+      "checkedAt": "2026-10-01T05:40:20.013291+00:00",
+      "status": 200,
+      "finalUrl": "https://wublock.substack.com/feed",
+      "contentType": "application/xml; charset=utf-8",
+      "bytes": 625172,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 20,
+      "datedEntries": 20,
+      "linkedEntries": 20,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "CZ Hong Kong AMA: Young People Shouldn't Blindly Go All-In",
+          "url": "https://wublock.substack.com/p/cz-hong-kong-ama-young-people-shouldnt",
+          "published": "Wed, 30 Sep 2026 10:53:52 GMT"
+        },
+        {
+          "title": "After the Bitget Hack: THORChain's Role in Laundering Stolen Funds Comes Under Scrutiny",
+          "url": "https://wublock.substack.com/p/after-the-bitget-hack-thorchains",
+          "published": "Tue, 29 Sep 2026 12:17:40 GMT"
+        }
+      ]
+    },
+    {
+      "id": "monero",
+      "requestedUrl": "https://www.getmonero.org/feed.xml",
+      "checkedAt": "2026-10-01T05:40:20.014031+00:00",
+      "status": 200,
+      "finalUrl": "https://www.getmonero.org/feed.xml",
+      "contentType": "text/xml",
+      "bytes": 131381,
+      "feedVersion": "atom10",
+      "parseWarning": false,
+      "entries": 20,
+      "datedEntries": 20,
+      "linkedEntries": 20,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Monero GUI 0.18.5.2 'Fluorine Fermi' released",
+          "url": "https://www.getmonero.org/2026/07/21/monero-GUI-0.18.5.2-released.html",
+          "published": "2026-07-21T00:00:00+00:00"
+        },
+        {
+          "title": "Monero 0.18.5.1 'Fluorine Fermi' released",
+          "url": "https://www.getmonero.org/2026/07/08/monero-0.18.5.1-released.html",
+          "published": "2026-07-08T00:00:00+00:00"
+        }
+      ]
+    },
+    {
+      "id": "electric-coin",
+      "requestedUrl": "https://electriccoin.co/feed/",
+      "checkedAt": "2026-10-01T05:40:20.014192+00:00",
+      "status": 200,
+      "finalUrl": "https://electriccoin.co/feed/",
+      "contentType": "text/html",
+      "bytes": 10447,
+      "feedVersion": "rss20",
+      "parseWarning": true,
+      "entries": 12,
+      "datedEntries": 12,
+      "linkedEntries": 12,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Zashi 2.4.9 Is Faster!",
+          "url": "blog/zashi-2-4-9-is-faster/",
+          "published": "Thu, 04 Dec 2025 18:08:28 +0000"
+        },
+        {
+          "title": "Reorganizing Around Zcash User",
+          "url": "blog/reorganizing-around-zcash-user/",
+          "published": "Mon, 01 Dec 2025 17:46:46 +0000"
+        }
+      ]
+    },
+    {
+      "id": "uniswap-blog-candidate",
+      "requestedUrl": "https://blog.uniswap.org/feed.xml",
+      "checkedAt": "2026-10-01T05:40:20.014314+00:00",
+      "result": "request-failed",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "id": "solana-blog-candidate",
+      "requestedUrl": "https://solana.com/news/rss.xml",
+      "checkedAt": "2026-10-01T05:40:21.640582+00:00",
+      "status": 200,
+      "finalUrl": "https://solana.com/news/rss.xml",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 14031,
+      "feedVersion": "rss20",
+      "parseWarning": false,
+      "entries": 20,
+      "datedEntries": 20,
+      "linkedEntries": 20,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Open USD Is Live on Solana",
+          "url": "https://solana.com/news/open-usd-is-live-on-solana",
+          "published": "Wed, 30 Sep 2026 19:17:00 GMT"
+        },
+        {
+          "title": "Slot Time Reduction Effects",
+          "url": "https://solana.com/news/slot-time-reduction-effects",
+          "published": "Mon, 28 Sep 2026 15:00:00 GMT"
+        }
+      ]
+    },
+    {
+      "id": "ethereum-client-geth",
+      "requestedUrl": "https://github.com/ethereum/go-ethereum/releases.atom",
+      "checkedAt": "2026-10-01T05:40:22.072682+00:00",
+      "status": 200,
+      "finalUrl": "https://github.com/ethereum/go-ethereum/releases.atom",
+      "contentType": "application/atom+xml; charset=utf-8",
+      "bytes": 308318,
+      "feedVersion": "atom10",
+      "parseWarning": false,
+      "entries": 10,
+      "datedEntries": 10,
+      "linkedEntries": 10,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Intact Neuro-Coil (v1.17.7)",
+          "url": "https://github.com/ethereum/go-ethereum/releases/tag/v1.17.7",
+          "published": "2026-09-30T11:48:08Z"
+        },
+        {
+          "title": "Inorganic Lubricant (v1.17.6)",
+          "url": "https://github.com/ethereum/go-ethereum/releases/tag/v1.17.6",
+          "published": "2026-09-23T02:21:47Z"
+        }
+      ]
+    },
+    {
+      "id": "ethereum-client-reth",
+      "requestedUrl": "https://github.com/paradigmxyz/reth/releases.atom",
+      "checkedAt": "2026-10-01T05:40:23.169857+00:00",
+      "status": 200,
+      "finalUrl": "https://github.com/paradigmxyz/reth/releases.atom",
+      "contentType": "application/atom+xml; charset=utf-8",
+      "bytes": 187784,
+      "feedVersion": "atom10",
+      "parseWarning": false,
+      "entries": 10,
+      "datedEntries": 10,
+      "linkedEntries": 10,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "Reth v2.7.0",
+          "url": "https://github.com/paradigmxyz/reth/releases/tag/v2.7.0",
+          "published": "2026-09-28T12:45:27Z"
+        },
+        {
+          "title": "Reth v2.6.0",
+          "url": "https://github.com/paradigmxyz/reth/releases/tag/v2.6.0",
+          "published": "2026-09-17T14:00:49Z"
+        }
+      ]
+    },
+    {
+      "id": "bitcoin-core-github",
+      "requestedUrl": "https://github.com/bitcoin/bitcoin/releases.atom",
+      "checkedAt": "2026-10-01T05:40:24.096755+00:00",
+      "status": 200,
+      "finalUrl": "https://github.com/bitcoin/bitcoin/releases.atom",
+      "contentType": "application/atom+xml; charset=utf-8",
+      "bytes": 8673,
+      "feedVersion": "atom10",
+      "parseWarning": false,
+      "entries": 10,
+      "datedEntries": 10,
+      "linkedEntries": 10,
+      "result": "parsed",
+      "samples": [
+        {
+          "title": "v32.0rc2: Bitcoin Core 32.0 release candidate 2",
+          "url": "https://github.com/bitcoin/bitcoin/releases/tag/v32.0rc2",
+          "published": "2026-09-18T14:30:08Z"
+        },
+        {
+          "title": "v32.0rc1: Bitcoin Core 32.0 release candidate 1",
+          "url": "https://github.com/bitcoin/bitcoin/releases/tag/v32.0rc1",
+          "published": "2026-09-14T12:58:46Z"
+        }
+      ]
+    }
+  ],
+  "identityNotes": {
+    "wublockchain": "Parseable feed does not establish identity. This spelling is NOT accepted as Colin Wu official source in this research. Use wublock-official only with verified publisher links.",
+    "github-release-feeds": "Repository ownership and upstream official linkage must be verified separately; release feeds are technical changes, not general news."
+  }
+}

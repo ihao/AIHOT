@@ -2,7 +2,8 @@
 // button on phones), the phone bar of 精选 and 全部, and search.
 import { useEffect, useRef, useState } from "react";
 import { Form, Link, useNavigation, useSearchParams } from "react-router";
-import { CATEGORY_KEYS, CATEGORY_LABELS, CHANNEL_LABELS, type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
+import { CATEGORY_LABELS, CHANNEL_LABELS, type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
+import { filterKey, filterOptions, hrefWith } from "../../lib/feed-filters";
 import { SITE } from "@aihot/site";
 import { IconCheck, IconClose, IconFilter, IconSearch } from "../../components/icons";
 import { PillTabs } from "../../components/ui/Tabs";
@@ -11,40 +12,10 @@ import { Wordmark } from "@aihot/site/brand/Logo.tsx";
 import { BarButton, PhoneBar } from "../../components/shell/PhoneBar";
 import { openSearch } from "../search/SearchOverlay";
 
-/** Same page with some query parameters changed (paging state dropped). */
-function hrefWith(base: string, params: URLSearchParams, patch: Record<string, string | null>) {
-  const sp = new URLSearchParams(params);
-  for (const [k, v] of Object.entries(patch)) {
-    if (v === null || v === "") sp.delete(k);
-    else sp.set(k, v);
-  }
-  sp.delete("page");
-  sp.delete("cursor");
-  const s = sp.toString();
-  return s ? `${base}?${s}` : base;
-}
-
-/**
- * The feed's one filter (精选 and 全部动态 alike): none, 一手, or a category. One choice at a time: picking
- * 一手 clears the category and picking a category clears 一手. Older 资讯 / X links still filter; the
- * choice then shows as none.
- */
-function filterOptions(base: string, params: URLSearchParams, noneLabel: string) {
-  return [
-    { key: "all", label: noneLabel, to: hrefWith(base, params, { category: null, channel: null }) },
-    { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty" }) },
-    ...CATEGORY_KEYS.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
-  ];
-}
-
-function filterKey(category: CategoryKey | null, channel: ChannelKey): string {
-  return channel === "firstParty" ? "firstParty" : (category ?? "all");
-}
-
 /** Desktop: the filter as a row of tabs beside the search field. */
 export function CategoryTabs({ base, category, channel = "all", layoutId, className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; className?: string }) {
   const [params] = useSearchParams();
-  return <PillTabs items={filterOptions(base, params, "全部").map(o => ({ ...o, prefetch: 'intent' as const }))} active={filterKey(category, channel)} layoutId={layoutId} label="筛选" className={className} />;
+  return <PillTabs items={filterOptions(base, params, "全部").map(o => ({ ...o, prefetch: 'intent' as const }))} active={filterKey(category, channel, params.get("tag"))} layoutId={layoutId} label="筛选" className={className} />;
 }
 
 /**
@@ -54,8 +25,8 @@ export function CategoryTabs({ base, category, channel = "all", layoutId, classN
 export function FeedBar({ base, category, channel }: { base: "/" | "/all"; category: CategoryKey | null; channel: ChannelKey }) {
   const [params] = useSearchParams();
   const [sheet, setSheet] = useState(false);
-  const scope = (to: string) => hrefWith(to, params, { q: null, tab: null, search: null });
-  const filtered = filterKey(category, channel) !== "all";
+  const scope = (to: string) => hrefWith(to, params, { tab: null, search: null });
+  const filtered = filterKey(category, channel, params.get("tag")) !== "all";
   return (
     <>
       <PhoneBar
@@ -86,7 +57,7 @@ export function FeedBar({ base, category, channel }: { base: "/" | "/all"; categ
           </>
         }
       />
-      <FilterSheet open={sheet} onClose={() => setSheet(false)} base={base} active={filterKey(category, channel)} />
+      <FilterSheet open={sheet} onClose={() => setSheet(false)} base={base} active={filterKey(category, channel, params.get("tag"))} />
     </>
   );
 }

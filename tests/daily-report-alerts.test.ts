@@ -6,7 +6,8 @@ import { closeDb, sql } from "@aihot/backend/db";
 import { getBoss, stopBoss } from "@aihot/backend/jobs/queue";
 import { checkAlerts, collectFindings } from "@aihot/backend/operations/alerts";
 
-const at = (date: string, time = "10:00") => beijingAt(date, time).getTime();
+// The daily edition becomes overdue after its two-hour generation grace.
+const at = (date: string, time = "23:30") => beijingAt(date, time).getTime();
 const key = (date: string) => `report.daily:${date}`;
 const daily = (keys: string[]) => keys.filter(k => k.startsWith("report.daily"));
 async function report(date: string) {
@@ -30,12 +31,12 @@ test("midnight preserves a missing edition; each date recovers only when its rep
   result = await checkAlerts(at("2026-10-07"));
   assert.deepEqual(daily(result.open).sort(), [key("2026-10-06"), key("2026-10-07")]);
   await report("2026-10-07");
-  result = await checkAlerts(at("2026-10-07", "10:10"));
+  result = await checkAlerts(at("2026-10-07", "23:40"));
   assert.deepEqual(daily(result.sent), [`${key("2026-10-07")}:recovered`]);
   assert.deepEqual(daily(result.open), [key("2026-10-06")]);
   await report("2026-10-06");
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "10:20"))).sent), [`${key("2026-10-06")}:recovered`]);
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "10:30"))).sent), []);
+  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "23:50"))).sent), [`${key("2026-10-06")}:recovered`]);
+  assert.deepEqual(daily((await checkAlerts(at("2026-10-08", "00:00"))).sent), []);
 });
 
 test("recent gap detection uses report activity and each edition's overdue time", async () => {
@@ -62,7 +63,7 @@ test("open dates outlive scan window and disabled generation or startup grace", 
   assert.ok(result.sent.includes(key("2026-09-01")), "old unresolved edition still gets reminders");
   process.env.COLLECT_ENABLED = "false";
   await report("2026-09-01");
-  assert.ok((await checkAlerts(at("2026-10-07", "10:10"))).sent.includes(`${key("2026-09-01")}:recovered`));
+  assert.ok((await checkAlerts(at("2026-10-07", "23:40"))).sent.includes(`${key("2026-09-01")}:recovered`));
 });
 
 test("legacy alert migrates its date and preserves reminder timing", async () => {

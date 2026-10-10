@@ -43,9 +43,9 @@ const provider = await stub((_hit, req) => {
   if (step === "score") return answer({ attentionScore: scoreAnswers[marker]!.shift() });
   if (step === "understand") {
     if (marker === "SENSITIVE") return new Reply(400, { contentFilter: [{ level: 1, role: "user" }], error: { code: "1301", message: "系统检测到输入或生成内容可能包含不安全或敏感内容" } });
-    return answer({ itemType: "model_release", authorRole: "principal", tags: ["模型发布", "开源", "Agent", "不存在的标签"], editorialJudgment: `理由 ${marker}`, titleZh: `理解标题 ${marker}`, summaryZh: `理解摘要 ${marker}。第二句补充一个关键数字。` });
+    return answer({ itemType: "protocol_upgrade", authorRole: "principal", tags: ["公链/基础设施", "DeFi", "治理", "不存在的标签"], editorialJudgment: `理由 ${marker}`, titleZh: `理解标题 ${marker}`, summaryZh: `理解摘要 ${marker}。第二句补充一个关键数字。` });
   }
-  if (step === "structure") return answer({ category: "ai-models", tags: ["模型发布", "推理"], subjects: ["anthropic", "unknown-co"], scope: "single", fact: { title: `事实 ${marker}`, subject: "某公司", action: "发布", object: "模型", occurredAt: null, evidence: "a lab released a model", conditions: [] } });
+  if (step === "structure") return answer({ category: "infrastructure", tags: ["公链/基础设施", "协议升级"], subjects: ["uniswap", "unknown-co"], scope: "single", fact: { title: `事实 ${marker}`, subject: "某公司", action: "发布", object: "模型", occurredAt: null, evidence: "Uniswap released a protocol upgrade", conditions: [] } });
   return answer(`title_zh: 翻译标题 ${marker}\nsummary_zh: 翻译摘要 ${marker}。第二句补充影响。`);
 });
 pointModels(provider.url);
@@ -62,7 +62,7 @@ after(async () => {
 });
 
 // The tag keeps each material unique: identical input would reuse an earlier run's paid answers.
-const LONG = "a lab released a model with a benchmark table and pricing details. ".repeat(8);
+const LONG = "Uniswap released a protocol upgrade with a benchmark table and pricing details. ".repeat(8);
 const article = async (marker: string, extra: Record<string, unknown> = {}) =>
   (await upsertMaterial({
     sourceId: SOURCE, url: `https://example.com/${marker}-${T}`, title: `${marker} model release ${T}`, bodyText: `${marker}: ${LONG} (${T})`,
@@ -80,13 +80,13 @@ test("a selected item: prefilter, two scores, the content understanding and the 
   assert.deepEqual([res!.output!.selected, res!.output!.score], [true, T1 + 1], `${T1 + 3} + ${T1 - 1} >= 2 × ${T1}; the mean is shown`);
   assert.deepEqual(calls("CLEAR").sort(), ["prefilter", "score", "score", "structure", "understand"]);
   const r = await row(id);
-  assert.deepEqual([r.title_zh, r.reason_zh, r.category, r.receipt_ids.length], ["理解标题 CLEAR", "理由 CLEAR", "ai-models", 5]);
+  assert.deepEqual([r.title_zh, r.reason_zh, r.category, r.receipt_ids.length], ["理解标题 CLEAR", "理由 CLEAR", "infrastructure", 5]);
   // Failure case: the writer's independent labels contradict the structural category.
-  assert.deepEqual(r.tags, ["模型发布", "推理", "Anthropic"], "category and tags come from the same structural judgement, plus the verified subject tag");
-  assert.deepEqual(r.subjects, ["anthropic"]);
-  assert.deepEqual([r.output.writer, r.output.itemType, r.output.prefilter.label, r.output.fact.title], ["understand", "model_release", "PASS", "事实 CLEAR"]);
+  assert.deepEqual(r.tags, ["公链/基础设施", "协议升级", "Uniswap"], "category and tags come from the same structural judgement, plus the verified subject tag");
+  assert.deepEqual(r.subjects, ["uniswap"]);
+  assert.deepEqual([r.output.writer, r.output.itemType, r.output.prefilter.label, r.output.fact.title], ["understand", "protocol_upgrade", "PASS", "事实 CLEAR"]);
   assert.equal(r.output.scope, "single");
-  assert.equal(r.output.fact.evidence, "a lab released a model");
+  assert.equal(r.output.fact.evidence, "Uniswap released a protocol upgrade");
   const score = requests.find((q) => q.marker === "CLEAR" && q.step === "score")!;
   assert.match(score.user, /【标题】\nCLEAR model release/, "the score reads the original title, before any writing");
 });
@@ -102,7 +102,7 @@ test("structure retains grounded conditions, rejects invented or unseen quotes, 
     { text: "无限免费", quote: "Unlimited free access for everyone." },
     { text: "不在模型输入里的句子", quote: "This late detail was not sent." },
   ] };
-  const base = { category: "ai-models", tags: [], subjects: [], fact: frame };
+  const base = { category: "infrastructure", tags: [], subjects: [], fact: frame };
   const out = normalizeStructure(StructureSchema.parse(base), input);
   assert.ok(buildMaterial(input).includes("Only available in the US."), "a condition after the old 7000-character cutoff reaches the model");
   assert.ok(buildMaterial(input).includes("后文未提供"));
@@ -132,7 +132,7 @@ test("a near-selected item is written like a selected one; below the floor it is
   const low = await analyzeArticle(lowId);
   assert.deepEqual([low!.output!.selected, low!.output!.titleZh, low!.output!.reasonZh], [false, "翻译标题 LOW", null]);
   assert.deepEqual(calls("LOW").sort(), ["prefilter", "score", "score", "structure", "summarize"]);
-  assert.deepEqual((await row(lowId)).tags, ["模型发布", "推理", "Anthropic"], "structure tags");
+  assert.deepEqual((await row(lowId)).tags, ["公链/基础设施", "协议升级", "Uniswap"], "structure tags");
 });
 
 test("the prefilter's BLOCK stops everything; UNKNOWN with material goes on like PASS", async () => {
@@ -183,12 +183,12 @@ test("a short post in Chinese is its own copy; a content-filter refusal is trans
 });
 
 test("guards: a company the input does not name is not written in; long summaries are cut at sentences", () => {
-  const input = { title: "某实验室发布新模型", text: "某实验室发布了一个新模型，参数规模和价格都有说明。", sourceKind: "rss" };
-  const guarded = enforceIdentity(input, { titleZh: "OpenAI 发布新模型", summaryZh: "某实验室发布新模型。" });
-  assert.deepEqual([guarded.titleZh, guarded.summaryZh, guarded.identityGuard.outcome], ["某实验室发布新模型", "某实验室发布新模型。", "fallback"]);
+  const input = { title: "某协议发布升级", text: "某协议发布了一项升级，技术参数和费用都有说明。", sourceKind: "rss" };
+  const guarded = enforceIdentity(input, { titleZh: "Uniswap 发布协议升级", summaryZh: "某协议发布升级。" });
+  assert.deepEqual([guarded.titleZh, guarded.summaryZh, guarded.identityGuard.outcome], ["某协议发布升级", "某协议发布升级。", "fallback"]);
   // The identity lexicon: a Chinese rendering of a company the input names in English is no invention.
-  const alibaba = { title: "Alibaba ships a new coding model", text: "Alibaba released a coding model with pricing details.", sourceKind: "rss" };
-  assert.equal(enforceIdentity(alibaba, { titleZh: "阿里巴巴发布编程模型", summaryZh: "阿里巴巴发布了编程模型并公布价格。" }).identityGuard.outcome, "pass");
+  const ethereum = { title: "Ethereum protocol ships a scaling upgrade", text: "Ethereum protocol released a scaling upgrade with fee details.", sourceKind: "rss" };
+  assert.equal(enforceIdentity(ethereum, { titleZh: "以太坊协议发布扩容升级", summaryZh: "以太坊协议发布了扩容升级并公布费用。" }).identityGuard.outcome, "pass");
   const long = "第一句交代了谁做了什么以及关键结果，这一句本身已经足够说明核心事件的来龙去脉。".repeat(3) + "第二句补充数字。".repeat(20);
   assert.ok(compactAnswerFirstSummary(long).length <= 190);
   assert.deepEqual(parseTranslateOutput("title_zh: 标题\nsummary_zh: 第一句。\n第二句。"), { titleZh: "标题", summaryZh: "第一句。\n第二句。", bodyZh: "" });

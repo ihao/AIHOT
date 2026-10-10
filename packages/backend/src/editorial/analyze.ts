@@ -489,9 +489,15 @@ export interface AnalyzeResult {
 export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Promise<AnalyzeResult | null> {
   const input = await loadAnalyzeInput(articleId);
   if (!input) return null;
+  // Extraction carries no new paid tag. Snapshot the retained request identity before any paid step.
+  const [request] = await sql<{ processing_attempt_tag: string | null }[]>`
+    SELECT processing_attempt_tag FROM articles WHERE id = ${articleId} AND revision = ${input.revision}`;
+  if (!request) return { analysisId: null, stale: true, output: null, receiptIds: [], reused: true };
+  const attemptTag = opts.attemptTag ?? request.processing_attempt_tag ?? undefined;
+  if (request.processing_attempt_tag !== (attemptTag ?? null)) return { analysisId: null, stale: true, output: null, receiptIds: [], reused: true };
   // Its page first; extraction queues the analysis again (normally the queue already routed it there).
   if (waitsForPage(input)) return { analysisId: null, stale: false, needsBody: true, output: null, receiptIds: [], reused: true };
-  const run = await runAnalysis(input, opts);
+  const run = await runAnalysis(input, { ...opts, attemptTag });
   const out = normalizeAnalysis(run);
   const receiptIds = [
     run.prefilter.receiptId, ...(run.scores?.receiptIds ?? []), ...(run.writing?.receiptIds ?? []), ...(run.structure ? [run.structure.receiptId] : []),
@@ -505,8 +511,13 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
     scope: out.scope, fact: out.fact,
   };
   const committed = await sql.begin(async (tx) => {
-    const [current] = await tx<{ revision: number }[]>`SELECT revision FROM articles WHERE id = ${articleId} FOR UPDATE`;
-    const stale = !current || current.revision !== input.revision;
+    const [current] = await tx<{ revision: number; processing_attempt_tag: string | null }[]>`SELECT revision, processing_attempt_tag FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    const stale = !current || current.revision !== input.revision || current.processing_attempt_tag !== (attemptTag ?? null);
+    if (current?.revision === input.revision && current.processing_attempt_tag !== (attemptTag ?? null)) {
+      // Keep the obsolete paid responses, but never make their judgement newer than this request's successor.
+      for (const id of receiptIds) await completeReceipt(tx, id);
+      return { analysisId: null, stale: true };
+    }
     const [row] = await tx<{ id: number }[]>`
       INSERT INTO analyses (article_id, input_revision, origin, model, prompt_version, receipt_ids, relevance, category, tags,
         subjects, title_zh, summary_zh, reason_zh, score, selected, output)
@@ -516,7 +527,7 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
       RETURNING id`;
     for (const id of receiptIds) await completeReceipt(tx, id);
     if (!stale) {
-      await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL WHERE id = ${articleId}`;
+      await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL, manual_processing = false WHERE id = ${articleId}`;
     }
     return { analysisId: row!.id, stale };
   });

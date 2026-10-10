@@ -1,0 +1,36 @@
+{
+  "typecheck": "passed",
+  "webBuild": "passed",
+  "webTests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "backendTests": {
+    "passed": 318,
+    "failed": 0,
+    "database": "fresh empty test database; PostgreSQL 14.20",
+    "runtime": "Node 26.3.0",
+    "providers": "local stubs only; no real credentials; external HTTP guard"
+  },
+  "publicSmoke": {
+    "passed": 30,
+    "failed": 0
+  },
+  "productionRuntime": "Node 24.21.0 / PostgreSQL 17",
+  "applicationImageChanged": false,
+  "activeCap": 100,
+  "activeSources": 80,
+  "historyAssertions": {
+    "items": 5,
+    "older_than_month": 0,
+    "older_than_48h": 0,
+    "undated": 0,
+    "future": 0
+  },
+  "budgetConfigurationUnchanged": true,
+  "backup": {
+    "path": "/srv/9btc-release-backups/before-prediction-sources-20261003.dump",
+    "bytes": 54793473,
+    "permissions": "600"
+  }
+}

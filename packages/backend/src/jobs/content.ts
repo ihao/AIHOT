@@ -5,13 +5,15 @@
 // an article wait and retry with backoff; only a permanent refusal or exhausted retries end in
 // "failed", which the admin re-queues in bulk.
 import type { PgBoss } from "pg-boss";
-import { sql, type Db } from "../db.ts";
+import { sql, type Db, type Tx } from "../db.ts";
 import { extractArticleBody, pageFetchable } from "../content/extract.ts";
 import { analyzeArticle, AnalysisInterruptedError } from "../editorial/analyze.ts";
 import { isHistorical } from "../content/materials.ts";
-import { publishArticle } from "../publication/publish.ts";
+import { savedAnalysis, skipIneligibleProcessing } from "../content/freshness.ts";
+import { publishArticle, publishArticleTx } from "../publication/publish.ts";
 import { BudgetExceededError, ProviderRejectedError, ReceiptBusyError, ReceiptUnknownError } from "../providers/receipts.ts";
 import { ModelOutputError } from "../providers/llm.ts";
+import { emit } from "../modules.ts";
 import { enqueue, QUEUES, shutdownSignal, work } from "./queue.ts";
 
 /** Minutes to wait after the n-th failed attempt; one more failure after the last ends in "failed". */
@@ -66,10 +68,16 @@ const PRIORITY = { live: 0, liveSignal: -1, history: -2 } as const;
  * Posts of non-editorial sources skip the analysis queue: they only need recording and grouping.
  */
 export async function queueProcessing(articleId: string, opts: { step?: Step; attemptTag?: string; db?: Db } = {}): Promise<string | null> {
-  const db = opts.db ?? sql;
+  if (!opts.db) return sql.begin(tx => queueProcessing(articleId, { ...opts, db: tx }));
+  const db = opts.db;
+  if (await skipIneligibleProcessing(articleId, db, true)) return null;
+  const saved = await savedAnalysis(articleId, db);
+  if (saved?.complete) return null;
+  // A revised/deleted cached result cannot transfer its age exception to extraction or a new model call.
+  if (!saved && await skipIneligibleProcessing(articleId, db)) return null;
   const r = await route(articleId, db);
   if (!r) return null;
-  const step = opts.step ?? r.step;
+  const step = saved ? "analyze" : opts.step ?? r.step;
   const [queued] = await db<{ processing_attempt_tag: string | null }[]>`
     UPDATE articles SET processing_queued_at = now(), processing_attempt_tag = coalesce(${opts.attemptTag ?? null}, processing_attempt_tag)
     WHERE id = ${articleId} RETURNING processing_attempt_tag`;
@@ -77,8 +85,10 @@ export async function queueProcessing(articleId: string, opts: { step?: Step; at
   // Extraction and the sweep only carry articleId; retain the current evaluation's paid identity.
   const attemptTag = queued.processing_attempt_tag ?? undefined;
   if (step === "extract") return enqueue(QUEUES.extractBody, { articleId }, { singletonKey: articleId, priority: r.historical ? PRIORITY.history : PRIORITY.live }, opts.db);
-  if (r.signal && !attemptTag) {
-    return enqueue(QUEUES.group, { articleId, signalOnly: true }, { singletonKey: articleId, priority: r.historical ? PRIORITY.history : PRIORITY.liveSignal }, opts.db);
+  if (r.signal && !attemptTag && !saved) {
+    const jobId = await enqueue(QUEUES.group, { articleId, signalOnly: true }, { singletonKey: articleId, priority: r.historical ? PRIORITY.history : PRIORITY.liveSignal }, db);
+    if (jobId) await db`UPDATE articles SET manual_processing = false WHERE id = ${articleId}`;
+    return jobId;
   }
   const tagged = !!attemptTag;
   return enqueue(QUEUES.analyze, tagged ? { articleId, attemptTag } : { articleId },
@@ -89,19 +99,32 @@ export async function queueProcessing(articleId: string, opts: { step?: Step; at
  * A post of a non-editorial source: recorded (hot_signal material only feeds heat; isolated material
  * never reaches public surfaces). Returns whether it is discussion evidence to group.
  */
-export async function settleNonEditorial(articleId: string): Promise<{ group: boolean }> {
-  const [row] = await sql<{ participation_mode: string; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
-    UPDATE articles a SET processing_state = 'skipped', processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL
-    FROM sources s WHERE s.id = a.source_id AND a.id = ${articleId} AND s.participation_mode <> 'editorial'
-    RETURNING s.participation_mode, a.backfill, a.published_at, a.discovered_at`;
-  if (!row) return { group: false };
-  await publishArticle(articleId);
-  return { group: row.participation_mode === "hot_signal" && !isHistorical(row) };
+export async function settleNonEditorial(articleId: string, opts: { revision?: number; attemptTag?: string | null } = {}): Promise<{ group: boolean }> {
+  return sql.begin(async tx => {
+    const [row] = await tx<{ participation_mode: string; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
+      UPDATE articles a SET processing_state = 'skipped', processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL, manual_processing = false
+      FROM sources s WHERE s.id = a.source_id AND a.id = ${articleId} AND s.participation_mode <> 'editorial'
+        AND (${opts.revision ?? null}::int IS NULL OR (a.revision = ${opts.revision ?? null} AND a.processing_attempt_tag IS NOT DISTINCT FROM ${opts.attemptTag ?? null}))
+      RETURNING s.participation_mode, a.backfill, a.published_at, a.discovered_at`;
+    if (!row) return { group: false };
+    await publishRecoveredArticle(tx, articleId);
+    return { group: row.participation_mode === "hot_signal" && !isHistorical(row) };
+  });
+}
+
+/** Keep publication and module invalidation in the caller's recovery transaction. */
+async function publishRecoveredArticle(tx: Tx, articleId: string): Promise<void> {
+  const [previous] = await tx<{ story_id: number | null }[]>`SELECT story_id FROM publications WHERE article_id = ${articleId}`;
+  const result = await publishArticleTx(tx, articleId);
+  if (previous && result?.changed) await emit("articleChanged", {
+    id: articleId, reason: "republication", kind: result.changeKind, reduced: result.reduced,
+    previousStoryIds: previous.story_id === null ? [] : [previous.story_id],
+  }, tx);
 }
 
 async function processingInput(articleId: string) {
-  const [row] = await sql<{ participation_mode: string; revision: number; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
-    SELECT s.participation_mode, a.revision, a.backfill, a.published_at, a.discovered_at FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
+  const [row] = await sql<{ participation_mode: string; revision: number; processing_attempt_tag: string | null; backfill: boolean; published_at: Date | null; discovered_at: Date }[]>`
+    SELECT s.participation_mode, a.revision, a.processing_attempt_tag, a.backfill, a.published_at, a.discovered_at FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId}`;
   return row ? { ...row, historical: isHistorical(row) } : null;
 }
 
@@ -111,36 +134,63 @@ async function processingInput(articleId: string) {
  * request; the same tag reuses its receipt.
  */
 export async function processArticle(articleId: string, opts: { attemptTag?: string } = {}): Promise<{ state: string; retryAt?: Date }> {
+  if (await skipIneligibleProcessing(articleId, sql, true)) return { state: "skipped" };
   const row = await processingInput(articleId);
   if (!row) return { state: "missing" };
   try {
+    const saved = await savedAnalysis(articleId);
+    if (saved?.complete) return { state: "already-analyzed" };
+    if (saved) return await recoverSavedAnalysis(articleId, row);
+    if (await skipIneligibleProcessing(articleId)) return { state: "skipped" };
     return await processRevision(articleId, row, opts);
   } catch (error) {
     return afterFailure(articleId, row.revision, error);
   }
 }
 
+/** A crash after analysis resumes only its unfinished projection/identity work, without a new model call. */
+async function recoverSavedAnalysis(articleId: string, row: NonNullable<Awaited<ReturnType<typeof processingInput>>>): Promise<{ state: string }> {
+  return sql.begin(async (tx) => {
+    const [current] = await tx<{ revision: number; manual_processing: boolean; grouping_status: string }[]>`
+      SELECT revision, manual_processing, grouping_status FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    if (!current || current.revision !== row.revision || current.manual_processing) return { state: "stale" };
+    const saved = await savedAnalysis(articleId, tx);
+    if (!saved) return { state: "stale" };
+    if (saved.complete) return { state: "already-analyzed" };
+    if (!saved.published) await publishRecoveredArticle(tx, articleId);
+    // Terminal grouping failures retain their upstream manual-release boundary; only pending work resumes.
+    if (saved.relevance === "pass" && current.grouping_status === "pending") {
+      await enqueue(QUEUES.group, { articleId }, { singletonKey: articleId, priority: row.historical ? PRIORITY.history : PRIORITY.live }, tx);
+    }
+    await tx`UPDATE articles SET processing_state = ${saved.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL,
+      processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL
+      WHERE id = ${articleId} AND revision = ${row.revision}`;
+    return { state: saved.relevance };
+  });
+}
+
 async function processRevision(articleId: string, row: NonNullable<Awaited<ReturnType<typeof processingInput>>>, opts: { attemptTag?: string }): Promise<{ state: string }> {
   if (row.participation_mode !== "editorial") {
     // Normally queued straight for grouping (queueProcessing); an explicit re-evaluation lands here.
-    const { group } = await settleNonEditorial(articleId);
+    const { group } = await settleNonEditorial(articleId, { revision: row.revision, attemptTag: opts.attemptTag ?? row.processing_attempt_tag });
     if (group) await enqueue(QUEUES.group, { articleId, signalOnly: true }, { singletonKey: articleId, priority: PRIORITY.liveSignal });
     return { state: "skipped" };
   }
   try {
     const result = await analyzeArticle(articleId, { attemptTag: opts.attemptTag });
     if (!result) return { state: "missing" };
+    if (result.stale) return { state: "stale" }; // the newer revision/request has its own job
     // Only a title or a feed summary: the article page first; extraction queues the analysis again.
     if (result.needsBody || !result.output) {
       await queueProcessing(articleId, { step: "extract" });
       return { state: "fetching-body" };
     }
-    if (result.stale) return { state: "stale" }; // the newer revision has its own job
     await publishArticle(articleId);
     // History still completes the identity gate; groupArticle confirms it without a model call.
     if (result.output.relevance === "pass") await enqueue(QUEUES.group, { articleId }, { singletonKey: articleId, priority: row.historical ? PRIORITY.history : PRIORITY.live });
     await sql`UPDATE articles SET processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL
-              WHERE id = ${articleId} AND revision = ${row.revision}`;
+              WHERE id = ${articleId} AND revision = ${row.revision}
+                AND processing_attempt_tag IS NOT DISTINCT FROM ${opts.attemptTag ?? row.processing_attempt_tag}`;
     return { state: result.output.relevance };
   } catch (error) {
     if (error instanceof AnalysisInterruptedError || shutdownSignal.signal.aborted) throw error;
@@ -194,6 +244,7 @@ export async function registerContentJobs(boss: PgBoss) {
  */
 export async function registerExtractionJobs(boss: PgBoss) {
   await work(boss, QUEUES.extractBody, { localConcurrency: 4, pollingIntervalSeconds: 2 }, async ({ articleId }) => {
+    if (await skipIneligibleProcessing(articleId)) return { state: "skipped" };
     const [input] = await sql<{ revision: number }[]>`SELECT revision FROM articles WHERE id = ${articleId}`;
     if (!input) return { state: "missing" };
     try {

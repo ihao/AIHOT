@@ -337,12 +337,27 @@ export interface AdminModelUsage {
   p95: number | null;
   tokensIn: number;
   tokensOut: number;
+  cachedTokensIn: number;
   actualCost: number | null;
   currency: string | null;
   estimate: { amount: number; currency: string } | null;
 }
 
+export interface AdminModelCostOverview {
+  scope: "all_models" | "verification_benchmark";
+  scopeLabel: string;
+  checkedAt: string;
+  policy: { enabled: boolean; productionEnabled: boolean; updatedAt: string; timezone: string; dayLimitCny: number; rollingLimitCny: number };
+  day: { estimatedCny: number; reservedCny: number; totalCny: number; unpricedAttempts: number; startsAt: string };
+  rolling: { estimatedCny: number; reservedCny: number; totalCny: number; unpricedAttempts: number; startsAt: string };
+  basis: "estimated";
+  blocked: boolean;
+  reasons: string[];
+}
+
 export interface AdminModels {
+  moneyBudget: AdminModelCostOverview;
+  benchmarkBudget: AdminModelCostOverview;
   days: number;
   capabilities: Array<{ key: string; label: string; env: string; defaultModel: string; vision: boolean; current: { model: string; source: "admin" | "env" | "default" }; usage: AdminModelUsage[] }>;
   choices: Array<{ key: string; service: string; vision: boolean }>;

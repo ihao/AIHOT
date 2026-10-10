@@ -11,7 +11,7 @@ import { sql, closeDb } from "@aihot/backend/db";
 import { stopBoss } from "@aihot/backend/jobs/queue";
 import { upsertMaterial } from "@aihot/backend/content/materials";
 import { markStalePendingReceipts } from "@aihot/backend/providers/receipts";
-import { autoReleaseUnknownReceipts } from "@aihot/backend/operations/recover";
+import { autoReleaseUnknownReceipts, releaseReceipt } from "@aihot/backend/operations/recover";
 
 const T = tag();
 const SOURCE = `test-analyze-kill-${T}`;
@@ -27,8 +27,8 @@ const provider = await stub(async (_hit, request) => {
   }
   const content = step === "prefilter" ? { label: "PASS", reason: "AI model release" }
     : step === "score" ? { attentionScore: SELECTING_SCORE }
-      : step === "structure" ? { category: "ai-models", tags: ["模型发布"], subjects: [], fact: { title: "新模型发布" } }
-        : { itemType: "model_release", authorRole: "principal", tags: ["模型发布"], editorialJudgment: "模型有明确的能力提升", titleZh: `新模型发布 ${T}`, summaryZh: "模型发布并提供了评测和价格。" };
+      : step === "structure" ? { category: "infrastructure", tags: ["公链/基础设施"], subjects: [], fact: { title: "新公链/基础设施" } }
+        : { itemType: "protocol_upgrade", authorRole: "principal", tags: ["公链/基础设施"], editorialJudgment: "模型有明确的能力提升", titleZh: `新公链/基础设施 ${T}`, summaryZh: "公链/基础设施并提供了评测和价格。" };
   return { id: `stub-${calls.length}`, choices: [{ message: { content: JSON.stringify(content) } }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } };
 });
 
@@ -114,7 +114,7 @@ after(async () => {
   await closeDb();
 });
 
-test("SIGKILL after the provider accepted a request leaves an unknown outcome, released only once", async () => {
+test("SIGKILL after a model accepted a request waits for billing confirmation before every retry", async () => {
   calls = [];
   const articleId = await article("lost");
   const subject = `article:${articleId}@1`;
@@ -144,10 +144,19 @@ test("SIGKILL after the provider accepted a request leaves an unknown outcome, r
   assert.equal(await markStalePendingReceipts(), 1);
   assert.equal(await status(), "unknown");
   assert.equal((await finish(articleId)).result?.state, "unknown-receipt");
-  assert.equal((await autoReleaseUnknownReceipts()).released, 0, "unknown waits another 30 minutes");
+  assert.equal((await autoReleaseUnknownReceipts()).released, 0, "an unknown model outcome requires billing confirmation");
   await sql`UPDATE receipts SET updated_at=now()-interval '31 minutes' WHERE subject=${subject}`;
-  assert.equal((await autoReleaseUnknownReceipts()).released, 1);
+  assert.equal((await autoReleaseUnknownReceipts()).released, 0, "age cannot authorize another paid model request");
+  assert.equal(await status(), "unknown");
+  assert.equal((await finish(articleId)).result?.state, "unknown-receipt");
+  assert.deepEqual(calls, ["prefilter"], "recovery cannot buy a second copy of an unconfirmed paid answer");
+  const [receipt] = await sql<{ id: number }[]>`SELECT id FROM receipts WHERE subject=${subject}`;
+  const released = await releaseReceipt(receipt!.id, { billed: false, note: "local provider confirmed no charge" }, "test");
+  assert.equal(released?.requeued, true, "confirmed release resumes the same article evaluation");
   assert.equal(await status(), "failed");
+  const [free] = await sql`SELECT model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.equal(free!.model_cost_cny, 0);
+  assert.equal(free!.model_cost_state, "released", "only confirmed nonbilling frees the amount ledger");
 
   await loseAnswer();
   await sql`UPDATE receipts SET updated_at=now()-interval '11 minutes' WHERE subject=${subject}`;
@@ -155,7 +164,7 @@ test("SIGKILL after the provider accepted a request leaves an unknown outcome, r
   await sql`UPDATE receipts SET updated_at=now()-interval '31 minutes' WHERE subject=${subject}`;
   assert.equal((await autoReleaseUnknownReceipts()).released, 0, "the second lost answer waits for an admin");
   assert.equal((await finish(articleId)).result?.state, "unknown-receipt");
-  assert.deepEqual(calls, ["prefilter", "prefilter"], "only one automatic repeat was sent");
+  assert.deepEqual(calls, ["prefilter", "prefilter"], "only the explicitly released retry was sent");
   const attempts = await sql`SELECT a.status FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id WHERE r.subject=${subject} ORDER BY a.attempt`;
   assert.deepEqual(attempts.map((a) => a.status), ["failed", "unknown"]);
   assert.equal((await sql`SELECT 1 FROM analyses WHERE article_id=${articleId}`).length, 0);

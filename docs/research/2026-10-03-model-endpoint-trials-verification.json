@@ -1,0 +1,905 @@
+{
+  "status": "live_compatibility_trial_complete",
+  "directoryAt": "2026-10-03T04:32:25.408Z",
+  "directoryCount": 261,
+  "startedAt": "2026-10-03T04:33:55.592Z",
+  "completedAt": "2026-10-03T04:35:54.651Z",
+  "provider": "existing Bailian Beijing workspace",
+  "sampleType": "synthetic news evidence boundary cases",
+  "fixtures": [
+    {
+      "id": "testnet",
+      "material": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+      "claim": "Protocol Alpha version 2.4 is live on mainnet and its security audit is complete."
+    },
+    {
+      "id": "probability",
+      "material": "2026年10月2日，事件合约平台Beta的某市场显示，候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+      "claim": "候选人乙已经赢得2028年选举。"
+    },
+    {
+      "id": "complaint",
+      "material": "On 2026-10-02, Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+      "claim": "监管机构Gamma宣布对实体Delta提起民事诉讼，法院尚未作出判决。"
+    },
+    {
+      "id": "price",
+      "material": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+      "claim": "这篇报道介绍了预测市场平台的事件合约新功能。"
+    }
+  ],
+  "results": [
+    {
+      "event": "result",
+      "model": "qwen3.8-flash",
+      "status": "schema_valid",
+      "jsonMode": true,
+      "extra": {
+        "enable_thinking": false
+      },
+      "latencyMs": 4814,
+      "receiptId": 14841,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 402,
+        "total_tokens": 714,
+        "completion_tokens": 312,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 402
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "qwen3.8-flash",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "qwen3.8-max",
+      "status": "schema_valid",
+      "jsonMode": true,
+      "extra": {
+        "enable_thinking": false
+      },
+      "latencyMs": 3947,
+      "receiptId": 14842,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 402,
+        "total_tokens": 613,
+        "completion_tokens": 211,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 402
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "qwen3.8-max",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "qwen3.7-flash",
+      "status": "schema_valid",
+      "jsonMode": true,
+      "extra": {
+        "enable_thinking": false
+      },
+      "latencyMs": 2115,
+      "receiptId": 14844,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 402,
+        "total_tokens": 648,
+        "completion_tokens": 246,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 402
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "qwen3.7-flash",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "候选人乙赢得2028年选举的市场隐含概率为62%。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "deepseek-v4.1-flash",
+      "status": "schema_valid",
+      "jsonMode": true,
+      "extra": {
+        "enable_thinking": false
+      },
+      "latencyMs": 1786,
+      "receiptId": 14846,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 381,
+        "total_tokens": 624,
+        "completion_tokens": 243,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 381
+        },
+        "completion_tokens_details": {
+          "text_tokens": 243
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "deepseek-v4.1-flash",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "2026年10月2日，事件合约平台Beta的某市场显示，候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-02, Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "glm-5.3",
+      "status": "schema_valid",
+      "jsonMode": true,
+      "extra": {
+        "reasoning_effort": "low"
+      },
+      "latencyMs": 2567,
+      "receiptId": 14847,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 387,
+        "total_tokens": 628,
+        "completion_tokens": 241,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "glm-5.3",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "2026年10月2日，事件合约平台Beta的某市场显示，候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-02, Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "kimi-k3",
+      "status": "schema_valid",
+      "jsonMode": false,
+      "extra": {},
+      "latencyMs": 17296,
+      "receiptId": 14848,
+      "reused": false,
+      "usage": {
+        "prompt_tokens": 460,
+        "total_tokens": 1668,
+        "completion_tokens": 1208,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 460
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 954,
+          "text_tokens": 254
+        }
+      },
+      "finishReason": "stop",
+      "returnedModel": "kimi-k3",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "2026年10月2日，事件合约平台Beta的某市场显示，候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-02, Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "MiniMax/MiniMax-M3",
+      "status": "schema_valid",
+      "jsonMode": false,
+      "extra": {
+        "thinking": {
+          "type": "disabled"
+        }
+      },
+      "latencyMs": 5820,
+      "receiptId": 14851,
+      "reused": false,
+      "usage": {
+        "completion_tokens": 239,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "prompt_tokens": 522,
+        "prompt_tokens_details": {
+          "cached_tokens": 128
+        },
+        "total_tokens": 761
+      },
+      "finishReason": "stop",
+      "returnedModel": "MiniMax/MiniMax-M3",
+      "uniqueIds": true,
+      "points": 16,
+      "maxPoints": 16,
+      "cases": [
+        {
+          "id": "testnet",
+          "supported": false,
+          "stage": "testnet",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-01, Protocol Alpha released version 2.4 on testnet. Mainnet deployment is scheduled for October 15. The security audit has not been completed.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "probability",
+          "supported": false,
+          "stage": "market_quote",
+          "predictionMarket": true,
+          "evidence": "2026年10月2日，事件合约平台Beta的某市场显示，候选人乙赢得2028年选举的市场隐含概率为62%。选举尚未举行，该市场尚未结算。",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "complaint",
+          "supported": true,
+          "stage": "civil_complaint",
+          "predictionMarket": false,
+          "evidence": "On 2026-10-02, Regulator Gamma announced that it filed a civil complaint against Entity Delta. The court has not issued a judgment.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        },
+        {
+          "id": "price",
+          "supported": false,
+          "stage": "price_opinion",
+          "predictionMarket": false,
+          "evidence": "An analyst published an opinion that BTC could reach a target price in 2027. The article does not describe event contracts, a prediction market platform, or market settlement.",
+          "checks": {
+            "supported": true,
+            "stage": true,
+            "predictionMarket": true,
+            "evidenceExact": true
+          }
+        }
+      ]
+    },
+    {
+      "event": "result",
+      "model": "stepfun/step-3.7-flash",
+      "status": "failed",
+      "jsonMode": false,
+      "extra": {
+        "enable_thinking": false
+      },
+      "latencyMs": 989,
+      "errorKind": "Error",
+      "httpStatus": 400,
+      "errorCategory": "product_not_activated",
+      "providerErrorMessage": "The product is not activated."
+    },
+    {
+      "event": "result",
+      "model": "ZHIPU/GLM-5.3-Flash",
+      "status": "failed",
+      "jsonMode": true,
+      "extra": {
+        "thinking": {
+          "type": "enabled"
+        },
+        "reasoning_effort": "low"
+      },
+      "latencyMs": 1399,
+      "errorKind": "Error",
+      "httpStatus": 400,
+      "errorCategory": "product_not_activated",
+      "providerErrorMessage": "The product is not activated."
+    }
+  ],
+  "proof": {
+    "choicesBefore": {
+      "prefilter": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "score": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "verification": {
+        "model": "qwen3.8-max",
+        "source": "env"
+      },
+      "understand": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "summarize": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "structure": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "group": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "groupReview": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "digest": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "report": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "translate": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "monitor": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      }
+    },
+    "choicesAfter": {
+      "prefilter": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "score": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "verification": {
+        "model": "qwen3.8-max",
+        "source": "env"
+      },
+      "understand": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "summarize": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "structure": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "group": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "groupReview": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "digest": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "report": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "translate": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      },
+      "monitor": {
+        "model": "qwen3.8-flash",
+        "source": "env"
+      }
+    },
+    "choicesUnchanged": true,
+    "budgetAfter": {
+      "service": "dashscope",
+      "per_minute": 20,
+      "per_hour": 300,
+      "per_day": 2000,
+      "usage_reset_at": "2026-10-01T17:32:45.035Z"
+    },
+    "budgetsUnchanged": true,
+    "attemptCount": 9,
+    "attempts": [
+      {
+        "id": 14938,
+        "model": "qwen3.8-flash",
+        "status": "received",
+        "latency_ms": 4657,
+        "usage": {
+          "total_tokens": 714,
+          "prompt_tokens": 402,
+          "completion_tokens": 312,
+          "prompt_tokens_details": {
+            "text_tokens": 402,
+            "cached_tokens": 0
+          }
+        },
+        "receipt_id": 14841,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14939,
+        "model": "qwen3.8-max",
+        "status": "received",
+        "latency_ms": 3909,
+        "usage": {
+          "total_tokens": 613,
+          "prompt_tokens": 402,
+          "completion_tokens": 211,
+          "prompt_tokens_details": {
+            "text_tokens": 402,
+            "cached_tokens": 0
+          }
+        },
+        "receipt_id": 14842,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14941,
+        "model": "qwen3.7-flash",
+        "status": "received",
+        "latency_ms": 2089,
+        "usage": {
+          "total_tokens": 648,
+          "prompt_tokens": 402,
+          "completion_tokens": 246,
+          "prompt_tokens_details": {
+            "text_tokens": 402,
+            "cached_tokens": 0
+          }
+        },
+        "receipt_id": 14844,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14943,
+        "model": "deepseek-v4.1-flash",
+        "status": "received",
+        "latency_ms": 1756,
+        "usage": {
+          "total_tokens": 624,
+          "prompt_tokens": 381,
+          "completion_tokens": 243,
+          "prompt_tokens_details": {
+            "text_tokens": 381,
+            "cached_tokens": 0
+          },
+          "completion_tokens_details": {
+            "text_tokens": 243
+          }
+        },
+        "receipt_id": 14846,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14944,
+        "model": "glm-5.3",
+        "status": "received",
+        "latency_ms": 2549,
+        "usage": {
+          "total_tokens": 628,
+          "prompt_tokens": 387,
+          "completion_tokens": 241,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "receipt_id": 14847,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14945,
+        "model": "kimi-k3",
+        "status": "received",
+        "latency_ms": 17270,
+        "usage": {
+          "total_tokens": 1668,
+          "prompt_tokens": 460,
+          "completion_tokens": 1208,
+          "prompt_tokens_details": {
+            "text_tokens": 460,
+            "cached_tokens": 0
+          },
+          "completion_tokens_details": {
+            "text_tokens": 254,
+            "reasoning_tokens": 954
+          }
+        },
+        "receipt_id": 14848,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14948,
+        "model": "MiniMax/MiniMax-M3",
+        "status": "received",
+        "latency_ms": 5773,
+        "usage": {
+          "total_tokens": 761,
+          "prompt_tokens": 522,
+          "completion_tokens": 239,
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "receipt_id": 14851,
+        "receipt_status": "completed"
+      },
+      {
+        "id": 14949,
+        "model": "stepfun/step-3.7-flash",
+        "status": "failed",
+        "latency_ms": 925,
+        "usage": null,
+        "receipt_id": 14852,
+        "receipt_status": "failed"
+      },
+      {
+        "id": 14950,
+        "model": "ZHIPU/GLM-5.3-Flash",
+        "status": "failed",
+        "latency_ms": 1334,
+        "usage": null,
+        "receipt_id": 14853,
+        "receipt_status": "failed"
+      }
+    ]
+  },
+  "limits": [
+    "one request per model with four batched synthetic cases",
+    "not representative real-news benchmark",
+    "one observed latency, different thinking modes",
+    "Kimi and MiniMax only prompt constrained JSON tested",
+    "directory entries are not all activated",
+    "cost fields do not provide billed amount"
+  ]
+}

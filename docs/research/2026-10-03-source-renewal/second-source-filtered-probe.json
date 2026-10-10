@@ -1,0 +1,311 @@
+{
+  "at": "2026-10-02T18:34:28.678Z",
+  "results": [
+    {
+      "id": "beincrypto-news",
+      "feedUrl": "https://beincrypto.com/feed/",
+      "total": 12,
+      "freshBeforeFilter": 12,
+      "freshAfterFilter": 7,
+      "allNoiseRemoved": 5,
+      "samples": [
+        {
+          "title": "Ethereum Network Blast Is Shutting Down: Who Controls Users' Last $51 Million?",
+          "url": "https://beincrypto.com/blast-shutting-down-ethereum-layer-2/",
+          "publishedAt": "2026-10-02T16:31:52.000Z",
+          "categories": [
+            "Markets",
+            "Cryptocurrency Market News",
+            "Editor's Pick",
+            "Ethereum (ETH) News",
+            "Layer 2 Blockchain"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 2750,
+          "originalLinks": [
+            "https://x.com/blast/status/2106032805280891073?ref_src=twsrc%5Etfw",
+            "https://x.com/PacmanBlur/status/2106033154586763771?s=20",
+            "https://defillama.com/chain/blast",
+            "https://l2beat.com/scaling/projects/blast",
+            "https://l2beat.com/layer2s/projects/blast",
+            "https://l2beat.com/layer2s/projects/blast#tvs"
+          ],
+          "pageStatus": 403,
+          "pageDatePublished": []
+        },
+        {
+          "title": "USDT Is Returning to Bitcoin After 10 Years. Should Users Care?",
+          "url": "https://beincrypto.com/usdt-returning-bitcoin-rgb-utexo/",
+          "publishedAt": "2026-10-02T13:25:59.000Z",
+          "categories": [
+            "Markets",
+            "Bitcoin (BTC) News",
+            "Stablecoin News",
+            "Tether (USDT) News"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 3916,
+          "originalLinks": [
+            "https://tether.io/news/tether-to-launch-usdt-on-rgb-expanding-native-bitcoin-stablecoin-support/",
+            "https://x.com/paoloardoino/status/2103121411338375272?s=20",
+            "https://defillama.com/stablecoin/tether",
+            "https://x.com/MorganStanley?ref_src=twsrc%5Etfw",
+            "https://x.com/MergnerMs?ref_src=twsrc%5Etfw",
+            "https://x.com/utexocom?ref_src=twsrc%5Etfw",
+            "https://t.co/pKn1HfVpq7",
+            "https://x.com/VIhnatiuk/status/2103088653689913350?ref_src=twsrc%5Etfw"
+          ],
+          "pageStatus": 403,
+          "pageDatePublished": []
+        },
+        {
+          "title": "US Savings Rate Hits a 2022 Low: Could Bitcoin Be a Hedge?",
+          "url": "https://beincrypto.com/us-savings-rate-low-bitcoin-hedge/",
+          "publishedAt": "2026-10-02T12:58:12.000Z",
+          "categories": [
+            "Markets",
+            "Bitcoin (BTC) News",
+            "Cryptocurrency Market News",
+            "US Crypto News"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 3118,
+          "originalLinks": [
+            "https://www.bea.gov/news/2026/personal-income-and-outlays-august-2026",
+            "https://americandefault.org/indicators/the-buffer/",
+            "https://go.beincrypto.com/beincrypto-X",
+            "https://x.com/KobeissiLetter/status/2105820021154873733",
+            "https://www.nytimes.com/2026/09/18/your-money/household-finances-struggle.html",
+            "https://t.co/XmZj55MJ4f",
+            "https://x.com/TimmerFidelity/status/2105847990619402483?ref_src=twsrc%5Etfw",
+            "https://go.beincrypto.com/beincrypto-youtube"
+          ],
+          "pageStatus": 403,
+          "pageDatePublished": []
+        }
+      ]
+    },
+    {
+      "id": "protos-news",
+      "feedUrl": "https://protos.com/feed/",
+      "total": 10,
+      "freshBeforeFilter": 8,
+      "freshAfterFilter": 5,
+      "allNoiseRemoved": 4,
+      "samples": [
+        {
+          "title": "US jobs data revised lower after Fed rate hike",
+          "url": "https://protos.com/us-jobs-data-revised-lower-after-fed-rate-hike/",
+          "publishedAt": "2026-10-02T18:05:45.000Z",
+          "categories": [
+            "Crypto",
+            "Federal Reserve",
+            "Markets",
+            "Stocks"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 2665,
+          "originalLinks": [
+            "https://www.bls.gov/news.release/empsit.nr0.htm",
+            "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+            "https://www.bls.gov/news.release/archives/empsit_09042026.htm",
+            "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20260916.pdf",
+            "https://www.ubs.com/global/en/wealthmanagement/insights/chief-investment-office/house-view/daily/2026/latest-07092026.html",
+            "https://www.cnbc.com/amp/2026/10/02/jobs-report-september-2026.html",
+            "https://x.com/zerohedge/status/2106001461351997722",
+            "https://www.bls.gov/news.release/pdf/empsit.pdf"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T18:05:45+00:00",
+            "2026-10-02T18:05"
+          ]
+        },
+        {
+          "title": "NEAR Intents hacked days after freezing stolen Bitget funds",
+          "url": "https://protos.com/near-intents-hacked-days-after-freezing-stolen-bitget-funds/",
+          "publishedAt": "2026-10-01T18:18:28.000Z",
+          "categories": [
+            "Crypto",
+            "Hack",
+            "NEAR"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 2552,
+          "originalLinks": [
+            "https://x.com/near_intents/status/2105642219357241796?s=20",
+            "https://x.com/chronear/status/2105661500329525617?ref_src=twsrc%5Etfw",
+            "https://t.me/investigations/365",
+            "https://www.coingecko.com/en/coins/near",
+            "https://x.com/AlexAuroraDev/status/2104554958754357482?s=20",
+            "https://leaks.protos.com/",
+            "https://twitter.com/protos",
+            "https://bsky.app/profile/protos.com"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-01T18:18:28+00:00",
+            "2026-10-01T18:18"
+          ]
+        },
+        {
+          "title": "Strategy has burned through 64% of its STRC rescue fund",
+          "url": "https://protos.com/strategy-has-burned-through-64-of-its-strc-rescue-fund/",
+          "publishedAt": "2026-10-01T17:42:54.000Z",
+          "categories": [
+            "Crypto",
+            "Michael Saylor",
+            "MSTR",
+            "Stocks",
+            "Strategy"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 3172,
+          "originalLinks": [
+            "https://www.sec.gov/Archives/edgar/data/0001050446/000119312526403417/mstr-20260914.htm",
+            "https://www.sec.gov/Archives/edgar/data/0001050446/000105044626000044/mstr-20260630.htm",
+            "https://www.strategy.com/press/strategy-announces-digital-credit-capital-framework_06-29-2026",
+            "https://www.sec.gov/Archives/edgar/data/0001050446/000119312526384402/mstr-20260831.htm",
+            "https://leaks.protos.com/",
+            "https://x.com/protos",
+            "https://bsky.app/profile/protos.com",
+            "https://news.google.com/publications/CAAqJAgKIh5DQklTRUFnTWFnd0tDbkJ5YjNSdmN5NWpiMjBvQUFQAQ"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-01T17:42:54+00:00",
+            "2026-10-01T17:42"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "techflow-articles-zh",
+      "feedUrl": "https://www.techflowpost.com/rss/v2/feed.xml?lang=zh-CN&type=article&topic=web3&tag=all",
+      "total": 50,
+      "freshBeforeFilter": 14,
+      "freshAfterFilter": 14,
+      "allNoiseRemoved": 0,
+      "samples": [
+        {
+          "title": "TOKEN2049 新加坡大会前夕，WasabiCard 汇聚稳定币支付机构共议全球资金流动新趋势",
+          "url": "https://www.techflowpost.com/article/34353",
+          "publishedAt": "2026-10-02T10:00:28.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 1634,
+          "originalLinks": [
+            "https://partners.circle.com/partner/wasabi-2",
+            "https://luma.com/gj0iv2kk",
+            "https://wasabicard.com/",
+            "https://x.com/wasabicard",
+            "https://www.linkedin.com/company/wasabicard"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T10:00:28.434Z"
+          ]
+        },
+        {
+          "title": "Zcash 从高点下跌 21%，ETF 资金出逃与朝鲜黑客传闻夹击，但这波行情可能还没结束",
+          "url": "https://www.techflowpost.com/article/34352",
+          "publishedAt": "2026-10-02T08:15:01.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 1567,
+          "originalLinks": [],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T08:15:01.752Z"
+          ]
+        },
+        {
+          "title": "现货比特币 ETF 9 月净流入约 27 亿美元，机构需求并未退潮",
+          "url": "https://www.techflowpost.com/article/34351",
+          "publishedAt": "2026-10-02T08:11:49.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 788,
+          "originalLinks": [],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T08:11:49.145Z"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chaincatcher-articles-zh",
+      "feedUrl": "https://www.chaincatcher.com/rss/clist",
+      "total": 674,
+      "freshBeforeFilter": 442,
+      "freshAfterFilter": 18,
+      "allNoiseRemoved": 647,
+      "samples": [
+        {
+          "title": "9 月新增就业料降至 9 万：今夜非农真正的“炸点”，或在 8 月数据是否大幅下修",
+          "url": "https://www.chaincatcher.com/article/2293711",
+          "publishedAt": "2026-10-02T10:29:26.000Z",
+          "categories": [
+            "文章"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 3334,
+          "originalLinks": [
+            "https://wallstreetcn.com/articles/3782927#from=ios?ivk=1"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T10:29:26Z"
+          ]
+        },
+        {
+          "title": "后金融科技时代的三大变革方向",
+          "url": "https://www.chaincatcher.com/article/2293710",
+          "publishedAt": "2026-10-02T10:24:20.000Z",
+          "categories": [
+            "文章"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 5637,
+          "originalLinks": [
+            "https://x.com/sytaylor/status/2105649123806351819?s=46",
+            "https://www.bcg.com/publications/2026/from-recovery-to-resurgence-in-global-fintech",
+            "https://a16z.com/openrouter-stripe-the-intelligence-network/",
+            "https://finance.yahoo.com/technology/ai/articles/stripe-talks-acquire-openrouter-potential-215104525.html",
+            "https://www.fintechbrainfood.com/p/trillion-dollar-fintech",
+            "https://www.prnewswire.com/news-releases/ramp-raises-series-f-at-44-billion-valuation-302791103.html",
+            "https://www.hebbia.com/about"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T10:24:20Z"
+          ]
+        },
+        {
+          "title": "TOKEN2049 新加坡大会前夕，WasabiCard 汇聚稳定币支付机构共议全球资金流动新趋势",
+          "url": "https://www.chaincatcher.com/article/2293621",
+          "publishedAt": "2026-10-02T10:00:00.000Z",
+          "categories": [
+            "文章"
+          ],
+          "bodyStatus": "ok",
+          "bodyChars": 1718,
+          "originalLinks": [
+            "https://luma.com/gj0iv2kk"
+          ],
+          "pageStatus": 200,
+          "pageDatePublished": [
+            "2026-10-02T10:00:00Z"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { BtcIngestionPrice } from "../market/BtcIngestionPrice";
 // Duplicate reports of one news fact. Desktop expands inline; phones use a sheet.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router";
@@ -128,9 +129,10 @@ export function GroupSources({ group, filters, parentId }: { group: GroupInfo; f
           {others.map((r) => (
             <li key={r.id} className="flex items-baseline gap-2 py-1.5 text-[13px]">
               <span className="w-[108px] shrink-0 truncate text-ink-4">{r.source.name}</span>
-              <Link viewTransition to={`/items/${r.id}`} className="min-w-0 flex-1 truncate text-ink-2 hover:text-accent">
-                {r.title}
-              </Link>
+              <div className="min-w-0 flex-1">
+                <Link viewTransition to={`/items/${r.id}`} className="block truncate text-ink-2 hover:text-accent">{r.title}</Link>
+                <BtcIngestionPrice quote={r.btcAtIngestion} />
+              </div>
               <a href={r.originalUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原文" className="shrink-0 text-ink-4 hover:text-accent">
                 <IconArrowUpRight size={13} />
               </a>
@@ -192,6 +194,7 @@ function GroupSheet({ open, onClose, group, filters, parentId }: {
                   {r.source.name} · <span className="num">{monthDayTime(r.timelineAt)}</span>
                 </span>
                 <span className="mt-0.5 line-clamp-2 text-[15px] leading-[1.5] text-ink-2">{r.title}</span>
+                <BtcIngestionPrice quote={r.btcAtIngestion} />
               </Link>
               <a href={r.originalUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原文" className="-mr-2 grid size-11 shrink-0 place-items-center rounded-full text-ink-4 active:bg-bg-sunk">
                 <IconArrowUpRight size={16} />

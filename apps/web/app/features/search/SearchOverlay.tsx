@@ -6,6 +6,7 @@ import { Form, Link, useLocation, useNavigation } from "react-router";
 import type { SearchSuggestions } from "@aihot/contracts/site";
 import { IconClose, IconSearch } from "../../components/icons";
 import { addRecentSearch, clearRecentSearches, useRecentSearches } from "../../lib/local-state";
+import { hrefWith } from "../../lib/feed-filters";
 import { useModal } from "../../components/ui/modal";
 
 // One overlay for the whole site, opened from any bar.
@@ -56,7 +57,8 @@ export function SearchOverlay() {
   const [hasText, setHasText] = useState(false);
   const recent = useRecentSearches();
   const navigation = useNavigation();
-  const { key } = useLocation();
+  const { key, pathname, search } = useLocation();
+  const feedParams = new URLSearchParams(pathname === "/" || pathname === "/all" ? search : "");
   const [more, setMore] = useState<Awaited<ReturnType<typeof loadSuggestions>> | null>(null);
 
   useModal({ open: shown, panel, initialFocus: input, returnFocus: opener, onClose: close });
@@ -127,6 +129,7 @@ export function SearchOverlay() {
         }}
         className="flex h-14 shrink-0 items-center gap-1 pl-4 pr-1 pt-[env(safe-area-inset-top)]"
       >
+        {["category", "channel", "tag"].map(name => feedParams.get(name) ? <input key={name} type="hidden" name={name} value={feedParams.get(name)!} /> : null)}
         <label className="relative flex-1">
           <span className="sr-only">搜索标题、摘要和正文</span>
           <IconSearch size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4" />
@@ -175,7 +178,7 @@ export function SearchOverlay() {
               </div>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 {recent.map((q) => (
-                  <Link key={q} to={`/all?q=${encodeURIComponent(q)}`} onClick={() => addRecentSearch(q)} className={`${chip} bg-surface text-ink-2 ring-1 ring-inset ring-line active:bg-bg-sunk`}>
+                  <Link key={q} to={hrefWith("/all", feedParams, { q, tab: null, search: null })} onClick={() => addRecentSearch(q)} className={`${chip} bg-surface text-ink-2 ring-1 ring-inset ring-line active:bg-bg-sunk`}>
                     <span className="truncate">{q}</span>
                   </Link>
                 ))}

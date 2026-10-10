@@ -37,6 +37,12 @@ flowchart LR
 
 这些模块边界由 `tests/architecture.test.ts` 检查；调整边界时同时更新约定与检查。站点身份和每一步的模型从 `site/` 读，行业分类和提示词从 `industry/` 读，代码里不写死某个站的值。
 
+### 9BTC 的整合约定
+
+9BTC 的金额账本由 `providers/model-cost.ts` 维护：它只更新 `receipt_attempts` 的 `model_cost_reserved_cny`、`model_cost_cny`、`model_cost_state`、`model_cost_price`、`model_cost_bounds`、`model_cost_note`。付费回执仍由 `providers/receipts.ts` 统筹，在同一事务和金额锁内委托金额预占、结算及释放；回执状态、次数和原始响应不交给金额模块改写。人工核对未计费时，恢复模块也在同一金额锁和事务内委托释放。
+
+9BTC 采用上游的 publication 流程后，旧业务核验和人工发布记录保留为只读历史归档，供审计与升级核对：`editorial_reviews`、`editorial_curations`、`source_auto_public_policies`、`report_drafts`、`report_versions`、`published_reports`（视图）、`automatic_verifications`、`automatic_curation_restorations`、`event_group_waits`，以及 `reports.active_version_id`。现行流程不读写这些归档对象来决定处理或发布资格，生产代码不得向归档表写入新状态。架构测试只将这些明确列出的历史对象排除于未使用状态检查之外；其他表、列和写入归属仍遵守原有检查。这是 9BTC 保留已有历史数据的站点约定，不扩展共享框架的未使用状态规则。
+
 ## 目录
 
 | 位置 | 内容 |

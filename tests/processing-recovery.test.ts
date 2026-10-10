@@ -10,7 +10,7 @@ import { upsertMaterial } from "@aihot/backend/content/materials";
 import { rerun } from "@aihot/backend/admin/content";
 import { processArticle, queueProcessing, registerContentJobs, sweepUnprocessed } from "@aihot/backend/jobs/content";
 import { enqueue, getBoss, QUEUES, stopBoss } from "@aihot/backend/jobs/queue";
-import { recoverStaleWork, releaseReceipt } from "@aihot/backend/operations/recover";
+import { autoReleaseUnknownReceipts, recoverStaleWork, releaseReceipt } from "@aihot/backend/operations/recover";
 import { ReceiptUnknownError } from "@aihot/backend/providers/receipts";
 
 const T = tag();
@@ -33,8 +33,8 @@ const provider = await stub(async (_hit, request) => {
   }
   const content = step === "prefilter" ? { label: original ? "BLOCK" : "PASS", reason: "local fixture" }
     : step === "score" ? { attentionScore: SELECTING_SCORE }
-    : step === "structure" ? { category: "ai-models", tags: [], subjects: [], fact: null }
-    : { itemType: "model_release", authorRole: "principal", tags: ["模型发布"], editorialJudgment: "模型能力提升", titleZh: `新判断 ${T}`, summaryZh: "模型发布并提供评测和价格。" };
+    : step === "structure" ? { category: "infrastructure", tags: [], subjects: [], fact: null }
+    : { itemType: "protocol_upgrade", authorRole: "principal", tags: ["公链/基础设施"], editorialJudgment: "模型能力提升", titleZh: `新判断 ${T}`, summaryZh: "公链/基础设施并提供评测和价格。" };
   return { choices: [{ message: { content: JSON.stringify(content) } }] };
 });
 pointModels(provider.url);
@@ -73,6 +73,10 @@ test("a failed audit rolls back the receipt release and the processing job", asy
   await sql`UPDATE articles SET processing_state='failed',processing_error='unknown receipt' WHERE id=${id}`;
   const [receipt] = await sql<{ id: number }[]>`INSERT INTO receipts (logical_key,service,purpose,subject,status)
     VALUES (${`atomic-${T}`},'deepseek','score_article',${`article:${id}@1`},'unknown') RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,status,model_cost_reserved_cny,model_cost_cny,model_cost_state)
+    VALUES(${receipt!.id},1,'deepseek','unknown',.5,.5,'reserved')`;
+  await sql`UPDATE receipts SET updated_at=now()-interval '31 minutes' WHERE id=${receipt!.id}`;
+  assert.equal((await autoReleaseUnknownReceipts()).released, 0, "a model's billing uncertainty cannot be released by elapsed time");
   await sql.unsafe(`CREATE FUNCTION fail_release_audit() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN IF NEW.actor = 'test-release-atomic' THEN RAISE EXCEPTION 'injected audit failure'; END IF; RETURN NEW; END $$`);
   await sql.unsafe("CREATE TRIGGER fail_release_audit BEFORE INSERT ON audit_log FOR EACH ROW EXECUTE FUNCTION fail_release_audit()");
@@ -83,10 +87,14 @@ test("a failed audit rolls back the receipt release and the processing job", asy
     await sql.unsafe("DROP FUNCTION fail_release_audit()");
   }
   assert.equal((await sql`SELECT status FROM receipts WHERE id=${receipt!.id}`)[0]!.status, "unknown");
+  const [reserved] = await sql`SELECT status,model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...reserved }, { status: "unknown", model_cost_cny: .5, model_cost_state: "reserved" }, "an audit failure rolls back the money release together with the receipt");
   assert.equal((await sql`SELECT processing_state FROM articles WHERE id=${id}`)[0]!.processing_state, "failed");
   assert.equal((await sql`SELECT 1 FROM pgboss.job WHERE data->>'articleId'=${id}`).length, 0);
   const released = await releaseReceipt(receipt!.id, { billed: false, note: "verified" }, "test");
   assert.equal(released?.requeued, true);
+  const [free] = await sql`SELECT status,model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...free }, { status: "failed", model_cost_cny: 0, model_cost_state: "released" });
   assert.equal((await sql`SELECT 1 FROM audit_log WHERE subject=${`receipt:${receipt!.id}`} AND action='receipt.release'`).length, 1);
   const boss = await getBoss();
   const jobs = await boss.fetch(QUEUES.analyze);

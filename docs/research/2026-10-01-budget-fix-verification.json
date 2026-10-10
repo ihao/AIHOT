@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-01T14:47:08.295Z",
+  "checks": [
+    "authenticated production API separates budget waits and failures",
+    "authenticated production page renders waiting count and rolling window",
+    "source diagnostics label inaccessible materials as unpublished",
+    "article diagnostics explain the exhausted budget in Chinese",
+    "waiting article remains unavailable to anonymous readers",
+    "real verified publication is publicly readable",
+    "approved budget is live and real requests resumed"
+  ],
+  "admin": {
+    "budgetWaitCount": 1706,
+    "failureCount": 0,
+    "pendingCount": 15
+  },
+  "budget": {
+    "service": "dashscope",
+    "per_minute": 20,
+    "per_hour": 300,
+    "per_day": 2000
+  },
+  "attempts": [
+    {
+      "total": 500,
+      "last_hour": 300
+    }
+  ],
+  "processing": [
+    {
+      "processing_state": "blocked",
+      "n": 42
+    },
+    {
+      "processing_state": "new",
+      "n": 1706
+    },
+    {
+      "processing_state": "analyzed",
+      "n": 32
+    }
+  ],
+  "publications": [
+    {
+      "visibility": "withdrawn",
+      "n": 1256
+    },
+    {
+      "visibility": "public",
+      "n": 17
+    }
+  ],
+  "sources": {
+    "total": 94,
+    "enabled": 94,
+    "healthy": 94
+  },
+  "audit": [
+    {
+      "action": "budget.update",
+      "created_at": "2026-10-01T14:28:18.994Z"
+    },
+    {
+      "action": "processing.resume_budget_wait",
+      "created_at": "2026-10-01T14:28:19.274Z"
+    }
+  ]
+}

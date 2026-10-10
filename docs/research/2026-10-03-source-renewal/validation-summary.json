@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-02T18:39:34.479Z",
+  "sourceCounts": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  },
+  "newSourceFetchesSuccessful": 10,
+  "freshInitialArticles": 30,
+  "oldOverMonth": 0,
+  "oldOver48Hours": 0,
+  "undated": 0,
+  "publicAcceptedAndHttpVerified": 2,
+  "panewsEnabled": true,
+  "pausedPendingJobs": 0,
+  "typecheck": "passed",
+  "webBuild": "passed",
+  "webTests": {
+    "passed": 16,
+    "failed": 0
+  },
+  "sourceFreshnessAdminTests": {
+    "passed": 20,
+    "failed": 0
+  },
+  "backendOfflineTests": {
+    "passed": 310,
+    "failed": 1,
+    "failure": "Existing manual event occurrence-date assertion at tests/automatic-verification.test.ts:601"
+  },
+  "productionSmoke": {
+    "passed": 30,
+    "failed": 0
+  },
+  "engineCodeChanged": false,
+  "activeSourceCap": 100,
+  "pausedSourcesCountTowardCap": false
+}

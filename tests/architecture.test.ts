@@ -84,14 +84,42 @@ const OWNERS: Record<string, string> = {
   audit_log: "audit.ts",
 };
 
+// 9BTC retains these retired workflow records for audit after adopting upstream publication.
+// They are not live workflow state; no production code may write them.
+const ARCHIVED_TABLES = new Set([
+  "editorial_reviews", "editorial_curations", "source_auto_public_policies",
+  "report_drafts", "report_versions", "published_reports",
+  "automatic_verifications", "automatic_curation_restorations", "event_group_waits",
+]);
+const ARCHIVED_COLUMNS = new Set(["reports.active_version_id"]);
+const MODEL_COST_COLUMNS = new Set([
+  "model_cost_reserved_cny", "model_cost_cny", "model_cost_state",
+  "model_cost_price", "model_cost_bounds", "model_cost_note",
+]);
+
+/** The receipt coordinator delegates only its amount ledger to the model-cost owner. */
+function ownsModelCostUpdate(own: string, table: string, statement: string): boolean {
+  if (own !== "providers/model-cost.ts" || table !== "receipt_attempts") return false;
+  const set = /^UPDATE\s+receipt_attempts\s+SET\s+([\s\S]*?)\bWHERE\b/i.exec(statement)?.[1];
+  const columns = set ? [...set.matchAll(/\b([a-z_]+)\s*=/gi)].map((m) => m[1]!.toLowerCase()) : [];
+  return columns.length > 0 && columns.every((column) => MODEL_COST_COLUMNS.has(column));
+}
+
 test("the tables that carry a rule are written only by the code that owns it", () => {
   const found: string[] = [];
   for (const { file, text } of [...sources("packages/backend/src"), ...sources("apps/api/src"), ...sources("apps/worker/src"), ...modules()]) {
     const own = path.posix.relative(BACKEND, file);
-    for (const [, table] of text.matchAll(/\b(?:INSERT\s+INTO|DELETE\s+FROM|UPDATE)\s+([a-z_]+)\b/gi)) {
-      const owner = OWNERS[table!.toLowerCase()];
-      if (owner && !own.startsWith(owner)) found.push(`${file} writes ${table} (owner ${owner})`);
+    for (const match of text.matchAll(/\b(?:INSERT\s+INTO|DELETE\s+FROM|UPDATE)\s+([a-z_]+)\b/gi)) {
+      const table = match[1]!.toLowerCase();
+      if (ARCHIVED_TABLES.has(table)) found.push(`${file} writes archived ${table}`);
+      const owner = OWNERS[table];
+      if (owner && !own.startsWith(owner) && !ownsModelCostUpdate(own, table, text.slice(match.index))) found.push(`${file} writes ${table} (owner ${owner})`);
     }
+  }
+  const receipts = readFileSync(path.join(ROOT, BACKEND, "providers/receipts.ts"), "utf8");
+  assert.ok(specifiers(receipts).includes("./model-cost.ts"), "receipts must coordinate the amount ledger through its owner");
+  for (const delegate of ["reserveModelCost", "settleModelCost", "releaseModelCost"]) {
+    assert.match(receipts, new RegExp(`\\b${delegate}\\(tx\\b`), `receipts must delegate ${delegate} under its transaction`);
   }
   assert.deepEqual(found, []);
 });
@@ -121,6 +149,7 @@ test("every table and column is used by the code that reads and writes the datab
     SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name <> 'schema_migrations'`;
   const unused = new Set<string>();
   for (const { table_name: table, column_name: column } of columns) {
+    if (ARCHIVED_TABLES.has(table) || ARCHIVED_COLUMNS.has(`${table}.${column}`)) continue;
     const users = files.filter((names) => names.has(table));
     if (users.length === 0) unused.add(`table ${table}`);
     // created_at is the row's own timestamp, kept on every table for operations.

@@ -46,6 +46,14 @@ export const PRESETS: Record<string, ModelPreset> = {
     service: "dashscope", model: "qwen3.8-flash", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
     extra: { enable_thinking: false }, jsonMode: true,
   },
+  "qwen3.8-max": {
+    service: "dashscope", model: "qwen3.8-max", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  },
+  "dashscope-deepseek-v4.1-flash": {
+    service: "dashscope", model: "deepseek-v4.1-flash", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  },
   "mimo-v2.6-flash": {
     service: "mimo", model: "mimo-v2.6-flash", baseUrlEnv: "XIAOMI_MIMO_BASE_URL", apiKeyEnv: "XIAOMI_MIMO_API_KEY",
     extra: { thinking: { type: "disabled" } }, jsonMode: true,
