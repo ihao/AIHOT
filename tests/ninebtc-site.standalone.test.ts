@@ -5,14 +5,14 @@ import { SITE, EDITION_TIMES, ABOUT } from "@aihot/site";
 import { CATEGORIES, TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { migrationPlan } from "../scripts/migration-safety.ts";
 
-test("upstream site configuration preserves the established 9BTC identity and edition time", () => {
+test("upstream site configuration preserves the established 9BTC identity and uses the upstream daily edition time", () => {
   assert.equal(SITE.name, "9BTC");
   assert.equal(SITE.subject, "Web3");
   assert.equal(SITE.mcpPrefix, "ninebtc");
   assert.equal(SITE.organization, null);
-  assert.equal(EDITION_TIMES.daily, "21:30");
+  assert.equal(EDITION_TIMES.daily, "08:00");
   assert.equal(SITE.interfaceVersion, "4.0.0");
-  assert.match(ABOUT.steps.publish, /21:30/);
+  assert.match(ABOUT.steps.publish, /08:00/);
 });
 
 test("the upstream engine receives stable Web3 categories, topics and the saved source expansion", () => {

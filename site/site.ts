@@ -7,7 +7,7 @@
  * 月报在每月 1 日出。排程、成刊时间窗口、缺期告警和所有提到时间的文案都读它（public/ 里的文件写占位
  * {{dailyTime}}、{{weeklyTime}}、{{monthlyTime}}）；排程每半小时检查一次，所以写整点或半点。
  */
-export const EDITION_TIMES = { daily: "21:30", weekly: "10:00", monthly: "10:30" };
+export const EDITION_TIMES = { daily: "08:00", weekly: "10:00", monthly: "10:30" };
 
 /** “每天 08:00”“每周一 10:00”“每月 1 日 10:30”：写进句子里的出刊时间。 */
 export const EDITION_WHEN = {

@@ -25,7 +25,7 @@ docker compose --env-file .env -f deploy/eu.compose.yml exec -T db \
   pg_dump -U ninebtc --format=custom --compress=6 --no-owner ninebtc > "$dump_tmp"
 docker compose --env-file .env -f deploy/eu.compose.yml exec -T db \
   pg_restore --list < "$dump_tmp" > /dev/null
-docker compose --env-file .env -f deploy/eu.compose.yml exec -T web sh -c \
+docker compose --env-file .env -f deploy/eu.compose.yml exec -T api sh -c \
   'if [ -d /data/uploads ]; then tar -czf - -C /data uploads; else tar -czf - --files-from /dev/null; fi' > "$files_tmp"
 tar -tzf "$files_tmp" > /dev/null
 
