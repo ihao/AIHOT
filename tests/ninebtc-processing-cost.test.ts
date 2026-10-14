@@ -95,8 +95,8 @@ test("a completed current-revision analysis is preserved without a paid replay a
 
 async function savedFixture(name: string, state = "analyzed") {
   const { articleId } = await upsertMaterial({ sourceId: source, title: name, url: `https://example.invalid/${name}`, publishedAt: new Date(), bodyText: "Stored original source material. ".repeat(20), bodyStatus: "ok", via: "fetch" });
-  const [analysis] = await sql<{id:number}[]>`INSERT INTO analyses(article_id,input_revision,origin,prompt_version,relevance,title_zh,summary_zh,selected)
-    VALUES(${articleId},1,'rule','pre-upgrade-prompt','pass','保存的新闻标题','保存的新闻摘要',false) RETURNING id`;
+  const [analysis] = await sql<{id:number}[]>`INSERT INTO analyses(article_id,input_revision,origin,prompt_version,relevance,title_zh,summary_zh,score,selected)
+    VALUES(${articleId},1,'rule','pre-upgrade-prompt','pass','保存的新闻标题','保存的新闻摘要',60,false) RETURNING id`;
   await sql`UPDATE articles SET processing_state=${state} WHERE id=${articleId}`;
   return {articleId, analysisId:analysis!.id};
 }
@@ -184,8 +184,8 @@ test("explicit manual re-evaluation and a new input revision can still buy their
 test("restoring a stale publication emits the upstream content-change hook in the recovery transaction", async () => {
   const { articleId, analysisId: previousAnalysis } = await savedFixture("saved-after-old-projection");
   await publishArticle(articleId);
-  const [analysis] = await sql<{ id: number }[]>`INSERT INTO analyses (article_id, input_revision, origin, prompt_version, relevance, title_zh, summary_zh, selected)
-    VALUES (${articleId}, 1, 'rule', 'saved-current-prompt', 'pass', '更新后保存的新闻标题', '更新后保存的新闻摘要', false) RETURNING id`;
+  const [analysis] = await sql<{ id: number }[]>`INSERT INTO analyses (article_id, input_revision, origin, prompt_version, relevance, title_zh, summary_zh, score, selected)
+    VALUES (${articleId}, 1, 'rule', 'saved-current-prompt', 'pass', '更新后保存的新闻标题', '更新后保存的新闻摘要',60, false) RETURNING id`;
   const installed = serverModules();
   const hookKey = `recovery-change:${articleId}`;
   let hookFails = true;

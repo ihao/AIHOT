@@ -157,9 +157,10 @@ async function recoverSavedAnalysis(articleId: string, row: NonNullable<Awaited<
     const saved = await savedAnalysis(articleId, tx);
     if (!saved) return { state: "stale" };
     if (saved.complete) return { state: "already-analyzed" };
-    if (!saved.published) await publishRecoveredArticle(tx, articleId);
+    await publishRecoveredArticle(tx, articleId);
+    const [publication] = await tx<{ visibility: string }[]>`SELECT visibility FROM publications WHERE article_id = ${articleId}`;
     // Terminal grouping failures retain their upstream manual-release boundary; only pending work resumes.
-    if (saved.relevance === "pass" && current.grouping_status === "pending") {
+    if (saved.relevance === "pass" && publication?.visibility !== "withdrawn" && current.grouping_status === "pending") {
       await enqueue(QUEUES.group, { articleId }, { singletonKey: articleId, priority: row.historical ? PRIORITY.history : PRIORITY.live }, tx);
     }
     await tx`UPDATE articles SET processing_state = ${saved.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL,
@@ -185,9 +186,9 @@ async function processRevision(articleId: string, row: NonNullable<Awaited<Retur
       await queueProcessing(articleId, { step: "extract" });
       return { state: "fetching-body" };
     }
-    await publishArticle(articleId);
+    const publication = await publishArticle(articleId);
     // History still completes the identity gate; groupArticle confirms it without a model call.
-    if (result.output.relevance === "pass") await enqueue(QUEUES.group, { articleId }, { singletonKey: articleId, priority: row.historical ? PRIORITY.history : PRIORITY.live });
+    if (result.output.relevance === "pass" && publication?.visibility !== "withdrawn") await enqueue(QUEUES.group, { articleId }, { singletonKey: articleId, priority: row.historical ? PRIORITY.history : PRIORITY.live });
     await sql`UPDATE articles SET processing_attempts = 0, processing_retry_at = NULL, processing_queued_at = NULL
               WHERE id = ${articleId} AND revision = ${row.revision}
                 AND processing_attempt_tag IS NOT DISTINCT FROM ${opts.attemptTag ?? row.processing_attempt_tag}`;

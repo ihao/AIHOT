@@ -42,7 +42,7 @@ test("title-only articles wait for evidence regardless of the prefilter label", 
     assert.equal(out.selected, false);
     assert.equal(out.titleZh, "");
     assert.equal(out.summaryZh, "");
-    assert.equal(isPoolEligible({ participationMode: "editorial", relevance: out.relevance, title: out.titleZh, summary: out.summaryZh }), false);
+    assert.equal(isPoolEligible({ participationMode: "editorial", relevance: out.relevance, score: out.score, title: out.titleZh, summary: out.summaryZh }), false);
   });
 });
 
@@ -70,7 +70,7 @@ test("an empty or link-only original post keeps scoring and verbatim publication
     assert.equal(run.writing?.kind, "verbatim");
     assert.equal(out.relevance, "pass");
     assert.equal(out.selected, true);
-    assert.equal(isPoolEligible({ participationMode: "editorial", relevance: out.relevance, title: out.titleZh, summary: out.summaryZh, originalPost: true }), true);
+    assert.equal(isPoolEligible({ participationMode: "editorial", relevance: out.relevance, score: out.score, title: out.titleZh, summary: out.summaryZh, originalPost: true }), true);
   });
 });
 

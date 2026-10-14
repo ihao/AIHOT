@@ -135,14 +135,15 @@ test("a near-selected item is written like a selected one; below the floor it is
   assert.deepEqual((await row(lowId)).tags, ["公链/基础设施", "协议升级", "Uniswap"], "structure tags");
 });
 
-test("the prefilter's BLOCK stops everything; UNKNOWN with material goes on like PASS", async () => {
+test("the prefilter's BLOCK and UNKNOWN stop later steps even with material", async () => {
   const off = await analyzeArticle(await article("OFFTOPIC"));
   assert.deepEqual([off!.output!.relevance, off!.output!.selected], ["block", false]);
   assert.deepEqual(calls("OFFTOPIC"), ["prefilter"]);
-  // An UNKNOWN with material is judged and written like a PASS, up to 精选 (T1 + T1 + 2 ≥ 2 × T1).
+  // Available material cannot turn an unconfirmed prefilter result into an admitted item.
   const vagueId = await article("VAGUE");
   const vague = await analyzeArticle(vagueId);
-  assert.deepEqual([vague!.output!.relevance, vague!.output!.selected, vague!.output!.titleZh], ["pass", true, "理解标题 VAGUE"]);
+  assert.deepEqual([vague!.output!.relevance, vague!.output!.selected, vague!.output!.score, vague!.output!.titleZh], ["unknown", false, null, ""]);
+  assert.deepEqual(calls("VAGUE"), ["prefilter"], "unconfirmed material buys no scoring, structure or writing");
   assert.equal((await row(vagueId)).output.prefilter.label, "UNKNOWN", "the prefilter's own answer stays on record");
   // Nothing but a title and no page to fetch: the BLOCK counts as UNKNOWN and waits for material.
   const bare = await analyzeArticle(await article("BARE", { bodyText: null, excerpt: null, bodyStatus: "none" }));

@@ -17,7 +17,7 @@ const requests: string[] = [];
 const provider = await stub((_hit, req) => {
   const step = analysisStep(req.body);
   requests.push(step);
-  const content = step === "prefilter" ? { label: "UNKNOWN", reason: "No standalone text evidence" }
+  const content = step === "prefilter" ? { label: req.body.includes("unknown-post") ? "UNKNOWN" : "PASS", reason: "Explicit fixture judgement" }
     : step === "score" ? { attentionScore: req.body.includes("high-score") ? SELECTING_SCORE : 12 }
     : step === "structure" ? { category: "defi", tags: [], subjects: [], scope: "single", fact: null }
     : step === "understand" ? { itemType: "defi_product_change", authorRole: "principal", tags: [], editorialJudgment: "DeFi/产品", titleZh: "实际正文标题", summaryZh: "这是实际正文的中文摘要。" }
@@ -65,6 +65,19 @@ test("empty and link-only posts preserve originals without calling either writer
     assert.equal(detail.hasTranslation, false);
     assert.equal(detail.x.media.length, 1);
   }
+});
+
+test("an UNKNOWN original post stays internal without scoring or writing", async () => {
+  const { id } = await post("unknown-post", "");
+  const start = requests.length;
+  const result = await analyzeArticle(id);
+  assert.deepEqual(requests.slice(start), ["prefilter"]);
+  assert.deepEqual([result!.output!.relevance, result!.output!.score, result!.output!.selected], ["unknown", null, false]);
+  await publishArticle(id, released());
+  assert.equal((await app.inject(`/api/site/items/${id}`)).statusCode, 404);
+  assert.equal((await app.inject(`/items/${id}/markdown`)).statusCode, 404);
+  const [material] = await sql`SELECT x_post FROM articles WHERE id = ${id}`;
+  assert.equal(material!.x_post.media.length, 1, "withholding publication preserves the original media");
 });
 
 test("rebuilding an image-only post replaces historical model replies across public outputs and preserves its image and address", async () => {

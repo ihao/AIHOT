@@ -1,5 +1,13 @@
 // Publication rules. Each rule is defined once here and used by every exit.
 import { serverModules } from '../modules.ts';
+import { SELECTION } from '@aihot/industry/selection';
+
+/** One quality decision for publication, including detail pages and historical rebuilds. */
+export function qualityRejection(input: { relevance: string | null; score: number | null }): "unconfirmed_relevance" | "unscored" | "below_public_floor" | null {
+  if (input.relevance !== "pass") return "unconfirmed_relevance";
+  if (input.score === null || !Number.isFinite(Number(input.score))) return "unscored";
+  return Number(input.score) < SELECTION.publicFloor ? "below_public_floor" : null;
+}
 
 /** Presentation exceptions never alter scoring, selection eligibility or fact membership. */
 export function independentSelectedSources(): string[] {
@@ -25,15 +33,16 @@ export function channelOf(sourceKind: string, hasXPost: boolean): "x" | "news" {
   return sourceKind === "x_search" || hasXPost ? "x" : "news";
 }
 
-/** Public pool (/all): editorial sources, AI relevant, with usable copy or an original post. */
+/** Public pool (/all): quality admitted editorial sources, with usable copy or an original post. */
 export function isPoolEligible(input: {
   participationMode: string;
   relevance: string | null;
+  score: number | null;
   title: string | null;
   summary: string | null;
   originalPost?: boolean;
 }): boolean {
-  return input.participationMode === "editorial" && input.relevance === "pass" && !!input.title && (!!input.summary || input.originalPost === true);
+  return input.participationMode === "editorial" && qualityRejection(input) === null && !!input.title && (!!input.summary || input.originalPost === true);
 }
 
 /**

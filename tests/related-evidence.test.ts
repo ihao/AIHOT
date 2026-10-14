@@ -24,8 +24,8 @@ async function report() {
   const token = randomUUID();
   const { articleId } = await upsertMaterial({ sourceId: source, url: `https://example.com/${token}`,
     title: token, bodyText: 'A concrete report about this event.', bodyStatus: 'ok', via: 'fetch', publishedAt: new Date() });
-  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, title_zh, summary_zh, selected, output)
-    VALUES (${articleId}, 1, 'rule', 'pass', ${token}, 'Public fixture summary', false, ${sql.json({scope:'single'})})`;
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, title_zh, summary_zh, selected, score, output)
+    VALUES (${articleId}, 1, 'rule', 'pass', ${token}, 'Public fixture summary', false, 60, ${sql.json({scope:'single'})})`;
   await publishArticle(articleId);
   return articleId;
 }

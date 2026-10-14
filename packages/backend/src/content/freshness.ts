@@ -6,7 +6,7 @@ import { FUTURE_TOLERANCE_MS } from "./materials.ts";
 export async function savedAnalysis(articleId: string, db: Db = sql) {
   const [row] = await db<{ id: number; revision: number; relevance: string; published: boolean; complete: boolean }[]>`
     SELECT n.id, a.revision, n.relevance, coalesce(p.analysis_id = n.id, false) AS published,
-      coalesce(p.analysis_id = n.id, false) AND (n.relevance <> 'pass' OR a.grouping_status = 'complete') AS complete
+      coalesce(p.analysis_id = n.id, false) AND (p.visibility = 'withdrawn' OR n.relevance <> 'pass' OR a.grouping_status = 'complete') AS complete
     FROM articles a JOIN LATERAL (
       SELECT id, relevance FROM analyses WHERE article_id = a.id AND input_revision = a.revision ORDER BY id DESC LIMIT 1
     ) n ON true LEFT JOIN publications p ON p.article_id = a.id

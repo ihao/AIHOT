@@ -1,12 +1,12 @@
 // analyzeArticle: the judging and writing steps, each with its own prompt from the industry pack
 // (industry/prompts/):
-//   1. prefilter: does the material belong to this industry at all (wide recall). Only BLOCK stops an
-//      item; a BLOCK given while material is missing counts as UNKNOWN. Without material or a
-//      displayable original post, UNKNOWN waits for a new material revision before later steps;
+//   1. prefilter: only PASS proceeds. UNKNOWN waits for a new material revision; a BLOCK given
+//      while material is missing counts as UNKNOWN, never permission to write or publish;
 //   2. score: two independent scores against the source tier's threshold (industry/selection.ts) decide 精选;
 //   3. structure: category, tags, subjects and the current news fact, beside scoring;
 //   4. writing, once the structure is in: the Chinese title, summary and reason by the content
-//      understanding for selected and near-selected items, by the cheaper title/summary prompts for the rest.
+//      understanding for selected and near-selected items, by the cheaper title/summary prompts for
+//      other admitted items. Scores below the public floor buy no writing.
 // Material with only a title or a feed summary has its article page fetched before it is judged.
 import { z } from "zod";
 import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
@@ -411,7 +411,7 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts = {}): 
   checkAnalysisRunning();
   const prefilter = await runSelectionPrefilter(a, opts);
   // Missing article text waits for a later revision; displayable original posts keep their judgement.
-  if (prefilter.label === "BLOCK") return { prefilter, scores: null, writing: null, structure: null };
+  if (prefilter.label !== "PASS") return { prefilter, scores: null, writing: null, structure: null };
   const original = originalPostCopy(a.xPost, a.url);
   if (missingEvidence(a) && !original) return { prefilter, scores: null, writing: null, structure: null };
   // The structure step needs nothing from the scores: it runs beside them.
@@ -422,6 +422,7 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts = {}): 
     const near = sum !== null && (sum >= scores!.threshold * SCORE_CALLS || sum > UNDERSTAND_FLOOR * SCORE_CALLS);
     const s = await structure;
     if ("error" in s) throw s.error;
+    if (sum === null || Math.floor(sum / SCORE_CALLS) < SELECTION.publicFloor) return { prefilter, scores, writing: null, structure: s.value };
     const writing: NonNullable<AnalysisRun["writing"]> = original
       ? { kind: "verbatim", model: null, titleZh: original.title, summaryZh: original.summary ?? "", reasonZh: null, receiptIds: [], reused: true }
       : (near ? await runUnderstand(a, opts) : null) ?? (await runSummarize(a, opts));
@@ -439,7 +440,7 @@ export function normalizeAnalysis(run: AnalysisRun) {
   const titleZh = collapseWhitespace(run.writing?.titleZh ?? "");
   const summaryZh = (run.writing?.summaryZh ?? "").trim();
   // Original posts can consist entirely of media. Model-written copy still needs a title and summary.
-  const relevance = label === "BLOCK" ? "block" : !run.writing || !titleZh || (!summaryZh && run.writing.kind !== "verbatim") ? "unknown" : "pass";
+  const relevance = label === "BLOCK" ? "block" : label !== "PASS" || !run.writing || !titleZh || (!summaryZh && run.writing.kind !== "verbatim") ? "unknown" : "pass";
   // Selected when the two scores add up to twice the tier threshold; the mean, floored, is the score
   // shown (it never decides a half point on its own).
   const values = run.scores && !run.scores.refused ? run.scores.values : null;

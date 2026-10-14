@@ -83,8 +83,8 @@ for (const entrance of ["publisher", "source-mode"] as const) test(`${entrance} 
   await settleNonEditorial(fresh);
   assert.equal((await groupArticle(fresh, { signalOnly: true })).verdict, "signal-unmatched");
   const judged = await make("already-judged");
-  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,selected)
-    VALUES (${judged},1,'rule','pass','已判断的报道','既有精选已经覆盖全部要点',true)`;
+  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,score,selected)
+    VALUES (${judged},1,'rule','pass','已判断的报道','既有精选已经覆盖全部要点',90,true)`;
   await sql`UPDATE articles SET grouping_status='complete',grouped_at=now(),selection_adds_value=false,
     selection_value_reason='既有精选已覆盖' WHERE id=${judged}`;
   if (entrance === "publisher") {
@@ -98,8 +98,8 @@ for (const entrance of ["publisher", "source-mode"] as const) test(`${entrance} 
   }
   const [preserved] = await sql`SELECT grouping_status,selection_adds_value FROM articles WHERE id=${judged}`;
   assert.deepEqual({ ...preserved }, { grouping_status: "complete", selection_adds_value: false }, "current editorial judgement stays reusable");
-  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,selected)
-    VALUES (${fresh},1,'rule','pass','首次编辑判断','新的新闻候选摘要',true)`;
+  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,score,selected)
+    VALUES (${fresh},1,'rule','pass','首次编辑判断','新的新闻候选摘要',90,true)`;
   await publishArticle(fresh);
   const [pending] = await sql`SELECT p.selection_candidate,p.selected,a.grouping_status FROM publications p JOIN articles a ON a.id=p.article_id WHERE a.id=${fresh}`;
   assert.deepEqual({ ...pending }, { selection_candidate: true, selected: false, grouping_status: "pending" });
