@@ -3,7 +3,6 @@ import type { BtcMarketResponse } from "@aihot/contracts/market";
 import type { RootModuleData } from "../../apps/web/app/lib/module-data";
 import { defineWebModule } from "../../apps/web/app/modules";
 import { BtcPriceBar } from "../../apps/web/app/features/market/BtcPriceBar";
-import { IconGrid } from "../../apps/web/app/components/icons";
 import { btcRenderClock } from "../../apps/web/app/lib/btc-market";
 
 function MarketBar() {
@@ -20,5 +19,4 @@ export const marketWeb = defineWebModule({
     renderClock: (data, now) => btcRenderClock((data.market as BtcMarketResponse | null)?.quote ?? null, now),
     Top: MarketBar,
   },
-  sidebar: { section: "内容", items: [{ to: "/?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA", label: "预测市场", icon: IconGrid }] },
 });
