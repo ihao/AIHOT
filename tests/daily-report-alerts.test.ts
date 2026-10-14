@@ -6,8 +6,7 @@ import { closeDb, sql } from "@aihot/backend/db";
 import { getBoss, stopBoss } from "@aihot/backend/jobs/queue";
 import { checkAlerts, collectFindings } from "@aihot/backend/operations/alerts";
 
-// The daily edition becomes overdue after its two-hour generation grace.
-const at = (date: string, time = "23:30") => beijingAt(date, time).getTime();
+const at = (date: string, time = "10:00") => beijingAt(date, time).getTime();
 const key = (date: string) => `report.daily:${date}`;
 const daily = (keys: string[]) => keys.filter(k => k.startsWith("report.daily"));
 async function report(date: string) {
@@ -31,12 +30,12 @@ test("midnight preserves a missing edition; each date recovers only when its rep
   result = await checkAlerts(at("2026-10-07"));
   assert.deepEqual(daily(result.open).sort(), [key("2026-10-06"), key("2026-10-07")]);
   await report("2026-10-07");
-  result = await checkAlerts(at("2026-10-07", "23:40"));
+  result = await checkAlerts(at("2026-10-07", "10:10"));
   assert.deepEqual(daily(result.sent), [`${key("2026-10-07")}:recovered`]);
   assert.deepEqual(daily(result.open), [key("2026-10-06")]);
   await report("2026-10-06");
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "23:50"))).sent), [`${key("2026-10-06")}:recovered`]);
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-08", "00:00"))).sent), []);
+  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "10:20"))).sent), [`${key("2026-10-06")}:recovered`]);
+  assert.deepEqual(daily((await checkAlerts(at("2026-10-07", "10:30"))).sent), []);
 });
 
 test("recent gap detection uses report activity and each edition's overdue time", async () => {
@@ -49,21 +48,30 @@ test("recent gap detection uses report activity and each edition's overdue time"
     [1,2,3,4,5,7].map(d => key(`2026-10-0${d}`)));
 });
 
-test("open dates outlive scan window and disabled generation or startup grace", async () => {
-  await checkAlerts(at("2026-09-01"));
+test("open dates outlive disabled generation or startup grace within the scan window", async () => {
+  await checkAlerts(at("2026-10-01"));
   process.env.MODEL_CALLS_ENABLED = "false";
   let result = await checkAlerts(at("2026-10-07"));
-  assert.deepEqual(daily(result.open), [key("2026-09-01")]);
+  assert.deepEqual(daily(result.open), [key("2026-10-01")]);
   assert.deepEqual(daily(result.sent), []);
   process.env.MODEL_CALLS_ENABLED = "true";
   await sql`INSERT INTO settings(key,value) VALUES('heartbeat.worker',${sql.json({ startedAt: new Date(at("2026-10-07")).toISOString() })})`;
-  assert.deepEqual(daily((await checkAlerts(at("2026-10-07"))).open), [key("2026-09-01")]);
+  assert.deepEqual(daily((await checkAlerts(at("2026-10-07"))).open), [key("2026-10-01")]);
   await sql`DELETE FROM settings WHERE key='heartbeat.worker'`;
   result = await checkAlerts(at("2026-10-07"));
-  assert.ok(result.sent.includes(key("2026-09-01")), "old unresolved edition still gets reminders");
+  assert.ok(result.sent.includes(key("2026-10-01")), "an unresolved edition in the window still gets reminders");
   process.env.COLLECT_ENABLED = "false";
-  await report("2026-09-01");
-  assert.ok((await checkAlerts(at("2026-10-07", "23:40"))).sent.includes(`${key("2026-09-01")}:recovered`));
+  await report("2026-10-01");
+  assert.ok((await checkAlerts(at("2026-10-07", "10:10"))).sent.includes(`${key("2026-10-01")}:recovered`));
+});
+
+test("an edition still missing past the scan window is closed once instead of reminded forever", async () => {
+  await checkAlerts(at("2026-10-01"));
+  let result = await checkAlerts(at("2026-10-08"));
+  assert.ok(result.sent.includes(`${key("2026-10-01")}:expired`));
+  assert.ok(!result.open.includes(key("2026-10-01")));
+  result = await checkAlerts(at("2026-10-08", "12:00"));
+  assert.ok(!result.sent.some(k => k.startsWith(key("2026-10-01"))));
 });
 
 test("legacy alert migrates its date and preserves reminder timing", async () => {

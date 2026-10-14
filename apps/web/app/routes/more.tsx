@@ -4,6 +4,7 @@ import { POLICY, SITE } from "@aihot/site";
 import type { loader as rootLoader } from "../root";
 import { useChangelogDot } from "../components/shell/Sidebar";
 import { PhoneBar } from "../components/shell/PhoneBar";
+import { inNav } from "../components/shell/nav";
 import type { Screen } from "../components/shell/screens";
 import { edgeTtl } from "../lib/api.server";
 import { webModules } from "../site-modules";
@@ -24,7 +25,7 @@ export function meta() {
 }
 
 /**
- * "我的", reached from the desktop sidebar or phone's last tab: this browser's bookmarks and appearance first,
+ * "我的", the phone's last tab (the address stays /more): this browser's bookmarks and appearance first,
  * then the tools, then the site's own pages.
  */
 type Row = { to: string; label: string; icon: ReactNode; detail?: ReactNode };
@@ -35,7 +36,7 @@ const agentWays = () => [...webModules().flatMap((m) => m.agentWays ?? []), "MCP
 /** The modules' tools first, then the engine's. */
 const tools = (): Row[] => [
   ...webModules().flatMap((m) => m.tools ?? []),
-  { to: "/topics", label: "主题", icon: <IconGrid size={20} /> },
+  ...(inNav("/topics") ? [{ to: "/topics", label: "主题", icon: <IconGrid size={20} /> }] : []),
   { to: "/agent", label: "Agent 接入", icon: <IconPlug size={20} />, detail: agentWays().slice(0, 3).join(" · ") },
 ];
 

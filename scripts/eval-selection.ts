@@ -24,7 +24,7 @@ import {
 } from "@aihot/backend/editorial/analyze";
 import { importSelectBenchRun } from "@aihot/backend/admin/selectbench";
 import { evalModels, pmap, positiveInt, safeReportNamePart, usageFor } from "./eval-tools.ts";
-import { selectionMetrics, selectionThresholdMetrics } from "./eval-selection-core.ts";
+import { parseSelectionGoldJsonl, selectionGoldPool, selectionMetrics, selectionThresholdMetrics, type SelectionGoldRow } from "./eval-selection-core.ts";
 
 // Without options: the site's gold set (site.ts DEPLOYMENT.selectionGold), else the whole of .data/gold.jsonl
 // (up to 200 cases), swept over a wide range of thresholds.
@@ -46,17 +46,8 @@ const { values } = parseArgs({
   },
 });
 
-interface GoldRow {
-  caseId: string;
-  material: { title: string; originalTitle: string | null; publishedAt: string | null; sourceName: string; bodyZh: string | null; bodyOriginal: string | null };
-  sourceFacts: { sourceKind: string; sourceTier?: string; firstParty?: boolean; language?: string | null };
-  /** Optional: a split (e.g. development / holdout) and a stratum for reading the mistakes. */
-  samplingContext?: { benchmarkSplit?: string; samplingStratum?: string };
-  gold: { decision: "select" | "reject" | "either" };
-}
-
-const rows: GoldRow[] = readFileSync(path.resolve(REPO_ROOT, values.gold!), "utf8")
-  .split("\n").filter((l) => l.trim() && !l.trim().startsWith("//")).map((l) => JSON.parse(l));
+type GoldRow = SelectionGoldRow;
+const rows = parseSelectionGoldJsonl(readFileSync(path.resolve(REPO_ROOT, values.gold!), "utf8"));
 
 // Deterministic stratified sample.
 function rng(seed: number) {
@@ -64,7 +55,7 @@ function rng(seed: number) {
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32);
 }
 const rand = rng(Number(values.seed));
-const pool = values.split === "all" ? rows : rows.filter((r) => r.samplingContext?.benchmarkSplit === values.split);
+const pool = selectionGoldPool(rows, values.split!);
 const shuffled = pool.map((r) => ({ r, k: rand() })).sort((a, b) => a.k - b.k).map((x) => x.r);
 const sample = shuffled.slice(0, positiveInt(values.n!, "n"));
 const concurrency = positiveInt(values.concurrency!, "concurrency");
@@ -91,6 +82,9 @@ function toInput(r: GoldRow): AnalyzeInputArticle {
 
 const models = await evalModels(values.models, "score");
 
+// The eval judges selection on the prefilter and the scores alone. The live pipeline also waits for the reader-facing
+// copy (normalizeAnalysis reads an item without it as unknown, never selected), which the eval does not write: take it as written.
+const COPY_WRITTEN: AnalysisRun["writing"] = { kind: "none", model: null, titleZh: "-", summaryZh: "-", reasonZh: null, receiptIds: [], reused: true };
 const report: Record<string, unknown> = {};
 for (const model of models) {
   const started = Date.now();
@@ -129,7 +123,7 @@ for (const model of models) {
 
       // Model output is independent of source tier; the decision threshold is not.
       const scores = shared.scores ? { ...shared.scores, threshold } : null;
-      const run: AnalysisRun = { prefilter, scores, writing: null, structure: null };
+      const run: AnalysisRun = { prefilter, scores, writing: COPY_WRITTEN, structure: null };
       return { r, out: normalizeAnalysis(run), receiptIds, error: null as string | null };
     } catch (error) {
       return { r, out: null, receiptIds, error: String(error).slice(0, 200) };

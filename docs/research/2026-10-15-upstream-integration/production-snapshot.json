@@ -1,0 +1,142 @@
+{
+  "checkedAtUtc": "2026-10-14T16:20:31.185Z",
+  "siteUrl": "https://9btc.com",
+  "editionTimes": {
+    "daily": "08:00",
+    "weekly": "10:00",
+    "monthly": "10:30"
+  },
+  "automaticKinds": [
+    "daily",
+    "weekly",
+    "monthly"
+  ],
+  "catchUpHistory": false,
+  "contentMaxAgeHours": 48,
+  "selection": {
+    "publicFloor": 10,
+    "thresholds": {
+      "T1": 60,
+      "T1_5": 65,
+      "T2": 76
+    },
+    "understandFloor": 50
+  },
+  "modelSources": {
+    "prefilter": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "score": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "understand": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "summarize": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "structure": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "group": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "groupReview": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "digest": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "report": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    },
+    "translate": {
+      "model": "qwen3.8-flash",
+      "source": "env"
+    }
+  },
+  "modelCostPolicy": {
+    "enabled": false,
+    "timezone": "Asia/Shanghai",
+    "day_limit_cny": 9,
+    "rolling_limit_cny": 9,
+    "updated_at": "2026-10-04T15:46:12.093Z"
+  },
+  "budgets": [
+    {
+      "service": "dajiala",
+      "per_minute": 5,
+      "per_hour": 60,
+      "per_day": 500
+    },
+    {
+      "service": "dashscope",
+      "per_minute": 20,
+      "per_hour": 300,
+      "per_day": 2000
+    },
+    {
+      "service": "deepseek",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000
+    },
+    {
+      "service": "embedding",
+      "per_minute": 300,
+      "per_hour": 6000,
+      "per_day": 40000
+    },
+    {
+      "service": "jina",
+      "per_minute": 5,
+      "per_hour": 50,
+      "per_day": 300
+    },
+    {
+      "service": "llm",
+      "per_minute": 0,
+      "per_hour": 0,
+      "per_day": 0
+    },
+    {
+      "service": "mimo",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000
+    },
+    {
+      "service": "socialdata",
+      "per_minute": 10,
+      "per_hour": 100,
+      "per_day": 1000
+    },
+    {
+      "service": "zhipu",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000
+    }
+  ],
+  "sourceSummary": {
+    "total": 109,
+    "enabled": 79,
+    "site_fulltext": 0,
+    "syndicate_fulltext": 0
+  },
+  "publicSummary": {
+    "total": 2942,
+    "selected": 288,
+    "minimum_score": 10
+  },
+  "migrationCount": 72
+}
