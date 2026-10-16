@@ -1,0 +1,13 @@
+✔ admin HTML and navigation begin before delayed badges while remaining private (1741.854583ms)
+✔ admin streaming still verifies identity before returning the page (4.366125ms)
+✔ both admin navigations render before badges and update them after arriving (2176.562334ms)
+✔ hovering private navigation does not repeat the page's reads before clicking (754.218625ms)
+✔ admin numeric formatting keeps existing missing-value and rounding behavior (6.411083ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5347.400125

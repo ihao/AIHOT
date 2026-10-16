@@ -1,0 +1,11 @@
+server: {"name":"ninebtc","version":"4.0.0"}
+tools: ninebtc_get_daily, ninebtc_get_hot_topics, ninebtc_get_latest, ninebtc_get_monthly, ninebtc_get_story, ninebtc_get_weekly, ninebtc_search
+ninebtc_get_latest {"limit":2} → ok | # 9BTC 精选 · 过去 24 小时  过去 24 小时没有符合条件的精选。  ## 回答提示 - 如实告诉用户这段时间没有；可以换成 window=7d 或 mode=all 再查一次。 - 不要用训练记忆补成“最新消息”。
+ninebtc_search {"q":"OpenAI","limit":2} → ok | # 9BTC 搜索「OpenAI」 · 最近 7 天  最近 7 天的精选和全部公开动态里都没有相关报道。  ## 回答提示 - 如实告诉用户 9BTC 最近 7 天没有这方面的报道；更早的内容这里查不到。 - 可以换个说法或更短的关键词再查一次（比如只用公司或产品名）。 - 不
+ninebtc_get_hot_topics {"limit":3} → ok | # 9BTC 当前热点  热点榜暂时是空的。  ## 回答提示 - 如实告诉用户暂时没有热点，可以改看最新精选。
+ninebtc_get_daily {"date":"2026-02-30"} → ERROR | 2026-02-30 不是有效日期。
+ninebtc_get_weekly {"week":"2026-W54"} → ERROR | 2026-W54 不是真实的 ISO 周（例如 2026-W39）。
+ninebtc_get_monthly {"month":"2026-13"} → ERROR | 2026-13 不是真实的月份（例如 2026-09）。
+ninebtc_get_story {"public_id":"__mcp_check_missing__","report_limit":3} → ERROR | 没有这个公开事件；只使用 ninebtc_get_hot_topics 返回的 public_id。
+ninebtc_get_latest {"limit":99} → ERROR | Input validation error: Invalid arguments for tool ninebtc_get_latest: limit: Too big: expected number to be <=30
+MCP contract check passed
