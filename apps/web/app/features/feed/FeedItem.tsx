@@ -13,6 +13,7 @@ import { beijingTime } from "@aihot/contracts/time";
 import { MediaThumbs, SourceLine, StarButton } from "./parts";
 import { GroupButton, GroupSources } from "./ReadingGroup";
 import { QuotedLine } from "../item/QuotedPost";
+import { BtcIngestionPrice } from "../market/BtcIngestionPrice";
 import { rememberPreview } from "../item/preview";
 
 export interface FeedItemProps {
@@ -117,6 +118,8 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
           <p className="line-clamp-1 text-[13px] leading-[1.65] text-note lg:line-clamp-none lg:leading-[1.75]">{`${ITEM_COPY.reasonLabel}：`}{item.reason}</p>
         </div>
       )}
+
+      <BtcIngestionPrice quote={item.btcAtIngestion} />
 
       {/* Phones: duplicate reports open in a sheet. */}
       {group && showSources && <GroupButton group={group} filters={filters} parentId={item.id} />}

@@ -66,6 +66,8 @@ test("a source transaction rolled back at commit leaves no successful audit entr
 
 test("content corrections, public projection and audit either commit together or remain retryable", async () => {
   const id = await article();
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, score)
+            VALUES (${id}, 1, 'rule', 'pass', 60)`;
   await publishArticle(id);
   await sql.unsafe(`CREATE FUNCTION refuse_admin_audit() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN IF NEW.actor = 'test-refuse-audit' THEN RAISE EXCEPTION 'audit unavailable'; END IF; RETURN NEW; END $$`);
@@ -112,8 +114,8 @@ test("repeating a completed command returns its job without resetting newer proc
 
 test("a rejected SEO correction leaves both the decision and public indexing unchanged", async () => {
   const id = await article();
-  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, summary_zh, selected)
-            VALUES (${id}, 1, 'rule', 'pass', '可收录的正文摘要', false)`;
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, summary_zh, selected, score)
+            VALUES (${id}, 1, 'rule', 'pass', '可收录的正文摘要', false, 60)`;
   await publishArticle(id);
   const [before] = await sql`SELECT seo_indexed_at, seo_excluded_at, indexable FROM publications WHERE article_id = ${id}`;
   await sql.unsafe(`CREATE FUNCTION refuse_admin_seo_audit() RETURNS trigger LANGUAGE plpgsql AS $$

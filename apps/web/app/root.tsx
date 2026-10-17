@@ -1,3 +1,4 @@
+import { loadRootModuleData } from "./lib/module-data";
 import {
   isRouteErrorResponse, Link, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useLocation, useNavigation, useRouteError, useRouteLoaderData,
   type ShouldRevalidateFunction,
@@ -32,14 +33,15 @@ export const links: Route.LinksFunction = () => [
 /** The release rendering this document: once a newer one is deployed, a render error reloads the page (entry.client). */
 export async function loader({ request }: Route.LoaderArgs) {
   const release = process.env.AIHOT_RELEASE ?? null;
+  const moduleData = loadRootModuleData(request, webModules(), (path, signal) => apiGet(path, { signal }));
   try {
     const meta = await apiGet<SiteMeta>("/api/site/meta", {
       headers: Object.assign({}, ...webModules().map((m) => m.root?.documentHeaders?.(request) ?? {})),
       signal: request.signal,
     });
-    return { ...meta, release };
+    return { ...meta, release, modules: await moduleData };
   } catch {
-    return { changelogVersion: null, release };
+    return { changelogVersion: null, release, modules: await moduleData };
   }
 }
 

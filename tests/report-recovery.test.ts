@@ -1,5 +1,6 @@
 // Failure cases: automatic runs rewrite published issues; report/receipt commits split; empty gaps
 // starve later daily/weekly/monthly issues or make a failed run look successful. All use a local model stub.
+import { REPORTS } from "@aihot/site";
 import { editionAt, stub, tag } from "./setup.ts";
 import assert from "node:assert/strict";
 import { after, before, beforeEach, test } from "node:test";
@@ -7,6 +8,9 @@ import { closeDb, sql } from "@aihot/backend/db";
 import { stopBoss } from "@aihot/backend/jobs/queue";
 import { composeDaily, composeDueReports, composeWeekly, composeMonthly } from "@aihot/backend/reports/compose";
 
+// This generic engine suite exercises all kinds; 9BTC scheduling defaults are covered separately.
+const originalKinds = [...REPORTS.automaticKinds];
+REPORTS.automaticKinds = ["daily", "weekly", "monthly"];
 const T = tag();
 const SOURCE = `report-recovery-${T}`;
 const answer = async (user: string) => ({ title: user.slice(0, 100), leadParagraph: "导语", highlights: [1], headline: "本期进展", overview: "总述", themes: [{ heading: "主题", summary: "摘要", refs: [1] }] });
@@ -16,13 +20,14 @@ const provider = await stub(async (_hit, request) => ({
 process.env.DEEPSEEK_BASE_URL = `${provider.url}/v1`;
 process.env.DEEPSEEK_API_KEY = "test-key";
 before(async () => {
+  REPORTS.catchUpHistory = true;
   await sql`INSERT INTO sources (id, name, kind, tier) VALUES (${SOURCE}, 'Report recovery', 'rss', 'T1')`;
 });
 beforeEach(async () => {
   await sql`DELETE FROM reports`;
   await sql`DELETE FROM articles WHERE source_id = ${SOURCE}`;
 });
-after(async () => { await provider.close(); await stopBoss(); await closeDb(); });
+after(async () => { REPORTS.catchUpHistory = false; REPORTS.automaticKinds = originalKinds; await provider.close(); await stopBoss(); await closeDb(); });
 
 /** A selected item in the window of the daily issue dated `date`, half a day before its edition time. */
 async function item(date: string) {
@@ -75,11 +80,38 @@ test("report publication and its receipt commit together and recovery reuses the
   assert.equal((await sql`SELECT status FROM receipts WHERE subject = 'report:weekly:2024-W18'`)[0]!.status, "completed");
 });
 
+test("without historical catch-up only the latest daily is generated and retries preserve both saved issues", async () => {
+  const kinds = [...REPORTS.automaticKinds];
+  REPORTS.automaticKinds = ["daily"];
+  REPORTS.catchUpHistory = false;
+  try {
+    const early = await item("2024-01-23");
+    await composeDaily("2024-01-23");
+    const oldIssue = await report("daily", "2024-01-23");
+    assert.ok(oldIssue);
+    await item("2024-02-02");
+    const now = editionAt("daily", "2024-02-02", 3600);
+    assert.deepEqual(await composeDueReports(now), { generated: ["daily:2024-02-02"], failed: [] });
+    assert.deepEqual((await sql`SELECT key FROM reports WHERE kind = 'daily' ORDER BY key`).map(r => r.key), ["2024-01-23", "2024-02-02"], "the intervening historical gaps remain untouched");
+    assert.deepEqual(await report("daily", "2024-01-23"), oldIssue);
+    const latestIssue = await report("daily", "2024-02-02");
+    const calls = provider.hits();
+    await sql`UPDATE publications SET title = title || ' changed later' WHERE article_id = ${early}`;
+    assert.deepEqual(await composeDueReports(now), { generated: [], failed: [] });
+    assert.equal(provider.hits(), calls, "automatic retries buy no replacement report response");
+    assert.deepEqual(await report("daily", "2024-01-23"), oldIssue);
+    assert.deepEqual(await report("daily", "2024-02-02"), latestIssue);
+  } finally {
+    REPORTS.automaticKinds = kinds;
+    REPORTS.catchUpHistory = true;
+  }
+});
+
 test("empty older gaps cannot starve a later daily, weekly or monthly, and failures remain visible", async () => {
   // An older issue carried an item; the days after it are empty. Weeklies and monthlies are compiled from dailies.
   const early = await item("2024-01-23");
   await sql`INSERT INTO reports (kind, key, window_start, window_end, content, generated_at)
-    VALUES ('daily', '2024-01-23', now(), now(), ${sql.json({ sections: [{ label: "行业动态", items: [{ itemId: early, title: early }] }] })}, now())`;
+    VALUES ('daily', '2024-01-23', now(), now(), ${sql.json({ sections: [{ label: "项目/商业", items: [{ itemId: early, title: early }] }] })}, now())`;
   await item("2024-02-02");
   await assert.rejects(composeDueReports(editionAt("daily", "2024-02-02", 3600)), /reports:/);
   for (const [kind, key] of [["daily", "2024-02-02"], ["weekly", "2024-W04"], ["monthly", "2024-01"]]) {

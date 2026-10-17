@@ -1,0 +1,306 @@
+{
+  "checkedAt": "2026-10-02T12:27:21.122Z",
+  "productionCommit": "df7e45ea2fffbf2f88e026863ae5f88cf05d576b",
+  "readOnly": true,
+  "editorialMode": "automatic",
+  "rankingHistory": [
+    {
+      "snapshots": 487,
+      "max_entries": 0,
+      "nonempty_snapshots": 0,
+      "first_at": "2026-09-30T10:40:32.673Z",
+      "last_at": "2026-10-02T12:25:36.622Z"
+    }
+  ],
+  "publications": [
+    {
+      "all_count": 1518,
+      "fresh": 96,
+      "fresh_grouped": 95
+    }
+  ],
+  "signals": [
+    {
+      "all_count": 229,
+      "fresh": 153,
+      "fresh_curated": 12
+    }
+  ],
+  "participantDistribution": [
+    {
+      "participants": 1,
+      "stories": 128
+    }
+  ],
+  "freshCurated": 12,
+  "missingCuratedGroups": [],
+  "groupWaits": [
+    {
+      "count": 0,
+      "next_retry": null
+    }
+  ],
+  "rankingRuns": [
+    {
+      "started_at": "2026-10-02T12:20:36.614Z",
+      "status": "ok",
+      "detail": {
+        "id": 486,
+        "entries": 0
+      },
+      "error": null
+    },
+    {
+      "started_at": "2026-10-02T12:15:36.593Z",
+      "status": "ok",
+      "detail": {
+        "id": 485,
+        "entries": 0
+      },
+      "error": null
+    },
+    {
+      "started_at": "2026-10-02T12:10:36.585Z",
+      "status": "ok",
+      "detail": {
+        "id": 484,
+        "entries": 0
+      },
+      "error": null
+    },
+    {
+      "started_at": "2026-10-02T12:05:36.568Z",
+      "status": "ok",
+      "detail": {
+        "id": 483,
+        "entries": 0
+      },
+      "error": null
+    },
+    {
+      "started_at": "2026-10-02T12:00:36.558Z",
+      "status": "ok",
+      "detail": {
+        "id": 482,
+        "entries": 0
+      },
+      "error": null
+    }
+  ],
+  "groupQueues": [
+    {
+      "name": "cron.hot.rank",
+      "state": "created",
+      "count": 1
+    },
+    {
+      "name": "cron.hot.rank",
+      "state": "completed",
+      "count": 287
+    },
+    {
+      "name": "events.digest",
+      "state": "completed",
+      "count": 215
+    },
+    {
+      "name": "events.group",
+      "state": "completed",
+      "count": 226
+    },
+    {
+      "name": "events.group",
+      "state": "failed",
+      "count": 8
+    }
+  ],
+  "mediaSources": [
+    {
+      "id": "panews-articles-zh",
+      "name": "PANews 中文文章",
+      "enabled": false,
+      "kind": "rss",
+      "participation_mode": "editorial",
+      "first_party": false,
+      "last_ok_at": "2026-10-02T07:44:26.762Z",
+      "fail_count": 0,
+      "fresh_articles": 20,
+      "fresh_public": 0
+    }
+  ],
+  "multiSourceDates": [
+    {
+      "story_id": 51,
+      "name": "Chainalysis 研究与安全",
+      "enabled": true,
+      "title": "OFAC 制裁 Tren de Aragua ATM 盗窃洗钱网络及 FBI 通缉犯 Prometheus",
+      "observed_at": "2026-09-30T20:08:34.000Z",
+      "fresh": true,
+      "current_curated": true
+    },
+    {
+      "story_id": 51,
+      "name": "美国财政部 OFAC",
+      "enabled": false,
+      "title": "美国财政部OFAC新增涉恐及跨国犯罪组织制裁名单，涉及TREN DE ARAGUA关联个人、白俄罗斯及利比亚相关实体",
+      "observed_at": "2026-09-30T00:00:00.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 61,
+      "name": "Aave 治理论坛",
+      "enabled": true,
+      "title": "Aave Labs 发布 2026 年 9 月开发更新：V4 存款破十亿并扩展至新网络",
+      "observed_at": "2026-10-01T13:33:00.000Z",
+      "fresh": true,
+      "current_curated": true
+    },
+    {
+      "story_id": 61,
+      "name": "PANews 中文文章",
+      "enabled": false,
+      "title": "Aave V4 在 Base 上线代币化股票抵押借贷功能",
+      "observed_at": "2026-09-29T08:19:00.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 86,
+      "name": "Chainalysis 研究与安全",
+      "enabled": true,
+      "title": "Chainalysis 披露利用 AI 追踪 Bitget 3.87 亿美元被盗资金的调查细节",
+      "observed_at": "2026-10-01T22:36:41.000Z",
+      "fresh": true,
+      "current_curated": true
+    },
+    {
+      "story_id": 86,
+      "name": "BlockSec",
+      "enabled": false,
+      "title": "BlockSec 追踪 Bitget 事件：估计3.875亿美元流出与跨链资金路径",
+      "observed_at": "2026-09-30T00:00:00.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 86,
+      "name": "BlockSec",
+      "enabled": false,
+      "title": "BlockSec 分析 Bitget 链外入侵：资金流出估计及纵深防御建议",
+      "observed_at": "2026-09-30T00:00:00.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 86,
+      "name": "吴说 / Colin Wu",
+      "enabled": false,
+      "title": "Bitget遭窃约3.875亿美元后，THORChain因协助转移资金陷入争议",
+      "observed_at": "2026-09-29T12:17:40.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 86,
+      "name": "PANews 中文文章",
+      "enabled": false,
+      "title": "Bitget黑客资金拦截进展：NEAR Intents冻结50.3万美元，BTC保护基金流出3215.28枚",
+      "observed_at": "2026-09-29T09:01:28.000Z",
+      "fresh": false,
+      "current_curated": false
+    },
+    {
+      "story_id": 159,
+      "name": "Compound Community Forum",
+      "enabled": true,
+      "title": "Compound社区成员质疑V2储备金被用于增强基金会自身投票权",
+      "observed_at": "2026-10-02T05:03:26.000Z",
+      "fresh": true,
+      "current_curated": false
+    },
+    {
+      "story_id": 159,
+      "name": "Compound Community Forum",
+      "enabled": true,
+      "title": "Compound 社区讨论 Humpy 相关治理争议及帖子锁定原因",
+      "observed_at": "2026-10-02T02:46:33.000Z",
+      "fresh": true,
+      "current_curated": false
+    },
+    {
+      "story_id": 159,
+      "name": "Compound Community Forum",
+      "enabled": true,
+      "title": "Compound 基金会声明：指称2024年以来存在疑似恶意治理活动",
+      "observed_at": "2026-10-02T02:14:19.000Z",
+      "fresh": true,
+      "current_curated": true
+    },
+    {
+      "story_id": 159,
+      "name": "PANews 中文文章",
+      "enabled": false,
+      "title": "Compound 基金会被指违规动用储备买币，作者核查揭示背后治理权争夺战",
+      "observed_at": "2026-09-29T11:05:00.000Z",
+      "fresh": false,
+      "current_curated": false
+    }
+  ],
+  "failedGroups": [
+    {
+      "articleId": "s4jzv4216xx8fe09hd2s68ei5",
+      "createdAt": "2026-10-01T15:36:26.408Z",
+      "completedAt": "2026-10-01T15:41:58.137Z",
+      "error": "Model qwen3.8-flash returned unusable output for article:s4jzv4216xx8fe09hd2s68ei5: SyntaxError: Expected ',' or ']' after array element in JSON at position 634 (line 21 column 6)"
+    },
+    {
+      "articleId": "efw0emyjhumjp75t9i07ygn1p",
+      "createdAt": "2026-10-01T14:43:52.585Z",
+      "completedAt": "2026-10-01T14:45:02.751Z",
+      "error": "Budget for dashscope exhausted (hour)"
+    },
+    {
+      "articleId": "l4zhgckbxd3iy53eyky4bynpj",
+      "createdAt": "2026-10-01T14:43:43.893Z",
+      "completedAt": "2026-10-01T14:45:18.198Z",
+      "error": "Budget for dashscope exhausted (hour)"
+    },
+    {
+      "articleId": "jo4mk67im99nvhqtfjg34n8kj",
+      "createdAt": "2026-10-01T14:39:32.234Z",
+      "completedAt": "2026-10-01T14:41:01.281Z",
+      "error": "Budget for dashscope exhausted (minute)"
+    },
+    {
+      "articleId": "y9rjteiyz6naqz55ccmqm6mrd",
+      "createdAt": "2026-10-01T14:36:20.591Z",
+      "completedAt": "2026-10-01T14:37:44.653Z",
+      "error": "Budget for dashscope exhausted (minute)"
+    },
+    {
+      "articleId": "opg5hx8jrm48l4svpah21orkh",
+      "createdAt": "2026-10-01T14:33:10.918Z",
+      "completedAt": "2026-10-01T14:34:28.361Z",
+      "error": "Budget for dashscope exhausted (minute)"
+    },
+    {
+      "articleId": "x2nij9urt4tl018sp85wmz6x1",
+      "createdAt": "2026-10-01T14:30:51.626Z",
+      "completedAt": "2026-10-01T14:32:38.220Z",
+      "error": "Budget for dashscope exhausted (minute)"
+    },
+    {
+      "articleId": "h17zgfzym379a5n486yxu9uyc",
+      "createdAt": "2026-10-01T14:29:02.690Z",
+      "completedAt": "2026-10-01T14:30:24.060Z",
+      "error": "Budget for dashscope exhausted (minute)"
+    }
+  ],
+  "limitations": [
+    "No production configuration or data was modified",
+    "No model calls or paid requests were triggered",
+    "Freshness for existing undated publications uses discovery time; three current curated inputs lack published_at",
+    "Changes to source scope or ranking threshold require owner decision"
+  ]
+}

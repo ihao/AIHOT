@@ -136,6 +136,11 @@ export interface WebModule {
   };
   /** Parts of every public page (root.tsx); the admin has its own chrome and gets none of them. */
   root?: {
+    /** Public API reads the root loader gives its parts, under the module name; failures are null. */
+    data?: Record<string, string>;
+    /** A stable clock for its first render. Return only the time needed to represent its display state;
+     * views without time-dependent markup use zero, so identical public data stays cacheable. */
+    renderClock?: (data: Record<string, unknown>, now: number) => number;
     /** An inline script in <head>, after the theme's: it runs before the page paints. */
     bootScript?: string;
     /** Above the page's content. */

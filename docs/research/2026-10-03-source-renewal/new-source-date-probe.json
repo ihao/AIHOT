@@ -1,0 +1,445 @@
+{
+  "at": "2026-10-02T18:23:27.987Z",
+  "results": [
+    {
+      "id": "cointelegraph-news",
+      "count": 30,
+      "categories": [
+        "Latest News",
+        "Markets",
+        "Magazine"
+      ],
+      "samples": [
+        {
+          "url": "https://cointelegraph.com/news/71-percent-uk-finance-leaders-expect-tokenization-reshape-financial-services-lloyds?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "title": "71% of UK finance leaders expect tokenization to reshape financial services: Lloyds",
+          "feedDate": "2026-10-02T16:20:24.000Z",
+          "pageDatePublished": [
+            "2026-10-02T16:20:24.333Z"
+          ],
+          "pageDateModified": [
+            "2026-10-02T16:27:06.331Z"
+          ],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        },
+        {
+          "url": "https://cointelegraph.com/news/crypto-biz-kalshi-blockchain-com-crypto-treasury-valuations?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "title": "Crypto’s billions are back, but the premiums aren’t",
+          "feedDate": "2026-10-02T15:32:53.000Z",
+          "pageDatePublished": [
+            "2026-10-02T15:32:53.910Z"
+          ],
+          "pageDateModified": [
+            "2026-10-02T15:47:12.028Z"
+          ],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        },
+        {
+          "url": "https://cointelegraph.com/markets/bitcoin-briefly-taps-87k-as-bond-yields-drop-on-low-us-nonfarm-payrolls-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "title": "Bitcoin briefly hits $87K as weak US jobs data sends bond yields lower",
+          "feedDate": "2026-10-02T15:27:31.000Z",
+          "pageDatePublished": [
+            "2026-10-02T15:27:31.149Z"
+          ],
+          "pageDateModified": [
+            "2026-10-02T15:39:11.656Z"
+          ],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "blocktempo-news-zh",
+      "count": 10,
+      "categories": [
+        "加密貨幣市場",
+        "Blast",
+        "L2",
+        "layer2",
+        "Pacman",
+        "以太坊",
+        "空投",
+        "關閉",
+        "即時新聞",
+        "市場分析",
+        "CBOE",
+        "VIX",
+        "永續合約",
+        "波動率",
+        "衍生商品",
+        "AI",
+        "Netcraft",
+        "SI",
+        "人工智慧",
+        "域名",
+        "川普",
+        "網域",
+        "超級智慧",
+        "獨立觀點",
+        "Arthur Hayes",
+        "Wall Street",
+        "加密貨幣",
+        "印鈔",
+        "央行",
+        "放水",
+        "比特幣",
+        "貶值交易",
+        "美國",
+        "失業率",
+        "就業數據",
+        "總體經濟",
+        "美國經濟",
+        "聯準會",
+        "降息",
+        "非農",
+        "BTC",
+        "CoinGlass",
+        "ETH",
+        "合約清算",
+        "幣安",
+        "爆倉",
+        "穩定幣",
+        "金融市場",
+        "Fiserv",
+        "OUSD",
+        "Roughrider",
+        "温宏駿",
+        "安全",
+        "犯罪",
+        "Europol",
+        "FBI",
+        "KillSec",
+        "勒索軟體",
+        "西班牙",
+        "遊戲",
+        "AMD",
+        "Riot Games",
+        "Ryzen 7 5800X3D",
+        "特戰英豪",
+        "英雄聯盟",
+        "台灣",
+        "台北地檢署",
+        "櫻特森",
+        "調查局",
+        "資策會",
+        "銀行法"
+      ],
+      "samples": [
+        {
+          "url": "https://www.blocktempo.com/blast-l2-network-shutdown-withdraw-before-october/",
+          "title": "營運入不敷出！以太坊 L2 明星 Blast 宣布「永久關閉」，籲用戶 10/26 前急撤資產",
+          "feedDate": "2026-10-02T15:41:01.000Z",
+          "pageDatePublished": [
+            "2026-10-02T15:41:01+08:00",
+            "2026-10-02T23:41:01+08:00",
+            "2026-10-02 23:41:01Asia\\/Taipei"
+          ],
+          "pageDateModified": [
+            "2026-10-02T15:41:01+08:00",
+            "2026-10-02 15:41:01Asia\\/Taipei"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://www.blocktempo.com/cboe-vix-perpetual-futures-no-expiry-crypto-market-structure-convergence/",
+          "title": "VIX 恐慌指數也要加密化了！Cboe 推永續期貨，免到期免換月",
+          "feedDate": "2026-10-02T13:47:16.000Z",
+          "pageDatePublished": [
+            "2026-10-02T13:47:16+08:00",
+            "2026-10-02T21:47:16+08:00",
+            "2026-10-02 21:47:16Asia\\/Taipei"
+          ],
+          "pageDateModified": [
+            "2026-10-02T13:47:16+08:00",
+            "2026-10-02 13:47:16Asia\\/Taipei"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://www.blocktempo.com/trump-super-intelligence-si-domain-registration-surge/",
+          "title": "川普下令 AI 改名「超級智慧」，.si 網域註冊狂飆近百倍！品牌遭惡意搶註喊價 2 萬鎂",
+          "feedDate": "2026-10-02T13:45:34.000Z",
+          "pageDatePublished": [
+            "2026-10-02T13:45:34+08:00",
+            "2026-10-02T21:45:34+08:00",
+            "2026-10-02 21:45:34Asia\\/Taipei"
+          ],
+          "pageDateModified": [
+            "2026-10-02T13:45:34+08:00",
+            "2026-10-02 13:45:34Asia\\/Taipei"
+          ],
+          "freeFlags": [],
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "decrypt-news",
+      "count": 29,
+      "categories": [
+        "Business",
+        "Markets",
+        "Opinion",
+        "Law and Order",
+        "zcash",
+        "Artificial Intelligence",
+        "Coins",
+        "Gaming",
+        "Technology",
+        "dogecoin"
+      ],
+      "samples": [
+        {
+          "url": "https://decrypt.co/379972/ethereum-layer-2-blast-shutting-down",
+          "title": "Once a $2.3 Billion Network, Ethereum Layer-2 Blast Is Shutting Down",
+          "feedDate": "2026-10-02T17:47:06.000Z",
+          "pageDatePublished": [
+            "2026-10-02T17:47:06"
+          ],
+          "pageDateModified": [
+            "2026-10-02T17:47:06"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://decrypt.co/379959/nvidia-hits-record-high-market-value-5-7-trillion",
+          "title": "Nvidia Hits Record High as Market Value Reaches $5.7 Trillion",
+          "feedDate": "2026-10-02T17:30:40.000Z",
+          "pageDatePublished": [
+            "2026-10-02T17:30:40"
+          ],
+          "pageDateModified": [
+            "2026-10-02T17:30:40"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://decrypt.co/379936/bitcoin-heads-higher-fed-jobs-where-does-btc-go-next",
+          "title": "Bitcoin Heads Higher on Macro Moves: Where Does BTC Go Next?",
+          "feedDate": "2026-10-02T16:45:52.000Z",
+          "pageDatePublished": [
+            "2026-10-02T16:45:52"
+          ],
+          "pageDateModified": [
+            "2026-10-02T16:45:52"
+          ],
+          "freeFlags": [],
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "bitcoin-magazine-news",
+      "count": 10,
+      "categories": [
+        "NEWS",
+        "Absa",
+        "Bitcoin",
+        "South africa",
+        "MARKETS",
+        "bitcoin price",
+        "Federal reserve",
+        "BITCOIN FOR CORPORATIONS",
+        "VIDEOS",
+        "AI",
+        "BMTV",
+        "BTC",
+        "Frank Holmes",
+        "Hive",
+        "Mining",
+        "Video",
+        "Ego Death Capital",
+        "Nico Lechuga",
+        "42 Macro",
+        "Darius Dale",
+        "liquidity",
+        "CLARITY Act",
+        "crypto",
+        "paul atkins",
+        "SEC",
+        "PRESS RELEASES",
+        "Press Release",
+        "Sazmining",
+        "Block",
+        "Jack Dorsey",
+        "daines",
+        "Regulation",
+        "Stablecoins"
+      ],
+      "samples": [
+        {
+          "url": "https://bitcoinmagazine.com/news/absa-first-african-bank-to-custody-bitcoin",
+          "title": "South Africa’s Absa Becomes First Bank on the Continent to Custody Bitcoin: Report",
+          "feedDate": "2026-10-02T18:12:28.000Z",
+          "pageDatePublished": [
+            "2026-10-02T13:12:28-05:00"
+          ],
+          "pageDateModified": [
+            "2026-10-02T13:13:35-05:00"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://bitcoinmagazine.com/markets/bitcoin-price-surges-on-soft-jobs-data",
+          "title": "Bitcoin Price Surges Above $87,000 on Softer-Than-Expected Jobs Data",
+          "feedDate": "2026-10-02T15:09:38.000Z",
+          "pageDatePublished": [
+            "2026-10-02T10:09:38-05:00"
+          ],
+          "pageDateModified": [
+            "2026-10-02T10:09:59-05:00"
+          ],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://bitcoinmagazine.com/bitcoin-for-corporations/impacts-of-daily-dividends-on-digital-credit",
+          "title": "Impacts of Daily Dividends on Digital Credit",
+          "feedDate": "2026-10-02T13:20:41.000Z",
+          "pageDatePublished": [
+            "2026-10-02T08:20:41-05:00"
+          ],
+          "pageDateModified": [
+            "2026-10-02T08:20:49-05:00"
+          ],
+          "freeFlags": [],
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "odaily-articles-zh",
+      "count": 4,
+      "categories": [
+        "Odaily"
+      ],
+      "samples": [
+        {
+          "url": "https://www.odaily.news/zh-CN/post/5213242",
+          "title": "Pantera Capital代币化市场报告：资产上链之后，真正的需求和机会在哪里？",
+          "feedDate": "2026-10-02T10:00:00.000Z",
+          "pageDatePublished": [
+            "2026-10-02T10:00:00.000Z"
+          ],
+          "pageDateModified": [],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        },
+        {
+          "url": "https://www.odaily.news/zh-CN/post/5213243",
+          "title": "挡下5000万赃款，却失守380万金库：NEAR Intents被黑始末",
+          "feedDate": "2026-10-02T07:00:00.000Z",
+          "pageDatePublished": [
+            "2026-10-02T07:00:00.000Z"
+          ],
+          "pageDateModified": [],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        },
+        {
+          "url": "https://www.odaily.news/zh-CN/post/5213241",
+          "title": "一场改变AI格局的决裂：OpenAI与Anthropic的隐秘恩怨往事",
+          "feedDate": "2026-10-02T04:09:00.000Z",
+          "pageDatePublished": [
+            "2026-10-02T04:09:00.000Z"
+          ],
+          "pageDateModified": [],
+          "freeFlags": [
+            "true"
+          ],
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "coindesk-news",
+      "count": 24,
+      "categories": [
+        "Finance",
+        "Payward",
+        "Exclusive",
+        "News",
+        "Tech",
+        "Ethereum News",
+        "News Analysis",
+        "Artificial Intelligence",
+        "Regulation",
+        "Opinion",
+        "Markets",
+        "Bitcoin News",
+        "Breaking News",
+        "Top Stories",
+        "Crypto Daybook Americas",
+        "Live News",
+        "live_news",
+        "Crypto Markets Today",
+        "Tether",
+        "Policy",
+        "SEC",
+        "Custody",
+        "Memecoin",
+        "Donald Trump",
+        "CoinDesk Indices",
+        "Crypto for Advisors",
+        "Hack",
+        "Tax",
+        "ETFs"
+      ],
+      "samples": [
+        {
+          "url": "https://www.coindesk.com/business/2026/09/30/bny-in-talks-with-kraken-parent-payward-over-infrastructure-partnership",
+          "title": "BNY in talks with Kraken parent Payward over infrastructure partnership",
+          "feedDate": "2026-10-02T17:34:40.000Z",
+          "pageDatePublished": [
+            "2026-10-02T17:34:40.469Z"
+          ],
+          "pageDateModified": [],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://www.coindesk.com/tech/2026/10/02/once-a-usd2-billion-ethereum-layer-2-blast-is-shutting-down-after-assets-plunge-98",
+          "title": "Once a $2 billion Ethereum layer-2, Blast is shutting down after assets plunge 98%",
+          "feedDate": "2026-10-02T17:15:35.000Z",
+          "pageDatePublished": [
+            "2026-10-02T17:15:35.817Z"
+          ],
+          "pageDateModified": [],
+          "freeFlags": [],
+          "status": 200
+        },
+        {
+          "url": "https://www.coindesk.com/news-analysis/2026/10/02/possible-next-crypto-czar-jay-clayton-began-crypto-s-regulation-by-enforcement-at-sec",
+          "title": "Trump’s potential AI czar, Jay Clayton, helped pioneer the SEC’s crypto crackdown",
+          "feedDate": "2026-10-02T17:12:48.000Z",
+          "pageDatePublished": [
+            "2026-10-02T17:12:48.207Z"
+          ],
+          "pageDateModified": [
+            "2026-10-02T17:56:28.985Z"
+          ],
+          "freeFlags": [],
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

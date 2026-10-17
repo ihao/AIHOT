@@ -14,12 +14,13 @@ import { pickRepresentative, REPRESENTATIVE_COLUMNS, type RepresentativeIdentity
 import { enqueue, QUEUES, shutdownSignal } from "../jobs/queue.ts";
 import { emit } from "../modules.ts";
 import {
-  bodyModeOf, channelOf, displayTags, isIndexable, isPoolEligible, isSelectable, isIndependentSelectedSource, mayRedistribute, publicSourceName, type SourceFacts,
+  bodyModeOf, channelOf, displayTags, isIndexable, isPoolEligible, isSelectable, isIndependentSelectedSource, mayRedistribute, publicSourceName, qualityRejection, type SourceFacts,
 } from "./rules.ts";
 import { foldableSelectionCondition, latestCompositeCondition, ownFactEvidenceCondition } from "./scope.ts";
 
 interface ArticleRow {
   id: string;
+  revision: number;
   source_id: string;
   url: string;
   title: string;
@@ -39,6 +40,7 @@ interface ArticleRow {
 
 interface AnalysisRow {
   id: number;
+  input_revision: number;
   relevance: string | null;
   category: string | null;
   tags: string[];
@@ -48,6 +50,7 @@ interface AnalysisRow {
   reason_zh: string | null;
   score: number | null;
   selected: boolean | null;
+  prefilter_label: string | null;
 }
 
 interface OverrideRow {
@@ -249,7 +252,7 @@ export async function publishArticle(articleId: string, options: PublishOptions 
 
 export async function publishArticleTx(tx: Tx, articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
   const [article] = await tx<ArticleRow[]>`
-    SELECT id, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
+    SELECT id, revision, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
            body_text, x_post, x_article, grouped_at, grouping_status, selection_adds_value
     FROM articles WHERE id = ${articleId} FOR UPDATE`;
   if (!article) return null;
@@ -262,7 +265,8 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext FROM sources WHERE id = ${article.source_id}`;
   if (!source) return null;
   const [analysis] = await tx<AnalysisRow[]>`
-    SELECT id, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected
+    SELECT id, input_revision, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected,
+      output->'prefilter'->>'label' AS prefilter_label
     FROM analyses WHERE article_id = ${articleId} ORDER BY input_revision DESC, id DESC LIMIT 1`;
   const [override] = await tx<OverrideRow[]>`SELECT fields, visibility FROM editorial_overrides WHERE article_id = ${articleId}`;
   const [membership] = await tx<{ fact_id: number; story_id: number | null }[]>`
@@ -291,16 +295,24 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const category = pickString(f.category, analysis?.category ?? null);
   const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(analysis?.subjects ?? []).map((s) => `entity:${s}`)])];
   const score = f.score === null || typeof f.score === "number" ? f.score : analysis?.score ?? null;
-  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : analysis?.relevance ?? null;
+  // Saved analyses from before the quality fix may have promoted UNKNOWN to pass. Rebuilds read
+  // the retained original judgement; legacy imports without a prefilter keep their saved relevance.
+  const savedRelevance = analysis?.prefilter_label === "UNKNOWN" ? "unknown"
+    : analysis?.prefilter_label === "BLOCK" ? "block" : analysis?.relevance ?? null;
+  const relevance = typeof f.relevance === "string" ? f.relevance : savedRelevance;
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  const visibility = source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  const rejected = source.participation_mode === "editorial" && qualityRejection({ relevance, score }) !== null;
+  const visibility = source.participation_mode === "isolated" || rejected ? "withdrawn" : (override?.visibility ?? "public");
 
   // An undated archive has a readable detail page, but its discovery is not a news timestamp.
   // Explicit imports can retain an editorial decision already published elsewhere.
-  const eligible = isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary, originalPost: !!original })
+  const eligible = isPoolEligible({ participationMode: source.participation_mode, relevance, score, title, summary, originalPost: !!original })
     && (!article.backfill || article.published_at !== null || !!options.releasedAt);
-  const selectionCandidate = isSelectable(eligible, judgedSelected, source.tier);
+  // Retain the last readable summary while a revision waits or ages out of processing, but an old
+  // analysis cannot nominate the replacement material. Explicit editorial selection still wins.
+  const selectionCandidate = (f.selected === true || analysis?.input_revision === article.revision)
+    && isSelectable(eligible, judgedSelected, source.tier);
   // Scoring nominates a report; a completed identity/value decision admits it to selection.
   // A historical import already has its public decision. Preserve that confirmed state on rebuild.
   const selected = selectionCandidate && article.grouping_status === "complete"

@@ -1,13 +1,13 @@
 // analyzeArticle: the judging and writing steps, each with its own prompt from the industry pack
 // (industry/prompts/):
-//   1. prefilter: does the material belong to this industry at all (wide recall). Only BLOCK stops an
-//      item; a BLOCK given while material is missing counts as UNKNOWN. Without material or a
-//      displayable original post, UNKNOWN waits for a new material revision before later steps;
+//   1. prefilter: only PASS proceeds. UNKNOWN waits for a new material revision; a BLOCK given
+//      while material is missing counts as UNKNOWN, never permission to write or publish;
 //   2. score: two independent scores against the source tier's threshold (industry/selection.ts) decide 精选;
 //   3. structure: category, tags, subjects and the current news fact, beside scoring;
 //   4. writing, once the structure is in: the Chinese title, summary and reason by the content
-//      understanding for selected and near-selected items, by the cheaper title/summary prompts for the rest;
-//      copy that uses a word the site keeps from readers (industry/wording.ts) goes back once to change only those.
+//      understanding for selected and near-selected items, by the cheaper title/summary prompts for
+//      other admitted items. Scores below the public floor buy no writing; admitted copy with a word
+//      from industry/wording.ts goes back once to change only those words.
 // Material with only a title or a feed summary has its article page fetched before it is judged.
 import { z } from "zod";
 import { CATEGORY_KEYS } from "@aihot/contracts/taxonomy";
@@ -460,7 +460,7 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts = {}): 
   checkAnalysisRunning();
   const prefilter = await runSelectionPrefilter(a, opts);
   // Missing article text waits for a later revision; displayable original posts keep their judgement.
-  if (prefilter.label === "BLOCK") return { prefilter, scores: null, writing: null, structure: null };
+  if (prefilter.label !== "PASS") return { prefilter, scores: null, writing: null, structure: null };
   const original = originalPostCopy(a.xPost, a.url);
   if (missingEvidence(a) && !original) return { prefilter, scores: null, writing: null, structure: null };
   // The structure step needs nothing from the scores: it runs beside them.
@@ -471,6 +471,7 @@ export async function runAnalysis(a: AnalyzeInputArticle, opts: StepOpts = {}): 
     const near = sum !== null && (sum >= scores!.threshold * SCORE_CALLS || sum > UNDERSTAND_FLOOR * SCORE_CALLS);
     const s = await structure;
     if ("error" in s) throw s.error;
+    if (sum === null || Math.floor(sum / SCORE_CALLS) < SELECTION.publicFloor) return { prefilter, scores, writing: null, structure: s.value };
     const writing: NonNullable<AnalysisRun["writing"]> = original
       ? { kind: "verbatim", model: null, titleZh: original.title, summaryZh: original.summary ?? "", reasonZh: null, receiptIds: [], reused: true }
       : await mendWording(a, (near ? await runUnderstand(a, opts) : null) ?? (await runSummarize(a, opts)), opts);
@@ -488,7 +489,7 @@ export function normalizeAnalysis(run: AnalysisRun) {
   const titleZh = collapseWhitespace(run.writing?.titleZh ?? "");
   const summaryZh = (run.writing?.summaryZh ?? "").trim();
   // Original posts can consist entirely of media. Model-written copy still needs a title and summary.
-  const relevance = label === "BLOCK" ? "block" : !run.writing || !titleZh || (!summaryZh && run.writing.kind !== "verbatim") ? "unknown" : "pass";
+  const relevance = label === "BLOCK" ? "block" : label !== "PASS" || !run.writing || !titleZh || (!summaryZh && run.writing.kind !== "verbatim") ? "unknown" : "pass";
   // Selected when the two scores add up to twice the tier threshold; the mean, floored, is the score
   // shown (it never decides a half point on its own).
   const values = run.scores && !run.scores.refused ? run.scores.values : null;
@@ -538,9 +539,15 @@ export interface AnalyzeResult {
 export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Promise<AnalyzeResult | null> {
   const input = await loadAnalyzeInput(articleId);
   if (!input) return null;
+  // Extraction carries no new paid tag. Snapshot the retained request identity before any paid step.
+  const [request] = await sql<{ processing_attempt_tag: string | null }[]>`
+    SELECT processing_attempt_tag FROM articles WHERE id = ${articleId} AND revision = ${input.revision}`;
+  if (!request) return { analysisId: null, stale: true, output: null, receiptIds: [], reused: true };
+  const attemptTag = opts.attemptTag ?? request.processing_attempt_tag ?? undefined;
+  if (request.processing_attempt_tag !== (attemptTag ?? null)) return { analysisId: null, stale: true, output: null, receiptIds: [], reused: true };
   // Its page first; extraction queues the analysis again (normally the queue already routed it there).
   if (waitsForPage(input)) return { analysisId: null, stale: false, needsBody: true, output: null, receiptIds: [], reused: true };
-  const run = await runAnalysis(input, opts);
+  const run = await runAnalysis(input, { ...opts, attemptTag });
   const out = normalizeAnalysis(run);
   const receiptIds = [
     run.prefilter.receiptId, ...(run.scores?.receiptIds ?? []), ...(run.writing?.receiptIds ?? []), ...(run.structure ? [run.structure.receiptId] : []),
@@ -554,8 +561,13 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
     scope: out.scope, fact: out.fact,
   };
   const committed = await sql.begin(async (tx) => {
-    const [current] = await tx<{ revision: number }[]>`SELECT revision FROM articles WHERE id = ${articleId} FOR UPDATE`;
-    const stale = !current || current.revision !== input.revision;
+    const [current] = await tx<{ revision: number; processing_attempt_tag: string | null }[]>`SELECT revision, processing_attempt_tag FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    const stale = !current || current.revision !== input.revision || current.processing_attempt_tag !== (attemptTag ?? null);
+    if (current?.revision === input.revision && current.processing_attempt_tag !== (attemptTag ?? null)) {
+      // Keep the obsolete paid responses, but never make their judgement newer than this request's successor.
+      for (const id of receiptIds) await completeReceipt(tx, id);
+      return { analysisId: null, stale: true };
+    }
     const [row] = await tx<{ id: number }[]>`
       INSERT INTO analyses (article_id, input_revision, origin, model, prompt_version, receipt_ids, relevance, category, tags,
         subjects, title_zh, summary_zh, reason_zh, score, selected, output)
@@ -565,7 +577,7 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
       RETURNING id`;
     for (const id of receiptIds) await completeReceipt(tx, id);
     if (!stale) {
-      await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL WHERE id = ${articleId}`;
+      await tx`UPDATE articles SET processing_state = ${out.relevance === "block" ? "blocked" : "analyzed"}, processing_error = NULL, manual_processing = false WHERE id = ${articleId}`;
     }
     return { analysisId: row!.id, stale };
   });

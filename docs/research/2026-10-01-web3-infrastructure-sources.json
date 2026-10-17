@@ -1,0 +1,512 @@
+[
+  {
+    "id": "metamask",
+    "name": "MetaMask",
+    "category": "钱包与账户",
+    "url": "https://metamask.io/news",
+    "why": "钱包发布、安全响应和账户抽象；公开页含 Security、Developers 等栏目",
+    "authorityBoundary": "产品公告为一手；使用量、比较优势和安全承诺须独立核验",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://metamask.io/news"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "ledger",
+    "name": "Ledger",
+    "category": "钱包与账户",
+    "url": "https://www.ledger.com/blog",
+    "why": "硬件钱包、固件和自有安全研究；博客含 Product、Donjon 栏目",
+    "authorityBoundary": "硬件厂商立场；不得据自述推断所有固件安全",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.ledger.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "trezor",
+    "name": "Trezor",
+    "category": "钱包与账户",
+    "url": "https://trezor.io/learn",
+    "why": "硬件钱包操作、安全与产品更新；官方 Learn 页列产品更新栏目",
+    "authorityBoundary": "教程多于新闻；只选新发布、安全公告和技术变化",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://trezor.io/learn"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "phantom",
+    "name": "Phantom",
+    "category": "钱包与账户",
+    "url": "https://phantom.com/learn/blog",
+    "why": "多链消费钱包产品与生态入口",
+    "authorityBoundary": "教程、市场趋势和推广须分离，非独立项目评级",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://phantom.com/learn/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "safe",
+    "name": "Safe",
+    "category": "钱包与账户",
+    "url": "https://www.safe.global/blog",
+    "why": "多签与智能账户基础设施、集成和产品变化",
+    "authorityBoundary": "自身产品公告一手；整个生态安全须合约和独立评估",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.safe.global/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "walletconnect",
+    "name": "WalletConnect",
+    "category": "钱包与账户",
+    "url": "https://walletconnect.com/blog",
+    "why": "钱包连接、支付和网络变更；当前博客含网络和钱包栏目",
+    "authorityBoundary": "网络交易量为提供方自述；合作公告须另一方交叉验证",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://walletconnect.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "consensys",
+    "name": "Consensys",
+    "category": "开发基础设施",
+    "url": "https://consensys.io/blog",
+    "why": "以太坊软件、企业基础设施和公司政策活动",
+    "authorityBoundary": "与 MetaMask/相关产品存在同集团叙事，不能当两份独立证据",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://consensys.io/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "alchemy",
+    "name": "Alchemy",
+    "category": "开发基础设施",
+    "url": "https://www.alchemy.com/blog",
+    "why": "RPC、链支持、开发者 API 和基础设施发布",
+    "authorityBoundary": "平台性能比较为自有测试/商业营销；应保留测试条件",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.alchemy.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "quicknode",
+    "name": "Quicknode",
+    "category": "开发基础设施",
+    "url": "https://www.quicknode.com/blog",
+    "why": "RPC、索引和实时数据基础设施更新",
+    "authorityBoundary": "产品整合不等于基础链推出；平台估计不能直接做链级指标",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.quicknode.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "openzeppelin",
+    "name": "OpenZeppelin",
+    "category": "开发基础设施",
+    "url": "https://www.openzeppelin.com/news",
+    "why": "合约库、安全工具与审计入口；旧 blog 重定向至 News，另有 Research/Security Audits",
+    "authorityBoundary": "审计限特定代码版本和范围，不能保证无漏洞；News 与研究要分栏目",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.openzeppelin.com/news"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "foundry",
+    "name": "Foundry",
+    "category": "开发基础设施",
+    "url": "https://www.getfoundry.sh/",
+    "why": "以太坊开发框架，旧 book.getfoundry.sh 已迁移；建议官方指向仓库 Release",
+    "authorityBoundary": "本次确认文档入口，未把文档首页当新闻列表或验证具体 Release feed",
+    "entryType": "release_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.getfoundry.sh/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "hardhat",
+    "name": "Hardhat",
+    "category": "开发基础设施",
+    "url": "https://hardhat.org/",
+    "why": "智能合约开发框架；官网当前为 Hardhat 3，适合追踪重大工具变更",
+    "authorityBoundary": "官网和文档已读；正式采集须定位官方仓库/变更日志与版本日期",
+    "entryType": "release_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://hardhat.org/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "ipfs",
+    "name": "IPFS Blog & News",
+    "category": "存储与数据",
+    "url": "https://blog.ipfs.tech/",
+    "why": "内容寻址与分布式存储技术；官方入口明示 RSS，兼有 Kubo Release",
+    "authorityBoundary": "博客包含外部生态内容与媒体转引，不能整源 first_party=true",
+    "entryType": "rss",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://blog.ipfs.tech/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "filecoin",
+    "name": "Filecoin",
+    "category": "存储与数据",
+    "url": "https://www.filecoin.io/blog",
+    "why": "存储网络与生态进展；旧 filecoin.io/blog 已重定向",
+    "authorityBoundary": "存储容量不等于真实付费需求；生态案例需标作者与证据",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.filecoin.io/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "arweave",
+    "name": "Arweave",
+    "category": "存储与数据",
+    "url": "https://arweave.org/",
+    "why": "永久存储生态官方门户，作为后续官方公告锚点",
+    "authorityBoundary": "本次主页可读但正文很少，具体文章/公告列表和 AO 入口仍待核验",
+    "entryType": "portal_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://arweave.org/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "the-graph",
+    "name": "The Graph",
+    "category": "存储与数据",
+    "url": "https://thegraph.com/blog/",
+    "why": "链上索引与查询网络官方发布",
+    "authorityBoundary": "索引数据、查询量和服务商业叙事须区分；自有生态消息优先",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://thegraph.com/blog/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "ens",
+    "name": "ENS",
+    "category": "身份与域名",
+    "url": "https://ens.domains/blog",
+    "why": "以太坊命名系统产品与协议更新",
+    "authorityBoundary": "博客不能代替 DAO 投票和合约执行结果，治理另查正式提案",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://ens.domains/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "opensea",
+    "name": "OpenSea",
+    "category": "NFT与消费应用",
+    "url": "https://opensea.io/blog",
+    "why": "NFT 市场与交易产品变化",
+    "authorityBoundary": "市场宣传和集合推荐不参与事实精选；成交口径回链核验",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://opensea.io/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "farcaster",
+    "name": "Farcaster",
+    "category": "NFT与消费应用",
+    "url": "https://farcaster.xyz/",
+    "why": "社交协议官方门户；用于身份与文档锚定",
+    "authorityBoundary": "本次不是具体动态列表；第三方客户端发帖不能统称协议官方",
+    "entryType": "portal_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://farcaster.xyz/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "lens",
+    "name": "Lens",
+    "category": "NFT与消费应用",
+    "url": "https://lens.xyz/news",
+    "why": "社交网络与开发生态官方新闻页",
+    "authorityBoundary": "生态作者和官方公告分开；页面读取不代表采集适配完成",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://lens.xyz/news"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "immutable",
+    "name": "Immutable",
+    "category": "NFT与消费应用",
+    "url": "https://www.immutable.com/blog",
+    "why": "链游基础设施、游戏上线和合作公告",
+    "authorityBoundary": "签约/筹备不等于游戏实际上线；玩家指标须独立数据",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.immutable.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "monero",
+    "name": "Monero Project",
+    "category": "隐私与密码学",
+    "url": "https://www.getmonero.org/blog/",
+    "why": "隐私协议版本说明、会议记录与漏洞响应；官网列 Releases/Urgent/RSS",
+    "authorityBoundary": "社区维护项目；发布不等于对匿名强度的全面证明",
+    "entryType": "rss",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.getmonero.org/blog/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "electric-coin",
+    "name": "Electric Coin Company / Zcash",
+    "category": "隐私与密码学",
+    "url": "https://electriccoin.co/blog/",
+    "why": "Zcash 相关钱包和隐私工程的一手历史材料",
+    "authorityBoundary": "本次可见最新文章为2025-12；不能假设代表2026全部现任开发方或唯一官方",
+    "entryType": "rss",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://electriccoin.co/blog/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "zama",
+    "name": "Zama",
+    "category": "隐私与密码学",
+    "url": "https://www.zama.org/blog",
+    "why": "全同态加密与保密计算；zama.ai/blog 重定向至新域名",
+    "authorityBoundary": "技术理论、测试结果和实际主网性能必须区分",
+    "entryType": "web_list",
+    "priority": "P1",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.zama.org/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "helium",
+    "name": "Helium",
+    "category": "DePIN与去中心化AI",
+    "url": "https://www.helium.com/blog",
+    "why": "无线网络、覆盖、运营和合作动态；旧 blog.helium.com 已迁移",
+    "authorityBoundary": "节点/覆盖不等于付费用户；HIP 治理和收入需独立验证",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.helium.com/blog"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "akash",
+    "name": "Akash Network",
+    "category": "DePIN与去中心化AI",
+    "url": "https://akash.network/blog/",
+    "why": "去中心化云计算与 GPU 资源网络官方技术动态",
+    "authorityBoundary": "供给不等于实际利用率或营收，客户案例不能作全网指标",
+    "entryType": "web_list",
+    "priority": "P2",
+    "verification": "official_page_read_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://akash.network/blog/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "bittensor",
+    "name": "Bittensor",
+    "category": "DePIN与去中心化AI",
+    "url": "https://www.bittensor.com/",
+    "why": "去中心化机器智能网络官方门户",
+    "authorityBoundary": "本次主页正文有限；子网质量与收益不能仅凭官网，公告/文档入口待补",
+    "entryType": "portal_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://www.bittensor.com/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "render",
+    "name": "Render Network",
+    "category": "DePIN与去中心化AI",
+    "url": "https://rendernetwork.com/",
+    "why": "分布式 GPU/渲染网络官方锚点，官网有生态和开发信息",
+    "authorityBoundary": "网络官网已核查，具体新闻列表与治理 RNP 路径需采集前确认",
+    "entryType": "portal_pending",
+    "priority": "P2",
+    "verification": "official_portal_read_publication_entry_pending",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://rendernetwork.com/"
+    ],
+    "notes": "研究候选；优先级为本报告编辑判断，不是规模排名。"
+  },
+  {
+    "id": "geth-release",
+    "name": "Geth Releases",
+    "category": "客户端与实际实现",
+    "url": "https://github.com/ethereum/go-ethereum/releases",
+    "why": "客户端代码和发布状态的直接证据；与标准提案、开发者会议形成实现层互证。",
+    "authorityBoundary": "单个客户端发布不能代表全网完成升级；RC/预发布不写成稳定正式版本。",
+    "entryType": "github_releases_atom",
+    "priority": "P1",
+    "verification": "repository_page_read_and_local_atom_parsed_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://github.com/ethereum/go-ethereum"
+    ],
+    "feedProbeId": "ethereum-client-geth"
+  },
+  {
+    "id": "reth-release",
+    "name": "Reth Releases",
+    "category": "客户端与实际实现",
+    "url": "https://github.com/paradigmxyz/reth/releases",
+    "why": "客户端代码和发布状态的直接证据；与标准提案、开发者会议形成实现层互证。",
+    "authorityBoundary": "单个客户端发布不能代表全网完成升级；RC/预发布不写成稳定正式版本。",
+    "entryType": "github_releases_atom",
+    "priority": "P1",
+    "verification": "repository_page_read_and_local_atom_parsed_2026-10-01",
+    "participationMode": "editorial",
+    "enabled": false,
+    "evidenceUrls": [
+      "https://github.com/paradigmxyz/reth"
+    ],
+    "feedProbeId": "ethereum-client-reth"
+  }
+]

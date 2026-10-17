@@ -100,6 +100,7 @@ export function pageMeta(input: PageMetaInput): MetaDescriptor[] {
 }
 
 export function organizationLd() {
+  if (!SITE.organization) return undefined;
   const base = siteUrl();
   const founder = SITE.organization.founder;
   return {
@@ -139,8 +140,9 @@ const orgRef = () => ({ "@id": `${siteUrl()}/#organization` });
  */
 export function siteLd() {
   const base = siteUrl();
+  const organization = organizationLd();
   return [
-    organizationLd(),
+    ...(organization ? [organization] : []),
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -149,7 +151,7 @@ export function siteLd() {
       url: base,
       description: SITE_DESCRIPTION,
       inLanguage: SITE.locale,
-      publisher: orgRef(),
+      ...(SITE.organization ? { publisher: orgRef() } : {}),
     },
     {
       "@context": "https://schema.org",
@@ -162,8 +164,7 @@ export function siteLd() {
       isAccessibleForFree: true,
       ...(SITE.since ? { temporalCoverage: `${SITE.since}/..` } : {}),
       keywords: SITE.keywords,
-      creator: orgRef(),
-      publisher: orgRef(),
+      ...(SITE.organization ? { creator: orgRef(), publisher: orgRef() } : {}),
       distribution: [
         { "@type": "DataDownload", name: "精选 RSS", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed.xml` },
         { "@type": "DataDownload", name: "全部动态 RSS", encodingFormat: "application/rss+xml", contentUrl: `${base}/feed/all.xml` },
@@ -213,8 +214,7 @@ export function articleLd(input: { path: string; headline: string; description?:
     ...(input.image ? { image: new URL(input.image, base).href } : {}),
     ...(input.section?.length ? { articleSection: input.section } : {}),
     isAccessibleForFree: true,
-    author: orgRef(),
-    publisher: orgRef(),
+    ...(SITE.organization ? { author: orgRef(), publisher: orgRef() } : {}),
     ...(input.basedOn ? { isBasedOn: input.basedOn } : {}),
   };
 }

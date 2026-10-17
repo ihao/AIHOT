@@ -5,10 +5,12 @@
 // 用 scripts/eval-selection.ts 在你自己标注的样本上重跑一遍，再决定上线（见 docs/selection.md）。
 
 export const SELECTION = {
+  /** 全部动态的最低有效分；未评分及未确认相关性保持内部留存。 */
+  publicFloor: 10,
   /**
    * 信源分级 → 入选门槛（平均分）。分级在后台“信源”里给每个源设置：
    *   T1 官方一手（官网、官方博客、机构）· T1_5 官方账号、准官方创作者 · T2 媒体与个人
-   * 分级 EXCLUDE_MP 以及这里没有列出的分级，不参与精选评分（只进“全部动态”）。
+   * 分级 EXCLUDE_MP 以及这里没有列出的分级，不参与精选评分；未评分材料不自动公开。
    */
   thresholds: { T1: 60, T1_5: 65, T2: 76 } as Record<string, number>,
   /**

@@ -1,0 +1,566 @@
+{
+  "at": "2026-10-02T18:25:40.936Z",
+  "actor": "operator:codex-source-renewal-20261003",
+  "reason": "站长2026-10-03授权审查81个启用信源、暂停无有效近期产出入口、直接接入可行补充源，总配置数不超过100。新源禁止处理一个月前历史；首次最多3条、显式1个月上限，自动处理继续限制48小时，仅摘要和原文链接。",
+  "before": {
+    "total": 94,
+    "enabled": 81
+  },
+  "paused": [
+    {
+      "id": "circle-blog",
+      "name": "Circle Blog",
+      "enabled": false
+    },
+    {
+      "id": "electric-coin",
+      "name": "Electric Coin Company / Zcash",
+      "enabled": false
+    },
+    {
+      "id": "filecoin-blog",
+      "name": "Filecoin Blog",
+      "enabled": false
+    },
+    {
+      "id": "flashbots-writings",
+      "name": "Flashbots Writings",
+      "enabled": false
+    },
+    {
+      "id": "icp-blog",
+      "name": "DFINITY / Internet Computer Review",
+      "enabled": false
+    },
+    {
+      "id": "immunefi",
+      "name": "Immunefi",
+      "enabled": false
+    },
+    {
+      "id": "kol-bluematt",
+      "name": "Matt Corallo / BlueMatt",
+      "enabled": false
+    },
+    {
+      "id": "kol-dankrad",
+      "name": "Dankrad Feist",
+      "enabled": false
+    },
+    {
+      "id": "kol-peter-todd",
+      "name": "Peter Todd",
+      "enabled": false
+    },
+    {
+      "id": "kol-samczsun",
+      "name": "samczsun",
+      "enabled": false
+    },
+    {
+      "id": "ottersec",
+      "name": "OtterSec",
+      "enabled": false
+    },
+    {
+      "id": "paxos-blog",
+      "name": "Paxos Blog",
+      "enabled": false
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "enabled": false
+    },
+    {
+      "id": "render-blog",
+      "name": "Render Network 官方 Medium",
+      "enabled": false
+    },
+    {
+      "id": "starknet-blog",
+      "name": "Starknet Blog",
+      "enabled": false
+    },
+    {
+      "id": "wormhole-blog",
+      "name": "Wormhole Blog",
+      "enabled": false
+    }
+  ],
+  "cancelled": [],
+  "additions": [
+    {
+      "id": "coindesk-news",
+      "name": "CoinDesk News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "0f239a01-45b1-4541-82af-fc3f6c7e5f79"
+      },
+      "config": {
+        "feedUrl": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "denyCategories": [
+          "Opinion",
+          "Live News",
+          "live_news",
+          "Crypto Markets Today",
+          "Crypto Daybook Americas"
+        ],
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        }
+      }
+    },
+    {
+      "id": "cointelegraph-news",
+      "name": "Cointelegraph News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "acd6e392-cb8b-40a3-a088-bdf26bc8d371"
+      },
+      "config": {
+        "feedUrl": "https://cointelegraph.com/rss",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "denyCategories": [
+          "Magazine"
+        ],
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        }
+      }
+    },
+    {
+      "id": "decrypt-news",
+      "name": "Decrypt News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "bf74363e-a447-46cc-bb47-d103d892cb8f"
+      },
+      "config": {
+        "feedUrl": "https://decrypt.co/feed",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "denyCategories": [
+          "Opinion",
+          "Gaming",
+          "Our Company"
+        ],
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        }
+      }
+    },
+    {
+      "id": "odaily-articles-zh",
+      "name": "Odaily 星球日报文章",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "193c9461-27f4-4f55-bda7-a62c8bc4db91"
+      },
+      "config": {
+        "feedUrl": "https://rss.odaily.news/rss/post",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        },
+        "summaryIsBody": true
+      }
+    },
+    {
+      "id": "blocktempo-news-zh",
+      "name": "BlockTempo 動區動趨",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "7dd78da3-da13-46ff-b1e5-c76931683678"
+      },
+      "config": {
+        "feedUrl": "https://www.blocktempo.com/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "denyCategories": [
+          "遊戲",
+          "獨立觀點"
+        ],
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        }
+      }
+    },
+    {
+      "id": "bitcoin-magazine-news",
+      "name": "Bitcoin Magazine News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "3ad64e01-f518-46f8-ae4f-bf8f99b28df1"
+      },
+      "config": {
+        "feedUrl": "https://bitcoinmagazine.com/feed",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟"
+          ],
+          "keepIfMatches": [
+            "tokenization",
+            "custody",
+            "regulation",
+            "ETF approval",
+            "exploit",
+            "hack",
+            "security",
+            "upgrade",
+            "shutdown",
+            "launch",
+            "stablecoin",
+            "代币化",
+            "代幣化",
+            "托管",
+            "監管",
+            "监管",
+            "批准",
+            "攻击",
+            "攻擊",
+            "漏洞",
+            "被黑",
+            "安全",
+            "升级",
+            "升級",
+            "關閉",
+            "关闭",
+            "推出",
+            "发布",
+            "發布",
+            "稳定币",
+            "穩定幣"
+          ]
+        },
+        "denyCategories": [
+          "PRESS RELEASES",
+          "Press Release",
+          "VIDEOS",
+          "Video",
+          "SPONSORED",
+          "INDUSTRY EVENTS",
+          "PRINT"
+        ]
+      }
+    }
+  ],
+  "after": {
+    "total": 100,
+    "enabled": 71,
+    "paused": 29
+  }
+}

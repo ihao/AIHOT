@@ -1,0 +1,597 @@
+{
+  "at": "2026-10-03T14:46:42.698Z",
+  "results": [
+    {
+      "id": "igb-category",
+      "feedUrl": "https://igamingbusiness.com/sports-betting/prediction-markets/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "igb-filtered",
+      "feedUrl": "https://igamingbusiness.com/feed/",
+      "extras": {
+        "allowCategories": [
+          "Prediction markets"
+        ]
+      },
+      "responseUrl": "https://igamingbusiness.com/feed/",
+      "ok": true,
+      "count": 100,
+      "accepted": 9,
+      "fresh48h": 2,
+      "conditionalNotModified": true,
+      "secondReadCount": 0,
+      "samples": [
+        {
+          "title": "Prediction market roundup: CFTC sends proposed event contract rules to White House",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-10226/",
+          "publishedAt": "2026-10-02T22:51:03.000Z",
+          "bodyChars": 4376,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "CFTC",
+            "G2E",
+            "white house"
+          ]
+        },
+        {
+          "title": "European Lotteries calls for clearer regulation of prediction markets",
+          "url": "https://igamingbusiness.com/prediction-markets/european-lotteries-calls-clearer-regulation-prediction-markets/",
+          "publishedAt": "2026-10-02T09:25:59.000Z",
+          "bodyChars": 3991,
+          "via": "RSS",
+          "categories": [
+            "Legal & compliance",
+            "Prediction markets",
+            "Regulation",
+            "EL",
+            "European Lotteries",
+            "prediction market"
+          ]
+        },
+        {
+          "title": "Prediction market roundup: CFTC issues advisory on mention markets",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-92526/",
+          "publishedAt": "2026-09-25T23:36:21.000Z",
+          "bodyChars": 5941,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "CFTC",
+            "letitia james",
+            "Polymarket"
+          ]
+        },
+        {
+          "title": "Polymarket launches European lobbying push to secure financial services status",
+          "url": "https://igamingbusiness.com/prediction-markets/polymarket-europe-lobbying-push-financial-services/",
+          "publishedAt": "2026-09-23T09:42:08.000Z",
+          "bodyChars": 3098,
+          "via": "RSS",
+          "categories": [
+            "Legal & compliance",
+            "Prediction markets",
+            "Regulation",
+            "ESMA",
+            "European Securities and Markets Authority",
+            "European Union",
+            "FCA",
+            "Financial Conduct Authority",
+            "Mifid",
+            "Polymarket"
+          ]
+        },
+        {
+          "title": "Prediction market roundup: Sides clash at heated legislative hearing in Texas",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-91826/",
+          "publishedAt": "2026-09-18T21:56:18.000Z",
+          "bodyChars": 7274,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "AGA",
+            "CFTC",
+            "Kalshi",
+            "Ninth Circuit",
+            "texas"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "igb-tag",
+      "feedUrl": "https://igamingbusiness.com/tag/prediction-markets/feed/",
+      "extras": {},
+      "responseUrl": "https://igamingbusiness.com/tag/prediction-markets/feed/",
+      "ok": true,
+      "count": 100,
+      "accepted": 100,
+      "fresh48h": 2,
+      "conditionalNotModified": true,
+      "secondReadCount": 0,
+      "samples": [
+        {
+          "title": "Prediction market roundup: CFTC sends proposed event contract rules to White House",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-10226/",
+          "publishedAt": "2026-10-02T22:51:03.000Z",
+          "bodyChars": 4376,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "CFTC",
+            "G2E",
+            "white house"
+          ]
+        },
+        {
+          "title": "European Lotteries calls for clearer regulation of prediction markets",
+          "url": "https://igamingbusiness.com/prediction-markets/european-lotteries-calls-clearer-regulation-prediction-markets/",
+          "publishedAt": "2026-10-02T09:25:59.000Z",
+          "bodyChars": 3991,
+          "via": "RSS",
+          "categories": [
+            "Legal & compliance",
+            "Prediction markets",
+            "Regulation",
+            "EL",
+            "European Lotteries",
+            "prediction market"
+          ]
+        },
+        {
+          "title": "Polymarket launches European lobbying push to secure financial services status",
+          "url": "https://igamingbusiness.com/prediction-markets/polymarket-europe-lobbying-push-financial-services/",
+          "publishedAt": "2026-09-23T09:42:08.000Z",
+          "bodyChars": 3098,
+          "via": "RSS",
+          "categories": [
+            "Legal & compliance",
+            "Prediction markets",
+            "Regulation",
+            "ESMA",
+            "European Securities and Markets Authority",
+            "European Union",
+            "FCA",
+            "Financial Conduct Authority",
+            "Mifid",
+            "Polymarket"
+          ]
+        },
+        {
+          "title": "Kalshi, Polymarket take early lead over prediction market rivals for first week of the NFL season",
+          "url": "https://igamingbusiness.com/sports-betting/kalshi-polymarket-beat-rivals-nfl-week-1/",
+          "publishedAt": "2026-09-16T20:19:03.000Z",
+          "bodyChars": 4346,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "Kalshi",
+            "NFL",
+            "Polymarket"
+          ]
+        },
+        {
+          "title": "Prediction market roundup: Top operators snap up celeb deals for unprecedented opening week of NFL football",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-91126/",
+          "publishedAt": "2026-09-11T20:19:36.000Z",
+          "bodyChars": 5180,
+          "via": "RSS",
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "Kalshi",
+            "NFL",
+            "Novig",
+            "Polymarket"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fm-tag",
+      "feedUrl": "https://www.financemagnates.com/tag/prediction-markets/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "cnbc-filtered",
+      "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "extras": {
+        "ingestNoiseFilter": {
+          "dropMarkers": [
+            ""
+          ],
+          "keepIfMatches": [
+            "polymarket",
+            "kalshi",
+            "prediction market",
+            "prediction-market",
+            "event contract",
+            "novig"
+          ]
+        }
+      },
+      "responseUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "ok": true,
+      "count": 30,
+      "accepted": 1,
+      "fresh48h": 1,
+      "conditionalNotModified": false,
+      "secondReadCount": 30,
+      "samples": [
+        {
+          "title": "Novig credits Sydney Sweeney-backed campaign for platform’s surge in growth",
+          "url": "https://www.cnbc.com/2026/10/03/novig-credits-sydney-sweeney-backed-campaign-for-platforms-surge-in-growth.html",
+          "publishedAt": "2026-10-03T13:30:48.000Z",
+          "bodyChars": 3277,
+          "via": "free-detail",
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "fm-news",
+      "feedUrl": "https://www.financemagnates.com/feed/",
+      "extras": {},
+      "responseUrl": "https://www.financemagnates.com/feed/",
+      "ok": true,
+      "count": 20,
+      "accepted": 20,
+      "fresh48h": 18,
+      "conditionalNotModified": true,
+      "secondReadCount": 0,
+      "samples": [
+        {
+          "title": "Weekly Review: MyForexFunds Brand Assets Sold; IG’s OTC Revenue Retention Slips",
+          "url": "https://www.financemagnates.com/forex/weekly-review-myforexfunds-brand-assets-sold-igs-otc-revenue-retention-slips/",
+          "publishedAt": "2026-10-03T07:00:00.000Z",
+          "bodyChars": 20239,
+          "via": "free-detail",
+          "categories": [
+            "Retail FX"
+          ]
+        },
+        {
+          "title": "CMC Markets Founder Intends to Buy Up to £5 Million of Shares",
+          "url": "https://www.financemagnates.com/forex/brokers/cmc-markets-founder-intends-to-buy-up-to-5-million-of-shares/",
+          "publishedAt": "2026-10-02T20:00:00.000Z",
+          "bodyChars": 33666,
+          "via": "free-detail",
+          "categories": [
+            "Brokers"
+          ]
+        },
+        {
+          "title": "SEC Proposes Last-Resort Crypto Self-Custody for Advisers and Funds",
+          "url": "https://www.financemagnates.com/cryptocurrency/regulation/sec-proposes-last-resort-crypto-self-custody-for-advisers-and-funds/",
+          "publishedAt": "2026-10-02T18:00:00.000Z",
+          "bodyChars": 34678,
+          "via": "free-detail",
+          "categories": [
+            "Regulation"
+          ]
+        },
+        {
+          "title": "Webull Joins X Cashtag Program as Social Feed Adds Broker Links",
+          "url": "https://www.financemagnates.com/forex/brokers/webull-joins-x-cashtag-program-as-social-feed-adds-broker-links/",
+          "publishedAt": "2026-10-02T15:57:58.000Z",
+          "bodyChars": 36920,
+          "via": "free-detail",
+          "categories": [
+            "Brokers"
+          ]
+        },
+        {
+          "title": "True Markets Launches Tokenized Equity Trading, Starting with Nvidia",
+          "url": "https://www.financemagnates.com/cryptocurrency/true-markets-launches-tokenized-equity-trading-starting-with-nvidia/",
+          "publishedAt": "2026-10-02T12:47:24.000Z",
+          "bodyChars": 32465,
+          "via": "free-detail",
+          "categories": [
+            "CryptoCurrency"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fos",
+      "feedUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+      "extras": {},
+      "responseUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+      "ok": true,
+      "count": 50,
+      "accepted": 50,
+      "fresh48h": 0,
+      "conditionalNotModified": true,
+      "secondReadCount": 0,
+      "samples": [
+        {
+          "title": "Novig to Quadruple Valuation With New Funding Round",
+          "url": "https://frontofficesports.com/article/novig-to-quadruple-valuation-with-new-funding-round/",
+          "publishedAt": "2026-09-30T14:12:32.000Z",
+          "bodyChars": 3260,
+          "via": "RSS",
+          "categories": [
+            "Sports Betting"
+          ]
+        },
+        {
+          "title": "CFTC Preparing Crackdown on Prediction-Market Promos",
+          "url": "https://frontofficesports.com/article/trump-admin-preparing-crackdown-on-prediction-market-promos/",
+          "publishedAt": "2026-09-29T15:01:55.000Z",
+          "bodyChars": 4397,
+          "via": "RSS",
+          "categories": [
+            "Sports Betting"
+          ]
+        },
+        {
+          "title": "New York Pulls Polymarket Into Legal Battle With $4.6B Suit",
+          "url": "https://frontofficesports.com/article/new-york-pulls-polymarket-into-legal-battle-with-4-6b-suit/",
+          "publishedAt": "2026-09-24T20:33:38.000Z",
+          "bodyChars": 3173,
+          "via": "RSS",
+          "categories": [
+            "Law"
+          ]
+        },
+        {
+          "title": "Draymond Green on LeBron’s Polymarket Deal: ‘I Think It’s Great’",
+          "url": "https://frontofficesports.com/article/draymond-green-lebron-polymarket-deal/",
+          "publishedAt": "2026-09-24T13:04:08.000Z",
+          "bodyChars": 3896,
+          "via": "RSS",
+          "categories": [
+            "Athletes"
+          ]
+        },
+        {
+          "title": "Demystifying the Role of Market Makers in Prediction Markets",
+          "url": "https://frontofficesports.com/article/demystifying-the-role-of-market-makers-in-prediction-markets/",
+          "publishedAt": "2026-09-22T16:22:23.000Z",
+          "bodyChars": 4196,
+          "via": "RSS",
+          "categories": [
+            "Sports Betting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sportico",
+      "feedUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+      "extras": {},
+      "responseUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+      "ok": true,
+      "count": 9,
+      "accepted": 9,
+      "fresh48h": 0,
+      "conditionalNotModified": true,
+      "secondReadCount": 0,
+      "samples": [
+        {
+          "title": "Kalshi Split Widens With 6th Circuit Ruling on Sports Event Contracts",
+          "url": "https://www.sportico.com/law/analysis/2026/kalshi-circuit-split-scotus-1234945840/",
+          "publishedAt": "2026-09-26T14:00:00.000Z",
+          "bodyChars": 5542,
+          "via": "free-detail",
+          "categories": [
+            "Analysis",
+            "Law",
+            "CFTC",
+            "Federal Courts",
+            "Kalshi",
+            "prediction markets",
+            "sports betting",
+            "U.S. Supreme Court"
+          ]
+        },
+        {
+          "title": "Kalshi, Tribes Appellate Ruling Could Grab SCOTUS Attention",
+          "url": "https://www.sportico.com/law/analysis/2026/kalshi-blue-lake-rancheria-ninth-circuit-1234945381/",
+          "publishedAt": "2026-09-22T15:02:30.000Z",
+          "bodyChars": 9444,
+          "via": "free-detail",
+          "categories": [
+            "Analysis",
+            "Law",
+            "Federal Courts",
+            "Kalshi",
+            "prediction markets",
+            "sports betting",
+            "U.S. Supreme Court"
+          ]
+        },
+        {
+          "title": "Kalshi Stops Its Sports Injury Betting Markets at CFTC’s Request",
+          "url": "https://www.sportico.com/business/sports-betting/2026/kalshi-injury-betting-nfl-cftc-1234943772/",
+          "publishedAt": "2026-09-02T18:10:17.000Z",
+          "bodyChars": 4297,
+          "via": "free-detail",
+          "categories": [
+            "Business",
+            "Sports Betting",
+            "CFTC",
+            "Kalshi",
+            "NFL",
+            "prediction markets"
+          ]
+        },
+        {
+          "title": "Kalshi Creeps Closer to Supreme Court Docket With Nevada Ruling",
+          "url": "https://www.sportico.com/law/analysis/2026/kalshi-nevada-ruling-legal-analysis-scotus-review-1234943321/",
+          "publishedAt": "2026-08-31T13:00:00.000Z",
+          "bodyChars": 11576,
+          "via": "free-detail",
+          "categories": [
+            "Analysis",
+            "Law",
+            "Federal Courts",
+            "Kalshi",
+            "Mobile Sports Betting",
+            "prediction markets",
+            "sports betting",
+            "U.S. Supreme Court"
+          ]
+        },
+        {
+          "title": "Kalshi Pays Social Account That Makes Anti-Black, Anti-Muslim Posts",
+          "url": "https://www.sportico.com/business/sports-betting/2026/kalshi-anti-muslim-anti-black-posts-social-media-affiliate-1234940266/",
+          "publishedAt": "2026-07-28T20:00:00.000Z",
+          "bodyChars": 4526,
+          "via": "free-detail",
+          "categories": [
+            "Business",
+            "Sports Betting",
+            "CFTC",
+            "Kalshi",
+            "Polymarket",
+            "prediction markets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "casino",
+      "feedUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+      "extras": {
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        }
+      },
+      "responseUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+      "ok": true,
+      "count": 40,
+      "accepted": 40,
+      "fresh48h": 2,
+      "conditionalNotModified": false,
+      "secondReadCount": 40,
+      "samples": [
+        {
+          "title": "DOJ Labels Binary Event Contracts as Illegal Swaps in Green Beret Case",
+          "url": "https://www.casino.org/news/justice-department-says-binary-event-contracts-are-swaps/",
+          "publishedAt": "2026-10-02T15:43:56.000Z",
+          "bodyChars": 3567,
+          "via": "RSS",
+          "categories": [
+            "Legal",
+            "Prediction Markets",
+            "Army",
+            "DOJ",
+            "event contract",
+            "event contracts",
+            "Gannon Ken Van Dyke",
+            "insider trading",
+            "Justice Department",
+            "Nicolas Maduro",
+            "Polymarket",
+            "prediction market",
+            "prediction markets",
+            "Special Forces",
+            "sports contract",
+            "sports event contract",
+            "sports predictions",
+            "swap",
+            "swaps",
+            "Van Dyke"
+          ]
+        },
+        {
+          "title": "Why Casino-Style Games and Slots Won’t Be Hitting Prediction Markets",
+          "url": "https://www.casino.org/news/dont-bet-on-casino-style-slots-coming-to-prediction-markets/",
+          "publishedAt": "2026-10-01T15:31:49.000Z",
+          "bodyChars": 3709,
+          "via": "RSS",
+          "categories": [
+            "Prediction Markets",
+            "CFTC",
+            "Daniel Wallach",
+            "event contract",
+            "futures",
+            "prediction market",
+            "prediction markets",
+            "sports event",
+            "Supreme Court",
+            "swaps"
+          ]
+        },
+        {
+          "title": "National Council on Problem Gambling Seeking Third Executive Director in Two Years",
+          "url": "https://www.casino.org/news/national-council-on-problem-gambling-seeking-executive-director/",
+          "publishedAt": "2026-09-28T13:24:49.000Z",
+          "bodyChars": 3209,
+          "via": "RSS",
+          "categories": [
+            "Commercial Gaming",
+            "Heather Maurer",
+            "Keith Whyte",
+            "National Council on Problem Gambling",
+            "NCPG",
+            "prediction markets",
+            "responsible gambling"
+          ]
+        },
+        {
+          "title": "CFTC Issues Warning Over ‘Mention Markets’ Manipulation Risk",
+          "url": "https://www.casino.org/news/cftc-has-something-to-say-about-mention-markets/",
+          "publishedAt": "2026-09-23T15:16:27.000Z",
+          "bodyChars": 3374,
+          "via": "RSS",
+          "categories": [
+            "Prediction Markets",
+            "CFTC",
+            "Commodity Exchange Act",
+            "Commodity Futures Trading Commission",
+            "George Santos",
+            "mention markets",
+            "prediction market",
+            "prediction markets",
+            "Santos",
+            "Trump"
+          ]
+        },
+        {
+          "title": "National Council on Problem Gambling Defends Prediction Markets Membership Subcategory",
+          "url": "https://www.casino.org/news/national-council-problem-gambling-continues-defense-prediction-markets/",
+          "publishedAt": "2026-09-23T14:01:42.000Z",
+          "bodyChars": 3771,
+          "via": "RSS",
+          "categories": [
+            "Prediction Markets",
+            "CFTC",
+            "Commodity Futures Trading Commission",
+            "gambling disorder",
+            "National Council on Problem Gambling",
+            "NCPG",
+            "prediction market",
+            "prediction markets",
+            "problem gambling"
+          ]
+        }
+      ]
+    }
+  ]
+}

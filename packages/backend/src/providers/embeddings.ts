@@ -6,7 +6,9 @@ import { sql } from "../db.ts";
 import { sha256 } from "../lib/ids.ts";
 import { z } from "zod";
 import { ModelOutputError } from "./llm.ts";
-import { completeReceipt, paidRequest, ProviderRejectedError, rejectReceivedResponse } from "./receipts.ts";
+import { assertAccepted, completeReceipt, paidRequest, rejectReceivedResponse } from "./receipts.ts";
+
+import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from "./provider-capacity.ts";
 
 const own = !!credential("models", "EMBEDDING_API_KEY");
 export const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || (own ? "text-embedding-3-small" : "text-embedding-v4");
@@ -26,8 +28,11 @@ async function embedBatch(texts: string[], subject: string): Promise<{ vectors: 
   const base = own ? credential("models", "EMBEDDING_BASE_URL") ?? "https://api.openai.com/v1" : credential("models", "DASHSCOPE_BASE_URL") ?? "https://dashscope.aliyuncs.com/compatible-mode/v1";
   const key = own ? credential("models", "EMBEDDING_API_KEY") : credential("models", "DASHSCOPE_API_KEY");
   if (!key) throw new Error("EMBEDDING_API_KEY (or DASHSCOPE_API_KEY) missing");
+  const capacityKey = providerCapacityKey(base, key);
+  const inputTokenBound = Buffer.byteLength(JSON.stringify(texts)) + 1024 + texts.length * 64;
   const receipt = await paidRequest(
-    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) }, requestSummary: { count: texts.length } },
+    { service: SERVICE, model: EMBEDDING_MODEL, purpose: "embedding", subject, providerCapacityKey: capacityKey, identity: { model: EMBEDDING_MODEL, dims: EMBEDDING_DIMS, texts: texts.map((t) => sha256(t)) }, requestSummary: { count: texts.length, inputTokenBound, maxTokens: 0, modelBudgetBounded: true },
+      modelBudget: { inputTokens: inputTokenBound, maxOutputTokens: 0, bounded: true } },
     async () => {
       const res = await fetch(`${base.replace(/\/$/, "")}/embeddings`, {
         method: "POST",
@@ -36,7 +41,16 @@ async function embedBatch(texts: string[], subject: string): Promise<{ vectors: 
         signal: AbortSignal.timeout(60_000),
       });
       const text = await res.text();
-      if (!res.ok) throw new ProviderRejectedError(`embeddings HTTP ${res.status}: ${text.slice(0, 200)}`, res.status, res.status === 429 || res.status >= 500);
+      if (res.status === 429) {
+        let code: unknown;
+        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Keep normal HTTP rejection handling. */ }
+        if (code === "BudgetLimitExceeded") {
+          await recordProviderBudgetStop(capacityKey, SERVICE);
+          throw new ProviderBudgetExceededError(SERVICE, true);
+        }
+      }
+      assertAccepted(SERVICE, res.status, text);
+      await clearProviderProbe(capacityKey);
       let response: unknown;
       try { response = JSON.parse(text); }
       catch { response = { unparsable: text.slice(0, 20000) }; }

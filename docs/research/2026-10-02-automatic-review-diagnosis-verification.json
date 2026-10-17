@@ -1,0 +1,84 @@
+{
+  "checkedAt": "2026-10-02T10:19:02.419Z",
+  "scope": "Read-only diagnosis; no production content, settings, source or publication mutations.",
+  "rule": "automatic-publication-v1:5c0e3a85b0b01eeb31df0874",
+  "runtime": {
+    "editorialMode": "automatic",
+    "modelCallsEnabled": true,
+    "automaticDailyTime": "21:30"
+  },
+  "adminPendingCount": 178,
+  "classification": {
+    "pausedSourceArchive": 176,
+    "activeAlreadyRejected": 2
+  },
+  "automaticResultsInAdminPending": {
+    "rejected": 158,
+    "accepted": 19,
+    "stale": 1
+  },
+  "pausedSourceAutomaticResults": {
+    "rejected": 156,
+    "accepted": 19,
+    "stale": 1
+  },
+  "allAdminPendingPrivate": true,
+  "activeExamples": [
+    {
+      "articleId": "c8l8i56l6xjvyv1ec97nnj50b",
+      "source": "Delving Bitcoin",
+      "title": "探讨单所有权币种的预最终性双花竞争是否为固有属性",
+      "status": "rejected",
+      "reasons": [
+        "no_new_primary_evidence"
+      ],
+      "verificationCount": 1,
+      "evidenceLinkCount": 0,
+      "manualReviewStatus": null
+    },
+    {
+      "articleId": "v6klnik94knj1zs8rp5szb27q",
+      "source": "Compound Community Forum",
+      "title": "Compound社区成员质疑V2储备金被用于增强基金会自身投票权",
+      "status": "rejected",
+      "reasons": [
+        "no_new_primary_evidence"
+      ],
+      "verificationCount": 1,
+      "evidenceLinkCount": 0,
+      "manualReviewStatus": null
+    }
+  ],
+  "sources": {
+    "configured": 94,
+    "enabled": 80
+  },
+  "sourcePruningAt": "2026-10-02T08:14:46.513Z",
+  "automaticInflight": 0,
+  "contentJobInflight": 0,
+  "activeSourceSafetyPauses": 0,
+  "budget": {
+    "service": "dashscope",
+    "per_minute": 20,
+    "per_hour": 300,
+    "per_day": 2000,
+    "minute_used": 0,
+    "hour_used": 0,
+    "day_used": 201
+  },
+  "codeMatchesProduction": {
+    "editorial/automatic-verification.ts": true,
+    "editorial/automatic-policy.ts": true,
+    "admin/review.ts": true,
+    "jobs/content.ts": true,
+    "content/freshness.ts": true
+  },
+  "sourceReferences": {
+    "adminQueue": "packages/backend/src/admin/review.ts:30",
+    "disabledSourceInvalidatesApproval": "packages/backend/src/admin/sources.ts:109",
+    "projectionResetsApproval": "packages/backend/src/publication/publish.ts:173",
+    "terminalEvidenceRejection": "packages/backend/src/editorial/automatic-verification.ts:411",
+    "primaryEvidenceDomains": "packages/backend/src/editorial/automatic-verification.ts:179"
+  },
+  "assertionsPassed": 7
+}

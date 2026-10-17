@@ -1,0 +1,362 @@
+{
+  "note": "Read-only EU application parser and readability probes; metadata only; no model calls or database writes. Feed dates describe the snapshot, not continuous monitoring.",
+  "feedProbe": {
+    "checkedAt": "2026-09-30T15:19:26.389Z",
+    "environment": "EU production container; parser only; no database writes or model calls",
+    "results": [
+      {
+        "id": "coin-metrics",
+        "name": "Coin Metrics",
+        "feedUrl": "https://coinmetrics.substack.com/feed",
+        "ok": true,
+        "ms": 983,
+        "responseUrl": "https://coinmetrics.substack.com/feed",
+        "count": 20,
+        "dated": 20,
+        "uniqueUrls": 20,
+        "inLast7Days": 1,
+        "conditionalNotModified": true,
+        "secondReadCount": 0,
+        "samples": [
+          {
+            "url": "https://coinmetrics.substack.com/p/hot-sectors-leading-altcoin-rally",
+            "publishedAt": "2026-09-29T13:02:18.000Z",
+            "bodyChars": 9407,
+            "excerptChars": 113
+          },
+          {
+            "url": "https://coinmetrics.substack.com/p/the-race-for-tokenized-stocks-and",
+            "publishedAt": "2026-09-22T13:00:40.000Z",
+            "bodyChars": 9459,
+            "excerptChars": 81
+          },
+          {
+            "url": "https://coinmetrics.substack.com/p/the-perpification-of-pre-ipos",
+            "publishedAt": "2026-09-15T13:02:56.000Z",
+            "bodyChars": 9497,
+            "excerptChars": 82
+          }
+        ]
+      },
+      {
+        "id": "ethereum-foundation",
+        "name": "Ethereum Foundation",
+        "feedUrl": "https://blog.ethereum.org/en/feed.xml",
+        "ok": true,
+        "ms": 1015,
+        "responseUrl": "https://blog.ethereum.org/en/feed.xml",
+        "count": 640,
+        "dated": 640,
+        "uniqueUrls": 640,
+        "inLast7Days": 1,
+        "conditionalNotModified": true,
+        "secondReadCount": 0,
+        "samples": [
+          {
+            "url": "https://blog.ethereum.org/en/2026/09/17/glamsterdam-testnet-announcement",
+            "publishedAt": "2026-09-28T00:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 353
+          },
+          {
+            "url": "https://blog.ethereum.org/en/2026/09/09/reddit-ama",
+            "publishedAt": "2026-09-09T00:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 327
+          },
+          {
+            "url": "https://blog.ethereum.org/en/2026/09/07/protocol-hegota-eips",
+            "publishedAt": "2026-09-07T00:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 273
+          }
+        ]
+      },
+      {
+        "id": "bitcoin-core",
+        "name": "Bitcoin Core 公告",
+        "feedUrl": "https://bitcoincore.org/en/announcements.xml",
+        "ok": true,
+        "ms": 1700,
+        "responseUrl": "https://bitcoincore.org/en/announcements.xml",
+        "count": 5,
+        "dated": 5,
+        "uniqueUrls": 5,
+        "inLast7Days": 0,
+        "conditionalNotModified": true,
+        "secondReadCount": 0,
+        "samples": [
+          {
+            "url": "https://bitcoincore.org/en/2026/07/13/release-29.4/",
+            "publishedAt": "2026-07-13T04:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 254
+          },
+          {
+            "url": "https://bitcoincore.org/en/2026/07/08/release-30.3/",
+            "publishedAt": "2026-07-08T04:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 254
+          },
+          {
+            "url": "https://bitcoincore.org/en/2026/07/08/release-31.1/",
+            "publishedAt": "2026-07-08T04:00:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 254
+          }
+        ]
+      },
+      {
+        "id": "chainalysis",
+        "name": "Chainalysis",
+        "feedUrl": "https://www.chainalysis.com/blog/feed/",
+        "ok": true,
+        "ms": 146,
+        "responseUrl": "https://www.chainalysis.com/blog/feed/",
+        "count": 10,
+        "dated": 10,
+        "uniqueUrls": 10,
+        "inLast7Days": 1,
+        "conditionalNotModified": true,
+        "secondReadCount": 0,
+        "samples": [
+          {
+            "url": "https://www.chainalysis.com/blog/central-southeast-asia-oceania-crypto-adoption-2026/",
+            "publishedAt": "2026-09-30T12:55:33.000Z",
+            "bodyChars": 0,
+            "excerptChars": 275
+          },
+          {
+            "url": "https://www.chainalysis.com/blog/2026-global-crypto-adoption-index/",
+            "publishedAt": "2026-09-23T13:00:45.000Z",
+            "bodyChars": 0,
+            "excerptChars": 268
+          },
+          {
+            "url": "https://www.chainalysis.com/blog/latin-america-crypto-adoption-2026/",
+            "publishedAt": "2026-09-23T13:00:36.000Z",
+            "bodyChars": 0,
+            "excerptChars": 255
+          }
+        ]
+      },
+      {
+        "id": "blockbeats",
+        "name": "BlockBeats 中文文章",
+        "feedUrl": "https://api.theblockbeats.news/v2/rss/article",
+        "ok": false,
+        "ms": 536,
+        "error": "Error: not an RSS/Atom document"
+      },
+      {
+        "id": "panews",
+        "name": "PANews 中文文章",
+        "feedUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+        "ok": true,
+        "ms": 3073,
+        "responseUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+        "count": 100,
+        "dated": 100,
+        "uniqueUrls": 100,
+        "inLast7Days": 100,
+        "conditionalNotModified": false,
+        "secondReadCount": 100,
+        "samples": [
+          {
+            "url": "https://www.panewslab.com/zh/articles/01a0f1aa-b49f-72dd-b7de-826f8a60f04a",
+            "publishedAt": "2026-09-30T14:44:00.000Z",
+            "bodyChars": 4195,
+            "excerptChars": 69
+          },
+          {
+            "url": "https://www.panewslab.com/zh/articles/01a0efe9-d372-7706-a24e-6f4407aa890e",
+            "publishedAt": "2026-09-30T13:45:00.000Z",
+            "bodyChars": 11668,
+            "excerptChars": 23
+          },
+          {
+            "url": "https://www.panewslab.com/zh/articles/01a0ecc7-f232-709f-b7d8-4485bb103869",
+            "publishedAt": "2026-09-30T12:48:00.000Z",
+            "bodyChars": 5663,
+            "excerptChars": 40
+          }
+        ]
+      },
+      {
+        "id": "sec",
+        "name": "SEC 新闻稿",
+        "feedUrl": "https://www.sec.gov/news/pressreleases.rss",
+        "ok": true,
+        "ms": 98,
+        "responseUrl": "https://www.sec.gov/news/pressreleases.rss",
+        "count": 25,
+        "dated": 25,
+        "uniqueUrls": 25,
+        "inLast7Days": 4,
+        "conditionalNotModified": true,
+        "secondReadCount": 0,
+        "samples": [
+          {
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-95-sec-charges-multiple-entities-fraud-schemes-totaling-least-15-million-used-whatsapp-other-platforms",
+            "publishedAt": "2026-09-29T13:55:53.000Z",
+            "bodyChars": 0,
+            "excerptChars": 253
+          },
+          {
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-94-sec-charges-registered-investment-adviser-zoe-financial-failure-disclose-conflict-interest",
+            "publishedAt": "2026-09-28T17:46:30.000Z",
+            "bodyChars": 0,
+            "excerptChars": 252
+          },
+          {
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-93-sec-publishes-updated-market-statistics-highlighting-increase-ipos-proceeds-raised",
+            "publishedAt": "2026-09-23T18:27:00.000Z",
+            "bodyChars": 0,
+            "excerptChars": 252
+          }
+        ]
+      },
+      {
+        "id": "aave-governance",
+        "name": "Aave 治理论坛",
+        "feedUrl": "https://governance.aave.com/latest.rss",
+        "ok": true,
+        "ms": 594,
+        "responseUrl": "https://governance.aave.com/latest.rss",
+        "count": 30,
+        "dated": 30,
+        "uniqueUrls": 30,
+        "inLast7Days": 17,
+        "conditionalNotModified": false,
+        "secondReadCount": 30,
+        "samples": [
+          {
+            "url": "https://governance.aave.com/t/arfc-onboard-ousd-to-aave-v3-core-instance-and-aave-v4-core-hub/25735",
+            "publishedAt": "2026-09-30T15:11:10.000Z",
+            "bodyChars": 0,
+            "excerptChars": 2000
+          },
+          {
+            "url": "https://governance.aave.com/t/direct-to-aip-onboard-pt-usdg-25feb2027-on-x-layer/25733",
+            "publishedAt": "2026-09-30T11:29:39.000Z",
+            "bodyChars": 0,
+            "excerptChars": 2000
+          },
+          {
+            "url": "https://governance.aave.com/t/question-any-idea-what-happened-here/25730",
+            "publishedAt": "2026-09-30T05:18:09.000Z",
+            "bodyChars": 0,
+            "excerptChars": 160
+          }
+        ]
+      },
+      {
+        "id": "uniswap-governance",
+        "name": "Uniswap 治理论坛",
+        "feedUrl": "https://gov.uniswap.org/latest.rss",
+        "ok": true,
+        "ms": 2857,
+        "responseUrl": "https://gov.uniswap.org/latest.rss",
+        "count": 30,
+        "dated": 30,
+        "uniqueUrls": 30,
+        "inLast7Days": 0,
+        "conditionalNotModified": false,
+        "secondReadCount": 30,
+        "samples": [
+          {
+            "url": "https://gov.uniswap.org/t/temp-check-protocol-fee-expansion-arc/26287",
+            "publishedAt": "2026-09-18T14:39:50.000Z",
+            "bodyChars": 0,
+            "excerptChars": 2000
+          },
+          {
+            "url": "https://gov.uniswap.org/t/temp-check-rotate-sentinel-addresses-on-the-duni-owned-uniswap-earn-vaults/26281",
+            "publishedAt": "2026-09-10T17:01:43.000Z",
+            "bodyChars": 0,
+            "excerptChars": 2000
+          },
+          {
+            "url": "https://gov.uniswap.org/t/rfc-web4-autonomous-state-engines-on-unichain-utilizing-erc-6551-sovereign-erc-721-force-transfers-for-dynamic-asset-orchestration/26229",
+            "publishedAt": "2026-08-04T01:42:54.000Z",
+            "bodyChars": 0,
+            "excerptChars": 2000
+          }
+        ]
+      }
+    ]
+  },
+  "bodyProbe": {
+    "checkedAt": "2026-09-30T15:28:33.003Z",
+    "paidFallback": false,
+    "results": [
+      {
+        "id": "bitcoin-core",
+        "url": "https://bitcoincore.org/en/2026/07/13/release-29.4/",
+        "ok": true,
+        "bodyChars": 254,
+        "via": "readability",
+        "ms": 1351
+      },
+      {
+        "id": "ethereum-foundation",
+        "url": "https://blog.ethereum.org/en/2026/09/17/glamsterdam-testnet-announcement",
+        "ok": true,
+        "bodyChars": 8995,
+        "via": "readability",
+        "ms": 782
+      },
+      {
+        "id": "chainalysis",
+        "url": "https://www.chainalysis.com/blog/central-southeast-asia-oceania-crypto-adoption-2026/",
+        "ok": true,
+        "bodyChars": 22297,
+        "via": "readability",
+        "ms": 489
+      },
+      {
+        "id": "sec",
+        "url": "https://www.sec.gov/newsroom/press-releases/2026-30-sec-clarifies-application-federal-securities-laws-crypto-assets",
+        "ok": true,
+        "bodyChars": 2815,
+        "via": "readability",
+        "ms": 580
+      },
+      {
+        "id": "aave-governance",
+        "url": "https://governance.aave.com/t/arfc-onboard-ousd-to-aave-v3-core-instance-and-aave-v4-core-hub/25735",
+        "ok": true,
+        "bodyChars": 5891,
+        "via": "readability",
+        "ms": 635
+      }
+    ]
+  },
+  "releaseFeedProbe": {
+    "id": "bitcoin-core-releases",
+    "feedUrl": "https://bitcoincore.org/en/releasesrss.xml",
+    "count": 66,
+    "dated": 66,
+    "responseUrl": "https://bitcoincore.org/en/releasesrss.xml",
+    "samples": [
+      {
+        "url": "https://bitcoincore.org/en/releases/29.4/",
+        "publishedAt": "2026-07-13T04:00:00.000Z",
+        "bodyChars": 2736,
+        "excerptChars": 2000
+      },
+      {
+        "url": "https://bitcoincore.org/en/releases/31.1/",
+        "publishedAt": "2026-07-08T04:00:00.000Z",
+        "bodyChars": 3832,
+        "excerptChars": 2000
+      },
+      {
+        "url": "https://bitcoincore.org/en/releases/30.3/",
+        "publishedAt": "2026-07-08T04:00:00.000Z",
+        "bodyChars": 4920,
+        "excerptChars": 2000
+      }
+    ]
+  }
+}

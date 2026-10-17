@@ -1,0 +1,319 @@
+{
+  "at": "2026-10-02T18:36:11.794Z",
+  "reason": "站长明确澄清上限为100个启用信源，暂停源不计入。按调研及生产RSS、日期、可读正文和文章过滤的实测结果补充可信媒体；新源首次最多3条、最多1个月，自动仅处理最近48小时有效日期，保留独立核验和原评分，仅摘要及原文链接。",
+  "before": {
+    "total": 100,
+    "enabled": 71,
+    "paused": 29
+  },
+  "additions": [
+    {
+      "id": "chaincatcher-articles-zh",
+      "name": "ChainCatcher 链捕手文章",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "f02741b2-702f-4f5b-9eb4-56a8f6145c86"
+      },
+      "freshAfterFilter": 15,
+      "noiseRemoved": 648,
+      "samples": [
+        {
+          "title": "9 月新增就业料降至 9 万：今夜非农真正的“炸点”，或在 8 月数据是否大幅下修",
+          "url": "https://www.chaincatcher.com/article/2293711",
+          "publishedAt": "2026-10-02T10:29:26.000Z",
+          "bodyChars": 3334
+        },
+        {
+          "title": "后金融科技时代的三大变革方向",
+          "url": "https://www.chaincatcher.com/article/2293710",
+          "publishedAt": "2026-10-02T10:24:20.000Z",
+          "bodyChars": 5637
+        },
+        {
+          "title": "Variant Fund 投资合伙人：若处于牛市早期，哪些项目将受益最大？",
+          "url": "https://www.chaincatcher.com/article/2293645",
+          "publishedAt": "2026-10-02T07:04:13.000Z",
+          "bodyChars": 1589
+        }
+      ],
+      "config": {
+        "feedUrl": "https://www.chaincatcher.com/rss/clist",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟",
+            "WasabiCard",
+            "Side Event",
+            "Gold Sponsor",
+            "Gold partner",
+            "SpaceX",
+            "Nike",
+            "TOKEN2049",
+            "Token2049",
+            "金牌赞助",
+            "铂金赞助",
+            "白金赞助"
+          ]
+        },
+        "allowCategories": [
+          "文章"
+        ]
+      }
+    },
+    {
+      "id": "techflow-articles-zh",
+      "name": "TechFlow 深潮 Web3 文章",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "26ac1c76-6147-48ec-a98e-58000e9725d8"
+      },
+      "freshAfterFilter": 11,
+      "noiseRemoved": 5,
+      "samples": [
+        {
+          "title": "Zcash 从高点下跌 21%，ETF 资金出逃与朝鲜黑客传闻夹击，但这波行情可能还没结束",
+          "url": "https://www.techflowpost.com/article/34352",
+          "publishedAt": "2026-10-02T08:15:01.000Z",
+          "bodyChars": 1567
+        },
+        {
+          "title": "现货比特币 ETF 9 月净流入约 27 亿美元，机构需求并未退潮",
+          "url": "https://www.techflowpost.com/article/34351",
+          "publishedAt": "2026-10-02T08:11:49.000Z",
+          "bodyChars": 788
+        },
+        {
+          "title": "读 Vitalik 小说有感：以太坊的理想国，水与冰的哲学",
+          "url": "https://www.techflowpost.com/article/34350",
+          "publishedAt": "2026-10-02T06:36:27.000Z",
+          "bodyChars": 3734
+        }
+      ],
+      "config": {
+        "feedUrl": "https://www.techflowpost.com/rss/v2/feed.xml?lang=zh-CN&type=article&topic=web3&tag=all",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟",
+            "WasabiCard",
+            "Side Event",
+            "Gold Sponsor",
+            "Gold partner",
+            "SpaceX",
+            "Nike",
+            "TOKEN2049",
+            "Token2049",
+            "金牌赞助",
+            "铂金赞助",
+            "白金赞助"
+          ]
+        },
+        "summaryIsBody": true
+      }
+    },
+    {
+      "id": "protos-news",
+      "name": "Protos Crypto News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "bdcfc493-f7da-49d5-9928-54d635609ef1"
+      },
+      "freshAfterFilter": 5,
+      "noiseRemoved": 4,
+      "samples": [
+        {
+          "title": "US jobs data revised lower after Fed rate hike",
+          "url": "https://protos.com/us-jobs-data-revised-lower-after-fed-rate-hike/",
+          "publishedAt": "2026-10-02T18:05:45.000Z",
+          "bodyChars": 2665
+        },
+        {
+          "title": "NEAR Intents hacked days after freezing stolen Bitget funds",
+          "url": "https://protos.com/near-intents-hacked-days-after-freezing-stolen-bitget-funds/",
+          "publishedAt": "2026-10-01T18:18:28.000Z",
+          "bodyChars": 2552
+        },
+        {
+          "title": "Strategy has burned through 64% of its STRC rescue fund",
+          "url": "https://protos.com/strategy-has-burned-through-64-of-its-strc-rescue-fund/",
+          "publishedAt": "2026-10-01T17:42:54.000Z",
+          "bodyChars": 3172
+        }
+      ],
+      "config": {
+        "feedUrl": "https://protos.com/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟",
+            "WasabiCard",
+            "Side Event",
+            "Gold Sponsor",
+            "Gold partner",
+            "SpaceX",
+            "Nike"
+          ]
+        },
+        "allowCategories": [
+          "Crypto"
+        ],
+        "denyCategories": [
+          "AI",
+          "CHART"
+        ]
+      }
+    },
+    {
+      "id": "beincrypto-news",
+      "name": "BeInCrypto News",
+      "policy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetch": {
+        "jobId": "aea8aa17-bba6-4b1b-85fb-c4d58ad9fbee"
+      },
+      "freshAfterFilter": 7,
+      "noiseRemoved": 5,
+      "samples": [
+        {
+          "title": "Ethereum Network Blast Is Shutting Down: Who Controls Users' Last $51 Million?",
+          "url": "https://beincrypto.com/blast-shutting-down-ethereum-layer-2/",
+          "publishedAt": "2026-10-02T16:31:52.000Z",
+          "bodyChars": 2750
+        },
+        {
+          "title": "USDT Is Returning to Bitcoin After 10 Years. Should Users Care?",
+          "url": "https://beincrypto.com/usdt-returning-bitcoin-rgb-utexo/",
+          "publishedAt": "2026-10-02T13:25:59.000Z",
+          "bodyChars": 3916
+        },
+        {
+          "title": "US Savings Rate Hits a 2022 Low: Could Bitcoin Be a Hedge?",
+          "url": "https://beincrypto.com/us-savings-rate-low-bitcoin-hedge/",
+          "publishedAt": "2026-10-02T12:58:12.000Z",
+          "bodyChars": 3118
+        }
+      ],
+      "config": {
+        "feedUrl": "https://beincrypto.com/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "price prediction",
+            "price analysis",
+            "price surges",
+            "price rallies",
+            "price dips",
+            "price falls",
+            "price hits",
+            "heads higher",
+            "press release",
+            "sponsored",
+            "Nvidia",
+            "OpenAI",
+            "Anthropic",
+            "AI 改名",
+            "特戰英豪",
+            "英雄聯盟",
+            "WasabiCard",
+            "Side Event",
+            "Gold Sponsor",
+            "Gold partner",
+            "SpaceX",
+            "Nike"
+          ]
+        },
+        "denyCategories": [
+          "Stocks",
+          "Stock Market News",
+          "AI Companies",
+          "AI Technology Trends",
+          "Trading",
+          "Altcoin Analysis",
+          "Commodities",
+          "Gold (XAU) News"
+        ]
+      }
+    }
+  ],
+  "after": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  }
+}

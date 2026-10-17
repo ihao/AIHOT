@@ -231,17 +231,24 @@ export interface GroupOptions {
 
 export async function groupArticle(articleId: string, opts: GroupOptions = {}): Promise<GroupResult> {
   const input = await sql.begin(async tx => {
-    const [current] = await tx<{ revision: number; grouping_status: string; selection_adds_value: boolean | null }[]>`
-      SELECT revision, grouping_status, selection_adds_value FROM articles WHERE id = ${articleId} FOR UPDATE`;
+    const [current] = await tx<{ revision: number; grouping_status: string; selection_adds_value: boolean | null; source_mode: string }[]>`
+      SELECT a.revision, a.grouping_status, a.selection_adds_value, s.participation_mode AS source_mode
+      FROM articles a JOIN sources s ON s.id = a.source_id WHERE a.id = ${articleId} FOR UPDATE OF a`;
     if (!current) return null;
+    // A queued job can outlive a quality or manual withdrawal. It must preserve the old identity
+    // decision, including pending/null, so later restoration never invents a completed selection.
+    if (current.source_mode === "editorial" && (await publishArticleTx(tx, articleId))?.visibility === "withdrawn") {
+      return { ...current, withheld: true };
+    }
     await tx`UPDATE articles SET grouping_status = 'pending', grouped_at = NULL, grouping_error = NULL, grouping_receipt_id = NULL WHERE id = ${articleId}`;
     // An unfinished decision (new material, a failure, an explicit regroup) must withdraw its old public
     // seat in this transaction. Ordinary repeats of a completed identity reuse it immediately without
     // a transient withdrawal.
     if (current.grouping_status !== 'complete') await publishArticleTx(tx, articleId);
-    return current;
+    return { ...current, withheld: false };
   });
   if (!input) return { verdict: "skipped" };
+  if (input.withheld) return { verdict: "standalone" };
   const revision = input.revision;
   try {
     const result = await decide(articleId, opts, revision, input.grouping_status !== 'complete' && input.selection_adds_value === null);

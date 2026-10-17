@@ -1,45 +1,37 @@
+【Web3 术语与事实翻译规则】
 
-【AI 领域翻译规则 — 本平台 100% 是 AI/ML/LLM 行业内容，严格遵守】
+1. 网络、资产与组织分开写：
+   - Bitcoin network / Bitcoin protocol 译为比特币网络 / 比特币协议；BTC 是资产代码。Ethereum network / protocol 译为以太坊网络 / 协议；ETH 是资产代码。Solana network 译为 Solana 网络；SOL 是资产代码。
+   - Bitcoin、Ethereum、Solana 单独出现时依正文判断，不能把价格、交易或持仓表述扩写成网络升级，也不能把网络事件改写成代币利好。材料无法消歧时保留原名和歧义，不补出主体。
+   - 基金会、开发团队、协议、DAO、交易平台和同名代币不是同一个主体；“团队宣布”不等于网络已经执行。
 
-1. 歧义默认值：以下词在中文有非 AI 歧义，**一律按 AI 含义翻译**：
-   - LLM = 大语言模型（绝不译"法学硕士"/"Master of Laws"）
-   - Token / tokens = 模型 token（保留英文；绝不译"代币"/"令牌"）
-   - Transformer = Transformer 架构（保留英文；不译"变压器"）
-   - Diffusion = 扩散模型（AI 生成，不是物理扩散）
-   - Agent / Agentic = AI 智能体 / 智能体的（不译"代理人"/"中介"）
-   - Alignment = 对齐（AI 安全语境）
-   - Inference = 推理（模型生成）
-   - Reasoning = 推理（注意：与 inference 都译"推理"，必要时用"链式推理"区分 CoT；reasoning model 指 o1/o3/R1 这类思考型模型）
-   - Embedding = 嵌入向量（也可保留英文）
-   - Distillation = 知识蒸馏
-   - Hallucination = 模型幻觉
-   - Fine-tune / Fine-tuning = 微调
-   - Pretrain / Pretraining = 预训练
-   - Context window = 上下文窗口
-   - Prompt = 提示词
-   - Skill / Skills = 技能（Claude 等 Agent 框架的能力包，不译"特长"）
+2. ticker、链和合约必须消歧：
+   - 保留 BTC、ETH、SOL、USDC 等资产代码及原文大小写；同一 ticker 可能对应不同资产。不得仅凭代码认定项目、发行人或合约。
+   - 保留材料明确的网络、chain ID、合约地址、交易哈希、区块高度、提案编号、协议及版本名称；地址和代码一字不改。不补写缺失链名或地址，不将桥接/封装资产与原生资产混同。
+   - Token 在代币语境译为代币；认证或 AI 语境按实际含义处理。chain 是链，bridge 是跨链桥，staking 是质押，slashing 是罚没；不靠单个词断定业务。DeFi、DAO、L2、TVL、RWA、API 等通用缩写可保留，必要时简要解释；缩写不认识时不编造全称。
 
-2. 以下专有名词**一律保留英文原文**，不翻译不加中文括注：
-   - AI 公司：OpenAI / Anthropic / Google DeepMind / xAI / Meta AI / Mistral / DeepSeek / Cohere / HuggingFace（HF）/ Runway / ElevenLabs / Suno / Pika / Midjourney / Perplexity
-   - 模型族（举例 + 通用规则）：GPT / Claude / Gemini / Llama / Qwen / Grok / o 系列 / DeepSeek / Mistral / Mixtral / Phi / Sora / Veo / Imagen
-     **规则**：任何大模型族名、产品代号一律保留英文
-   - 模型版本号（举例 + 通用规则）：GPT-5 / Claude 4.7 / Claude Sonnet 4.6 / Llama 4 / Gemini 3 / o3 / o4 / DeepSeek-V4 / Qwen3.7
-     **规则**：版本号一字不改（包括字母数字后缀如 4o / 4.7 / 405B / V4 / R1），绝不"翻译性扩写"（不要把 "405B" 译成 "4050 亿"，不要把 "V4" 译成 "第 4 代"）
-   - 技术缩写（举例 + 通用规则）：LLM / RAG / RLHF / DPO / LoRA / QLoRA / PEFT / MoE / CoT / ReAct / KV cache / SOTA / AGI / MCP / ADK / NPU / GPU / TPU
-     **规则**：任何 2-5 字母的全大写缩写，默认按 AI/ML 含义保留英文
-   - 评测基准（举例 + 通用规则）：MMLU / GPQA / HumanEval / SWE-bench / SWE-bench Verified / AIME / HLE / ARC-AGI / ARC-AGI 2 / MT-Bench / Chatbot Arena / Aider Polyglot / LiveCodeBench
-     **规则**：以 -bench / -eval 结尾或全大写的评测名一律保留英文
-   - AI 工具/产品：Cursor / Copilot / Codex / Aider / Devin / Cline / Claude Code / Windsurf / Zed / v0 / Bolt / Lovable / Replit Agent
-   - Agent 框架：LangChain / LangGraph / LlamaIndex / CrewAI / AutoGen / Pydantic AI / Vercel AI SDK / DSPy
-   - 推理/部署：Ollama / vLLM / SGLang / TensorRT / Triton / CUDA / ROCm
-   - 通用技术：API / SDK / CLI / IDE / SaaS / CDN / SSO / OAuth / JWT / WebSocket / SSE / gRPC
+3. 保留治理、升级和监管阶段：
+   - 讨论、提案、温度检查、投票中、投票通过、排期、时间锁等待、链上执行、正式生效逐项区分。“通过”不得改为“执行”，测试网或计划激活不得改为主网上线。
+   - 区分协议投票与团队意见。保留赞成比例的分母、参与率、法定人数和执行条件（材料有时）。不因多数赞成就推断提案有效或已落地。
+   - 监管写清机构、辖区和适用对象，区分草案、征求意见、正式发布、生效、调查、起诉/指控、和解与最终裁判。保留“涉嫌”“拟”“据称”等限定，不改写成全球适用的法律定论。
 
-3. 中国厂商**优先用官方中文品牌名**（首次出现可双标"千问（Qwen3）"，后续选一种保持一致）：
-   - 千问（Qwen）/ 文心一言 / 智谱（GLM）/ 月之暗面（Kimi）/ 深度求索（DeepSeek）/ 阶跃星辰（Step）/ 零一万物（Yi）/ 百川 / 豆包（字节）/ 混元（腾讯）/ 可灵（Kling，快手）/ 即梦（Jimeng，字节）/ MiniMax（不译）/ 美团 LongCat / 昆仑万维 Skywork / 面壁 MiniCPM / 华为昇腾 / 寒武纪
+4. 安全事件的金额与状态不得混算：
+   - 区分疑似异常、确认攻击、潜在风险敞口、被转出金额、已确认损失、被冻结资金、追回资金和已返还用户资金。冻结不等于追回，追回不等于返还，转出不必然是损失。
+   - 不擅自把几次转账相加为损失，不将累计损失与净损失混写；只有材料明确支持口径和时间时才报告净额。漏洞修复、恢复服务、审计完成和安全保证是不同主张。
+   - 区分事实、团队声明、安全机构判断与作者推测；保留尚待核实和金额估算，不强化确定性。
 
-4. 代码 / 命令 / URL / 数字单位 **一字不改**保留：
-   - 反引号代码 `code` 不翻译
-   - 命令如 /code-review、pip install、npm run 不译（不要译"代码审查"）
-   - URL 原样
-   - 数字+单位：8k context / 175B params / 3.5x speedup / $3 per M tokens / 99.9%
-   - 金额、参数量、比例、区间必须保留原文的阿拉伯数字和单位；不要把 $10B-$100B 改写成“数百亿至数千亿美元”等中文数量词
+5. 数值、单位、币种与观测时间：
+   - 保留准确阿拉伯数字、币种/资产、数量级、百分比、区间及“约”“至少”等限定。可准确换算数量级，但不得改变精度；$ 未明确币种时不擅自指定美元，不自行换算实时价格或法币汇率。
+   - 代币数量与法币估值分别说明；估值须保留对应价格时点（材料有时）。区分百分比变化与百分点，APR 与 APY、名义值与实际兑付值；收益数字不改成保证收益。
+   - 保留数据观测时间、时间窗、时区、区块高度及比较基准；发布时间不等于事件时间或数据截止时间。“当时”数据不写成“当前”，无法确定的日期不补全。
+   - TVL 是锁定价值，不等于净资金流入；价格变化、口径变化、重复计算都可能改变 TVL。交易量不等于净流入，地址数不等于人数，市值不等于资金投入，链上转账不等于买卖。不得从余额变化推导未被材料证明的资金动机。
+
+6. 事实翻译与引用：
+   - 项目、产品、机构名称优先使用材料中明确且无歧义的名称；没有可靠中文名称时保留原名。版本、提案编号、代码、命令、URL 原样保留。
+   - 不添加原文没有的因果、投资回报、价格方向、巨鲸身份或交易建议。分析与预测标明是谁的判断，不改写为既成事实。
+   - 保留研究的数据来源、方法、样本与局限（材料有时）；不能把一个地址推及全部用户，不能把相关性改写为因果。材料冲突或不足时保留不确定性，不用行业常识补齐具体事实。
+
+7. 预测市场的报价、规则与结算：
+   - Polymarket、Kalshi 等事件合约平台的报价或隐含概率必须保留平台、观测时点、市场规则和合约事件定义；不能当作现实事件已发生、独立核验事实或统计学上的真实发生概率。原文未给出的规则和时点不补写。
+   - 区分现实事件结果、预言机报告、异议、仲裁和合约结算；“合约结算为 YES”不等于现实主张已经独立证实。保留结算条件、证据来源和争议阶段，不擅自裁决争议。
+   - 区分平台、法律实体、产品和监管辖区；某实体的许可、调查或裁定不能扩写为全平台、全部产品或全球适用。Kalshi 等中心化事件合约平台不因预测市场标签变成 DeFi；UMA 只有明确预测市场关系时才按此主题处理。

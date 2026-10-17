@@ -1,0 +1,3381 @@
+{
+  "createdAt": "2026-10-01",
+  "sources": [
+    {
+      "id": "arbitrum-blog",
+      "name": "Arbitrum Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.arbitrum.io/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:arbitrum",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "optimism-gov",
+      "name": "Optimism Collective 治理论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://gov.optimism.io/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "org:optimism",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ethereum-research",
+      "name": "Ethereum Research",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://ethresear.ch/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:ethereum-research",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "arbitrum-gov",
+      "name": "Arbitrum 治理论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://forum.arbitrum.foundation/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "org:arbitrum",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "solana-news",
+      "name": "Solana 官方新闻",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://solana.com/news/rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:solana",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "bitcoin-optech",
+      "name": "Bitcoin Optech",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://bitcoinops.org/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:bitcoin-optech",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "sui-blog",
+      "name": "Sui Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.sui.io/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:sui",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "bitcoin-delving",
+      "name": "Delving Bitcoin",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://delvingbitcoin.org/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:bitcoin-delving",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "polkadot-forum",
+      "name": "Polkadot Forum",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://forum.polkadot.network/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:polkadot-forum",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "celestia-blog",
+      "name": "Celestia Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.celestia.org/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:celestia",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "aave-blog",
+      "name": "Aave Labs Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://aave.com/blog/rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:aave",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "aave-gov",
+      "name": "Aave 治理论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://governance.aave.com/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "org:aave",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "lido-gov",
+      "name": "Lido Governance",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://research.lido.fi/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:lido",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "pendle-blog",
+      "name": "Pendle 官方 Medium",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://medium.com/feed/pendle"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:pendle",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "uniswap-gov",
+      "name": "Uniswap 治理论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://gov.uniswap.org/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "org:uniswap",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "compound-gov",
+      "name": "Compound Community Forum",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.comp.xyz/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:compound",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "sky-gov",
+      "name": "Sky 治理论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://forum.skyeco.com/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:sky",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "tether-news",
+      "name": "Tether News",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://tether.io/feed/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:tether",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "balancer-gov",
+      "name": "Balancer Forum",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://forum.balancer.fi/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:balancer",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "flashbots-writings",
+      "name": "Flashbots Writings",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://writings.flashbots.net/rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:flashbots",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "render-blog",
+      "name": "Render Network 官方 Medium",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://medium.com/feed/render-token"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:render",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "eigenlabs-blog",
+      "name": "Eigen Labs / EigenLayer Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.eigenlabs.org/blog/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:eigenlabs",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "rocketpool-gov",
+      "name": "Rocket Pool Governance",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://dao.rocketpool.net/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:rocketpool",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "flashbots-forum",
+      "name": "Flashbots Collective",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://collective.flashbots.net/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "org:flashbots",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "filecoin-blog",
+      "name": "Filecoin Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.filecoin.io/blog/zh-cn/rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:filecoin",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "glassnode",
+      "name": "Glassnode Research",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://research.glassnode.com/rss/"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:glassnode",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "icp-blog",
+      "name": "DFINITY / Internet Computer Review",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://medium.com/feed/dfinity"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:icp",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "stellar-blog",
+      "name": "Stellar Development Foundation Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://stellar.org/blog/rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:stellar",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "slowmist",
+      "name": "SlowMist / 慢雾",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://slowmist.medium.com/feed"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:slowmist",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "blockstream-blog",
+      "name": "Blockstream Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.blockstream.com/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:blockstream",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "openzeppelin",
+      "name": "OpenZeppelin",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.openzeppelin.com/news/rss.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:openzeppelin",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "immunefi",
+      "name": "Immunefi",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://immunefi.com/blog/rss/"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:immunefi",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "trail-of-bits",
+      "name": "Trail of Bits",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.trailofbits.com/feed/"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:trail-of-bits",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "bis",
+      "name": "BIS / BCBS / CPMI",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.bis.org/doclist/all_pressrels.rss"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:bis",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "fsb",
+      "name": "Financial Stability Board",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.fsb.org/feed/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:fsb",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "fca",
+      "name": "英国 FCA",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.fca.org.uk/news/rss.xml",
+        "detail": {
+          "maxFetches": 3,
+          "publishedAtSelector": ".article-meta .pubdate:not(.latest) time",
+          "publishedAtAuthoritative": true,
+          "titleSelector": "h1",
+          "titleAuthoritative": true
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:fca",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ipfs",
+      "name": "IPFS Blog & News",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.ipfs.tech/index.xml"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "org:ipfs",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "electric-coin",
+      "name": "Electric Coin Company / Zcash",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://electriccoin.co/feed/",
+        "itemUrlPrefixRewrite": {
+          "from": "blog/",
+          "to": "https://electriccoin.co/blog/"
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:electric-coin",
+      "participation_mode": "editorial",
+      "interval_minutes": 1440,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "monero",
+      "name": "Monero Project",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.getmonero.org/feed.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:monero",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "quicknode-blog",
+      "name": "QuickNode Blog",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.quicknode.com/rss/"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:quicknode",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-peter-todd",
+      "name": "Peter Todd",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://petertodd.org/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-peter-todd",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-vitalik",
+      "name": "Vitalik Buterin",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://vitalik.eth.limo/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-vitalik",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "reth-release",
+      "name": "Reth Releases",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://github.com/paradigmxyz/reth/releases.atom"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:reth-release",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-bluematt",
+      "name": "Matt Corallo / BlueMatt",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://bluematt.bitcoin.ninja/atom.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-bluematt",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "geth-release",
+      "name": "Geth Releases",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://github.com/ethereum/go-ethereum/releases.atom"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:geth-release",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-dankrad",
+      "name": "Dankrad Feist",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://dankradfeist.de/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-dankrad",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-lopp",
+      "name": "Jameson Lopp",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://blog.lopp.net/rss/"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-lopp",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-christine-kim",
+      "name": "Christine D. Kim",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://christinedkim.substack.com/feed"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-christine-kim",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-haseeb",
+      "name": "Haseeb Qureshi",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://haseebq.com/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-haseeb",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-molly-white",
+      "name": "Molly White",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.citationneeded.news/rss/"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-molly-white",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-colin-wu",
+      "name": "吴说 / Colin Wu",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://wublock.substack.com/feed"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "author:kol-colin-wu",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "a16z-crypto",
+      "name": "a16z crypto",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://a16zcrypto.com/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:a16z-crypto",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ottersec",
+      "name": "OtterSec",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://osec.io/rss.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:ottersec",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "halborn",
+      "name": "Halborn",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.halborn.com/feed.xml"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:halborn",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "metamask-news",
+      "name": "MetaMask News",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://metamask.io/zh-CN/news-rss.xml"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:metamask",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ethereum-magicians",
+      "name": "Ethereum Magicians EIP/ERC 讨论论坛",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://ethereum-magicians.org/latest.rss"
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "community:ethereum-magicians",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "治理与研究论坛"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "sfc",
+      "name": "香港证监会 SFC",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.sfc.hk/en/RSS-Feeds/Press-releases"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:sfc",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "sfc-circulars",
+      "name": "香港证监会 SFC 通函",
+      "kind": "rss",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "feedUrl": "https://www.sfc.hk/en/RSS-Feeds/Circulars"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:sfc",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "hkma",
+      "name": "香港金管局 HKMA",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.hkma.gov.hk/eng/other-information/rss/rss_press-release.xml",
+        "fetchPublicContent": true,
+        "sortByPublishedAt": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:hkma",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "cftc",
+      "name": "美国 CFTC",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.cftc.gov/PressRoom/PressReleases",
+        "parseMode": "html",
+        "itemSelector": "table tbody tr",
+        "allowUrlPrefixes": [
+          "https://cftc.gov/PressRoom/PressReleases/",
+          "https://www.cftc.gov/PressRoom/PressReleases/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.cftc.gov/PressRoom/PressReleases/category/",
+          "https://www.cftc.gov/PressRoom/PressReleases/categories/",
+          "https://www.cftc.gov/PressRoom/PressReleases/tag/",
+          "https://www.cftc.gov/PressRoom/PressReleases/tags/",
+          "https://www.cftc.gov/PressRoom/PressReleases/page/",
+          "https://www.cftc.gov/PressRoom/PressReleases/author/",
+          "https://www.cftc.gov/PressRoom/PressReleases/authors/",
+          "https://www.cftc.gov/PressRoom/PressReleases/rss",
+          "https://www.cftc.gov/PressRoom/PressReleases/feed",
+          "https://www.cftc.gov/PressRoom/PressReleases/topics/",
+          "https://www.cftc.gov/PressRoom/PressReleases/RSS",
+          "https://cftc.gov/PressRoom/PressReleases/category/",
+          "https://cftc.gov/PressRoom/PressReleases/categories/",
+          "https://cftc.gov/PressRoom/PressReleases/tag/",
+          "https://cftc.gov/PressRoom/PressReleases/tags/",
+          "https://cftc.gov/PressRoom/PressReleases/page/",
+          "https://cftc.gov/PressRoom/PressReleases/author/",
+          "https://cftc.gov/PressRoom/PressReleases/authors/",
+          "https://cftc.gov/PressRoom/PressReleases/rss",
+          "https://cftc.gov/PressRoom/PressReleases/feed",
+          "https://cftc.gov/PressRoom/PressReleases/topics/",
+          "https://cftc.gov/PressRoom/PressReleases/RSS"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1:not(.press-release-title)",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtRegex": "<p>\\s*<b>((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2})</b>\\s*</p>",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/PressReleases/\"]",
+        "publishedAtSelector": "td.views-field-field-date",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:cftc",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "polygon-blog",
+      "name": "Polygon Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://polygon.technology/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://polygon.technology/blog/",
+          "https://www.polygon.technology/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://polygon.technology/blog/category/",
+          "https://polygon.technology/blog/categories/",
+          "https://polygon.technology/blog/tag/",
+          "https://polygon.technology/blog/tags/",
+          "https://polygon.technology/blog/page/",
+          "https://polygon.technology/blog/author/",
+          "https://polygon.technology/blog/authors/",
+          "https://polygon.technology/blog/rss",
+          "https://polygon.technology/blog/feed",
+          "https://polygon.technology/blog/topics/",
+          "https://www.polygon.technology/blog/category/",
+          "https://www.polygon.technology/blog/categories/",
+          "https://www.polygon.technology/blog/tag/",
+          "https://www.polygon.technology/blog/tags/",
+          "https://www.polygon.technology/blog/page/",
+          "https://www.polygon.technology/blog/author/",
+          "https://www.polygon.technology/blog/authors/",
+          "https://www.polygon.technology/blog/rss",
+          "https://www.polygon.technology/blog/feed",
+          "https://www.polygon.technology/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:polygon",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "uniswap-blog",
+      "name": "Uniswap Labs Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://blog.uniswap.org/",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/\"]",
+        "allowUrlPrefixes": [
+          "https://blog.uniswap.org/",
+          "https://www.blog.uniswap.org/"
+        ],
+        "denyUrlPrefixes": [
+          "https://blog.uniswap.org/category/",
+          "https://blog.uniswap.org/categories/",
+          "https://blog.uniswap.org/tag/",
+          "https://blog.uniswap.org/tags/",
+          "https://blog.uniswap.org/page/",
+          "https://blog.uniswap.org/author/",
+          "https://blog.uniswap.org/authors/",
+          "https://blog.uniswap.org/rss",
+          "https://blog.uniswap.org/feed",
+          "https://blog.uniswap.org/topics/",
+          "https://www.blog.uniswap.org/category/",
+          "https://www.blog.uniswap.org/categories/",
+          "https://www.blog.uniswap.org/tag/",
+          "https://www.blog.uniswap.org/tags/",
+          "https://www.blog.uniswap.org/page/",
+          "https://www.blog.uniswap.org/author/",
+          "https://www.blog.uniswap.org/authors/",
+          "https://www.blog.uniswap.org/rss",
+          "https://www.blog.uniswap.org/feed",
+          "https://www.blog.uniswap.org/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:uniswap",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "circle-blog",
+      "name": "Circle Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.circle.com/blog",
+        "parseMode": "html",
+        "itemSelector": "article.blog-latest_card",
+        "allowUrlPrefixes": [
+          "https://circle.com/blog/",
+          "https://www.circle.com/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.circle.com/blog/category/",
+          "https://www.circle.com/blog/categories/",
+          "https://www.circle.com/blog/tag/",
+          "https://www.circle.com/blog/tags/",
+          "https://www.circle.com/blog/page/",
+          "https://www.circle.com/blog/author/",
+          "https://www.circle.com/blog/authors/",
+          "https://www.circle.com/blog/rss",
+          "https://www.circle.com/blog/feed",
+          "https://www.circle.com/blog/topics/",
+          "https://circle.com/blog/category/",
+          "https://circle.com/blog/categories/",
+          "https://circle.com/blog/tag/",
+          "https://circle.com/blog/tags/",
+          "https://circle.com/blog/page/",
+          "https://circle.com/blog/author/",
+          "https://circle.com/blog/authors/",
+          "https://circle.com/blog/rss",
+          "https://circle.com/blog/feed",
+          "https://circle.com/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/blog/\"]",
+        "titleSelector": "h2,h3",
+        "publishedAtSelector": "time",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:circle",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "paxos-blog",
+      "name": "Paxos Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.paxos.com/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://paxos.com/blog/",
+          "https://www.paxos.com/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.paxos.com/blog/category/",
+          "https://www.paxos.com/blog/categories/",
+          "https://www.paxos.com/blog/tag/",
+          "https://www.paxos.com/blog/tags/",
+          "https://www.paxos.com/blog/page/",
+          "https://www.paxos.com/blog/author/",
+          "https://www.paxos.com/blog/authors/",
+          "https://www.paxos.com/blog/rss",
+          "https://www.paxos.com/blog/feed",
+          "https://www.paxos.com/blog/topics/",
+          "https://paxos.com/blog/category/",
+          "https://paxos.com/blog/categories/",
+          "https://paxos.com/blog/tag/",
+          "https://paxos.com/blog/tags/",
+          "https://paxos.com/blog/page/",
+          "https://paxos.com/blog/author/",
+          "https://paxos.com/blog/authors/",
+          "https://paxos.com/blog/rss",
+          "https://paxos.com/blog/feed",
+          "https://paxos.com/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "titleSelector": "h2,h3",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:paxos",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "pyth-blog",
+      "name": "Pyth Network Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.pyth.network/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://pyth.network/blog/",
+          "https://www.pyth.network/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.pyth.network/blog/category/",
+          "https://www.pyth.network/blog/categories/",
+          "https://www.pyth.network/blog/tag/",
+          "https://www.pyth.network/blog/tags/",
+          "https://www.pyth.network/blog/page/",
+          "https://www.pyth.network/blog/author/",
+          "https://www.pyth.network/blog/authors/",
+          "https://www.pyth.network/blog/rss",
+          "https://www.pyth.network/blog/feed",
+          "https://www.pyth.network/blog/topics/",
+          "https://pyth.network/blog/category/",
+          "https://pyth.network/blog/categories/",
+          "https://pyth.network/blog/tag/",
+          "https://pyth.network/blog/tags/",
+          "https://pyth.network/blog/page/",
+          "https://pyth.network/blog/author/",
+          "https://pyth.network/blog/authors/",
+          "https://pyth.network/blog/rss",
+          "https://pyth.network/blog/feed",
+          "https://pyth.network/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:pyth",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "paradigm",
+      "name": "Paradigm",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.paradigm.xyz/writing",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/writing/\"]",
+        "allowUrlPrefixes": [
+          "https://paradigm.xyz/writing/",
+          "https://www.paradigm.xyz/writing/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.paradigm.xyz/writing/category/",
+          "https://www.paradigm.xyz/writing/categories/",
+          "https://www.paradigm.xyz/writing/tag/",
+          "https://www.paradigm.xyz/writing/tags/",
+          "https://www.paradigm.xyz/writing/page/",
+          "https://www.paradigm.xyz/writing/author/",
+          "https://www.paradigm.xyz/writing/authors/",
+          "https://www.paradigm.xyz/writing/rss",
+          "https://www.paradigm.xyz/writing/feed",
+          "https://www.paradigm.xyz/writing/topics/",
+          "https://paradigm.xyz/writing/category/",
+          "https://paradigm.xyz/writing/categories/",
+          "https://paradigm.xyz/writing/tag/",
+          "https://paradigm.xyz/writing/tags/",
+          "https://paradigm.xyz/writing/page/",
+          "https://paradigm.xyz/writing/author/",
+          "https://paradigm.xyz/writing/authors/",
+          "https://paradigm.xyz/writing/rss",
+          "https://paradigm.xyz/writing/feed",
+          "https://paradigm.xyz/writing/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:paradigm",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "optimism-blog",
+      "name": "Optimism Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://optimism.io/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://optimism.io/blog/",
+          "https://www.optimism.io/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://optimism.io/blog/category/",
+          "https://optimism.io/blog/categories/",
+          "https://optimism.io/blog/tag/",
+          "https://optimism.io/blog/tags/",
+          "https://optimism.io/blog/page/",
+          "https://optimism.io/blog/author/",
+          "https://optimism.io/blog/authors/",
+          "https://optimism.io/blog/rss",
+          "https://optimism.io/blog/feed",
+          "https://optimism.io/blog/topics/",
+          "https://www.optimism.io/blog/category/",
+          "https://www.optimism.io/blog/categories/",
+          "https://www.optimism.io/blog/tag/",
+          "https://www.optimism.io/blog/tags/",
+          "https://www.optimism.io/blog/page/",
+          "https://www.optimism.io/blog/author/",
+          "https://www.optimism.io/blog/authors/",
+          "https://www.optimism.io/blog/rss",
+          "https://www.optimism.io/blog/feed",
+          "https://www.optimism.io/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:optimism",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "chainlink-blog",
+      "name": "Chainlink Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://chain.link/blog",
+        "parseMode": "html",
+        "itemSelector": "a.chainlink-system--editorial_card[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://chain.link/blog/",
+          "https://www.chain.link/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://chain.link/blog/category/",
+          "https://chain.link/blog/categories/",
+          "https://chain.link/blog/tag/",
+          "https://chain.link/blog/tags/",
+          "https://chain.link/blog/page/",
+          "https://chain.link/blog/author/",
+          "https://chain.link/blog/authors/",
+          "https://chain.link/blog/rss",
+          "https://chain.link/blog/feed",
+          "https://chain.link/blog/topics/",
+          "https://www.chain.link/blog/category/",
+          "https://www.chain.link/blog/categories/",
+          "https://www.chain.link/blog/tag/",
+          "https://www.chain.link/blog/tags/",
+          "https://www.chain.link/blog/page/",
+          "https://www.chain.link/blog/author/",
+          "https://www.chain.link/blog/authors/",
+          "https://www.chain.link/blog/rss",
+          "https://www.chain.link/blog/feed",
+          "https://www.chain.link/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".u-hflex-left-center .eyebrow",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:chainlink",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ondo-blog",
+      "name": "Ondo Finance Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://ondo.finance/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://ondo.finance/blog/",
+          "https://www.ondo.finance/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://ondo.finance/blog/category/",
+          "https://ondo.finance/blog/categories/",
+          "https://ondo.finance/blog/tag/",
+          "https://ondo.finance/blog/tags/",
+          "https://ondo.finance/blog/page/",
+          "https://ondo.finance/blog/author/",
+          "https://ondo.finance/blog/authors/",
+          "https://ondo.finance/blog/rss",
+          "https://ondo.finance/blog/feed",
+          "https://ondo.finance/blog/topics/",
+          "https://www.ondo.finance/blog/category/",
+          "https://www.ondo.finance/blog/categories/",
+          "https://www.ondo.finance/blog/tag/",
+          "https://www.ondo.finance/blog/tags/",
+          "https://www.ondo.finance/blog/page/",
+          "https://www.ondo.finance/blog/author/",
+          "https://www.ondo.finance/blog/authors/",
+          "https://www.ondo.finance/blog/rss",
+          "https://www.ondo.finance/blog/feed",
+          "https://www.ondo.finance/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:ondo",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "nansen",
+      "name": "Nansen",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://nansen.ai/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/post/\"]",
+        "allowUrlPrefixes": [
+          "https://nansen.ai/post/",
+          "https://www.nansen.ai/post/"
+        ],
+        "denyUrlPrefixes": [
+          "https://nansen.ai/post/category/",
+          "https://nansen.ai/post/categories/",
+          "https://nansen.ai/post/tag/",
+          "https://nansen.ai/post/tags/",
+          "https://nansen.ai/post/page/",
+          "https://nansen.ai/post/author/",
+          "https://nansen.ai/post/authors/",
+          "https://nansen.ai/post/rss",
+          "https://nansen.ai/post/feed",
+          "https://nansen.ai/post/topics/",
+          "https://www.nansen.ai/post/category/",
+          "https://www.nansen.ai/post/categories/",
+          "https://www.nansen.ai/post/tag/",
+          "https://www.nansen.ai/post/tags/",
+          "https://www.nansen.ai/post/page/",
+          "https://www.nansen.ai/post/author/",
+          "https://www.nansen.ai/post/authors/",
+          "https://www.nansen.ai/post/rss",
+          "https://www.nansen.ai/post/feed",
+          "https://www.nansen.ai/post/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "Featured"
+          ]
+        },
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:nansen",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "wormhole-blog",
+      "name": "Wormhole Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://wormhole.com/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://wormhole.com/blog/",
+          "https://www.wormhole.com/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://wormhole.com/blog/category/",
+          "https://wormhole.com/blog/categories/",
+          "https://wormhole.com/blog/tag/",
+          "https://wormhole.com/blog/tags/",
+          "https://wormhole.com/blog/page/",
+          "https://wormhole.com/blog/author/",
+          "https://wormhole.com/blog/authors/",
+          "https://wormhole.com/blog/rss",
+          "https://wormhole.com/blog/feed",
+          "https://wormhole.com/blog/topics/",
+          "https://www.wormhole.com/blog/category/",
+          "https://www.wormhole.com/blog/categories/",
+          "https://www.wormhole.com/blog/tag/",
+          "https://www.wormhole.com/blog/tags/",
+          "https://www.wormhole.com/blog/page/",
+          "https://www.wormhole.com/blog/author/",
+          "https://www.wormhole.com/blog/authors/",
+          "https://www.wormhole.com/blog/rss",
+          "https://www.wormhole.com/blog/feed",
+          "https://www.wormhole.com/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": "header .container > h1 + span",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:wormhole",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "layerzero-blog",
+      "name": "LayerZero Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://layerzero.network/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://layerzero.network/blog/",
+          "https://www.layerzero.network/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://layerzero.network/blog/category/",
+          "https://layerzero.network/blog/categories/",
+          "https://layerzero.network/blog/tag/",
+          "https://layerzero.network/blog/tags/",
+          "https://layerzero.network/blog/page/",
+          "https://layerzero.network/blog/author/",
+          "https://layerzero.network/blog/authors/",
+          "https://layerzero.network/blog/rss",
+          "https://layerzero.network/blog/feed",
+          "https://layerzero.network/blog/topics/",
+          "https://www.layerzero.network/blog/category/",
+          "https://www.layerzero.network/blog/categories/",
+          "https://www.layerzero.network/blog/tag/",
+          "https://www.layerzero.network/blog/tags/",
+          "https://www.layerzero.network/blog/page/",
+          "https://www.layerzero.network/blog/author/",
+          "https://www.layerzero.network/blog/authors/",
+          "https://www.layerzero.network/blog/rss",
+          "https://www.layerzero.network/blog/feed",
+          "https://www.layerzero.network/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:layerzero",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "morpho-blog",
+      "name": "Morpho Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://morpho.org/blog/",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://morpho.org/blog/",
+          "https://www.morpho.org/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://morpho.org/blog/category/",
+          "https://morpho.org/blog/categories/",
+          "https://morpho.org/blog/tag/",
+          "https://morpho.org/blog/tags/",
+          "https://morpho.org/blog/page/",
+          "https://morpho.org/blog/author/",
+          "https://morpho.org/blog/authors/",
+          "https://morpho.org/blog/rss",
+          "https://morpho.org/blog/feed",
+          "https://morpho.org/blog/topics/",
+          "https://www.morpho.org/blog/category/",
+          "https://www.morpho.org/blog/categories/",
+          "https://www.morpho.org/blog/tag/",
+          "https://www.morpho.org/blog/tags/",
+          "https://www.morpho.org/blog/page/",
+          "https://www.morpho.org/blog/author/",
+          "https://www.morpho.org/blog/authors/",
+          "https://www.morpho.org/blog/rss",
+          "https://www.morpho.org/blog/feed",
+          "https://www.morpho.org/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:morpho",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "galaxy",
+      "name": "Galaxy Research",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.galaxy.com/insights/research",
+        "parseMode": "html",
+        "itemSelector": ".card2--type-research",
+        "allowUrlPrefixes": [
+          "https://www.galaxy.com/insights/research/",
+          "https://galaxy.com/insights/research/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.galaxy.com/insights/category/",
+          "https://www.galaxy.com/insights/categories/",
+          "https://www.galaxy.com/insights/tag/",
+          "https://www.galaxy.com/insights/tags/",
+          "https://www.galaxy.com/insights/page/",
+          "https://www.galaxy.com/insights/author/",
+          "https://www.galaxy.com/insights/authors/",
+          "https://www.galaxy.com/insights/rss",
+          "https://www.galaxy.com/insights/feed",
+          "https://www.galaxy.com/insights/topics/",
+          "https://galaxy.com/insights/category/",
+          "https://galaxy.com/insights/categories/",
+          "https://galaxy.com/insights/tag/",
+          "https://galaxy.com/insights/tags/",
+          "https://galaxy.com/insights/page/",
+          "https://galaxy.com/insights/author/",
+          "https://galaxy.com/insights/authors/",
+          "https://galaxy.com/insights/rss",
+          "https://galaxy.com/insights/feed",
+          "https://galaxy.com/insights/topics/",
+          "https://www.galaxy.com/insights/research/tag/",
+          "https://www.galaxy.com/insights/research/page/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".article__meta .type-eyebrow",
+          "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/insights/research/\"]",
+        "titleSelector": "h2,h3",
+        "publishedAtSelector": ".card2__eyebrow",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:galaxy",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "blocksec",
+      "name": "BlockSec",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://blocksec.com/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://blocksec.com/blog/",
+          "https://www.blocksec.com/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://blocksec.com/blog/category/",
+          "https://blocksec.com/blog/categories/",
+          "https://blocksec.com/blog/tag/",
+          "https://blocksec.com/blog/tags/",
+          "https://blocksec.com/blog/page/",
+          "https://blocksec.com/blog/author/",
+          "https://blocksec.com/blog/authors/",
+          "https://blocksec.com/blog/rss",
+          "https://blocksec.com/blog/feed",
+          "https://blocksec.com/blog/topics/",
+          "https://www.blocksec.com/blog/category/",
+          "https://www.blocksec.com/blog/categories/",
+          "https://www.blocksec.com/blog/tag/",
+          "https://www.blocksec.com/blog/tags/",
+          "https://www.blocksec.com/blog/page/",
+          "https://www.blocksec.com/blog/author/",
+          "https://www.blocksec.com/blog/authors/",
+          "https://www.blocksec.com/blog/rss",
+          "https://www.blocksec.com/blog/feed",
+          "https://www.blocksec.com/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "org:blocksec",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "独立研究与安全"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "eba",
+      "name": "EBA",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.eba.europa.eu/publications-and-media/press-releases",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/publications-and-media/press-releases/\"]",
+        "allowUrlPrefixes": [
+          "https://eba.europa.eu/publications-and-media/press-releases/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.eba.europa.eu/publications-and-media/press-releases/category/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/categories/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/tag/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/tags/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/page/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/author/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/authors/",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/rss",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/feed",
+          "https://www.eba.europa.eu/publications-and-media/press-releases/topics/",
+          "https://eba.europa.eu/publications-and-media/press-releases/category/",
+          "https://eba.europa.eu/publications-and-media/press-releases/categories/",
+          "https://eba.europa.eu/publications-and-media/press-releases/tag/",
+          "https://eba.europa.eu/publications-and-media/press-releases/tags/",
+          "https://eba.europa.eu/publications-and-media/press-releases/page/",
+          "https://eba.europa.eu/publications-and-media/press-releases/author/",
+          "https://eba.europa.eu/publications-and-media/press-releases/authors/",
+          "https://eba.europa.eu/publications-and-media/press-releases/rss",
+          "https://eba.europa.eu/publications-and-media/press-releases/feed",
+          "https://eba.europa.eu/publications-and-media/press-releases/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".box-data .link-icon--calendar b",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:eba",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "safe",
+      "name": "Safe",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.safe.global/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://safe.global/blog/",
+          "https://www.safe.global/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.safe.global/blog/category/",
+          "https://www.safe.global/blog/categories/",
+          "https://www.safe.global/blog/tag/",
+          "https://www.safe.global/blog/tags/",
+          "https://www.safe.global/blog/page/",
+          "https://www.safe.global/blog/author/",
+          "https://www.safe.global/blog/authors/",
+          "https://www.safe.global/blog/rss",
+          "https://www.safe.global/blog/feed",
+          "https://www.safe.global/blog/topics/",
+          "https://safe.global/blog/category/",
+          "https://safe.global/blog/categories/",
+          "https://safe.global/blog/tag/",
+          "https://safe.global/blog/tags/",
+          "https://safe.global/blog/page/",
+          "https://safe.global/blog/author/",
+          "https://safe.global/blog/authors/",
+          "https://safe.global/blog/rss",
+          "https://safe.global/blog/feed",
+          "https://safe.global/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:safe",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://phantom.com/learn/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/learn/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://phantom.com/learn/blog/",
+          "https://www.phantom.com/learn/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://phantom.com/learn/blog/category/",
+          "https://phantom.com/learn/blog/categories/",
+          "https://phantom.com/learn/blog/tag/",
+          "https://phantom.com/learn/blog/tags/",
+          "https://phantom.com/learn/blog/page/",
+          "https://phantom.com/learn/blog/author/",
+          "https://phantom.com/learn/blog/authors/",
+          "https://phantom.com/learn/blog/rss",
+          "https://phantom.com/learn/blog/feed",
+          "https://phantom.com/learn/blog/topics/",
+          "https://www.phantom.com/learn/blog/category/",
+          "https://www.phantom.com/learn/blog/categories/",
+          "https://www.phantom.com/learn/blog/tag/",
+          "https://www.phantom.com/learn/blog/tags/",
+          "https://www.phantom.com/learn/blog/page/",
+          "https://www.phantom.com/learn/blog/author/",
+          "https://www.phantom.com/learn/blog/authors/",
+          "https://www.phantom.com/learn/blog/rss",
+          "https://www.phantom.com/learn/blog/feed",
+          "https://www.phantom.com/learn/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:phantom",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "zama",
+      "name": "Zama",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.zama.org/blog",
+        "parseMode": "html",
+        "itemSelector": ".c-blog-column:not(.swiper-slide)",
+        "allowUrlPrefixes": [
+          "https://zama.org/post/",
+          "https://www.zama.org/post/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.zama.org/post/category/",
+          "https://www.zama.org/post/categories/",
+          "https://www.zama.org/post/tag/",
+          "https://www.zama.org/post/tags/",
+          "https://www.zama.org/post/page/",
+          "https://www.zama.org/post/author/",
+          "https://www.zama.org/post/authors/",
+          "https://www.zama.org/post/rss",
+          "https://www.zama.org/post/feed",
+          "https://www.zama.org/post/topics/",
+          "https://zama.org/post/category/",
+          "https://zama.org/post/categories/",
+          "https://zama.org/post/tag/",
+          "https://zama.org/post/tags/",
+          "https://zama.org/post/page/",
+          "https://zama.org/post/author/",
+          "https://zama.org/post/authors/",
+          "https://zama.org/post/rss",
+          "https://zama.org/post/feed",
+          "https://zama.org/post/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/post/\"]",
+        "titleSelector": "h3",
+        "publishedAtSelector": ".c-blog-date",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:zama",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ens-blog",
+      "name": "ENS Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://ens.domains/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://ens.domains/blog/",
+          "https://www.ens.domains/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://ens.domains/blog/category/",
+          "https://ens.domains/blog/categories/",
+          "https://ens.domains/blog/tag/",
+          "https://ens.domains/blog/tags/",
+          "https://ens.domains/blog/page/",
+          "https://ens.domains/blog/author/",
+          "https://ens.domains/blog/authors/",
+          "https://ens.domains/blog/rss",
+          "https://ens.domains/blog/feed",
+          "https://ens.domains/blog/topics/",
+          "https://www.ens.domains/blog/category/",
+          "https://www.ens.domains/blog/categories/",
+          "https://www.ens.domains/blog/tag/",
+          "https://www.ens.domains/blog/tags/",
+          "https://www.ens.domains/blog/page/",
+          "https://www.ens.domains/blog/author/",
+          "https://www.ens.domains/blog/authors/",
+          "https://www.ens.domains/blog/rss",
+          "https://www.ens.domains/blog/feed",
+          "https://www.ens.domains/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:ens",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "walletconnect",
+      "name": "WalletConnect",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://walletconnect.com/blog",
+        "parseMode": "html",
+        "itemSelector": "a[class*=\"articleCard_card\"][href*=\"/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://walletconnect.com/blog/",
+          "https://www.walletconnect.com/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://walletconnect.com/blog/category/",
+          "https://walletconnect.com/blog/categories/",
+          "https://walletconnect.com/blog/tag/",
+          "https://walletconnect.com/blog/tags/",
+          "https://walletconnect.com/blog/page/",
+          "https://walletconnect.com/blog/author/",
+          "https://walletconnect.com/blog/authors/",
+          "https://walletconnect.com/blog/rss",
+          "https://walletconnect.com/blog/feed",
+          "https://walletconnect.com/blog/topics/",
+          "https://www.walletconnect.com/blog/category/",
+          "https://www.walletconnect.com/blog/categories/",
+          "https://www.walletconnect.com/blog/tag/",
+          "https://www.walletconnect.com/blog/tags/",
+          "https://www.walletconnect.com/blog/page/",
+          "https://www.walletconnect.com/blog/author/",
+          "https://www.walletconnect.com/blog/authors/",
+          "https://www.walletconnect.com/blog/rss",
+          "https://www.walletconnect.com/blog/feed",
+          "https://www.walletconnect.com/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:walletconnect",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "consensys",
+      "name": "Consensys",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://consensys.io/blog",
+        "parseMode": "html",
+        "itemSelector": ".article-copy",
+        "allowUrlPrefixes": [
+          "https://consensys.io/blog/",
+          "https://www.consensys.io/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://consensys.io/blog/category/",
+          "https://consensys.io/blog/categories/",
+          "https://consensys.io/blog/tag/",
+          "https://consensys.io/blog/tags/",
+          "https://consensys.io/blog/page/",
+          "https://consensys.io/blog/author/",
+          "https://consensys.io/blog/authors/",
+          "https://consensys.io/blog/rss",
+          "https://consensys.io/blog/feed",
+          "https://consensys.io/blog/topics/",
+          "https://www.consensys.io/blog/category/",
+          "https://www.consensys.io/blog/categories/",
+          "https://www.consensys.io/blog/tag/",
+          "https://www.consensys.io/blog/tags/",
+          "https://www.consensys.io/blog/page/",
+          "https://www.consensys.io/blog/author/",
+          "https://www.consensys.io/blog/authors/",
+          "https://www.consensys.io/blog/rss",
+          "https://www.consensys.io/blog/feed",
+          "https://www.consensys.io/blog/topics/",
+          "https://consensys.io/blog/press-release",
+          "https://consensys.io/blog/government-affairs"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".date p:last-child",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/blog/\"]:has(h3)",
+        "publishedAtUtcOffset": "+00:00",
+        "titleSelector": "h3",
+        "publishedAtSelector": "p.date"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:consensys",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "kol-samczsun",
+      "name": "samczsun",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 1,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://samczsun.com/",
+        "parseMode": "html",
+        "itemSelector": ".post-item",
+        "allowUrlPrefixes": [
+          "https://samczsun.com/",
+          "https://www.samczsun.com/"
+        ],
+        "denyUrlPrefixes": [
+          "https://samczsun.com/category/",
+          "https://samczsun.com/categories/",
+          "https://samczsun.com/tag/",
+          "https://samczsun.com/tags/",
+          "https://samczsun.com/page/",
+          "https://samczsun.com/author/",
+          "https://samczsun.com/authors/",
+          "https://samczsun.com/rss",
+          "https://samczsun.com/feed",
+          "https://samczsun.com/topics/",
+          "https://samczsun.com/about",
+          "https://samczsun.com/author/",
+          "https://samczsun.com/page/",
+          "https://www.samczsun.com/category/",
+          "https://www.samczsun.com/categories/",
+          "https://www.samczsun.com/tag/",
+          "https://www.samczsun.com/tags/",
+          "https://www.samczsun.com/page/",
+          "https://www.samczsun.com/author/",
+          "https://www.samczsun.com/authors/",
+          "https://www.samczsun.com/rss",
+          "https://www.samczsun.com/feed",
+          "https://www.samczsun.com/topics/",
+          "https://www.samczsun.com/about",
+          "https://www.samczsun.com/author/",
+          "https://www.samczsun.com/page/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a",
+        "publishedAtSelector": "time",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "author:kol-samczsun",
+      "participation_mode": "editorial",
+      "interval_minutes": 240,
+      "tags": [
+        "专业作者"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "starknet-blog",
+      "name": "Starknet Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.starknet.io/blog/",
+        "parseMode": "html",
+        "itemSelector": "article.post-item",
+        "allowUrlPrefixes": [
+          "https://starknet.io/blog/",
+          "https://www.starknet.io/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.starknet.io/blog/category/",
+          "https://www.starknet.io/blog/categories/",
+          "https://www.starknet.io/blog/tag/",
+          "https://www.starknet.io/blog/tags/",
+          "https://www.starknet.io/blog/page/",
+          "https://www.starknet.io/blog/author/",
+          "https://www.starknet.io/blog/authors/",
+          "https://www.starknet.io/blog/rss",
+          "https://www.starknet.io/blog/feed",
+          "https://www.starknet.io/blog/topics/",
+          "https://starknet.io/blog/category/",
+          "https://starknet.io/blog/categories/",
+          "https://starknet.io/blog/tag/",
+          "https://starknet.io/blog/tags/",
+          "https://starknet.io/blog/page/",
+          "https://starknet.io/blog/author/",
+          "https://starknet.io/blog/authors/",
+          "https://starknet.io/blog/rss",
+          "https://starknet.io/blog/feed",
+          "https://starknet.io/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "linkSelector": "a[href*=\"/blog/\"]",
+        "publishedAtSelector": "time",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:starknet",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "bnb-blog",
+      "name": "BNB Chain Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.bnbchain.org/en/blog",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/en/blog/\"]",
+        "allowUrlPrefixes": [
+          "https://bnbchain.org/en/blog/",
+          "https://www.bnbchain.org/en/blog/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.bnbchain.org/en/blog/category/",
+          "https://www.bnbchain.org/en/blog/categories/",
+          "https://www.bnbchain.org/en/blog/tag/",
+          "https://www.bnbchain.org/en/blog/tags/",
+          "https://www.bnbchain.org/en/blog/page/",
+          "https://www.bnbchain.org/en/blog/author/",
+          "https://www.bnbchain.org/en/blog/authors/",
+          "https://www.bnbchain.org/en/blog/rss",
+          "https://www.bnbchain.org/en/blog/feed",
+          "https://www.bnbchain.org/en/blog/topics/",
+          "https://bnbchain.org/en/blog/category/",
+          "https://bnbchain.org/en/blog/categories/",
+          "https://bnbchain.org/en/blog/tag/",
+          "https://bnbchain.org/en/blog/tags/",
+          "https://bnbchain.org/en/blog/page/",
+          "https://bnbchain.org/en/blog/author/",
+          "https://bnbchain.org/en/blog/authors/",
+          "https://bnbchain.org/en/blog/rss",
+          "https://bnbchain.org/en/blog/feed",
+          "https://bnbchain.org/en/blog/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:bnb",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "lightning-labs",
+      "name": "Lightning Labs Blog",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://lightning.engineering/blog/",
+        "parseMode": "html",
+        "itemSelector": "a.TextLink--blogtitle",
+        "allowUrlPrefixes": [
+          "https://lightning.engineering/posts/",
+          "https://www.lightning.engineering/posts/"
+        ],
+        "denyUrlPrefixes": [
+          "https://lightning.engineering/posts/category/",
+          "https://lightning.engineering/posts/categories/",
+          "https://lightning.engineering/posts/tag/",
+          "https://lightning.engineering/posts/tags/",
+          "https://lightning.engineering/posts/page/",
+          "https://lightning.engineering/posts/author/",
+          "https://lightning.engineering/posts/authors/",
+          "https://lightning.engineering/posts/rss",
+          "https://lightning.engineering/posts/feed",
+          "https://lightning.engineering/posts/topics/",
+          "https://www.lightning.engineering/posts/category/",
+          "https://www.lightning.engineering/posts/categories/",
+          "https://www.lightning.engineering/posts/tag/",
+          "https://www.lightning.engineering/posts/tags/",
+          "https://www.lightning.engineering/posts/page/",
+          "https://www.lightning.engineering/posts/author/",
+          "https://www.lightning.engineering/posts/authors/",
+          "https://www.lightning.engineering/posts/rss",
+          "https://www.lightning.engineering/posts/feed",
+          "https://www.lightning.engineering/posts/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".BlogPostMeta__text",
+          "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:lightning-labs",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "官方项目动态"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "fincen",
+      "name": "美国 FinCEN",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://www.fincen.gov/news",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/news/news-releases/\"]",
+        "allowUrlPrefixes": [
+          "https://fincen.gov/news/news-releases/",
+          "https://www.fincen.gov/news/news-releases/"
+        ],
+        "denyUrlPrefixes": [
+          "https://www.fincen.gov/news/news-releases/category/",
+          "https://www.fincen.gov/news/news-releases/categories/",
+          "https://www.fincen.gov/news/news-releases/tag/",
+          "https://www.fincen.gov/news/news-releases/tags/",
+          "https://www.fincen.gov/news/news-releases/page/",
+          "https://www.fincen.gov/news/news-releases/author/",
+          "https://www.fincen.gov/news/news-releases/authors/",
+          "https://www.fincen.gov/news/news-releases/rss",
+          "https://www.fincen.gov/news/news-releases/feed",
+          "https://www.fincen.gov/news/news-releases/topics/",
+          "https://fincen.gov/news/news-releases/category/",
+          "https://fincen.gov/news/news-releases/categories/",
+          "https://fincen.gov/news/news-releases/tag/",
+          "https://fincen.gov/news/news-releases/tags/",
+          "https://fincen.gov/news/news-releases/page/",
+          "https://fincen.gov/news/news-releases/author/",
+          "https://fincen.gov/news/news-releases/authors/",
+          "https://fincen.gov/news/news-releases/rss",
+          "https://fincen.gov/news/news-releases/feed",
+          "https://fincen.gov/news/news-releases/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:fincen",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    },
+    {
+      "id": "ofac",
+      "name": "美国财政部 OFAC",
+      "kind": "web_list",
+      "config": {
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 3,
+          "initialBackfillMonths": 12
+        },
+        "url": "https://ofac.treasury.gov/recent-actions",
+        "parseMode": "html",
+        "itemSelector": "a[href*=\"/recent-actions/20\"]",
+        "allowUrlPrefixes": [
+          "https://ofac.treasury.gov/recent-actions/",
+          "https://www.ofac.treasury.gov/recent-actions/"
+        ],
+        "denyUrlPrefixes": [
+          "https://ofac.treasury.gov/recent-actions/category/",
+          "https://ofac.treasury.gov/recent-actions/categories/",
+          "https://ofac.treasury.gov/recent-actions/tag/",
+          "https://ofac.treasury.gov/recent-actions/tags/",
+          "https://ofac.treasury.gov/recent-actions/page/",
+          "https://ofac.treasury.gov/recent-actions/author/",
+          "https://ofac.treasury.gov/recent-actions/authors/",
+          "https://ofac.treasury.gov/recent-actions/rss",
+          "https://ofac.treasury.gov/recent-actions/feed",
+          "https://ofac.treasury.gov/recent-actions/topics/",
+          "https://www.ofac.treasury.gov/recent-actions/category/",
+          "https://www.ofac.treasury.gov/recent-actions/categories/",
+          "https://www.ofac.treasury.gov/recent-actions/tag/",
+          "https://www.ofac.treasury.gov/recent-actions/tags/",
+          "https://www.ofac.treasury.gov/recent-actions/page/",
+          "https://www.ofac.treasury.gov/recent-actions/author/",
+          "https://www.ofac.treasury.gov/recent-actions/authors/",
+          "https://www.ofac.treasury.gov/recent-actions/rss",
+          "https://www.ofac.treasury.gov/recent-actions/feed",
+          "https://www.ofac.treasury.gov/recent-actions/topics/"
+        ],
+        "detail": {
+          "maxFetches": 3,
+          "titleSelector": "h1",
+          "titleAuthoritative": true,
+          "summarySelector": "meta[name=\"description\"]",
+          "upgradeDatePrecision": true,
+          "publishedAtSelector": ".field--name-field-release-date .field__item",
+          "publishedAtAuthoritative": true,
+          "publishedAtUtcOffset": "+00:00"
+        },
+        "publishedAtRegex": "((?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+\\d{1,2},?\\s+20\\d{2}|20\\d{2}-\\d{2}-\\d{2})",
+        "publishedAtUtcOffset": "+00:00"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "org:ofac",
+      "participation_mode": "editorial",
+      "interval_minutes": 120,
+      "tags": [
+        "监管与政策"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "enabled": true
+    }
+  ],
+  "excluded": {
+    "akash": "RSS文章链接全部指向 undefined",
+    "kol-andre-cronje": "个人站履历与工程目录变更，非持续文章流",
+    "solana-status": "无近12个月事件，保留状态查询入口",
+    "kol-nic-carter": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-andreas": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-chris-dixon": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-dovey-wan": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-mindao": "可解析，但最近样本已超过首次回填12个月窗口",
+    "kol-mudit-gupta": "可解析，但最近样本已超过首次回填12个月窗口"
+  }
+}

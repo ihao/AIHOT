@@ -1,0 +1,222 @@
+{
+  "checkedAt": "2026-10-14T15:52:56.005274+00:00",
+  "applicationCommit": "47994a7050846372909ac23b1e40623266db7802",
+  "productionDeployed": true,
+  "containers": [
+    {
+      "name": "ninebtc-api-1",
+      "imageTag": "ninebtc-quality:47994a7",
+      "imageId": "sha256:81856af48ea61de95670c0d60c1a3f39dc0fb26714e9c71f1f58d0c204395b0c",
+      "status": "running",
+      "restartCount": 0
+    },
+    {
+      "name": "ninebtc-web-1",
+      "imageTag": "ninebtc-quality:47994a7",
+      "imageId": "sha256:81856af48ea61de95670c0d60c1a3f39dc0fb26714e9c71f1f58d0c204395b0c",
+      "status": "running",
+      "restartCount": 0
+    },
+    {
+      "name": "ninebtc-worker-1",
+      "imageTag": "ninebtc-quality:47994a7",
+      "imageId": "sha256:81856af48ea61de95670c0d60c1a3f39dc0fb26714e9c71f1f58d0c204395b0c",
+      "status": "running",
+      "restartCount": 0
+    }
+  ],
+  "workerFlags": {
+    "collect": "true",
+    "models": "true",
+    "maxAgeHours": "48"
+  },
+  "sourceHashes": {
+    "ninebtc-api-1": {
+      "packages/backend/src/publication/rules.ts": "182cf157b7406e14a472137d1a9007cc34b00121ada813f20bb14f77fba17616",
+      "packages/backend/src/publication/publish.ts": "eee1e9081187ace16ae0ac7cea9478079c461613318c02acc47d0a1adc64940c",
+      "packages/backend/src/editorial/analyze.ts": "99adaace22329529468e9155c1cae56014c188d354e649f269ce6aa9ac5fb097",
+      "industry/selection.ts": "7e54c112cb64f1b9e7f9d9ca865ac35aaef9b3b721e28b85a372b324b5f354cb"
+    },
+    "ninebtc-worker-1": {
+      "packages/backend/src/publication/rules.ts": "182cf157b7406e14a472137d1a9007cc34b00121ada813f20bb14f77fba17616",
+      "packages/backend/src/publication/publish.ts": "eee1e9081187ace16ae0ac7cea9478079c461613318c02acc47d0a1adc64940c",
+      "packages/backend/src/editorial/analyze.ts": "99adaace22329529468e9155c1cae56014c188d354e649f269ce6aa9ac5fb097",
+      "industry/selection.ts": "7e54c112cb64f1b9e7f9d9ca865ac35aaef9b3b721e28b85a372b324b5f354cb"
+    }
+  },
+  "repair": {
+    "withdrawnPublicVersions": 244,
+    "listedRemoved": 21,
+    "listedBefore": 2960,
+    "listedAfter": 2939,
+    "selectedBefore": 288,
+    "selectedAfter": 288,
+    "selectedRowsUnchanged": true,
+    "representativesBefore": 275,
+    "representativesAfter": 275,
+    "representativesUnchanged": true,
+    "protectedTables": {
+      "articles": {
+        "count": 4321,
+        "hash": "1dd790390d9b1e4c02a824bf84a0c7c1"
+      },
+      "analyses": {
+        "count": 4709,
+        "hash": "c45204f369b0314ccaec042a8651bb82"
+      },
+      "receipts": {
+        "count": 27723,
+        "hash": "a73c2bd23b15d76832b5ed691a5ab75a"
+      },
+      "receipt_attempts": {
+        "count": 28299,
+        "hash": "8aaba37c9b2b72f220414baf6f57459d"
+      },
+      "sources": {
+        "count": 109,
+        "hash": "26ec511cbf97cd81f398ea8979fc3464"
+      },
+      "editorial_overrides": {
+        "count": 370,
+        "hash": "aef5d781a135c8156b2106e94ee4e575"
+      },
+      "budgets": {
+        "count": 9,
+        "hash": "2da557f7122b7638e8d1e45b9cdb59eb"
+      },
+      "model_cost_policy": {
+        "count": 1,
+        "hash": "de1550c275f84a02b8f1eaa99666dd1a"
+      },
+      "settings": {
+        "count": 205,
+        "hash": "f0084206947122eb792f613ebd4ffa55"
+      },
+      "reports": {
+        "count": 14,
+        "hash": "7c2ae03de5ac419749d4960f772bc377"
+      }
+    },
+    "protectedTablesUnchanged": true,
+    "reasonCounts": {
+      "unconfirmed_relevance": 230,
+      "below_public_floor": 14
+    },
+    "referencedReports": [],
+    "secondRunTargets": 0
+  },
+  "validation": {
+    "httpChecks": 1689,
+    "httpAllPassed": true,
+    "hiddenDirectChecks": 1464,
+    "mcpChecks": 24,
+    "mcpAllPassed": true,
+    "affectedStories": 6,
+    "storyChecks": 24,
+    "storyAllPassed": true,
+    "snapshotCount": 275,
+    "snapshotMatchesBefore": true,
+    "privateSmokePassed": true,
+    "productionLocalSmokePassed": true,
+    "independentNetwork": {
+      "checkedAt": "2026-10-14T15:49:27.861838+00:00",
+      "location": "local independent network",
+      "allPassed": true,
+      "checks": [
+        {
+          "path": "/api/health",
+          "status": 200
+        },
+        {
+          "path": "/all?q=1990",
+          "status": 200
+        },
+        {
+          "path": "/api/site/pool?q=1990",
+          "status": 200
+        },
+        {
+          "path": "/items/td17rk62ei14bf272ww2j10ub",
+          "status": 404
+        },
+        {
+          "path": "/feed/all.xml",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/selected/snapshot?limit=1000",
+          "status": 200,
+          "selectedCount": 275
+        }
+      ]
+    },
+    "tests": {
+      "backend": 859,
+      "standalone": 186,
+      "web": 66,
+      "typecheck": "passed",
+      "webBuild": "passed",
+      "externalNetworkDenied": true
+    }
+  },
+  "backup": {
+    "directory": "/srv/9btc-release-backups/quality-20261014/",
+    "filesSha256": "f2dc4289d611788bad087576ba6b6629bf8c8961f1ef2155873d5095f34504b5  /srv/9btc-release-backups/quality-20261014/production-before.dump\n190f820a1d79b4027111ff0d5dd2ff1e8a6abd383942f40e06ee5a5b1d830252  /srv/9btc-release-backups/quality-20261014/production-data-before.tar.gz\n",
+    "independentRehearsalRestored": true,
+    "finalBackupRestored": true
+  },
+  "opsCommit": "47994a7050846372909ac23b1e40623266db7802",
+  "postResume": {
+    "quality": {
+      "listed": 2940,
+      "below10": 0,
+      "selected": 288,
+      "unscored": 0,
+      "checkedAt": "2026-10-14T15:54:50.62626+00:00",
+      "unknownPrefilter": 0,
+      "minimumListedScore": 10.0
+    },
+    "recentJobs": [
+      {
+        "job": "content.sweep",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "content.translate",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "feedback.forward",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "hot.rank",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "market.btc-usd",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "ops.alerts",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "ops.recover",
+        "count": 1,
+        "status": "ok"
+      },
+      {
+        "job": "sources.schedule",
+        "count": 6,
+        "status": "ok"
+      }
+    ]
+  }
+}

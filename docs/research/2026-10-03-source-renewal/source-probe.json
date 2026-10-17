@@ -1,0 +1,1143 @@
+{
+  "at": "2026-10-02T18:20:28.373Z",
+  "editorialMode": "automatic",
+  "results": [
+    {
+      "id": "kol-samczsun",
+      "name": "samczsun",
+      "kind": "web_list",
+      "endpoint": "https://samczsun.com/",
+      "ms": 276,
+      "count": 11,
+      "dated": 1,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2020-09-15T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "★Escaping the Dark Forest",
+          "url": "https://samczsun.com/escaping-the-dark-forest",
+          "publishedAt": "2020-09-15T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "★Higher Bug Bounties Won’t Stop Hacks",
+          "url": "https://samczsun.com/higher-bug-bounties-wont-stop-hacks",
+          "publishedAt": null,
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "★Demystifying the North Korean Threat",
+          "url": "https://samczsun.com/demystifying-the-north-korean-threat",
+          "publishedAt": null,
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "immunefi",
+      "name": "Immunefi",
+      "kind": "rss",
+      "endpoint": "https://immunefi.com/blog/rss/",
+      "ms": 541,
+      "count": 15,
+      "dated": 15,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-05-21T12:55:35.000Z",
+      "samples": [
+        {
+          "title": "How to Run a War Room: A Playbook for Crypto Protocols",
+          "url": "https://immunefi.com/blog/security-guides/how-to-run-a-war-room-a-playbook-for-crypto-protocols/",
+          "publishedAt": "2026-05-21T12:55:35.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 13570,
+          "excerptChars": 153,
+          "categories": [
+            "Security Guides"
+          ]
+        },
+        {
+          "title": "The Ecosystem Vulnerability Scoreboard: 6 Years of DeFi Loss Data",
+          "url": "https://immunefi.com/blog/research/the-ecosystem-vulnerability-scoreboard-6-years-of-defi-loss-data/",
+          "publishedAt": "2026-04-27T13:36:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 18776,
+          "excerptChars": 159,
+          "categories": [
+            "Research"
+          ]
+        },
+        {
+          "title": "Base <> Immunefi Audit Competition",
+          "url": "https://immunefi.com/blog/all/base-immunefi-audit-competition/",
+          "publishedAt": "2026-04-23T11:34:52.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2028,
+          "excerptChars": 282,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "lightning-labs",
+      "name": "Lightning Labs Blog",
+      "kind": "web_list",
+      "endpoint": "https://lightning.engineering/blog/",
+      "ms": 721,
+      "count": 10,
+      "dated": 8,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-12T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Entering the Age of Agentic Lightning Nodes with Terminal ⚡🤖",
+          "url": "https://lightning.engineering/posts/2026-08-12-agentic-lightning-node/",
+          "publishedAt": "2026-08-12T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Announcing Wavelength: Bitcoin on Easy Mode for Agents and Humans 〰️⚡",
+          "url": "https://lightning.engineering/posts/2026-07-21-wavelength-launch/",
+          "publishedAt": "2026-07-21T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Announcing Taproot Assets v0.8 and SDK: Building Stablecoins at Lightning Speed 🛠️💱⚡",
+          "url": "https://lightning.engineering/posts/2026-06-23-tapd-0.8-launch/",
+          "publishedAt": "2026-06-23T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "bitcoin-core-releases",
+      "name": "Bitcoin Core 版本说明",
+      "kind": "rss",
+      "endpoint": "https://bitcoincore.org/en/releasesrss.xml",
+      "ms": 5195,
+      "count": 66,
+      "dated": 66,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-07-13T04:00:00.000Z",
+      "samples": [
+        {
+          "title": "Bitcoin Core 29.4",
+          "url": "https://bitcoincore.org/en/releases/29.4/",
+          "publishedAt": "2026-07-13T04:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2736,
+          "excerptChars": 2000,
+          "categories": []
+        },
+        {
+          "title": "Bitcoin Core 31.1",
+          "url": "https://bitcoincore.org/en/releases/31.1/",
+          "publishedAt": "2026-07-08T04:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 3832,
+          "excerptChars": 2000,
+          "categories": []
+        },
+        {
+          "title": "Bitcoin Core 30.3",
+          "url": "https://bitcoincore.org/en/releases/30.3/",
+          "publishedAt": "2026-07-08T04:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 4920,
+          "excerptChars": 2000,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "ipfs",
+      "name": "IPFS Blog & News",
+      "kind": "rss",
+      "endpoint": "https://blog.ipfs.tech/index.xml",
+      "ms": 85,
+      "count": 27,
+      "dated": 27,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-25T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "IPFS is moving beyond the sponsored gateways",
+          "url": "https://blog.ipfs.tech/2026-08-beyond-sponsored-gateways/",
+          "publishedAt": "2026-08-25T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 110,
+          "categories": []
+        },
+        {
+          "title": "Just released: Kubo 0.43.0!",
+          "url": "https://github.com/ipfs/kubo/releases/tag/v0.43.0",
+          "publishedAt": "2026-08-03T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 27,
+          "categories": [
+            "Release Notes"
+          ]
+        },
+        {
+          "title": "Just released: Kubo 0.42.0!",
+          "url": "https://github.com/ipfs/kubo/releases/tag/v0.42.0",
+          "publishedAt": "2026-06-08T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 27,
+          "categories": [
+            "Release Notes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "electric-coin",
+      "name": "Electric Coin Company / Zcash",
+      "kind": "rss",
+      "endpoint": "https://electriccoin.co/feed/",
+      "ms": 109,
+      "count": 12,
+      "dated": 12,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2025-12-04T18:08:28.000Z",
+      "samples": [
+        {
+          "title": "Zashi 2.4.9 Is Faster!",
+          "url": "blog/zashi-2-4-9-is-faster/",
+          "publishedAt": "2025-12-04T18:08:28.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 184,
+          "categories": [
+            "General",
+            "Zashi"
+          ]
+        },
+        {
+          "title": "Reorganizing Around Zcash User",
+          "url": "blog/reorganizing-around-zcash-user/",
+          "publishedAt": "2025-12-01T17:46:46.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 206,
+          "categories": [
+            "General"
+          ]
+        },
+        {
+          "title": "Gemini Sets the Standard for Privacy on CEXs With Shielded ZEC Withdrawals",
+          "url": "blog/gemini-sets-the-standard-for-privacy-on-cexs-with-shielded-zec-withdrawals/",
+          "publishedAt": "2025-11-10T20:28:13.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 203,
+          "categories": [
+            "General",
+            "ecosystem"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "monero",
+      "name": "Monero Project",
+      "kind": "rss",
+      "endpoint": "https://www.getmonero.org/feed.xml",
+      "ms": 350,
+      "count": 20,
+      "dated": 20,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-07-21T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Monero GUI 0.18.5.2 'Fluorine Fermi' released",
+          "url": "https://www.getmonero.org/2026/07/21/monero-GUI-0.18.5.2-released.html",
+          "publishedAt": "2026-07-21T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2377,
+          "excerptChars": 0,
+          "categories": [
+            "releases"
+          ]
+        },
+        {
+          "title": "Monero 0.18.5.1 'Fluorine Fermi' released",
+          "url": "https://www.getmonero.org/2026/07/08/monero-0.18.5.1-released.html",
+          "publishedAt": "2026-07-08T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 4356,
+          "excerptChars": 0,
+          "categories": [
+            "releases"
+          ]
+        },
+        {
+          "title": "Monero GUI 0.18.5.1 'Fluorine Fermi' released",
+          "url": "https://www.getmonero.org/2026/07/08/monero-GUI-0.18.5.1-released.html",
+          "publishedAt": "2026-07-08T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2784,
+          "excerptChars": 0,
+          "categories": [
+            "releases"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flashbots-writings",
+      "name": "Flashbots Writings",
+      "kind": "rss",
+      "endpoint": "https://writings.flashbots.net/rss.xml",
+      "ms": 366,
+      "count": 68,
+      "dated": 68,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-09T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Why Location Choice Matters",
+          "url": "https://writings.flashbots.net/why-location-choice-matters",
+          "publishedAt": "2026-08-09T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 131,
+          "categories": []
+        },
+        {
+          "title": "Mind the Gap - Where TEE Attestations Fall Short and Why Do TEEs Need Proof of Cloud",
+          "url": "https://writings.flashbots.net/mind-the-gap-tee-poc",
+          "publishedAt": "2026-04-12T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 112,
+          "categories": []
+        },
+        {
+          "title": "Network Anonymized Mempools",
+          "url": "https://writings.flashbots.net/network-anonymized-mempools",
+          "publishedAt": "2026-02-17T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 103,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "ottersec",
+      "name": "OtterSec",
+      "kind": "rss",
+      "endpoint": "https://osec.io/rss.xml",
+      "ms": 136,
+      "count": 36,
+      "dated": 36,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-07-14T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Introducing rCTF v2",
+          "url": "https://osec.io/blog/rctf-v2/",
+          "publishedAt": "2026-07-14T00:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 105,
+          "categories": []
+        },
+        {
+          "title": "Announcing the Save CTFs Fund",
+          "url": "https://osec.io/blog/save-ctfs-fund/",
+          "publishedAt": "2026-07-07T12:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 198,
+          "categories": []
+        },
+        {
+          "title": "Auto reverse-engineering the Hyperliquid risk engine, with some agentic help",
+          "url": "https://osec.io/blog/hyperliquid-risk-engine/",
+          "publishedAt": "2026-06-22T12:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 264,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "kol-peter-todd",
+      "name": "Peter Todd",
+      "kind": "rss",
+      "endpoint": "https://petertodd.org/feed.xml",
+      "ms": 182,
+      "count": 10,
+      "dated": 10,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-07T04:00:00.000Z",
+      "samples": [
+        {
+          "title": "BIP-110 Code Review",
+          "url": "https://petertodd.org/2026/bip-110-code-review",
+          "publishedAt": "2026-08-07T04:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 2000,
+          "categories": [
+            "bitcoin",
+            "bip110",
+            "knots",
+            "ocean"
+          ]
+        },
+        {
+          "title": "OpenTimestamps and Knots/OCEAN",
+          "url": "https://petertodd.org/2025/opentimestamps-and-knots-ocean",
+          "publishedAt": "2025-08-21T04:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 2000,
+          "categories": [
+            "bitcoin",
+            "opentimestamps",
+            "knots",
+            "ocean"
+          ]
+        },
+        {
+          "title": "How Good Are The Widely Used Coinjoin Implementations?",
+          "url": "https://petertodd.org/2025/coinjoin-comparison",
+          "publishedAt": "2025-07-31T04:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 2000,
+          "categories": [
+            "bitcoin",
+            "coinjoin",
+            "privacy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kol-bluematt",
+      "name": "Matt Corallo / BlueMatt",
+      "kind": "rss",
+      "endpoint": "https://bluematt.bitcoin.ninja/atom.xml",
+      "ms": 398,
+      "count": 17,
+      "dated": 17,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-03-09T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Bitcoin Has a Golden Opportunity With AI Agents, It’s Time to Build",
+          "url": "http://bluematt.bitcoin.ninja/2026/03/09/agentic-payments-opportunity/",
+          "publishedAt": "2026-03-09T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 5723,
+          "excerptChars": 0,
+          "categories": []
+        },
+        {
+          "title": "Open-Source Agents Need to Get Serious About Payments",
+          "url": "http://bluematt.bitcoin.ninja/2026/02/25/open-source-ai-needs-to-get-serious/",
+          "publishedAt": "2026-02-25T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 9243,
+          "excerptChars": 0,
+          "categories": []
+        },
+        {
+          "title": "Self-Custody Found Dead in Miami Condo",
+          "url": "http://bluematt.bitcoin.ninja/2025/10/02/self-custody-found-dead-in-miami-condo/",
+          "publishedAt": "2025-10-02T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 7373,
+          "excerptChars": 0,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "render-blog",
+      "name": "Render Network 官方 Medium",
+      "kind": "rss",
+      "endpoint": "https://medium.com/feed/render-token",
+      "ms": 544,
+      "count": 10,
+      "dated": 10,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-07-17T20:16:31.000Z",
+      "samples": [
+        {
+          "title": "How to Get Started with Render Network in 5 Minutes",
+          "url": "https://medium.com/render-token/how-to-get-started-with-render-network-in-5-minutes-99c60c1e9b75?source=rss----484ab7be28a5---4",
+          "publishedAt": "2026-07-17T20:16:31.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 5213,
+          "excerptChars": 0,
+          "categories": []
+        },
+        {
+          "title": "Why Studios Should Integrate Render Network API Access Into Their Pipeline",
+          "url": "https://medium.com/render-token/why-studios-should-integrate-render-network-api-access-into-their-pipeline-b9cbf56cc5fe?source=rss----484ab7be28a5---4",
+          "publishedAt": "2026-07-07T17:33:08.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 5032,
+          "excerptChars": 0,
+          "categories": []
+        },
+        {
+          "title": "Render Network x Salad Technologies: Road to Integration (Part 1)",
+          "url": "https://medium.com/render-token/render-network-x-salad-technologies-road-to-integration-part-1-ef7c35da9b71?source=rss----484ab7be28a5---4",
+          "publishedAt": "2026-06-11T22:40:48.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 29864,
+          "excerptChars": 0,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "kol-dankrad",
+      "name": "Dankrad Feist",
+      "kind": "rss",
+      "endpoint": "https://dankradfeist.de/feed.xml",
+      "ms": 161,
+      "count": 10,
+      "dated": 10,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-05-31T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Passkeys: A hardware wallet integrated into your phone?",
+          "url": "https://dankradfeist.de/blockchain/2026/05/31/passkeys-hardware-wallets.html",
+          "publishedAt": "2026-05-31T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 5129,
+          "excerptChars": 472,
+          "categories": [
+            "blockchain",
+            "security",
+            "english"
+          ]
+        },
+        {
+          "title": "Minimmit: Simple and fast consensus",
+          "url": "https://dankradfeist.de/tempo/2025/12/31/minimmit-simple-fast-consensus.html",
+          "publishedAt": "2025-12-31T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 15784,
+          "excerptChars": 602,
+          "categories": [
+            "tempo",
+            "consensus",
+            "english"
+          ]
+        },
+        {
+          "title": "L1 Tokens",
+          "url": "https://dankradfeist.de/ethereum/2025/12/07/l1-tokens.html",
+          "publishedAt": "2025-12-07T00:00:00.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 4125,
+          "excerptChars": 9,
+          "categories": [
+            "ethereum",
+            "economics",
+            "english"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "filecoin-blog",
+      "name": "Filecoin Blog",
+      "kind": "rss",
+      "endpoint": "https://www.filecoin.io/blog/zh-cn/rss.xml",
+      "ms": 186,
+      "count": 258,
+      "dated": 258,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-01-16T10:39:48.000Z",
+      "samples": [
+        {
+          "title": "CloudPaws：Filecoin Onchain Cloud 早期参与者的生态身份计划",
+          "url": "https://filecoin.io/zh-cn/blog/cloudpaws-filecoin-onchain-cloud",
+          "publishedAt": "2026-01-16T10:39:48.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 97,
+          "categories": []
+        },
+        {
+          "title": "Filecoin推出FIL-RetroPGF-1资助项目，用于资助Filecoin公共事业！",
+          "url": "https://filecoin.io/zh-cn/blog/unveiling-fil-retropgf-1-retroactively-funding-filecoin-public-goods",
+          "publishedAt": "2024-05-15T08:29:24.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 68,
+          "categories": []
+        },
+        {
+          "title": "Curio简介：Filecoin存储提供者的Lotus-Miner替代方案",
+          "url": "https://filecoin.io/zh-cn/blog/introducing-curio-a-lotus-miner-replacement-for-filecoin-storage-providers",
+          "publishedAt": "2024-05-06T22:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 54,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "icp-blog",
+      "name": "DFINITY / Internet Computer Review",
+      "kind": "rss",
+      "endpoint": "https://medium.com/feed/dfinity",
+      "ms": 272,
+      "count": 10,
+      "dated": 10,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2025-11-03T15:07:52.000Z",
+      "samples": [
+        {
+          "title": "Internet Computer 2.0, DFNITY 2.0 and Caffeine/self-writing",
+          "url": "https://medium.com/dfinity/internet-computer-2-0-dfnity-2-0-and-caffeine-self-writing-7a793e1b1831?source=rss----86e3893ff8b1---4",
+          "publishedAt": "2025-11-03T15:07:52.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 23081,
+          "excerptChars": 0,
+          "categories": [
+            "cloud",
+            "blockchain",
+            "ai",
+            "self-writing-apps",
+            "icp"
+          ]
+        },
+        {
+          "title": "Why ICP Is Essential",
+          "url": "https://medium.com/dfinity/why-icp-is-essential-5e9ffe870da1?source=rss----86e3893ff8b1---4",
+          "publishedAt": "2025-08-22T12:54:50.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 4241,
+          "excerptChars": 0,
+          "categories": [
+            "bitcoin",
+            "cybersecurity",
+            "cloud-computing",
+            "tech-stack",
+            "icp"
+          ]
+        },
+        {
+          "title": "Bringing LLMs to the Internet Computer",
+          "url": "https://medium.com/dfinity/bringing-llms-to-the-internet-computer-1f6df29da2c5?source=rss----86e3893ff8b1---4",
+          "publishedAt": "2025-08-20T09:01:59.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 3913,
+          "excerptChars": 0,
+          "categories": [
+            "ai",
+            "artificial-intelligence",
+            "large-language-models",
+            "ai-worker",
+            "icp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "starknet-blog",
+      "name": "Starknet Blog",
+      "kind": "web_list",
+      "endpoint": "https://www.starknet.io/blog/",
+      "ms": 327,
+      "count": 21,
+      "dated": 21,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-07T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "Starknet’s Upgrade to Quantum ResistanceSee how STARK proofs and smart accounts give Starknet a practical path to quantum resistance—without a network-wide fork.August 7, 2026",
+          "url": "https://www.starknet.io/blog/quantum-resistance/",
+          "publishedAt": "2026-08-07T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Creating a Starknet Template for Docker SandboxCreate a reusable Docker sandbox with Cairo and Starknet tools preinstalled for safer, faster coding-agent workflows.July 23, 2026",
+          "url": "https://www.starknet.io/blog/build-starknet-docker-sandbox-coding-agents/",
+          "publishedAt": "2026-07-23T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Multi Agent Setup with Docker SandboxRun isolated AI coding agents in parallel using Docker Sandbox, OpenCode, Venice and Git-based clone workflows.July 16, 2026",
+          "url": "https://www.starknet.io/blog/multi-agent-docker-sandbox-opencode-venice/",
+          "publishedAt": "2026-07-16T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "paxos-blog",
+      "name": "Paxos Blog",
+      "kind": "web_list",
+      "endpoint": "https://www.paxos.com/blog",
+      "ms": 236,
+      "count": 3,
+      "dated": 3,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-06-01T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "State vs. Federal Regulation of Digital Asset Companies",
+          "url": "https://www.paxos.com/blog/state-vs-federal-regulation",
+          "publishedAt": "2026-06-01T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "What Does \"Fully Backed\" Actually Mean for a Stablecoin?",
+          "url": "https://www.paxos.com/blog/fully-backed-stablecoin",
+          "publishedAt": "2026-04-22T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Best Execution in Crypto: It's Time to Raise the Bar",
+          "url": "https://www.paxos.com/blog/best-execution-in-crypto-it-s-time-to-raise-the-bar",
+          "publishedAt": "2026-04-15T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "circle-blog",
+      "name": "Circle Blog",
+      "kind": "web_list",
+      "endpoint": "https://www.circle.com/blog",
+      "ms": 285,
+      "count": 3,
+      "dated": 0,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": null,
+      "samples": [
+        {
+          "title": "Simplify Stablecoin Adoption With CPN Managed Payments",
+          "url": "https://www.circle.com/blog/simplify-stablecoin-adoption-with-cpn-managed-payments",
+          "publishedAt": null,
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Building the Internet Financial System: Circle’s Product Vision for 2026",
+          "url": "https://www.circle.com/blog/building-the-internet-financial-system-circles-product-vision-for-2026",
+          "publishedAt": null,
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "Introducing Arc: An Open Layer-1 Blockchain Purpose-Built for Stablecoin Finance",
+          "url": "https://www.circle.com/blog/introducing-arc-an-open-layer-1-blockchain-purpose-built-for-stablecoin-finance",
+          "publishedAt": null,
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "wormhole-blog",
+      "name": "Wormhole Blog",
+      "kind": "web_list",
+      "endpoint": "https://wormhole.com/blog",
+      "ms": 451,
+      "count": 12,
+      "dated": 12,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-08-07T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "August 7, 20268 min readUpdates to Wormhole's supported networksNetwork support changes affecting multiple Wormhole-supported networks starting summer 2025. Several chains face full deprecation, while select Cosmos chains will transition to community-supported frontends and relaying services.Read more",
+          "url": "https://wormhole.com/blog/updates-to-wormholes-supported-networks",
+          "publishedAt": "2026-08-07T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "June 10, 20264 min readSunsetting Portal Legacy: What You Need to KnowRead more",
+          "url": "https://wormhole.com/blog/sunsetting-portal-legacy-what-you-need-to-know",
+          "publishedAt": "2026-06-10T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "June 4, 20265 min readRLUSD Is Now Multichain — Connected by WormholeRipple's RLUSD is now accessible across multiple blockchain ecosystems, powered by Wormhole's Native Token Transfers (NTT) standard. This marks a significant step forward for institutional-grade stablecoins — and for the multichain future of digital finance.Read more",
+          "url": "https://wormhole.com/blog/rlusd-is-now-multichain-connected-by-wormhole",
+          "publishedAt": "2026-06-04T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "kind": "web_list",
+      "endpoint": "https://phantom.com/learn/blog",
+      "ms": 515,
+      "count": 66,
+      "dated": 51,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-07-17T00:00:00.000Z",
+      "samples": [
+        {
+          "title": "One Year of the GENIUS Act: What the World Actually Did With Digital DollarsJul 17, 2026BeginnerCash",
+          "url": "https://phantom.com/learn/blog/one-year-of-the-genius-act",
+          "publishedAt": "2026-07-17T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "The Ventuals team is joining PhantomJun 30, 2026BeginnerApps",
+          "url": "https://phantom.com/learn/blog/the-ventuals-team-is-joining-phantom",
+          "publishedAt": "2026-06-30T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        },
+        {
+          "title": "More Perps updates have arrivedMay 28, 2026Intermediate",
+          "url": "https://phantom.com/learn/blog/more-perps-updates-have-arrived",
+          "publishedAt": "2026-05-28T00:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 0
+        }
+      ]
+    },
+    {
+      "id": "cointelegraph-news",
+      "name": "cointelegraph-news",
+      "kind": "rss",
+      "endpoint": "https://cointelegraph.com/rss",
+      "ms": 161,
+      "count": 30,
+      "dated": 30,
+      "fresh48h": 30,
+      "within30d": 30,
+      "newest": "2026-10-02T16:20:24.000Z",
+      "samples": [
+        {
+          "title": "71% of UK finance leaders expect tokenization to reshape financial services: Lloyds",
+          "url": "https://cointelegraph.com/news/71-percent-uk-finance-leaders-expect-tokenization-reshape-financial-services-lloyds?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "publishedAt": "2026-10-02T16:20:24.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 173,
+          "categories": [
+            "Latest News"
+          ]
+        },
+        {
+          "title": "Crypto’s billions are back, but the premiums aren’t",
+          "url": "https://cointelegraph.com/news/crypto-biz-kalshi-blockchain-com-crypto-treasury-valuations?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "publishedAt": "2026-10-02T15:32:53.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 152,
+          "categories": [
+            "Latest News"
+          ]
+        },
+        {
+          "title": "Bitcoin briefly hits $87K as weak US jobs data sends bond yields lower",
+          "url": "https://cointelegraph.com/markets/bitcoin-briefly-taps-87k-as-bond-yields-drop-on-low-us-nonfarm-payrolls-data?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+          "publishedAt": "2026-10-02T15:27:31.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 147,
+          "categories": [
+            "Markets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decrypt-news",
+      "name": "decrypt-news",
+      "kind": "rss",
+      "endpoint": "https://decrypt.co/feed",
+      "ms": 170,
+      "count": 39,
+      "dated": 39,
+      "fresh48h": 29,
+      "within30d": 39,
+      "newest": "2026-10-02T17:47:06.000Z",
+      "samples": [
+        {
+          "title": "Once a $2.3 Billion Network, Ethereum Layer-2 Blast Is Shutting Down",
+          "url": "https://decrypt.co/379972/ethereum-layer-2-blast-shutting-down",
+          "publishedAt": "2026-10-02T17:47:06.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 148,
+          "categories": [
+            "Business"
+          ]
+        },
+        {
+          "title": "Nvidia Hits Record High as Market Value Reaches $5.7 Trillion",
+          "url": "https://decrypt.co/379959/nvidia-hits-record-high-market-value-5-7-trillion",
+          "publishedAt": "2026-10-02T17:30:40.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 154,
+          "categories": [
+            "Markets"
+          ]
+        },
+        {
+          "title": "Bitcoin Heads Higher on Macro Moves: Where Does BTC Go Next?",
+          "url": "https://decrypt.co/379936/bitcoin-heads-higher-fed-jobs-where-does-btc-go-next",
+          "publishedAt": "2026-10-02T16:45:52.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 123,
+          "categories": [
+            "Markets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coindesk-news",
+      "name": "coindesk-news",
+      "kind": "rss",
+      "endpoint": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+      "ms": 233,
+      "count": 25,
+      "dated": 25,
+      "fresh48h": 24,
+      "within30d": 25,
+      "newest": "2026-10-02T17:34:40.000Z",
+      "samples": [
+        {
+          "title": "BNY in talks with Kraken parent Payward over infrastructure partnership",
+          "url": "https://www.coindesk.com/business/2026/09/30/bny-in-talks-with-kraken-parent-payward-over-infrastructure-partnership",
+          "publishedAt": "2026-10-02T17:34:40.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 120,
+          "categories": [
+            "Finance",
+            "Payward",
+            "Exclusive",
+            "News"
+          ]
+        },
+        {
+          "title": "Once a $2 billion Ethereum layer-2, Blast is shutting down after assets plunge 98%",
+          "url": "https://www.coindesk.com/tech/2026/10/02/once-a-usd2-billion-ethereum-layer-2-blast-is-shutting-down-after-assets-plunge-98",
+          "publishedAt": "2026-10-02T17:15:35.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 183,
+          "categories": [
+            "Tech",
+            "Ethereum News",
+            "News"
+          ]
+        },
+        {
+          "title": "Trump’s potential AI czar, Jay Clayton, helped pioneer the SEC’s crypto crackdown",
+          "url": "https://www.coindesk.com/news-analysis/2026/10/02/possible-next-crypto-czar-jay-clayton-began-crypto-s-regulation-by-enforcement-at-sec",
+          "publishedAt": "2026-10-02T17:12:48.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 156,
+          "categories": [
+            "News Analysis",
+            "Artificial Intelligence",
+            "Regulation",
+            "News"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the-defiant-news",
+      "name": "the-defiant-news",
+      "kind": "rss",
+      "endpoint": "https://thedefiant.io/feed",
+      "ms": 326,
+      "count": 100,
+      "dated": 100,
+      "fresh48h": 36,
+      "within30d": 100,
+      "newest": "2026-10-02T17:17:20.000Z",
+      "samples": [
+        {
+          "title": "IMF Approves $138 Million for El Salvador After Bitcoin Waiver",
+          "url": "https://thedefiant.io/news/regulation/imf-approves-138-million-for-el-salvador-after-bitcoin-waiver",
+          "publishedAt": "2026-10-02T17:17:20.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 144,
+          "categories": []
+        },
+        {
+          "title": "Illinois Agrees to Six-Month Crypto Tax Delay, Subject to Court Approval",
+          "url": "https://thedefiant.io/converge/regulation/illinois-agrees-to-six-month-crypto-tax-delay-subject-to-court-approval",
+          "publishedAt": "2026-10-02T16:57:35.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 142,
+          "categories": []
+        },
+        {
+          "title": "Ripple and CSD BR Partner to Mirror Brazil's BTG Fund Records on XRP Ledger",
+          "url": "https://thedefiant.io/converge/tradfi-and-fintech/ripple-and-csd-br-partner-to-mirror-btg-fund-records-on-xrp-ledger",
+          "publishedAt": "2026-10-02T16:42:06.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 133,
+          "categories": []
+        }
+      ]
+    },
+    {
+      "id": "bitcoin-magazine-news",
+      "name": "bitcoin-magazine-news",
+      "kind": "rss",
+      "endpoint": "https://bitcoinmagazine.com/feed",
+      "ms": 300,
+      "count": 10,
+      "dated": 10,
+      "fresh48h": 10,
+      "within30d": 10,
+      "newest": "2026-10-02T18:12:28.000Z",
+      "samples": [
+        {
+          "title": "South Africa’s Absa Becomes First Bank on the Continent to Custody Bitcoin: Report",
+          "url": "https://bitcoinmagazine.com/news/absa-first-african-bank-to-custody-bitcoin",
+          "publishedAt": "2026-10-02T18:12:28.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2128,
+          "excerptChars": 654,
+          "categories": [
+            "NEWS",
+            "Absa",
+            "Bitcoin",
+            "South africa"
+          ]
+        },
+        {
+          "title": "Bitcoin Price Surges Above $87,000 on Softer-Than-Expected Jobs Data",
+          "url": "https://bitcoinmagazine.com/markets/bitcoin-price-surges-on-soft-jobs-data",
+          "publishedAt": "2026-10-02T15:09:38.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 2292,
+          "excerptChars": 563,
+          "categories": [
+            "MARKETS",
+            "Bitcoin",
+            "bitcoin price",
+            "Federal reserve"
+          ]
+        },
+        {
+          "title": "Impacts of Daily Dividends on Digital Credit",
+          "url": "https://bitcoinmagazine.com/bitcoin-for-corporations/impacts-of-daily-dividends-on-digital-credit",
+          "publishedAt": "2026-10-02T13:20:41.000Z",
+          "bodyStatus": "ok",
+          "bodyChars": 5425,
+          "excerptChars": 265,
+          "categories": [
+            "BITCOIN FOR CORPORATIONS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "blockworks-news",
+      "name": "blockworks-news",
+      "kind": "rss",
+      "endpoint": "https://blockworks.co/feed",
+      "ms": 784,
+      "count": 50,
+      "dated": 50,
+      "fresh48h": 0,
+      "within30d": 0,
+      "newest": "2026-01-07T14:00:00.000Z",
+      "samples": [
+        {
+          "title": "Venezuela’s sanctions are stablecoins’ proof of concept",
+          "url": "https://blockworks.com/news/venezuelas-sanctions-stablecoins",
+          "publishedAt": "2026-01-07T14:00:00.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 71,
+          "categories": [
+            "Policy",
+            "The Breakdown"
+          ]
+        },
+        {
+          "title": "The Strategy playbook looks different in 2026",
+          "url": "https://blockworks.com/news/strategy-playbook-2026",
+          "publishedAt": "2026-01-06T17:36:33.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 115,
+          "categories": [
+            "0xResearch Newsletter",
+            "Business"
+          ]
+        },
+        {
+          "title": "Ranger’s ICO starts today, and MetaDAO eyes a reset",
+          "url": "https://blockworks.com/news/rangers-ico-metadao",
+          "publishedAt": "2026-01-06T15:07:05.000Z",
+          "bodyStatus": "pending",
+          "bodyChars": 0,
+          "excerptChars": 70,
+          "categories": [
+            "0xResearch Newsletter",
+            "DeFi"
+          ]
+        }
+      ]
+    }
+  ]
+}

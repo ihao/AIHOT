@@ -1,0 +1,969 @@
+{
+  "runtimeCommit": "bcb15564b9cc8ab354e462283c860ec233bdb70b",
+  "image": "ninebtc-output-priority:bcb15564b9cc",
+  "imageId": "sha256:813642c2ed8046506519e6b1869a20e8f495cfc43c25bd272f6f000d5e84599a",
+  "phase1ReleasedAt": "2026-10-04T15:30:23Z",
+  "goal": "under10 CNY/day by model selection and wasted-call reduction; preserve density, effective output and fresh production",
+  "actualSupplierBillVerified": false,
+  "preservation": {
+    "checked": [
+      "rule",
+      "publicHash",
+      "selectedHash",
+      "sourcePolicyHash",
+      "requestBudgetHash",
+      "modelsHash"
+    ],
+    "passed": true,
+    "publicCount": 1318,
+    "selectedCount": 99,
+    "rule": "automatic-publication-v1:743f241ab8a474544fda3e20"
+  },
+  "moneyAtRelease": {
+    "checkedAt": "2026-10-04T15:30:23.392Z",
+    "policy": {
+      "enabled": true,
+      "timezone": "Asia/Shanghai",
+      "dayLimitCny": 9,
+      "rollingLimitCny": 9
+    },
+    "day": {
+      "estimatedCny": 10.181595103,
+      "reservedCny": 0,
+      "totalCny": 10.181595103,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T16:00:00.000Z"
+    },
+    "rolling": {
+      "estimatedCny": 10.386872111,
+      "reservedCny": 0,
+      "totalCny": 10.386872111,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T15:30:23.392Z"
+    },
+    "basis": "estimated",
+    "blocked": true,
+    "reasons": [
+      "北京时间当日额度已用完",
+      "滚动 24 小时额度已用完"
+    ]
+  },
+  "routing": {
+    "enabled": true,
+    "ordinaryModel": "dashscope-deepseek-v4.1-flash",
+    "datasetHash": "3cba7c338e729ae3827dd242cdc9ae6d1695e19293d7af7bbbaecba34c36272d",
+    "executionHash": "a14992e69b8f1536efb79d6ade0631e56c1b1f7443704e5f8f656d87ce1f0803",
+    "assessmentHash": "9f8e48c9d11e1b79bdd6b2e3ace43a281b21ef6143a1ce1283690bf94e93efbb",
+    "reason": "assessment_passed",
+    "assessedAt": "2026-10-04T17:54:32.523Z",
+    "labelBasis": "agent_literal_source_review"
+  },
+  "isolatedAcceptance": {
+    "runtimeCommit": "bcb15564b9cc8ab354e462283c860ec233bdb70b",
+    "node": "24.21",
+    "postgres": "17",
+    "backend": {
+      "passed": 493,
+      "failed": 0
+    },
+    "frontend": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "httpSmoke": {
+      "passed": 30,
+      "failed": 0
+    },
+    "isolated": true,
+    "realProviderAccess": false,
+    "productionImageNetworkNone": {
+      "passed": 6,
+      "failed": 0
+    }
+  },
+  "productionPublicSmoke": {
+    "passed": 30,
+    "failed": 0
+  },
+  "assessment": {
+    "state": "evaluated",
+    "cases": 100,
+    "articles": 60,
+    "sources": 36,
+    "labelBasis": "agent_literal_source_review",
+    "datasetHash": "3cba7c338e729ae3827dd242cdc9ae6d1695e19293d7af7bbbaecba34c36272d",
+    "executionHash": "a14992e69b8f1536efb79d6ade0631e56c1b1f7443704e5f8f656d87ce1f0803",
+    "startedAt": "2026-10-04T15:32:47.757Z",
+    "updatedAt": "2026-10-04T17:43:31.575Z",
+    "cost": {
+      "attempts": 100,
+      "estimated_or_retained_cny": 0.555637606,
+      "retained": 0
+    },
+    "summary": {
+      "complete": true,
+      "evaluated": 100,
+      "supportedAccepted": 40,
+      "supportedTotal": 40,
+      "ordinaryFalseAcceptances": 0,
+      "negativeTotal": 40,
+      "invalidStructure": 0,
+      "invalidCitations": 0,
+      "differences": [],
+      "passed": true
+    },
+    "privateReportFileSha256": "84864837c5050a377efccb3ce186ea4a0e38b9ed76054df5df2f7fc339d8ac12"
+  },
+  "historicalOpeningForecast": {
+    "basis": "read-only historical-window forecast; excludes future new costs; never used for request admission",
+    "current": {
+      "checkedAt": "2026-10-04T15:38:45.387Z",
+      "policy": {
+        "enabled": true,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 10.181595103,
+        "reservedCny": 0,
+        "totalCny": 10.181595103,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 10.386872111,
+        "reservedCny": 0,
+        "totalCny": 10.386872111,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T15:38:45.387Z"
+      },
+      "basis": "estimated",
+      "blocked": true,
+      "reasons": [
+        "北京时间当日额度已用完",
+        "滚动 24 小时额度已用完"
+      ]
+    },
+    "reservationBounds": {
+      "min": 0.049366,
+      "median": 0.05762,
+      "max": 0.075196
+    },
+    "historicalOpeningForLargestRequest": "2026-10-04T16:27:43.232Z",
+    "forecastAtOpening": {
+      "checkedAt": "2026-10-04T16:27:43.232Z",
+      "policy": {
+        "enabled": true,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 0,
+        "reservedCny": 0,
+        "totalCny": 0,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-04T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 8.900726499,
+        "reservedCny": 0,
+        "totalCny": 8.900726499,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T16:27:43.232Z"
+      },
+      "basis": "estimated",
+      "blocked": false,
+      "reasons": []
+    }
+  },
+  "cleanup": {
+    "remoteTestContainers": true,
+    "remoteTestNetwork": true,
+    "remoteTestImages": true,
+    "localTestServers": true,
+    "productionAndRollbackPreserved": true,
+    "localTestDatabase": "stopped owned PostgreSQL14 test instance at 2026-10-04T17:13:38Z",
+    "temporaryRemoteAcceptanceHelpers": true,
+    "privateEvaluationEvidencePreserved": true
+  },
+  "scopeCorrection": {
+    "productionAmountCapEnabled": false,
+    "productionAccountingRetained": true,
+    "benchmarkIndependentLimitsCny": {
+      "day": 9,
+      "rolling24h": 9
+    },
+    "supportedGate": "40/40",
+    "supplierMonthlyBudgetCny": 300,
+    "supplierStopOnBudgetPreserved": true,
+    "runtimeAndAssessment": "fixed runtime released; 100-case protected real assessment and independent source review passed; ordinary route enabled in audited transaction"
+  },
+  "phase1Runtime": {
+    "runtimeCommit": "14ba61e9d12e91e907e0dcde26f21b80a75511f5",
+    "image": "ninebtc-model-budget:14ba61e9d12e",
+    "imageId": "sha256:503b541155e0f22835a135f9214a9ad47943fb0e3c2b5b095bb079261342a9d6"
+  },
+  "outputPriorityReleasedAt": "2026-10-04T16:47:52Z",
+  "moneyAtOutputPriorityRelease": {
+    "scope": "all_models",
+    "scopeLabel": "全站模型（含评测）",
+    "checkedAt": "2026-10-04T16:47:52.270Z",
+    "policy": {
+      "enabled": false,
+      "productionEnabled": false,
+      "timezone": "Asia/Shanghai",
+      "dayLimitCny": 9,
+      "rollingLimitCny": 9
+    },
+    "day": {
+      "estimatedCny": 2.129967499,
+      "reservedCny": 0,
+      "totalCny": 2.129967499,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-04T16:00:00.000Z"
+    },
+    "rolling": {
+      "estimatedCny": 7.530104981,
+      "reservedCny": 0,
+      "totalCny": 7.530104981,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T16:47:52.270Z"
+    },
+    "basis": "estimated",
+    "blocked": false,
+    "reasons": []
+  },
+  "reviews": {
+    "spec": {
+      "approved": true,
+      "commit": "bcb15564b9cc8ab354e462283c860ec233bdb70b"
+    },
+    "quality": {
+      "approved": true,
+      "commit": "bcb15564b9cc8ab354e462283c860ec233bdb70b",
+      "note": "substitute independent reviewer completed after original reviewer quota error"
+    }
+  },
+  "restoredOutputSnapshot": {
+    "at": "2026-10-04T16:15:33.006Z",
+    "restoredAt": "2026-10-04T16:02:00.000Z",
+    "newFirstAcceptedPublic": 9,
+    "selected": 0,
+    "summaryCharacters": [
+      {
+        "id": "kyrqt1k6jmn8inxpvwbr6n346",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "muwswsi53xfan4tyrn09ytgaa",
+        "characters": 181,
+        "claims": 6
+      },
+      {
+        "id": "ugjofsg4sgm810muj2mil1v0m",
+        "characters": 153,
+        "claims": 5
+      },
+      {
+        "id": "szlfupljvp1la5np5v1iivc3e",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "pmhmov32vapzoub7bv04fgmnv",
+        "characters": 163,
+        "claims": 12
+      },
+      {
+        "id": "dlgw4em21eq4o7yl2ufrhwkuz",
+        "characters": 106,
+        "claims": 3
+      },
+      {
+        "id": "tdf1kt2p1neeibncfpictpt14",
+        "characters": 175,
+        "claims": 7
+      },
+      {
+        "id": "ktvkpqpcxysqw2zlojd8fiihj",
+        "characters": 118,
+        "claims": 3
+      },
+      {
+        "id": "cc58kcpebvofes8uhcks46y8j",
+        "characters": 154,
+        "claims": 5
+      }
+    ],
+    "received": [
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_article",
+        "status": "pending",
+        "count": 1,
+        "last_started": "2026-10-04T16:15:25.132Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_article",
+        "status": "received",
+        "count": 9,
+        "last_started": "2026-10-04T16:15:18.713Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_review",
+        "status": "received",
+        "count": 2,
+        "last_started": "2026-10-04T16:15:22.089Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "prefilter_article",
+        "status": "received",
+        "count": 37,
+        "last_started": "2026-10-04T16:15:27.984Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "rewrite_verified_summary",
+        "status": "received",
+        "count": 4,
+        "last_started": "2026-10-04T16:10:43.087Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "score_article",
+        "status": "pending",
+        "count": 1,
+        "last_started": "2026-10-04T16:15:31.294Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "score_article",
+        "status": "received",
+        "count": 43,
+        "last_started": "2026-10-04T16:15:29.837Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "structure_article",
+        "status": "pending",
+        "count": 1,
+        "last_started": "2026-10-04T16:15:29.808Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "structure_article",
+        "status": "received",
+        "count": 23,
+        "last_started": "2026-10-04T16:15:23.962Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "summarize_article",
+        "status": "received",
+        "count": 10,
+        "last_started": "2026-10-04T16:15:25.865Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "understand_article",
+        "status": "received",
+        "count": 6,
+        "last_started": "2026-10-04T16:12:52.907Z"
+      },
+      {
+        "model": "qwen3.8-max",
+        "purpose": "verify_summary",
+        "status": "received",
+        "count": 17,
+        "last_started": "2026-10-04T16:13:59.787Z"
+      },
+      {
+        "model": "text-embedding-v4",
+        "purpose": "embedding",
+        "status": "received",
+        "count": 19,
+        "last_started": "2026-10-04T16:15:24.828Z"
+      }
+    ],
+    "rounds": [
+      {
+        "status": "accepted",
+        "count": 9
+      },
+      {
+        "status": "rejected",
+        "count": 5
+      },
+      {
+        "status": "stale",
+        "count": 2
+      }
+    ]
+  },
+  "outputBeforeAssessmentComplete": {
+    "at": "2026-10-04T17:10:05.146Z",
+    "newFirstAcceptedPublic": 12,
+    "selected": 0,
+    "summaryCharacters": [
+      {
+        "id": "o8hrkf9qr8sau42so8pebzsxt",
+        "characters": 161,
+        "claims": 7
+      },
+      {
+        "id": "qctfir7dyh3p7xehhyxaiv8xb",
+        "characters": 129,
+        "claims": 5
+      },
+      {
+        "id": "yja8fm1g4ek60v9saocrr4zok",
+        "characters": 163,
+        "claims": 6
+      },
+      {
+        "id": "kyrqt1k6jmn8inxpvwbr6n346",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "muwswsi53xfan4tyrn09ytgaa",
+        "characters": 181,
+        "claims": 6
+      },
+      {
+        "id": "ugjofsg4sgm810muj2mil1v0m",
+        "characters": 153,
+        "claims": 5
+      },
+      {
+        "id": "szlfupljvp1la5np5v1iivc3e",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "pmhmov32vapzoub7bv04fgmnv",
+        "characters": 163,
+        "claims": 12
+      },
+      {
+        "id": "dlgw4em21eq4o7yl2ufrhwkuz",
+        "characters": 106,
+        "claims": 3
+      },
+      {
+        "id": "tdf1kt2p1neeibncfpictpt14",
+        "characters": 175,
+        "claims": 7
+      },
+      {
+        "id": "ktvkpqpcxysqw2zlojd8fiihj",
+        "characters": 118,
+        "claims": 3
+      },
+      {
+        "id": "cc58kcpebvofes8uhcks46y8j",
+        "characters": 154,
+        "claims": 5
+      }
+    ],
+    "received": [
+      {
+        "model": "deepseek-v4.1-flash",
+        "purpose": "verification_benchmark",
+        "status": "received",
+        "count": 8,
+        "last_started": "2026-10-04T17:09:58.574Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_article",
+        "status": "received",
+        "count": 23,
+        "last_started": "2026-10-04T17:05:27.709Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_review",
+        "status": "received",
+        "count": 4,
+        "last_started": "2026-10-04T17:00:12.496Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "prefilter_article",
+        "status": "received",
+        "count": 54,
+        "last_started": "2026-10-04T17:05:16.693Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "rewrite_verified_summary",
+        "status": "received",
+        "count": 12,
+        "last_started": "2026-10-04T17:00:13.653Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "score_article",
+        "status": "received",
+        "count": 74,
+        "last_started": "2026-10-04T17:05:21.739Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "structure_article",
+        "status": "received",
+        "count": 38,
+        "last_started": "2026-10-04T17:05:18.701Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "summarize_article",
+        "status": "received",
+        "count": 21,
+        "last_started": "2026-10-04T17:05:23.561Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "understand_article",
+        "status": "received",
+        "count": 10,
+        "last_started": "2026-10-04T16:21:41.865Z"
+      },
+      {
+        "model": "qwen3.8-max",
+        "purpose": "verify_summary",
+        "status": "received",
+        "count": 39,
+        "last_started": "2026-10-04T17:05:27.120Z"
+      },
+      {
+        "model": "text-embedding-v4",
+        "purpose": "embedding",
+        "status": "received",
+        "count": 35,
+        "last_started": "2026-10-04T17:05:27.378Z"
+      }
+    ],
+    "rounds": [
+      {
+        "status": "accepted",
+        "count": 13
+      },
+      {
+        "status": "rejected",
+        "count": 15
+      },
+      {
+        "status": "stale",
+        "count": 2
+      },
+      {
+        "status": "waiting",
+        "count": 1
+      }
+    ],
+    "money": {
+      "scope": "all_models",
+      "scopeLabel": "全站模型（含评测）",
+      "checkedAt": "2026-10-04T17:10:04.967Z",
+      "policy": {
+        "enabled": false,
+        "productionEnabled": false,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 2.550845111,
+        "reservedCny": 0,
+        "totalCny": 2.550845111,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-04T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 7.950982593,
+        "reservedCny": 0,
+        "totalCny": 7.950982593,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T17:10:04.967Z"
+      },
+      "basis": "estimated",
+      "blocked": false,
+      "reasons": []
+    }
+  },
+  "preActivationPreservation": {
+    "at": "2026-10-04T17:42:51.537Z",
+    "rule": "automatic-publication-v1:743f241ab8a474544fda3e20",
+    "publicCount": 1329,
+    "selectedCount": 100,
+    "sourcePolicyHash": "6a90f33270b520e4c59537920134cd9dc071629429e13826edb65bdc2024c371",
+    "requestBudgetHash": "bba5d6856aa33dbb90261d546f759dda98106ee1ba6b6c6fd40746652c6c9fac",
+    "modelsHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "unchangedSinceRelease": [
+      "rule",
+      "sourcePolicyHash",
+      "requestBudgetHash",
+      "modelsHash"
+    ]
+  },
+  "moneyAtAssessmentComplete": {
+    "scope": "all_models",
+    "scopeLabel": "全站模型（含评测）",
+    "checkedAt": "2026-10-04T17:43:31.437Z",
+    "policy": {
+      "enabled": false,
+      "productionEnabled": false,
+      "timezone": "Asia/Shanghai",
+      "dayLimitCny": 9,
+      "rollingLimitCny": 9
+    },
+    "day": {
+      "estimatedCny": 4.142880146,
+      "reservedCny": 0,
+      "totalCny": 4.142880146,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-04T16:00:00.000Z"
+    },
+    "rolling": {
+      "estimatedCny": 9.481612524,
+      "reservedCny": 0,
+      "totalCny": 9.481612524,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T17:43:31.437Z"
+    },
+    "basis": "estimated",
+    "blocked": false,
+    "reasons": [
+      "滚动 24 小时额度已用完"
+    ]
+  },
+  "benchmarkMoneyAtComplete": {
+    "scope": "verification_benchmark",
+    "scopeLabel": "独立评测实验",
+    "checkedAt": "2026-10-04T17:43:31.491Z",
+    "policy": {
+      "enabled": true,
+      "productionEnabled": false,
+      "timezone": "Asia/Shanghai",
+      "dayLimitCny": 9,
+      "rollingLimitCny": 9
+    },
+    "day": {
+      "estimatedCny": 0.555637606,
+      "reservedCny": 0,
+      "totalCny": 0.555637606,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-04T16:00:00.000Z"
+    },
+    "rolling": {
+      "estimatedCny": 0.555637606,
+      "reservedCny": 0,
+      "totalCny": 0.555637606,
+      "unpricedAttempts": 0,
+      "startsAt": "2026-10-03T17:43:31.491Z"
+    },
+    "basis": "estimated",
+    "blocked": false,
+    "reasons": []
+  },
+  "routingActivatedAt": "2026-10-04T17:54:32.523Z",
+  "finalPreservation": {
+    "at": "2026-10-04T17:55:54.168Z",
+    "passed": true,
+    "unchanged": [
+      "rule",
+      "sourcePolicyHash",
+      "requestBudgetHash",
+      "modelsHash"
+    ],
+    "publicBefore": 1329,
+    "publicAfter": 1329,
+    "selectedBefore": 100,
+    "selectedAfter": 100,
+    "removedPublic": 0,
+    "removedSelected": 0
+  },
+  "independentSemanticReview": {
+    "status": "semantic_review_completed_100_no_blocking_findings",
+    "summary": {
+      "semanticReviewedCases": 100,
+      "semanticReviewedClaims": 142,
+      "supportedClaimsIndependentlyReviewed": 85,
+      "positiveAccepted": 40,
+      "positiveTotal": 40,
+      "negativeFalseAcceptances": 0,
+      "negativeTotal": 40,
+      "secondaryBoundaryAccepted": 10,
+      "riskBoundaryBlocked": 10,
+      "publicDifferences": 0,
+      "unsupportedStatementsMarkedSupported": 0,
+      "invalidStructure": 0,
+      "invalidCitations": 0,
+      "independentPolicyPublicDifferences": 0,
+      "nonblockingObservations": 16,
+      "blockingFindings": 0
+    },
+    "sourceReportSha256": "84864837c5050a377efccb3ce186ea4a0e38b9ed76054df5df2f7fc339d8ac12",
+    "reviewFileSha256": "b5536e50aa3ac9e03f9873cbf09c251bf1a3aca9820f7a50d1f83cd085c1966f",
+    "boundary": "agent source-snapshot semantic review, not human gold or independent external fact check"
+  },
+  "finalOutputSnapshot": {
+    "at": "2026-10-04T17:55:56.421Z",
+    "restoredAt": "2026-10-04T16:02:00.000Z",
+    "newFirstAcceptedPublic": 21,
+    "selected": 1,
+    "summaryCharacters": [
+      {
+        "id": "v6awa7pny2c2bxq904dsq8r7j",
+        "characters": 169,
+        "claims": 5
+      },
+      {
+        "id": "uxwiz27yi7e39x5y9vq4o7j49",
+        "characters": 139,
+        "claims": 7
+      },
+      {
+        "id": "sf8udsmmb18ewwr2ps5dh3sd6",
+        "characters": 162,
+        "claims": 6
+      },
+      {
+        "id": "jzkihoki71gvju49ldcp1uosf",
+        "characters": 87,
+        "claims": 5
+      },
+      {
+        "id": "tpe9khpcwk33v6gfl906btcgg",
+        "characters": 126,
+        "claims": 7
+      },
+      {
+        "id": "b3uvqbcq1jlbwsjzqx4vwa0xh",
+        "characters": 94,
+        "claims": 3
+      },
+      {
+        "id": "r85w5643cw4ysucntqufqa4a2",
+        "characters": 89,
+        "claims": 7
+      },
+      {
+        "id": "gl8jdppdb78inp2nw29ayzcqz",
+        "characters": 178,
+        "claims": 5
+      },
+      {
+        "id": "o89zr9nxl2uzjydbvnzrllfy9",
+        "characters": 143,
+        "claims": 7
+      },
+      {
+        "id": "o8hrkf9qr8sau42so8pebzsxt",
+        "characters": 161,
+        "claims": 7
+      },
+      {
+        "id": "qctfir7dyh3p7xehhyxaiv8xb",
+        "characters": 129,
+        "claims": 5
+      },
+      {
+        "id": "yja8fm1g4ek60v9saocrr4zok",
+        "characters": 163,
+        "claims": 6
+      },
+      {
+        "id": "kyrqt1k6jmn8inxpvwbr6n346",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "muwswsi53xfan4tyrn09ytgaa",
+        "characters": 181,
+        "claims": 6
+      },
+      {
+        "id": "ugjofsg4sgm810muj2mil1v0m",
+        "characters": 153,
+        "claims": 5
+      },
+      {
+        "id": "szlfupljvp1la5np5v1iivc3e",
+        "characters": 185,
+        "claims": 6
+      },
+      {
+        "id": "pmhmov32vapzoub7bv04fgmnv",
+        "characters": 163,
+        "claims": 12
+      },
+      {
+        "id": "dlgw4em21eq4o7yl2ufrhwkuz",
+        "characters": 106,
+        "claims": 3
+      },
+      {
+        "id": "tdf1kt2p1neeibncfpictpt14",
+        "characters": 175,
+        "claims": 7
+      },
+      {
+        "id": "ktvkpqpcxysqw2zlojd8fiihj",
+        "characters": 118,
+        "claims": 3
+      },
+      {
+        "id": "cc58kcpebvofes8uhcks46y8j",
+        "characters": 154,
+        "claims": 5
+      }
+    ],
+    "received": [
+      {
+        "model": "deepseek-v4.1-flash",
+        "purpose": "verification_benchmark",
+        "status": "received",
+        "count": 100,
+        "last_started": "2026-10-04T17:43:17.266Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_article",
+        "status": "received",
+        "count": 38,
+        "last_started": "2026-10-04T17:40:36.050Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "group_review",
+        "status": "received",
+        "count": 5,
+        "last_started": "2026-10-04T17:40:40.375Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "prefilter_article",
+        "status": "received",
+        "count": 62,
+        "last_started": "2026-10-04T17:35:21.060Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "rewrite_verified_summary",
+        "status": "received",
+        "count": 16,
+        "last_started": "2026-10-04T17:31:35.070Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "score_article",
+        "status": "received",
+        "count": 93,
+        "last_started": "2026-10-04T17:35:24.101Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "structure_article",
+        "status": "received",
+        "count": 45,
+        "last_started": "2026-10-04T17:35:23.042Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "summarize_article",
+        "status": "received",
+        "count": 31,
+        "last_started": "2026-10-04T17:35:24.921Z"
+      },
+      {
+        "model": "qwen3.8-flash",
+        "purpose": "understand_article",
+        "status": "received",
+        "count": 15,
+        "last_started": "2026-10-04T17:30:14.650Z"
+      },
+      {
+        "model": "qwen3.8-max",
+        "purpose": "verify_summary",
+        "status": "received",
+        "count": 59,
+        "last_started": "2026-10-04T17:37:33.491Z"
+      },
+      {
+        "model": "text-embedding-v4",
+        "purpose": "embedding",
+        "status": "received",
+        "count": 50,
+        "last_started": "2026-10-04T17:40:35.721Z"
+      }
+    ],
+    "rounds": [
+      {
+        "status": "accepted",
+        "count": 22
+      },
+      {
+        "status": "rejected",
+        "count": 22
+      },
+      {
+        "status": "stale",
+        "count": 2
+      }
+    ],
+    "money": {
+      "scope": "all_models",
+      "scopeLabel": "全站模型（含评测）",
+      "checkedAt": "2026-10-04T17:55:56.194Z",
+      "policy": {
+        "enabled": false,
+        "productionEnabled": false,
+        "timezone": "Asia/Shanghai",
+        "dayLimitCny": 9,
+        "rollingLimitCny": 9
+      },
+      "day": {
+        "estimatedCny": 4.142880146,
+        "reservedCny": 0,
+        "totalCny": 4.142880146,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-04T16:00:00.000Z"
+      },
+      "rolling": {
+        "estimatedCny": 9.481612524,
+        "reservedCny": 0,
+        "totalCny": 9.481612524,
+        "unpricedAttempts": 0,
+        "startsAt": "2026-10-03T17:55:56.194Z"
+      },
+      "basis": "estimated",
+      "blocked": false,
+      "reasons": [
+        "滚动 24 小时额度已用完"
+      ]
+    }
+  },
+  "benchmarkDuplicateAttempts": 0,
+  "productionPublicSmokeAfterRouting": {
+    "passed": 30,
+    "failed": 0,
+    "at": "2026-10-04T17:55:56.421Z"
+  },
+  "productionCandidateReceiptObservedAtFinalSnapshot": false,
+  "integrationContext": {
+    "mainAdditionalCommit": "19f0069f553368014db530f9648520928cd6650f",
+    "mainAdditionalScope": "separate BTC USD feature preserved; only task report and plan integrated",
+    "productionRuntimeRemains": "bcb15564b9cc8ab354e462283c860ec233bdb70b"
+  }
+}

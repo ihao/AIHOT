@@ -2,7 +2,7 @@
 // phones. Keeps its place across back navigation and loads further pages. There is no "new items"
 // prompt: readers refresh for the latest head — on phones also by tapping the tab again.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigation } from "react-router";
+import { Link, useLocation, useNavigation } from "react-router";
 import { Collapse } from "../../components/ui/Presence";
 import { ToggleChip } from "../../components/ui/Controls";
 import type { TimelineCard, TimelineFilters, TimelineResponse } from "@aihot/contracts/site";
@@ -316,7 +316,7 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
               <EmptyState title="没有未读的精选内容">关掉「只看未读」可以看到全部内容。</EmptyState>
             )
           ) : (
-            <EmptyState title="这个筛选下还没有精选内容">换个类别看看，或者去全部动态里找找。</EmptyState>
+            <EmptyState title="这个筛选下还没有精选内容" action={<Link to={listPath("/all", filterParams(filters))} className="text-[13px] font-medium text-accent hover:underline">查看相关全部动态</Link>}>换个类别看看，或者去全部动态里找找。</EmptyState>
           )}
         </div>
       )}

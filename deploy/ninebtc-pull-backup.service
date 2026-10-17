@@ -1,0 +1,9 @@
+[Unit]
+Description=Pull verified 9BTC backup from EU to naban
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ninebtc-pull-backup
+TimeoutStartSec=2h

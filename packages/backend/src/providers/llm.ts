@@ -6,7 +6,9 @@ import type { z } from "zod";
 import { PRESETS } from "@aihot/site/models";
 import { config, credential } from "../config.ts";
 import { sha256 } from "../lib/ids.ts";
-import { assertAccepted, paidRequest, ProviderRejectedError, rejectReceivedResponse } from "./receipts.ts";
+import { assertAccepted, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
+
+import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from "./provider-capacity.ts";
 
 export interface ModelSpec {
   key: string;
@@ -126,6 +128,66 @@ function isConnectFailure(error: unknown): boolean {
   return ["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT", "CERT_HAS_EXPIRED"].includes(code ?? "");
 }
 
+type ChatIdentityOptions = Pick<ChatJsonOptions<z.ZodType>, "model" | "purpose" | "promptVersion" | "system" | "user" | "temperature" | "maxTokens" | "attemptTag"> & { subject?: string };
+
+/** These controls add no model input and cannot expand the single bounded output. */
+function boundedModelExtras(extra: Record<string,unknown>): boolean {
+  if (!extra || typeof extra!=='object' || Array.isArray(extra)) return false;
+  return Object.entries(extra).every(([key,value])=>{
+    if (key==='enable_thinking'||key==='clear_thinking') return typeof value==='boolean';
+    if (key==='max_tokens') return typeof value==='number'&&Number.isSafeInteger(value)&&value>0;
+    if (key==='n') return value===1;
+    if (['temperature','top_p','presence_penalty','frequency_penalty','seed'].includes(key)) return typeof value==='number'&&Number.isFinite(value);
+    if (key==='thinking') {
+      if (!value||typeof value!=='object'||Array.isArray(value)) return false;
+      const thinking=value as Record<string,unknown>;
+      return (thinking.type==='enabled'||thinking.type==='disabled')&&Object.entries(thinking).every(([field,v])=>
+        field==='type'||(field==='clear_thinking'&&typeof v==='boolean'));
+    }
+    if (key==='response_format') {
+      if (!value||typeof value!=='object'||Array.isArray(value)) return false;
+      const format=value as Record<string,unknown>;
+      return (format.type==='json_object'||format.type==='text')&&Object.keys(format).every(field=>field==='type');
+    }
+    return false;
+  });
+}
+
+/** Shared pure normalization for both paid calls and exact successful-cache recovery. */
+export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
+  const spec = MODELS[opts.model];
+  if (!spec) throw new Error(`Unknown model ${opts.model}`);
+  const temperature = opts.temperature ?? 0.2;
+  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.reasoningTokens ?? 0);
+  const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
+  const messages = [...(opts.system ? [{role:'system',content:opts.system}] : []),{role:'user',content:typeof opts.user==='string'||Array.isArray(opts.user)?opts.user:userText}];
+  // A byte-level token bound deliberately overestimates text. Framing covers protocol tokens.
+  const inputTokenBound = Buffer.byteLength(JSON.stringify(messages),'utf8') + 1024 + messages.length*64;
+  const extra = spec.extra ?? {};
+  const actualMaxTokens = Object.hasOwn(extra,'max_tokens') ? extra.max_tokens : maxTokens;
+  const thinking = extra.thinking as {type?:string}|undefined;
+  const explicitlyNoThinking = extra.enable_thinking===false || thinking?.type==='disabled';
+  const reasoning = extra.enable_thinking===true || thinking?.type==='enabled' || (spec.reasoningTokens ?? 0) > 0;
+  const hasImage = Array.isArray(opts.user) && opts.user.some(part=>part.type==='image_url');
+  const boundedOutput = typeof actualMaxTokens==='number'&&Number.isSafeInteger(actualMaxTokens)&&actualMaxTokens>0;
+  const boundedInput = boundedModelExtras(extra);
+  // Any enabled signal wins over conflicting disable fields: reasoning has no proven billable bound.
+  const modelBudgetBounded=boundedInput&&boundedOutput&&!hasImage&&!spec.vision&&!reasoning
+    && (spec.key!=='default'||explicitlyNoThinking);
+  const receiptRequest = {
+    service: spec.service,
+    model: spec.model,
+    purpose: opts.purpose,
+    subject: opts.subject,
+    identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
+    requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length,
+      systemBytes:Buffer.byteLength(opts.system),userBytes:Buffer.byteLength(userText),inputTokenBound,modelBudgetBounded,temperature,maxTokens:actualMaxTokens },
+    modelBudget: {inputTokens:inputTokenBound,maxOutputTokens:typeof actualMaxTokens==='number'?actualMaxTokens:0,bounded:modelBudgetBounded},
+    attemptTag: opts.attemptTag,
+  } satisfies ReceiptRequest;
+  return { spec, temperature, maxTokens, userText, receiptRequest };
+}
+
 export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): Promise<ChatJsonResult<z.infer<S>>> {
   const spec = MODELS[opts.model];
   if (!spec) throw new Error(`Unknown model ${opts.model}`);
@@ -134,9 +196,8 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   const apiKey = credential("models", spec.apiKeyEnv);
   if (!baseUrl || !apiKey || !spec.model) throw new Error(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
 
-  const temperature = opts.temperature ?? 0.2;
-  const maxTokens = Math.max(opts.maxTokens ?? 1500, 512) + (spec.reasoningTokens ?? 0);
-  const userText = typeof opts.user === "string" ? opts.user : JSON.stringify(opts.user);
+  const { temperature, maxTokens, userText, receiptRequest } = chatJsonRequestIdentity(opts);
+  const capacityKey = providerCapacityKey(baseUrl, apiKey);
   const body: Record<string, unknown> = {
     model: spec.model,
     messages: [
@@ -152,15 +213,7 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   };
 
   const receipt = await paidRequest(
-    {
-      service: spec.service,
-      model: spec.model,
-      purpose: opts.purpose,
-      subject: opts.subject,
-      identity: { model: spec.model, promptVersion: opts.promptVersion, system: sha256(opts.system), user: sha256(userText), temperature, maxTokens, extra: spec.extra ?? null },
-      requestSummary: { promptVersion: opts.promptVersion, systemHash: sha256(opts.system), userHash: sha256(userText), userChars: userText.length, temperature, maxTokens },
-      attemptTag: opts.attemptTag,
-    },
+    { ...receiptRequest, providerCapacityKey: capacityKey },
     async () => {
       const started = Date.now();
       let res: Response;
@@ -176,7 +229,16 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
         throw error;
       }
       const text = await res.text();
+      if (res.status === 429) {
+        let code: unknown;
+        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Keep normal HTTP rejection handling. */ }
+        if (code === "BudgetLimitExceeded") {
+          await recordProviderBudgetStop(capacityKey, spec.service);
+          throw new ProviderBudgetExceededError(spec.service, true);
+        }
+      }
       assertAccepted(spec.service, res.status, text);
+      await clearProviderProbe(capacityKey);
       let json: Record<string, unknown>;
       try {
         json = JSON.parse(text);

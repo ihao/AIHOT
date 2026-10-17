@@ -45,7 +45,7 @@ test("an answer already received is reused instead of bought again", async () =>
 });
 
 test("stale recovery waiting on a response transaction preserves its committed answer and attempt", async () => {
-  const request = { service: "invariant-recovery-race", purpose: "invariant_test", identity: { race: tag() } };
+  const request = { service: "invariant-recovery-race", model: "receipt-race-model", purpose: "invariant_test", identity: { race: tag() } };
   const asked = gate();
   const answer = gate();
   let sent = 0;
@@ -59,7 +59,7 @@ test("stale recovery waiting on a response transaction preserves its committed a
   const [row] = await sql<{ id: number }[]>`SELECT id FROM receipts WHERE logical_key = ${logicalKeyFor(request)}`;
   await sql`UPDATE receipts SET updated_at = now() - interval '11 minutes' WHERE id = ${row!.id}`;
 
-  // Hold only the attempt row: paidRequest can write its received response, but cannot commit yet.
+  // Hold only the attempt row: model settlement must lock its receipt before waiting on the attempt.
   const locked = gate();
   const release = gate();
   const blocker = sql.begin(async (tx) => {
@@ -80,9 +80,12 @@ test("stale recovery waiting on a response transaction preserves its committed a
   let sweep: Promise<number> | undefined;
   try {
     answer.open();
-    await waitingOn("%UPDATE receipt_attempts SET%");
+    await waitingOn("%SELECT model_cost_reserved_cny%");
     sweep = markStalePendingReceipts();
-    await waitingOn("%UPDATE receipts SET status =%");
+    await Promise.race([
+      waitingOn("%UPDATE receipts SET status =%"),
+      sweep.then((count) => assert.equal(count, 0, "stale recovery must await the in-flight model response transaction")),
+    ]);
   } finally {
     release.open();
     await blocker;
@@ -250,7 +253,7 @@ test("with the valve off nothing is sent", async () => {
   }
 });
 
-test("an unknown outcome is released automatically once, so a lost answer costs at most one repeat", async () => {
+test("a non-model unknown outcome is released automatically once, so a lost answer costs at most one repeat", async () => {
   // A service without a budget row: the budget tests above may have used up deepseek's.
   const req = { service: "invariant-unbudgeted", purpose: "invariant_test", subject: `lost-${tag()}`, identity: { lost: tag() } };
   let sent = 0;

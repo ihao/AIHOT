@@ -44,7 +44,7 @@ async function article(): Promise<string> {
     sourceId: SOURCE, url: `https://example.com/${T}-${n}`, title: `Test ${n}`, bodyText: BODY, bodyHtml: `<p>${BODY}</p>`, bodyStatus: "ok", via: "fetch", publishedAt: new Date(),
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
-            VALUES (${articleId}, 1, 'rule', 'pass', 'ai-models', ${`标题${n}-${T}`}, ${`SUMMARY-${n}-${T}`}, '理由', 90, true)`;
+            VALUES (${articleId}, 1, 'rule', 'pass', 'infrastructure', ${`标题${n}-${T}`}, ${`SUMMARY-${n}-${T}`}, '理由', 90, true)`;
   return articleId;
 }
 
@@ -67,29 +67,39 @@ async function get(url: string, headers: Record<string, string> = {}) {
 // Failure modes: a revoked score falls back to the erroneous model score, zero is treated as
 // missing, republishing loses a correction, invalid scores or stale edits alter public state,
 // or removing a correction cannot restore the saved model result without paying again.
-test("manual score corrections, including no score, survive every public projection and rebuild", async () => {
+test("manual null and zero scores withdraw every public projection; clearing restores saved scoring", async () => {
   const id = await article();
   await sql`UPDATE articles SET grouping_status = 'complete' WHERE id = ${id}`;
   await publishArticle(id, released());
+  const title = JSON.parse((await get(`/api/site/items/${id}`)).body).title;
   assert.equal(JSON.parse((await get(`/api/site/items/${id}`)).body).score, 90);
   for (const score of [-1, 101, "0", Number.NaN]) {
     await assert.rejects(overrideFields(id, { fields: { score }, reason: "invalid score", version: 0 }, "test"));
   }
   await overrideFields(id, { fields: { score: null, selected: false }, reason: "unsupported launch revoked", version: 0 }, "test");
   await publishArticle(id);
-  const detail = JSON.parse((await get(`/api/site/items/${id}`)).body);
-  assert.equal(detail.score, null);
-  assert.equal(detail.selected, false);
-  const items = JSON.parse((await get(`/api/v1/items?mode=all&q=${encodeURIComponent(detail.title)}&limit=10`)).body).items;
-  assert.equal(items.find((i: { id: string }) => i.id === id)?.score, null);
-  assert.equal((await loadItemShare(id))?.score, null);
+  assert.equal((await get(`/api/site/items/${id}`)).status, 404);
+  assert.equal((await get(`/items/${id}/markdown`)).status, 404);
+  const items = JSON.parse((await get(`/api/v1/items?mode=all&q=${encodeURIComponent(title)}&limit=10`)).body).items;
+  assert.ok(!items.some((i: { id: string }) => i.id === id));
+  assert.equal(await loadItemShare(id), null);
+  const [unscored] = await sql`SELECT score, selected, eligible, visibility FROM publications WHERE article_id = ${id}`;
+  assert.deepEqual([unscored!.score, unscored!.selected, unscored!.eligible, unscored!.visibility], [null, false, false, "withdrawn"]);
   assert.ok(!(await get("/feed.xml")).body.includes(id), "revoked selection leaves RSS");
   assert.equal(Number((await sql`SELECT score FROM analyses WHERE article_id = ${id}`)[0]!.score), 90, "the paid result stays intact");
   await assert.rejects(overrideFields(id, { fields: { score: 99 }, reason: "stale correction", version: 0 }, "test"));
   await overrideFields(id, { fields: { score: 0 }, reason: "verified zero score", version: 1 }, "test");
-  assert.equal(JSON.parse((await get(`/api/site/items/${id}`)).body).score, 0);
+  await publishArticle(id);
+  assert.equal((await get(`/api/site/items/${id}`)).status, 404);
+  assert.equal(Number((await sql`SELECT score FROM publications WHERE article_id = ${id}`)[0]!.score), 0, "zero remains the effective score rather than falling back");
   await overrideFields(id, { fields: {}, clear: ["score"], reason: "restore saved scoring", version: 2 }, "test");
-  assert.equal(JSON.parse((await get(`/api/site/items/${id}`)).body).score, 90);
+  await publishArticle(id);
+  const restored = JSON.parse((await get(`/api/site/items/${id}`)).body);
+  assert.equal(restored.score, 90);
+  assert.equal(restored.selected, false, "the independent manual selection correction stays intact");
+  assert.equal((await get(`/items/${id}/markdown`)).status, 200);
+  assert.equal((await loadItemShare(id))?.score, 90);
+  assert.ok((await get(`/api/v1/items?mode=all&q=${encodeURIComponent(title)}&limit=10`)).body.includes(id));
 });
 
 // Export failures to guard before changing conversion: flattened table relationships, invented
@@ -310,13 +320,13 @@ test("a withdrawn item leaves the hot board and the hot APIs at once, not at the
   assert.ok(!(await get("/api/site/hot")).body.includes(publicId), "/api/site/hot still shows the event of the withdrawn item");
 });
 
-test("item pages follow one rule: unsummarised editorial items keep one, hot_signal items have none", async () => {
+test("unanalysed editorial and hot_signal items have no page; admitted archives retain theirs", async () => {
   const SIGNAL = `${SOURCE}-signal`;
   await sql`INSERT INTO sources (id, name, kind, tier, participation_mode, site_fulltext, syndicate_fulltext, next_fetch_at)
             VALUES (${SIGNAL}, 'Test signal', 'rss', 'T1', 'hot_signal', true, false, '2100-01-01')`;
   const material = (sourceId: string, name: string) =>
     upsertMaterial({ sourceId, url: `https://example.com/${T}-${name}`, title: `${name} ${T}`, bodyText: BODY, bodyHtml: `<p>${BODY}</p>`, bodyStatus: "ok", via: "fetch", publishedAt: new Date() });
-  // An editorial item the model never summarised, and a hot_signal item carrying an imported summary.
+  // Unanalysed material stays internal even when its body is displayable.
   const { articleId: plain } = await material(SOURCE, "plain");
   await publishArticle(plain);
   const { articleId: signal } = await material(SIGNAL, "signal");
@@ -324,21 +334,31 @@ test("item pages follow one rule: unsummarised editorial items keep one, hot_sig
             VALUES (${signal}, 1, 'replay', 'pass', 'industry', ${`信号-${T}`}, ${`SIGNAL-SUMMARY-${T}`}, 80, false)`;
   await publishArticle(signal);
 
-  const page = await get(`/api/site/items/${plain}`);
-  assert.equal(page.status, 200, "an unsummarised editorial item keeps its page");
-  const detail = JSON.parse(page.body) as { summary: string | null; indexable: boolean; markdownAvailable: boolean };
-  assert.deepEqual([detail.summary, detail.indexable, detail.markdownAvailable], [null, false, true], "noindex, with its body for export");
-  assert.equal((await get(`/items/${plain}/markdown`)).status, 200);
+  assert.equal((await get(`/api/site/items/${plain}`)).status, 404);
+  assert.equal((await get(`/items/${plain}/markdown`)).status, 404);
   assert.equal((await get(`/api/site/items/${signal}`)).status, 404, "hot_signal material has no page");
   assert.equal((await get(`/items/${signal}/markdown`)).status, 404);
+
+  const { articleId: archive } = await material(SOURCE, "archive");
+  await sql`UPDATE articles SET backfill = true, published_at = NULL WHERE id = ${archive}`;
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, title_zh, score, selected)
+    VALUES (${archive}, 1, 'replay', 'pass', ${`归档-${T}`}, 80, false)`;
+  await publishArticle(archive);
+  const page = await get(`/api/site/items/${archive}`);
+  assert.equal(page.status, 200, "a confirmed scored archive retains its page outside the pool");
+  const detail = JSON.parse(page.body) as { summary: string | null; indexable: boolean; markdownAvailable: boolean };
+  assert.deepEqual([detail.summary, detail.indexable, detail.markdownAvailable], [null, false, true], "noindex, with its licensed body for export");
+  assert.equal((await get(`/items/${archive}/markdown`)).status, 200);
+  assert.equal((await sql`SELECT eligible FROM publications WHERE article_id = ${archive}`)[0]!.eligible, false);
 
   const publicId = randomUUID();
   const [story] = await sql<{ id: number }[]>`INSERT INTO stories (public_id, title, first_report_at, latest_at) VALUES (${publicId}, ${`事件-${T}`}, now(), now()) RETURNING id`;
   const [fact] = await sql<{ id: number }[]>`INSERT INTO facts (public_id, story_id, title) VALUES (${`f-${T}`}, ${story!.id}, ${`事实-${T}`}) RETURNING id`;
-  await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${fact!.id}, ${plain}, 'report'), (${fact!.id}, ${signal}, 'report')`;
+  await sql`INSERT INTO fact_articles (fact_id, article_id, role) VALUES (${fact!.id}, ${plain}, 'report'), (${fact!.id}, ${signal}, 'report'), (${fact!.id}, ${archive}, 'report')`;
   const storyPage = await get(`/api/site/stories/${publicId}`);
-  assert.equal(storyPage.status, 200, "a story whose only page is unsummarised still has a page");
-  assert.ok(storyPage.body.includes(plain), "it lists the unsummarised editorial report");
+  assert.equal(storyPage.status, 200, "a story with an admitted unsummarised archive still has a page");
+  assert.ok(storyPage.body.includes(archive), "it lists the readable archive report");
+  assert.ok(!storyPage.body.includes(plain), "it excludes unanalysed editorial material");
   assert.ok(!storyPage.body.includes(signal) && !storyPage.body.includes(`SIGNAL-SUMMARY-${T}`), "and not the hot_signal one");
 });
 

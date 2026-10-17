@@ -1,0 +1,1111 @@
+[
+  {
+    "id": "kol-vitalik",
+    "name": "Vitalik Buterin",
+    "category": "ETH协议与密码学",
+    "url": "https://vitalik.eth.limo/",
+    "why": "官网持续发表协议扩容、密码学、隐私与治理原始论述；本次首页可见2026年文章。",
+    "authorityBoundary": "对自己提出的技术论证有一手价值；个人设想不等于EIP已通过或网络已部署，价格判断无额外权威。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://vitalik.eth.limo/"
+    ]
+  },
+  {
+    "id": "kol-lopp",
+    "name": "Jameson Lopp",
+    "category": "BTC与自托管",
+    "url": "https://blog.lopp.net/",
+    "why": "自有博客包含节点性能测试、BIP争论、量子迁移两方分析；官网标明Casa联合创始人及CSO。",
+    "authorityBoundary": "在节点测试、安全与托管方法上优先；涉及Casa产品或投资标的须披露利益；个人政治观点另行过滤。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://blog.lopp.net/",
+      "https://www.lopp.net/"
+    ]
+  },
+  {
+    "id": "kol-peter-todd",
+    "name": "Peter Todd",
+    "category": "BTC协议研究",
+    "url": "https://petertodd.org/",
+    "why": "可读BIP-110代码审查、RBF、CoinJoin、Lightning和OpenTimestamps原始文章。",
+    "authorityBoundary": "采纳可复核技术论据；BTC/ETH争论和个人立场不能替代代码或规范，协议提案不等于共识。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://petertodd.org/"
+    ]
+  },
+  {
+    "id": "kol-bluematt",
+    "name": "Matt Corallo / BlueMatt",
+    "category": "BTC与Lightning",
+    "url": "https://bluematt.bitcoin.ninja/",
+    "why": "本人博客说明Bitcoin设计与价值取舍；Spiral官方文章明确将Matt Corallo与TheBlueMatt对应。",
+    "authorityBoundary": "开发者观点适用于协议与自托管；博客明确意见属于个人；不代表Bitcoin全体开发者。",
+    "entryType": "blog",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://bluematt.bitcoin.ninja/about/",
+      "https://spiralxyz.substack.com/p/were-breaking-up"
+    ],
+    "xHandle": "TheBlueMatt"
+  },
+  {
+    "id": "kol-adam-back",
+    "name": "Adam Back",
+    "category": "BTC密码学与产业",
+    "url": "https://blog.blockstream.com/author/adam-back/",
+    "why": "Blockstream官方领导页确认联合创始人及CEO、Hashcash发明者；有官方署名技术文章。",
+    "authorityBoundary": "Hashcash及Blockstream自身技术有一手地位；Liquid、挖矿和公司金融产品存在商业利益；作者页旧文多，更新入口需再测。",
+    "entryType": "author-directory",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://blockstream.com/about/",
+      "https://blog.blockstream.com/author/adam-back/"
+    ]
+  },
+  {
+    "id": "kol-nic-carter",
+    "name": "Nic Carter",
+    "category": "BTC研究与宏观",
+    "url": "https://niccarter.info/",
+    "why": "个人站整理论文与署名文章，2026年持续提出Bitcoin量子风险和迁移方案的反方论述。",
+    "authorityBoundary": "投资者/评论者框架需要复核；不代表Coin Metrics官方数据；争议论断须并列代码研究和不同判断。",
+    "entryType": "blog",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://niccarter.info/"
+    ]
+  },
+  {
+    "id": "kol-lyn-alden",
+    "name": "Lyn Alden",
+    "category": "货币机制与宏观",
+    "url": "https://www.lynalden.com/",
+    "why": "自有研究公司官网、长期货币技术论述；自述明确研究与Ego Death Capital投资身份。",
+    "authorityBoundary": "宏观机制和历史分析有参考价值；宏观预测不是监管事实或资产回报保证；BTC投资与基金利益须披露。",
+    "entryType": "blog",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.lynalden.com/",
+      "https://www.lynalden.com/about-lyn-alden/"
+    ]
+  },
+  {
+    "id": "kol-andreas",
+    "name": "Andreas M. Antonopoulos",
+    "category": "BTC技术教育",
+    "url": "https://aantonop.com/",
+    "why": "本人网站列技术书籍、公开视频和开放区块链教育材料。",
+    "authorityBoundary": "优先教育和安全概念；不是当前网络参数或最新版本的唯一依据；书籍/课程商业推广过滤。",
+    "entryType": "blog",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://aantonop.com/"
+    ]
+  },
+  {
+    "id": "kol-dankrad",
+    "name": "Dankrad Feist",
+    "category": "ETH数据可用性与共识",
+    "url": "https://dankradfeist.de/",
+    "why": "本人About列EIP-4844、DA采样与协议贡献；当前明确在Tempo Labs工作并为EF Protocol Cluster研究顾问。",
+    "authorityBoundary": "个人意见与Tempo公告须分开；不得继续简写成EF全职现任研究员；顾问/任职/持仓对观点的影响查Disclosures。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://dankradfeist.de/",
+      "https://dankradfeist.de/about/"
+    ],
+    "xHandle": "dankrad"
+  },
+  {
+    "id": "kol-tim-beiko",
+    "name": "Tim Beiko",
+    "category": "ETH升级与开发会议",
+    "url": "https://notes.ethereum.org/@timbeiko",
+    "why": "Ethereum域下个人HackMD页面是开发协调笔记与会议材料的署名入口。",
+    "authorityBoundary": "会议安排、议程、讨论有一手性；讨论中的纳入项不等于硬分叉已执行；需与EIPs及客户端发布交叉核对。",
+    "entryType": "notes",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://notes.ethereum.org/@timbeiko"
+    ]
+  },
+  {
+    "id": "kol-justin-drake",
+    "name": "Justin Drake",
+    "category": "ETH共识与抗量子研究",
+    "url": "https://blog.ethereum.org/2025/07/31/lean-ethereum",
+    "why": "EF官网本人署名lean Ethereum愿景，明确提出研究路线并提示观点多样性。",
+    "authorityBoundary": "愿景和研究是假设与目标；文章自己标注Drake take，不能写成EF正式决议；具体时程须验规范。",
+    "entryType": "authored-article",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://blog.ethereum.org/2025/07/31/lean-ethereum"
+    ]
+  },
+  {
+    "id": "kol-barnabe",
+    "name": "Barnabé Monnot",
+    "category": "机制设计与ETH经济学",
+    "url": "https://barnabemonnot.com/",
+    "why": "个人站及出版列表可核查算法博弈论、密码经济学和历史EF研究身份。",
+    "authorityBoundary": "本人旧站新闻停留2020年；当前职务不能从旧简介推断。本次未用第三方X镜像的现职介绍作已验证事实。",
+    "entryType": "blog",
+    "priority": "P2",
+    "verification": "本人历史站点已读取；当前职务、最新内容入口、X账号锚点及RSS待补验",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://barnabemonnot.com/"
+    ]
+  },
+  {
+    "id": "kol-ben-edgington",
+    "name": "Ben Edgington",
+    "category": "ETH共识与技术教育",
+    "url": "https://benjaminion.xyz/",
+    "why": "作者本人站和Upgrading Ethereum技术手册可核对；EF Protocol Consensus团队页当前列External Consultant。",
+    "authorityBoundary": "书的具体版本可能只到某次升级；须对照现行规范；历史Teku或OP Labs职务不得写成当前职务。",
+    "entryType": "personal-site",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://benjaminion.xyz/",
+      "https://eth2book.info/latest/",
+      "https://consensus.ethereum.foundation/"
+    ],
+    "xHandle": "benjaminion_xyz"
+  },
+  {
+    "id": "kol-christine-kim",
+    "name": "Christine D. Kim",
+    "category": "ETH开发跟踪与研究",
+    "url": "https://christinedkim.substack.com/about",
+    "why": "本人Substack说明专注BTC/ETH协议发展；Galaxy作者档案保留大量本人ACD会议写作。",
+    "authorityBoundary": "会议摘要是署名研究而非会议表决；本人About用At Galaxy I led过去式，Galaxy旧作者页VP职位不能视为当前职务。",
+    "entryType": "newsletter",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://christinedkim.substack.com/about",
+      "https://www.galaxy.com/authors/christine-kim"
+    ],
+    "xHandle": "christine_dkim"
+  },
+  {
+    "id": "kol-dan-robinson",
+    "name": "Dan Robinson",
+    "category": "DeFi机制与市场结构",
+    "url": "https://www.paradigm.xyz/team/dan-robinson",
+    "why": "官方团队页列GP及研究职责，包含AMM、借贷、链上竞拍与Bitcoin量子保护的署名研究。",
+    "authorityBoundary": "技术推导和模型可复核；VC被投项目、联合开发及政策主张有利益关系；作者与项目官方公告分开。",
+    "entryType": "author-directory",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.paradigm.xyz/team/dan-robinson"
+    ],
+    "xHandle": "danrobinson"
+  },
+  {
+    "id": "kol-georgios",
+    "name": "Georgios Konstantopoulos",
+    "category": "开发基础设施与EVM",
+    "url": "https://www.paradigm.xyz/team/georgios-konstantopoulos",
+    "why": "官方团队页列Paradigm GP/CTO及Tempo CTO，署名Reth、Alloy、Foundry与扩容研究。",
+    "authorityBoundary": "工具发布要回到GitHub版本；VC/Tempo双重利益明确标注；架构路线是作者选择，不代表通行标准。",
+    "entryType": "author-directory",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.paradigm.xyz/team/georgios-konstantopoulos"
+    ]
+  },
+  {
+    "id": "kol-tarun-chitra",
+    "name": "Tarun Chitra",
+    "category": "DeFi量化风险与研究",
+    "url": "https://www.gauntlet.xyz/team",
+    "why": "Gauntlet团队页当前列CEO；本人arXiv论文涉及链上借贷、质押竞争和intent市场。",
+    "authorityBoundary": "模型有效性依赖假设与市场数据；公司有风险顾问/金库业务利益；个人站老旧，不用它做实时信源。",
+    "entryType": "official-bio",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.gauntlet.xyz/team",
+      "https://arxiv.org/abs/2001.00919",
+      "https://arxiv.org/abs/2403.02525"
+    ]
+  },
+  {
+    "id": "kol-hasu",
+    "name": "Hasu",
+    "category": "MEV与ETH经济学",
+    "url": "https://research.flashbots.net/",
+    "why": "Flashbots官方研究目录存在本人署名研究；Uncommon Core可核查早期Bitcoin经济研究。",
+    "authorityBoundary": "Flashbots业务与MEV路线存在利益；Uncommon Core首页包含已过时的作者职务，不能照搬旧简介；需要按署名筛选。",
+    "entryType": "author-filter-needed",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://research.flashbots.net/",
+      "https://uncommoncore.co/"
+    ]
+  },
+  {
+    "id": "kol-samczsun",
+    "name": "samczsun",
+    "category": "合约安全与漏洞研究",
+    "url": "https://samczsun.com/",
+    "why": "本人博客保存漏洞分析和事故响应原始文章，可沿代码/交易重建论证。",
+    "authorityBoundary": "对具体漏洞研究有专业价值；事件严重性、损失和归因须项目/链上证据复核；不从旧报道推断当前雇主。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://samczsun.com/"
+    ]
+  },
+  {
+    "id": "kol-cos",
+    "name": "余弦 / Cos",
+    "category": "中文安全与反钓鱼",
+    "url": "https://github.com/slowmist/Blockchain-dark-forest-selfguard-handbook",
+    "why": "慢雾组织官方仓库明示Author Cos@SlowMist Team并链接evilcos；多语言安全手册有明确作者和方法。",
+    "authorityBoundary": "安全事件初报需复核地址、交易和项目修复；慢雾提供商业安全服务，合作/审计不等于产品绝对安全。",
+    "entryType": "repository",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_and_hot_signal",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://github.com/slowmist/Blockchain-dark-forest-selfguard-handbook",
+      "https://evilcos.me/"
+    ],
+    "xHandle": "evilcos"
+  },
+  {
+    "id": "kol-zachxbt",
+    "name": "ZachXBT",
+    "category": "链上调查与反诈骗",
+    "url": "https://t.me/s/investigations",
+    "why": "本人署名Telegram公开调查频道持续链接自身X调查线程，含跨平台调查证据。",
+    "authorityBoundary": "调查指控是作者调查，不等于司法裁判；逐条复核交易、地址归属与证据链。未验证zachxbt.live归属，排除该仿似域名。",
+    "entryType": "telegram-public",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_and_hot_signal",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://t.me/investigations",
+      "https://t.me/s/investigations?before=172"
+    ],
+    "xHandle": "zachxbt"
+  },
+  {
+    "id": "kol-mudit-gupta",
+    "name": "Mudit Gupta",
+    "category": "合约与钱包安全",
+    "url": "https://mudit.blog/",
+    "why": "本人署名博客有WazirX、Wintermute、Cream、Poly Network等漏洞机制分析。",
+    "authorityBoundary": "技术分析适用于所审查的实现和时点；初期猜测不能当最终归因；旧文多、当前职位及更新渠道另验。",
+    "entryType": "blog",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://mudit.blog/"
+    ]
+  },
+  {
+    "id": "kol-taylor-monahan",
+    "name": "Taylor Monahan",
+    "category": "钱包安全与威胁情报",
+    "url": "https://metamask.io/en-GB/news/taylor-monahan",
+    "why": "MetaMask官方本人作者页有恶意软件及安全专题。",
+    "authorityBoundary": "本人技术分析与MetaMask官方事故通告不同；厂商关联和竞品表述需交叉证据；不沿用旧媒体职位。",
+    "entryType": "author-directory",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_and_hot_signal",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://metamask.io/en-GB/news/taylor-monahan"
+    ]
+  },
+  {
+    "id": "kol-hayden-adams",
+    "name": "Hayden Adams",
+    "category": "DEX与DeFi产品",
+    "url": "https://blog.uniswap.org/uniswap-v4",
+    "why": "Uniswap官方本人署名v4设计文章，作者链接作为个人账号身份锚点。",
+    "authorityBoundary": "对自己设计的AMM有一手价值；项目利益显著。初始愿景不证明当前产品上线；DAO治理不由创始人个人替代。",
+    "entryType": "authored-article",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://blog.uniswap.org/uniswap-v4"
+    ]
+  },
+  {
+    "id": "kol-robert-leshner",
+    "name": "Robert Leshner",
+    "category": "借贷与RWA",
+    "url": "https://www.superstate.com/about",
+    "why": "Superstate官方当前列联合创始人及CEO，说明此前联合创立Compound Labs。",
+    "authorityBoundary": "公司产品设计与历史机制经验可参考；RWA可得性、法域与风险须产品文件核查；不是独立评级。",
+    "entryType": "official-bio",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.superstate.co/",
+      "https://www.superstate.com/about"
+    ]
+  },
+  {
+    "id": "kol-andre-cronje",
+    "name": "Andre Cronje",
+    "category": "DeFi架构与市场结构",
+    "url": "https://andrecronje.info/",
+    "why": "本人规范身份页列Yearn/Keep3r/ve33历史及Flying Tulip、Witnessnet当前工作；Sonic官方声明与其现身份交叉吻合。",
+    "authorityBoundary": "个人/项目记录有一手性；投资与商业利益高。2026-06退出Sonic董事及常规参与，不能继续写Sonic现任CTO。",
+    "entryType": "blog",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://andrecronje.info/",
+      "https://www.soniclabs.com/blog/leadership-update-from-sonic-labs/"
+    ],
+    "xHandle": "AndreCronjeTech"
+  },
+  {
+    "id": "kol-chris-dixon",
+    "name": "Chris Dixon",
+    "category": "Web3投资与网络经济",
+    "url": "https://cdixon.org/",
+    "why": "个人站与About提供a16z crypto投资身份及网络/所有权长期论述。",
+    "authorityBoundary": "VC立场和被投组合影响观点；用于投资框架与叙事，不能替代技术规范、采用数据或项目独立调查。",
+    "entryType": "blog",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://cdixon.org/",
+      "https://cdixon.org/about/"
+    ]
+  },
+  {
+    "id": "kol-haseeb",
+    "name": "Haseeb Qureshi",
+    "category": "跨生态投资与机制",
+    "url": "https://haseebq.com/",
+    "why": "本人站当前标题为Dragonfly Managing Partner，有原创加密产品、去中心化与跨生态投资论述。",
+    "authorityBoundary": "VC持仓/被投关系需跟文披露；年度价格预测降为观点而非新闻事实。",
+    "entryType": "blog",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://haseebq.com/"
+    ]
+  },
+  {
+    "id": "kol-fred-ehrsam",
+    "name": "Fred Ehrsam",
+    "category": "加密创业与治理",
+    "url": "https://www.paradigm.xyz/team/fred-ehrsam",
+    "why": "官方列Paradigm联合创始人及Senior Advisor，旧原创文章讨论治理最小化与周期。",
+    "authorityBoundary": "本次已核验身份，但最新列表主要旧文；当前重心含Nudge。适合历史机制资料，低频监测；不写成现任GP。",
+    "entryType": "author-directory",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.paradigm.xyz/team/fred-ehrsam"
+    ]
+  },
+  {
+    "id": "kol-laura-shin",
+    "name": "Laura Shin",
+    "category": "原创采访与行业调查",
+    "url": "https://unchainedcrypto.com/about/",
+    "why": "Unchained官方当前列创始人/CEO、记者及节目主持人，可溯源到完整采访而非转述。",
+    "authorityBoundary": "采访中嘉宾的主张归嘉宾；节目赞助与媒体内容分开；不是协议官方或资产推荐。",
+    "entryType": "podcast-and-interviews",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://unchainedcrypto.com/about/"
+    ]
+  },
+  {
+    "id": "kol-colin-wu",
+    "name": "吴说 / Colin Wu",
+    "category": "中文与亚洲原创报道",
+    "url": "https://wublock123.com/",
+    "why": "中文官网、英文站、Substack和官方Linktree互链，提供亚洲监管、交易所、矿业原创采访及报道。",
+    "authorityBoundary": "Colin Wu个人与吴说编辑团队内容区分署名；媒体独家需第二证据；禁止把报道当官方政策。官网版权明确禁止未许可转载/复制/商用，须授权或仅合规链接引用。",
+    "entryType": "media-and-newsletter",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://wublock123.com/",
+      "https://www.wublockchain.xyz/",
+      "https://wublock.substack.com/about",
+      "https://linktr.ee/wublockchain"
+    ],
+    "xHandle": "wublockchain"
+  },
+  {
+    "id": "kol-mindao",
+    "name": "Mindao Yang",
+    "category": "中文DeFi与稳定币机制",
+    "url": "https://medium.com/@mindao.yang",
+    "why": "本人Medium自述dForce Founder，团队在Arbitrum官方论坛提案列其核心贡献者及创始人；有本人协议/事件署名。",
+    "authorityBoundary": "dForce相关内容利益直接；跨协议观点须数据/规范复核。Medium旧文多，本次不把已知X昵称猜作已验handle。",
+    "entryType": "author-directory",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://medium.com/@mindao.yang",
+      "https://forum.arbitrum.foundation/t/dforce-final-stip-round-1/16988"
+    ]
+  },
+  {
+    "id": "kol-dovey-wan",
+    "name": "Dovey Wan",
+    "category": "中文与跨境投资研究",
+    "url": "https://medium.com/@doveywan",
+    "why": "本人Medium在Primitive Ventures刊物下署名金融化信念系统及团队研究，并自述创始人身份。",
+    "authorityBoundary": "投资机构与被投组合有利益；自述/署名可验但本次官网读取失败，现任职务和实时账号仍需官方二次锚点。",
+    "entryType": "author-directory",
+    "priority": "P2",
+    "verification": "本人公开Medium署名及创始人自述已读取；机构官网不可读，当前职务及X待补验",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://medium.com/@doveywan"
+    ]
+  },
+  {
+    "id": "kol-jason-kam",
+    "name": "Jason Kam / MapleLeafCap",
+    "category": "中文Web3产品与投资",
+    "url": "https://www.folius.ventures/",
+    "why": "Folius官方Team直接把Founder链接到Mapleleafcap，提供中文/英文文献入口。",
+    "authorityBoundary": "官方声明基金存在未披露的非私募敞口；研究观点与持仓须分开，不能把基金持仓文章当独立项目评级。",
+    "entryType": "writing-directory",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.folius.ventures/",
+      "https://www.huttcapital.com/episode-30-jason-kam-folius-ventures"
+    ],
+    "xHandle": "Mapleleafcap"
+  },
+  {
+    "id": "kol-mengyan",
+    "name": "孟岩 / Mike Meng",
+    "category": "中文通证设计与标准",
+    "url": "https://eips.ethereum.org/EIPS/eip-3525",
+    "why": "ERC-3525最终规范的作者名单含Mike Meng；公开中文材料将其与孟岩/Solv对应，适合标准机制和中文长文线索。",
+    "authorityBoundary": "规范作者身份的权威只适用于标准与设计；Solv相关产品有直接利益；中文名映射辅以媒体资料，不宣称本次现任职务已验。",
+    "entryType": "standard-author-anchor",
+    "priority": "P2",
+    "verification": "EIP作者一手锚点已读取；中文名映射为公开媒体/署名辅助；持续个人发布入口与X待补验",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://eips.ethereum.org/EIPS/eip-3525",
+      "https://www.panewslab.com/zh-hant/articles/ttgv74yhkf07"
+    ]
+  },
+  {
+    "id": "kol-molly-white",
+    "name": "Molly White",
+    "category": "反方研究与政治资金追踪",
+    "url": "https://www.mollywhite.net/",
+    "why": "个人站列Citation Needed、Web3 is Going Just Great、Follow the Crypto及本人调查写作，提供行业风险的反方视角。",
+    "authorityBoundary": "批判性选题有选择偏差；事件列表不等于整个行业失败；事实判断回到法院文件、监管原件与数据。",
+    "entryType": "blog",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.mollywhite.net/"
+    ]
+  },
+  {
+    "id": "kol-dan-boneh",
+    "name": "Dan Boneh",
+    "category": "密码学与学术原始研究",
+    "url": "https://crypto.stanford.edu/~dabo/pubs/pubs.html",
+    "why": "Stanford官方本人页确认计算机科学及电气工程教授、计算机安全实验室联合负责人；论文目录与区块链/密码学课程为原始研究入口。",
+    "authorityBoundary": "权威在应用密码学、安全证明及教学；论文假设和证明范围不能外推到部署安全或代币回报，课程不等于项目背书。",
+    "entryType": "academic-publications",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://crypto.stanford.edu/~dabo/",
+      "https://crypto.stanford.edu/~dabo/pubs/pubs.html"
+    ]
+  },
+  {
+    "id": "kol-tim-roughgarden",
+    "name": "Tim Roughgarden",
+    "category": "机制设计与学术原始研究",
+    "url": "https://timroughgarden.org/chron.html",
+    "why": "署名论文目录含交易费机制、PoS共识、PBS、AMM及2026研究；本人当前页列IAS数学教授、Columbia休假教授与a16z crypto研究负责人。",
+    "authorityBoundary": "机制分析须保留数学假设；与a16z机构存在利益关联；论文结果不自动证明某实现安全或经济长期成立。",
+    "entryType": "academic-publications",
+    "priority": "P0",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://timroughgarden.org/",
+      "https://timroughgarden.org/chron.html"
+    ]
+  },
+  {
+    "id": "kol-ari-juels",
+    "name": "Ari Juels",
+    "category": "密码学与MEV学术研究",
+    "url": "https://www.arijuels.com/",
+    "why": "本人学术页确认Cornell Tech教授、IC3联合创办/负责人及Chainlink Labs首席科学家；Flash Boys 2.0有正式作者署名。",
+    "authorityBoundary": "学术成果适用于论文问题；Chainlink任职构成明确项目利益，研究与产品推广分开；身份页须再定位论文更新列表。",
+    "entryType": "academic-identity-anchor",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.arijuels.com/",
+      "https://arxiv.org/abs/1904.05234"
+    ]
+  },
+  {
+    "id": "kol-phil-daian",
+    "name": "Phil / Philip Daian",
+    "category": "MEV与交易排序研究",
+    "url": "https://research.flashbots.net/",
+    "why": "Flash Boys 2.0正式第一作者；Flashbots官方研究目录有其2025署名Defining Geographic Decentralisation，Ari Juels学术页链接其本人及Flashbots去向。",
+    "authorityBoundary": "采集需按作者过滤，不能把整站归为其作品；MEV组织立场和商业利益须披露，本次不据旧学术页断言当前职称。",
+    "entryType": "research-directory-author-filter",
+    "priority": "P0",
+    "verification": "论文署名和官方2025研究目录已读；pdaian.com本次工具不能读取；当前职称与个人X未验",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://arxiv.org/abs/1904.05234",
+      "https://research.flashbots.net/",
+      "https://www.arijuels.com/"
+    ]
+  },
+  {
+    "id": "kol-gavin-wood",
+    "name": "Gavin Wood",
+    "category": "多链架构与Polkadot",
+    "url": "https://gavwood.com/",
+    "why": "本人网站连接Yellow Paper、Polkadot原始提案与技术经历；为Ethereum形式规范及多链设计的作者原始入口。",
+    "authorityBoundary": "历史创始经历可核；站点较静态，不据此推定今日公司职务；Polkadot/JAM路线有生态利益，技术主张须比对规范及实现。",
+    "entryType": "identity-and-original-papers",
+    "priority": "P1",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://gavwood.com/",
+      "https://arxiv.org/abs/2005.13456"
+    ]
+  },
+  {
+    "id": "kol-anatoly-yakovenko",
+    "name": "Anatoly Yakovenko",
+    "category": "Solana共识与性能架构",
+    "url": "https://solana.com/solana-whitepaper.pdf",
+    "why": "Solana官网托管本人署名原始白皮书；官网Proof of History文章有其完整技术说明与Solana Labs联合创始人身份。",
+    "authorityBoundary": "白皮书是历史技术设计，不能当成当前Agave/Alpenglow规范或实测TPS；Solana创始人立场须与客户端数据交叉；个人持续内容入口待补。",
+    "entryType": "signed-whitepaper-anchor",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://solana.com/solana-whitepaper.pdf",
+      "https://solana.com/el/news/proof-of-history"
+    ]
+  },
+  {
+    "id": "kol-mert-mumtaz",
+    "name": "Mert Mumtaz",
+    "category": "Solana基础设施与产品",
+    "url": "https://www.helius.dev/about",
+    "why": "Helius官网确认现任联合创始人及CEO，说明其工程经历与当前负责方向；可用于核对其原始访谈和基础设施经验。",
+    "authorityBoundary": "身份入口已验，但Helius团队博客不能全归到其本人；与Solana基础设施业务有直接利益；个人署名列表/X需另验，先取访谈与有署名原件。",
+    "entryType": "company-identity-anchor",
+    "priority": "P2",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.helius.dev/about",
+      "https://www.helius.dev/blog"
+    ]
+  },
+  {
+    "id": "kol-jesse-pollak",
+    "name": "Jesse Pollak",
+    "category": "L2与Base产品方向",
+    "url": "https://www.ycombinator.com/blog/author/jesse-pollak",
+    "why": "YC官方作者目录保留其联合署名YC x Coinbase RFS；Coinbase官方2024业绩电话会议涉及其Base及Wallet管理职责，构成原始身份与表述锚点。",
+    "authorityBoundary": "2024管理角色仅为历史锚点，当前职务待官网更新；YC合作署名不是全部个人作品；Base/相关创业投资有商业立场，不把生态愿景当增长事实。",
+    "entryType": "official-authored-directory",
+    "priority": "P2",
+    "verification": "YC作者页及Coinbase官方历史电话会议原件可读；未核2026现任头衔、个人持续渠道与X",
+    "participationMode": "editorial",
+    "selected": true,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.ycombinator.com/blog/author/jesse-pollak",
+      "https://investor.coinbase.com/files/doc_financials/2024/q3/Q3-24-Analyst-Q-A-Call-Transcript.pdf"
+    ]
+  },
+  {
+    "id": "obs-arthur-hayes",
+    "name": "Arthur Hayes",
+    "category": "宏观与市场叙事",
+    "url": "https://cryptohayes.substack.com/",
+    "why": "本人Crypto Trader Digest持续长文；自述Maelstrom CIO及BitMEX前CEO。",
+    "authorityBoundary": "可研究衍生品和流动性框架；价格/时点预测和谈及持仓仅算观点，不能给新闻自动背书。",
+    "entryType": "newsletter",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "hot_signal_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://cryptohayes.substack.com/"
+    ]
+  },
+  {
+    "id": "obs-cobie",
+    "name": "Cobie",
+    "category": "市场结构与代币批评",
+    "url": "https://cobie.substack.com/about",
+    "why": "本人Substack及Paradigm官方Advisor身份可核查。",
+    "authorityBoundary": "讽刺、匿名爆料、持仓与顾问关系需隔离；单条爆料需原始证据后再入稿。",
+    "entryType": "newsletter",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "hot_signal_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://cobie.substack.com/about",
+      "https://www.paradigm.xyz/team/cobie"
+    ]
+  },
+  {
+    "id": "obs-david-hoffman",
+    "name": "David Hoffman",
+    "category": "媒体主持与生态叙事",
+    "url": "https://www.bankless.com/author/david-hoffman",
+    "why": "Bankless本人作者页及节目，含持仓/天使投资/顾问披露。",
+    "authorityBoundary": "明确观点内容和赞助；官方披露页本身可能滞后，不能推断实时持仓；采访可用，资产观点隔离。",
+    "entryType": "author-directory",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_interviews_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.bankless.com/author/david-hoffman"
+    ]
+  },
+  {
+    "id": "obs-ryan-sean-adams",
+    "name": "Ryan Sean Adams",
+    "category": "媒体主持与生态叙事",
+    "url": "https://www.bankless.com/author/ryan",
+    "why": "Bankless本人作者页可核查署名及商业利益披露。",
+    "authorityBoundary": "多个被投/顾问关系，个人观点与独立采访区分；不把同一Bankless团队两名主持算两个独立证据。",
+    "entryType": "author-directory",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_interviews_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.bankless.com/author/ryan"
+    ]
+  },
+  {
+    "id": "obs-anthony-sassano",
+    "name": "Anthony Sassano",
+    "category": "ETH教育与社区观点",
+    "url": "https://thedailygwei.substack.com/about",
+    "why": "The Daily Gwei本人刊物About及项目报告中的创始人身份可核查。",
+    "authorityBoundary": "ETH生态立场强；技术解释需对照规范；旧thedailygwei.com已停放，不采集该域。",
+    "entryType": "newsletter",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "hot_signal_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://thedailygwei.substack.com/about",
+      "https://docs.arbitrum.foundation/assets/files/ArbitrumFoundationTransparencyReport2025-3ac117dd3203dbe7bca401cf951f0c14.pdf"
+    ]
+  },
+  {
+    "id": "obs-evan-van-ness",
+    "name": "Evan Van Ness",
+    "category": "ETH社区与历史周报",
+    "url": "https://weekinethereum.substack.com/",
+    "why": "本人2025-01-01公告Week in Ethereum已结束；Substack现有个人内容。",
+    "authorityBoundary": "旧周报不作活跃自动信源；现有收益/交易推荐与历史开发周报不是同一编辑产品。",
+    "entryType": "newsletter-changed-scope",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "manual_observation_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://weekinethereum.substack.com/p/week-in-ethereum-has-ended-heres",
+      "https://weekinethereum.substack.com/"
+    ]
+  },
+  {
+    "id": "obs-yuyue",
+    "name": "愉悦 / Yuyue",
+    "category": "中文链上交易与情绪",
+    "url": "https://www.binance.com/en-BH/square/profile/yuyue_chris",
+    "why": "公开自发表Square页面可观察中文叙事、空投及交易讨论。",
+    "authorityBoundary": "自报回报/排名不作为能力证据；利益和地址归属未系统验证。只作热点线索，不升格权威。",
+    "entryType": "self-publishing-profile",
+    "priority": "P3",
+    "verification": "公开自发表页面已检索；跨平台本人身份链、X与实盘数据未验",
+    "participationMode": "hot_signal_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.binance.com/en-BH/square/profile/yuyue_chris"
+    ]
+  },
+  {
+    "id": "obs-haotian",
+    "name": "Haotian / 链上观",
+    "category": "中文技术与商业解读",
+    "url": "https://www.panewslab.com/zh/articles/sb40q2ni4rat",
+    "why": "本人受访自述研究经历，PANews有持续署名技术/产品长文。",
+    "authorityBoundary": "这是作者观点与采访自述；历史PeckShield/Amber职位未独立向雇主确认，项目推荐过滤，技术主张回到代码/论文。",
+    "entryType": "authored-interview-and-column",
+    "priority": "P3",
+    "verification": "本人受访自述与多篇署名可读；当前职务/商业关系/X身份锚点待补验",
+    "participationMode": "hot_signal_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.panewslab.com/zh/articles/sb40q2ni4rat",
+      "https://panews.io/articles/143d6671-f938-48bf-b398-6da380280b02"
+    ]
+  },
+  {
+    "id": "obs-0xtodd",
+    "name": "0xTodd",
+    "category": "中文质押与资产机制",
+    "url": "https://www.gate.com/news/detail/17777767",
+    "why": "2026访谈署名及受访者介绍可发现EBunker/Nothing Research研究线索。",
+    "authorityBoundary": "此次只有访谈转载，不能证实现任职务/个人账号；不使用同名空GitHub作为身份锚点；暂不接入采集。",
+    "entryType": "interview-republication",
+    "priority": "P3",
+    "verification": "仅采访转载可检索；官方任职/本人入口/X身份锚点未验",
+    "participationMode": "identity_verification_required",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.gate.com/news/detail/17777767"
+    ]
+  },
+  {
+    "id": "obs-shenyu",
+    "name": "神鱼 / 毛世行",
+    "category": "中文托管与矿业",
+    "url": "https://www.cobo.com/zh/about",
+    "why": "Cobo官网当前列联合创始人及CEO，并说明F2Pool共同创立经历。",
+    "authorityBoundary": "公司历史与托管设计可作一手采访；收益策略、产品推广有直接利益；个人X入口未验证。",
+    "entryType": "official-bio",
+    "priority": "P3",
+    "verification": "已读取本人/机构公开页面；身份或署名可核对；RSS与X时间线未实测",
+    "participationMode": "editorial_interviews_only",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.cobo.com/zh/about"
+    ]
+  },
+  {
+    "id": "obs-wangchao",
+    "name": "王超 / Wang Chao",
+    "category": "中文DAO与Crypto-AI",
+    "url": "https://www.techflowpost.com/en-US/article/19362",
+    "why": "2024完整访谈保存本人关于Metropolis DAO及投资机制的自述。",
+    "authorityBoundary": "采访为历史身份锚点，当前角色/官方个人入口未验；DAO投资偏好是个人意见，并非DAO官方立场。",
+    "entryType": "authored-interview",
+    "priority": "P3",
+    "verification": "本人访谈历史自述已检索；现任身份、个人渠道及X待补验",
+    "participationMode": "identity_verification_required",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://www.techflowpost.com/en-US/article/19362"
+    ]
+  },
+  {
+    "id": "obs-willy-woo",
+    "name": "Willy Woo / Woobull",
+    "category": "BTC链上模型与市场",
+    "url": "https://woobull.com/",
+    "why": "可读Woobull博客/模型站，适合补充Bitcoin链上定价假设。",
+    "authorityBoundary": "指标定义、模型回测与实时个人账号需补验；投资价格判断与链上原始数据严格分开；目前仅候选。",
+    "entryType": "model-and-blog",
+    "priority": "P3",
+    "verification": "Woobull网站可读；本次未完成个人身份链及最新数据/模型准确性验证",
+    "participationMode": "identity_verification_required",
+    "selected": false,
+    "checkedAt": "2026-10-01",
+    "xTimelineVerified": false,
+    "followerCountVerified": false,
+    "evidenceUrls": [
+      "https://woobull.com/"
+    ]
+  }
+]

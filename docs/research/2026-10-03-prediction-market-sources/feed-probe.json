@@ -1,0 +1,1057 @@
+{
+  "checkedAt": "2026-10-03T14:45:39.701Z",
+  "environment": "production parser, no storage and no paid fallback",
+  "results": [
+    {
+      "id": "fos-betting",
+      "feedUrl": "https://frontofficesports.com/category/sports-betting/feed/",
+      "ok": true,
+      "responseUrl": "https://frontofficesports.com/category/sports-betting/feed/",
+      "ms": 637,
+      "count": 50,
+      "dated": 50,
+      "related": 31,
+      "related48h": 0,
+      "latest": "2026-09-30T14:12:32.000Z",
+      "allCategories": [
+        "Sports Betting"
+      ],
+      "samples": [
+        {
+          "title": "Novig to Quadruple Valuation With New Funding Round",
+          "url": "https://frontofficesports.com/article/novig-to-quadruple-valuation-with-new-funding-round/",
+          "publishedAt": "2026-09-30T14:12:32.000Z",
+          "bodyChars": 3260,
+          "excerptChars": 53,
+          "categories": [
+            "Sports Betting"
+          ],
+          "detail": null
+        },
+        {
+          "title": "CFTC Preparing Crackdown on Prediction-Market Promos",
+          "url": "https://frontofficesports.com/article/trump-admin-preparing-crackdown-on-prediction-market-promos/",
+          "publishedAt": "2026-09-29T15:01:55.000Z",
+          "bodyChars": 4397,
+          "excerptChars": 56,
+          "categories": [
+            "Sports Betting"
+          ],
+          "detail": null
+        },
+        {
+          "title": "Demystifying the Role of Market Makers in Prediction Markets",
+          "url": "https://frontofficesports.com/article/demystifying-the-role-of-market-makers-in-prediction-markets/",
+          "publishedAt": "2026-09-22T16:22:23.000Z",
+          "bodyChars": 4196,
+          "excerptChars": 71,
+          "categories": [
+            "Sports Betting"
+          ],
+          "detail": null
+        }
+      ]
+    },
+    {
+      "id": "fos-category",
+      "feedUrl": "https://frontofficesports.com/category/prediction-markets/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "fos-tag",
+      "feedUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+      "ok": true,
+      "responseUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+      "ms": 890,
+      "count": 50,
+      "dated": 50,
+      "related": 42,
+      "related48h": 0,
+      "latest": "2026-09-30T14:12:32.000Z",
+      "allCategories": [
+        "Sports Betting",
+        "Law",
+        "Athletes",
+        "Deals",
+        "Asset Class",
+        "Video",
+        "Leagues",
+        "Media",
+        "Teams",
+        "World Cup"
+      ],
+      "samples": [
+        {
+          "title": "Novig to Quadruple Valuation With New Funding Round",
+          "url": "https://frontofficesports.com/article/novig-to-quadruple-valuation-with-new-funding-round/",
+          "publishedAt": "2026-09-30T14:12:32.000Z",
+          "bodyChars": 3260,
+          "excerptChars": 53,
+          "categories": [
+            "Sports Betting"
+          ],
+          "detail": null
+        },
+        {
+          "title": "CFTC Preparing Crackdown on Prediction-Market Promos",
+          "url": "https://frontofficesports.com/article/trump-admin-preparing-crackdown-on-prediction-market-promos/",
+          "publishedAt": "2026-09-29T15:01:55.000Z",
+          "bodyChars": 4397,
+          "excerptChars": 56,
+          "categories": [
+            "Sports Betting"
+          ],
+          "detail": null
+        },
+        {
+          "title": "New York Pulls Polymarket Into Legal Battle With $4.6B Suit",
+          "url": "https://frontofficesports.com/article/new-york-pulls-polymarket-into-legal-battle-with-4-6b-suit/",
+          "publishedAt": "2026-09-24T20:33:38.000Z",
+          "bodyChars": 3173,
+          "excerptChars": 49,
+          "categories": [
+            "Law"
+          ],
+          "detail": null
+        }
+      ]
+    },
+    {
+      "id": "fortune-tag",
+      "feedUrl": "https://fortune.com/tag/prediction-markets/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "sportico-news",
+      "feedUrl": "https://www.sportico.com/feed/",
+      "ok": true,
+      "responseUrl": "https://www.sportico.com/feed/",
+      "ms": 67,
+      "count": 10,
+      "dated": 10,
+      "related": 0,
+      "related48h": 0,
+      "latest": "2026-10-02T19:27:10.000Z",
+      "allCategories": [],
+      "samples": []
+    },
+    {
+      "id": "fortune-crypto",
+      "feedUrl": "https://fortune.com/crypto/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "fortune-polymarket",
+      "feedUrl": "https://fortune.com/tag/polymarket/feed/",
+      "ok": false,
+      "error": "Error: HTTP 404"
+    },
+    {
+      "id": "sportico-tag",
+      "feedUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+      "ok": true,
+      "responseUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+      "ms": 3736,
+      "count": 9,
+      "dated": 9,
+      "related": 9,
+      "related48h": 0,
+      "latest": "2026-09-26T14:00:00.000Z",
+      "allCategories": [
+        "Analysis",
+        "Law",
+        "CFTC",
+        "Federal Courts",
+        "Kalshi",
+        "prediction markets",
+        "sports betting",
+        "U.S. Supreme Court",
+        "Business",
+        "Sports Betting",
+        "NFL",
+        "Mobile Sports Betting",
+        "Polymarket",
+        "ProphetX",
+        "data viz",
+        "People",
+        "Personalities",
+        "fraud",
+        "NCAA",
+        "NIL",
+        "Podcasts",
+        "Sporticast",
+        "Robinhood"
+      ],
+      "samples": [
+        {
+          "title": "Kalshi Split Widens With 6th Circuit Ruling on Sports Event Contracts",
+          "url": "https://www.sportico.com/law/analysis/2026/kalshi-circuit-split-scotus-1234945840/",
+          "publishedAt": "2026-09-26T14:00:00.000Z",
+          "bodyChars": 0,
+          "excerptChars": 354,
+          "categories": [
+            "Analysis",
+            "Law",
+            "CFTC",
+            "Federal Courts",
+            "Kalshi",
+            "prediction markets",
+            "sports betting",
+            "U.S. Supreme Court"
+          ],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://www.sportico.com/law/analysis/2026/kalshi-circuit-split-scotus-1234945840/",
+            "bodyChars": 5542
+          }
+        },
+        {
+          "title": "Kalshi, Tribes Appellate Ruling Could Grab SCOTUS Attention",
+          "url": "https://www.sportico.com/law/analysis/2026/kalshi-blue-lake-rancheria-ninth-circuit-1234945381/",
+          "publishedAt": "2026-09-22T15:02:30.000Z",
+          "bodyChars": 0,
+          "excerptChars": 338,
+          "categories": [
+            "Analysis",
+            "Law",
+            "Federal Courts",
+            "Kalshi",
+            "prediction markets",
+            "sports betting",
+            "U.S. Supreme Court"
+          ],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://www.sportico.com/law/analysis/2026/kalshi-blue-lake-rancheria-ninth-circuit-1234945381/",
+            "bodyChars": 9444
+          }
+        },
+        {
+          "title": "Kalshi Stops Its Sports Injury Betting Markets at CFTC’s Request",
+          "url": "https://www.sportico.com/business/sports-betting/2026/kalshi-injury-betting-nfl-cftc-1234943772/",
+          "publishedAt": "2026-09-02T18:10:17.000Z",
+          "bodyChars": 0,
+          "excerptChars": 392,
+          "categories": [
+            "Business",
+            "Sports Betting",
+            "CFTC",
+            "Kalshi",
+            "NFL",
+            "prediction markets"
+          ],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://www.sportico.com/business/sports-betting/2026/kalshi-injury-betting-nfl-cftc-1234943772/",
+            "bodyChars": 4297
+          }
+        }
+      ]
+    },
+    {
+      "id": "blockworks-new",
+      "feedUrl": "https://blockworks.com/feed",
+      "ok": true,
+      "responseUrl": "https://blockworks.com/feed",
+      "ms": 539,
+      "count": 50,
+      "dated": 50,
+      "related": 3,
+      "related48h": 0,
+      "latest": "2026-01-07T14:00:00.000Z",
+      "allCategories": [
+        "0xResearch Newsletter",
+        "The Breakdown"
+      ],
+      "samples": [
+        {
+          "title": "Robinhood’s leap shows the prediction-market arms race is underway",
+          "url": "https://blockworks.com/news/robinhoods-leap-shows-the-prediction-market-arms-race-is-underway",
+          "publishedAt": "2025-12-18T20:02:16.000Z",
+          "bodyChars": 0,
+          "excerptChars": 106,
+          "categories": [
+            "0xResearch Newsletter"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/robinhoods-leap-shows-the-prediction-market-arms-race-is-underway",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Risk back on the table as crypto ETFs bounce back",
+          "url": "https://blockworks.com/news/risk-back-on-table",
+          "publishedAt": "2025-12-08T15:44:01.000Z",
+          "bodyChars": 0,
+          "excerptChars": 75,
+          "categories": [
+            "0xResearch Newsletter"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/risk-back-on-table",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Thursday links: Prediction markets, agent hackers, quantum risks",
+          "url": "https://blockworks.com/news/agent-hackers-quantum-risks",
+          "publishedAt": "2025-12-04T22:41:47.000Z",
+          "bodyChars": 0,
+          "excerptChars": 106,
+          "categories": [
+            "The Breakdown"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/agent-hackers-quantum-risks",
+            "bodyChars": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "blockworks",
+      "feedUrl": "https://blockworks.co/feed",
+      "ok": true,
+      "responseUrl": "https://blockworks.com/feed",
+      "ms": 541,
+      "count": 50,
+      "dated": 50,
+      "related": 3,
+      "related48h": 0,
+      "latest": "2026-01-07T14:00:00.000Z",
+      "allCategories": [
+        "0xResearch Newsletter",
+        "The Breakdown"
+      ],
+      "samples": [
+        {
+          "title": "Robinhood’s leap shows the prediction-market arms race is underway",
+          "url": "https://blockworks.com/news/robinhoods-leap-shows-the-prediction-market-arms-race-is-underway",
+          "publishedAt": "2025-12-18T20:02:16.000Z",
+          "bodyChars": 0,
+          "excerptChars": 106,
+          "categories": [
+            "0xResearch Newsletter"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/robinhoods-leap-shows-the-prediction-market-arms-race-is-underway",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Risk back on the table as crypto ETFs bounce back",
+          "url": "https://blockworks.com/news/risk-back-on-table",
+          "publishedAt": "2025-12-08T15:44:01.000Z",
+          "bodyChars": 0,
+          "excerptChars": 75,
+          "categories": [
+            "0xResearch Newsletter"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/risk-back-on-table",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Thursday links: Prediction markets, agent hackers, quantum risks",
+          "url": "https://blockworks.com/news/agent-hackers-quantum-risks",
+          "publishedAt": "2025-12-04T22:41:47.000Z",
+          "bodyChars": 0,
+          "excerptChars": 106,
+          "categories": [
+            "The Breakdown"
+          ],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://blockworks.com/news/agent-hackers-quantum-risks",
+            "bodyChars": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "cnbc",
+      "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "ok": true,
+      "responseUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "ms": 733,
+      "count": 30,
+      "dated": 30,
+      "related": 1,
+      "related48h": 1,
+      "latest": "2026-10-03T14:00:01.000Z",
+      "allCategories": [],
+      "samples": [
+        {
+          "title": "Novig credits Sydney Sweeney-backed campaign for platform’s surge in growth",
+          "url": "https://www.cnbc.com/2026/10/03/novig-credits-sydney-sweeney-backed-campaign-for-platforms-surge-in-growth.html",
+          "publishedAt": "2026-10-03T13:30:48.000Z",
+          "bodyChars": 0,
+          "excerptChars": 116,
+          "categories": [],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://www.cnbc.com/2026/10/03/novig-credits-sydney-sweeney-backed-campaign-for-platforms-surge-in-growth.html",
+            "bodyChars": 3277
+          }
+        }
+      ]
+    },
+    {
+      "id": "defiant",
+      "feedUrl": "https://thedefiant.io/feed",
+      "ok": true,
+      "responseUrl": "https://thedefiant.io/api/feed",
+      "ms": 1214,
+      "count": 100,
+      "dated": 100,
+      "related": 4,
+      "related48h": 1,
+      "latest": "2026-10-03T09:14:07.000Z",
+      "allCategories": [],
+      "samples": [
+        {
+          "title": "Kalshi and Coinbase Win Partial Illinois Ruling on Sports Contracts",
+          "url": "https://thedefiant.io/news/regulation/kalshi-and-coinbase-win-partial-illinois-ruling-on-sports-contracts",
+          "publishedAt": "2026-10-02T23:10:02.000Z",
+          "bodyChars": 0,
+          "excerptChars": 173,
+          "categories": [],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://thedefiant.io/news/regulation/kalshi-and-coinbase-win-partial-illinois-ruling-on-sports-contracts",
+            "bodyChars": 511
+          }
+        },
+        {
+          "title": "Kalshi Files to End Volume Incentive Program",
+          "url": "https://thedefiant.io/news/cefi/kalshi-files-to-end-volume-incentive-program",
+          "publishedAt": "2026-09-30T07:34:13.000Z",
+          "bodyChars": 0,
+          "excerptChars": 148,
+          "categories": [],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://thedefiant.io/news/cefi/kalshi-files-to-end-volume-incentive-program",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Kalshi in Advanced Talks for $1B Raise at $40B Valuation: Reuters",
+          "url": "https://thedefiant.io/news/cefi/kalshi-in-advanced-talks-for-1b-raise-at-40b-valuation-reuters",
+          "publishedAt": "2026-09-30T06:34:34.000Z",
+          "bodyChars": 0,
+          "excerptChars": 135,
+          "categories": [],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://thedefiant.io/news/cefi/kalshi-in-advanced-talks-for-1b-raise-at-40b-valuation-reuters",
+            "bodyChars": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "gamblinginsider",
+      "feedUrl": "https://www.gamblinginsider.com/rss",
+      "ok": false,
+      "error": "Error: HTTP 403"
+    },
+    {
+      "id": "legal-sports",
+      "feedUrl": "https://www.legalsportsreport.com/feed/",
+      "ok": true,
+      "responseUrl": "https://www.legalsportsreport.com/feed/",
+      "ms": 852,
+      "count": 10,
+      "dated": 10,
+      "related": 5,
+      "related48h": 0,
+      "latest": "2026-09-30T17:50:47.000Z",
+      "allCategories": [
+        "Industry News",
+        "Sports News",
+        "BetMGM",
+        "Caesars",
+        "kalshi",
+        "MGM",
+        "Nevada",
+        "polymarket",
+        "predictions",
+        "Wynn",
+        "WynnBET",
+        "Legal Developments",
+        "State News",
+        "Ohio",
+        "Tennessee",
+        "Massachusetts",
+        "Michigan",
+        "ncpg"
+      ],
+      "samples": [
+        {
+          "title": "MGM, Caesars Not Risking Casino Licenses For Prediction Markets",
+          "url": "https://www.legalsportsreport.com/279685/mgm-caesars-not-risking-casino-licenses-for-prediction-markets/",
+          "publishedAt": "2026-09-30T17:50:47.000Z",
+          "bodyChars": 4329,
+          "excerptChars": 201,
+          "categories": [
+            "Industry News",
+            "Sports News",
+            "BetMGM",
+            "Caesars",
+            "kalshi",
+            "MGM",
+            "Nevada",
+            "polymarket",
+            "predictions",
+            "Wynn",
+            "WynnBET"
+          ],
+          "detail": null
+        },
+        {
+          "title": "Volume Rewards Program On Kalshi Set To End Nearly A Year Early",
+          "url": "https://www.legalsportsreport.com/279648/volume-rewards-program-on-kalshi-set-to-end-nearly-a-year-early/",
+          "publishedAt": "2026-09-30T17:37:32.000Z",
+          "bodyChars": 3328,
+          "excerptChars": 202,
+          "categories": [
+            "Industry News",
+            "Sports News",
+            "kalshi",
+            "predictions"
+          ],
+          "detail": null
+        },
+        {
+          "title": "Fluharty: Predictions Are ‘Moonshine’ To Sports Betting’s Fine Wine",
+          "url": "https://www.legalsportsreport.com/279547/fluharty-predictions-are-moonshine-to-sports-bettings-fine-wine/",
+          "publishedAt": "2026-09-30T17:23:19.000Z",
+          "bodyChars": 3824,
+          "excerptChars": 199,
+          "categories": [
+            "Industry News",
+            "Sports News",
+            "predictions"
+          ],
+          "detail": null
+        }
+      ]
+    },
+    {
+      "id": "casino-prediction",
+      "feedUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+      "ok": true,
+      "responseUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+      "ms": 1062,
+      "count": 40,
+      "dated": 40,
+      "related": 40,
+      "related48h": 2,
+      "latest": "2026-10-02T15:43:56.000Z",
+      "allCategories": [
+        "Legal",
+        "Prediction Markets",
+        "Army",
+        "DOJ",
+        "event contract",
+        "event contracts",
+        "Gannon Ken Van Dyke",
+        "insider trading",
+        "Justice Department",
+        "Nicolas Maduro",
+        "Polymarket",
+        "prediction market",
+        "prediction markets",
+        "Special Forces",
+        "sports contract",
+        "sports event contract",
+        "sports predictions",
+        "swap",
+        "swaps",
+        "Van Dyke",
+        "CFTC",
+        "Daniel Wallach",
+        "futures",
+        "sports event",
+        "Supreme Court",
+        "Commercial Gaming",
+        "Heather Maurer",
+        "Keith Whyte",
+        "National Council on Problem Gambling",
+        "NCPG",
+        "responsible gambling",
+        "Commodity Exchange Act",
+        "Commodity Futures Trading Commission",
+        "George Santos",
+        "mention markets",
+        "Santos",
+        "Trump",
+        "gambling disorder",
+        "problem gambling",
+        "Research",
+        "Sports Betting",
+        "sports betting",
+        "Sports gambling",
+        "sports prediction market",
+        "Stanford",
+        "U.S. News",
+        "US News",
+        "casino revenue",
+        "Delaware",
+        "GGR",
+        "gross gaming revenue",
+        "iGaming",
+        "Illegal Gambling",
+        "Maryland",
+        "mid-Atlantic",
+        "New Jersey",
+        "New York",
+        "Pennsylvania",
+        "sweepstakes casinos",
+        "Virginia",
+        "West Virginia",
+        "Coinbase",
+        "Gemini",
+        "AGA",
+        "American Gaming Association",
+        "College football",
+        "Football",
+        "football season",
+        "Handle",
+        "handle bets",
+        "NFL",
+        "revenue",
+        "sportsbook",
+        "accounting",
+        "audit",
+        "confidential information",
+        "Financial",
+        "inside information",
+        "KPMG",
+        "nonpublic",
+        "Polymarket US",
+        "Warren Jenson",
+        "DFS",
+        "sports event contracts",
+        "Underdog",
+        "casino",
+        "Live! Casino Hotel Maryland",
+        "Maryland Live!",
+        "MGM National Harbor",
+        "Betting Scandals",
+        "illegal gambling",
+        "Little League",
+        "Little League World Series",
+        "LLWS",
+        "offshore",
+        "offshore sports betting",
+        "offshore sportsbook",
+        "online sports betting",
+        "Scott Bessent",
+        "Todd Blanche",
+        "Treasury",
+        "Tzreasury",
+        "World Series",
+        "Derek Jeter",
+        "Eli Manning",
+        "LeBron",
+        "LeBron James",
+        "Spike Lee",
+        "Squads",
+        "Canadian Gaming",
+        "Canadian gaming",
+        "Canadian Lottery Coalition",
+        "CIRO",
+        "CLC",
+        "CSA",
+        "Trending",
+        "culture",
+        "Donald Trump",
+        "Elon Musk",
+        "Zohran Mamdani",
+        "Canada",
+        "Canadian Gaming Association",
+        "prediction",
+        "predictions",
+        "Wealthsimple",
+        "California",
+        "California casino",
+        "California sports betting",
+        "DraftKings",
+        "DraftKings Predictions",
+        "finance",
+        "investing",
+        "investment",
+        "Michael Selig",
+        "parlay",
+        "Politics",
+        "Sports",
+        "Warren Buffett",
+        "France",
+        "G20",
+        "italy",
+        "Japan",
+        "Korea",
+        "South Korea",
+        "Michael Baumgartner",
+        "wildfire arson",
+        "wildfire betting",
+        "Novig",
+        "predcition market",
+        "casino poll",
+        "Casinos",
+        "Gallup",
+        "gambling participation",
+        "gambling poll",
+        "poll",
+        "polling",
+        "gambling deduction",
+        "gambling income",
+        "gambling losses",
+        "gambling tax",
+        "gambling taxes",
+        "IIRS",
+        "Internal Revenue Service",
+        "OBBB",
+        "One Big Beautiful Bill",
+        "sports prediction markets",
+        "2028",
+        "2028 betting",
+        "2028 election",
+        "2028 odds",
+        "2028 poll",
+        "Alexandria Ocasio-Cortez",
+        "AOC",
+        "election betting",
+        "election odds",
+        "JD Vance",
+        "Marco Rubio",
+        "Ocasio-Cortez",
+        "Rubio",
+        "Vance",
+        "City Council",
+        "Nasdaq",
+        "New York Stock Exchange",
+        "NYC",
+        "NYSE",
+        "Wall Street",
+        "Tribal Gaming",
+        "CME",
+        "IGRA",
+        "Indian",
+        "Indian gaming",
+        "online sports",
+        "sovereign",
+        "tribal",
+        "tribal casino",
+        "Tribal gaming",
+        "tribe",
+        "ufc",
+        "Billy Walters",
+        "Dean Foods",
+        "Jason Robins",
+        "Phil Mickelson",
+        "bad credit",
+        "credit card",
+        "credit score",
+        "gambling",
+        "gamification",
+        "loan",
+        "ProphetX",
+        "Genius",
+        "Genius Sports",
+        "integrity",
+        "Kalshi",
+        "MLB",
+        "NCAA",
+        "Premier League",
+        "sports integrity",
+        "sports trading",
+        "Crime & Scandals",
+        "Gannon Van Dyke",
+        "wire fraud",
+        "ASIC",
+        "australia",
+        "Australian Securities and Investments Commission",
+        "consumer finance",
+        "investments",
+        "Moneysmart",
+        "securities",
+        "South Carolina",
+        "sports trade",
+        "Statute of Anne",
+        "Major League Baseball",
+        "New York Mets",
+        "Regulation",
+        "attorney general",
+        "attorneys general",
+        "CANJ",
+        "Casino Association of New Jersey"
+      ],
+      "samples": [
+        {
+          "title": "DOJ Labels Binary Event Contracts as Illegal Swaps in Green Beret Case",
+          "url": "https://www.casino.org/news/justice-department-says-binary-event-contracts-are-swaps/",
+          "publishedAt": "2026-10-02T15:43:56.000Z",
+          "bodyChars": 3567,
+          "excerptChars": 469,
+          "categories": [
+            "Legal",
+            "Prediction Markets",
+            "Army",
+            "DOJ",
+            "event contract",
+            "event contracts",
+            "Gannon Ken Van Dyke",
+            "insider trading",
+            "Justice Department",
+            "Nicolas Maduro",
+            "Polymarket",
+            "prediction market",
+            "prediction markets",
+            "Special Forces",
+            "sports contract",
+            "sports event contract",
+            "sports predictions",
+            "swap",
+            "swaps",
+            "Van Dyke"
+          ],
+          "detail": null
+        },
+        {
+          "title": "Why Casino-Style Games and Slots Won’t Be Hitting Prediction Markets",
+          "url": "https://www.casino.org/news/dont-bet-on-casino-style-slots-coming-to-prediction-markets/",
+          "publishedAt": "2026-10-01T15:31:49.000Z",
+          "bodyChars": 3709,
+          "excerptChars": 466,
+          "categories": [
+            "Prediction Markets",
+            "CFTC",
+            "Daniel Wallach",
+            "event contract",
+            "futures",
+            "prediction market",
+            "prediction markets",
+            "sports event",
+            "Supreme Court",
+            "swaps"
+          ],
+          "detail": null
+        },
+        {
+          "title": "National Council on Problem Gambling Seeking Third Executive Director in Two Years",
+          "url": "https://www.casino.org/news/national-council-on-problem-gambling-seeking-executive-director/",
+          "publishedAt": "2026-09-28T13:24:49.000Z",
+          "bodyChars": 3209,
+          "excerptChars": 487,
+          "categories": [
+            "Commercial Gaming",
+            "Heather Maurer",
+            "Keith Whyte",
+            "National Council on Problem Gambling",
+            "NCPG",
+            "prediction markets",
+            "responsible gambling"
+          ],
+          "detail": null
+        }
+      ]
+    },
+    {
+      "id": "defiant-rss",
+      "feedUrl": "https://thedefiant.io/feed.xml",
+      "ok": true,
+      "responseUrl": "https://thedefiant.io/api/feed",
+      "ms": 1151,
+      "count": 100,
+      "dated": 100,
+      "related": 4,
+      "related48h": 1,
+      "latest": "2026-10-03T09:14:07.000Z",
+      "allCategories": [],
+      "samples": [
+        {
+          "title": "Kalshi and Coinbase Win Partial Illinois Ruling on Sports Contracts",
+          "url": "https://thedefiant.io/news/regulation/kalshi-and-coinbase-win-partial-illinois-ruling-on-sports-contracts",
+          "publishedAt": "2026-10-02T23:10:02.000Z",
+          "bodyChars": 0,
+          "excerptChars": 173,
+          "categories": [],
+          "detail": {
+            "status": 200,
+            "responseUrl": "https://thedefiant.io/news/regulation/kalshi-and-coinbase-win-partial-illinois-ruling-on-sports-contracts",
+            "bodyChars": 511
+          }
+        },
+        {
+          "title": "Kalshi Files to End Volume Incentive Program",
+          "url": "https://thedefiant.io/news/cefi/kalshi-files-to-end-volume-incentive-program",
+          "publishedAt": "2026-09-30T07:34:13.000Z",
+          "bodyChars": 0,
+          "excerptChars": 148,
+          "categories": [],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://thedefiant.io/news/cefi/kalshi-files-to-end-volume-incentive-program",
+            "bodyChars": 0
+          }
+        },
+        {
+          "title": "Kalshi in Advanced Talks for $1B Raise at $40B Valuation: Reuters",
+          "url": "https://thedefiant.io/news/cefi/kalshi-in-advanced-talks-for-1b-raise-at-40b-valuation-reuters",
+          "publishedAt": "2026-09-30T06:34:34.000Z",
+          "bodyChars": 0,
+          "excerptChars": 135,
+          "categories": [],
+          "detail": {
+            "status": 403,
+            "responseUrl": "https://thedefiant.io/news/cefi/kalshi-in-advanced-talks-for-1b-raise-at-40b-valuation-reuters",
+            "bodyChars": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "axios",
+      "feedUrl": "https://api.axios.com/feed/",
+      "ok": true,
+      "responseUrl": "https://api.axios.com/feed/",
+      "ms": 1422,
+      "count": 100,
+      "dated": 100,
+      "related": 0,
+      "related48h": 0,
+      "latest": "2026-10-03T13:14:17.000Z",
+      "allCategories": [],
+      "samples": []
+    },
+    {
+      "id": "gamblingindustry",
+      "feedUrl": "https://igamingbusiness.com/feed/",
+      "ok": true,
+      "responseUrl": "https://igamingbusiness.com/feed/",
+      "ms": 2104,
+      "count": 100,
+      "dated": 100,
+      "related": 12,
+      "related48h": 3,
+      "latest": "2026-10-02T22:51:03.000Z",
+      "allCategories": [
+        "Online sports betting",
+        "Prediction markets",
+        "Sports betting",
+        "CFTC",
+        "G2E",
+        "white house",
+        "Legal & compliance",
+        "Regulation",
+        "EL",
+        "European Lotteries",
+        "prediction market",
+        "Casino",
+        "Tourism",
+        "AGA",
+        "Caesars Entertainment",
+        "Las Vegas",
+        "MGM Resorts",
+        "letitia james",
+        "Polymarket",
+        "ESMA",
+        "European Securities and Markets Authority",
+        "European Union",
+        "FCA",
+        "Financial Conduct Authority",
+        "Mifid",
+        "Marketing",
+        "Marketing & affiliates",
+        "Social media marketing",
+        "Novig",
+        "sydney",
+        "sydney sweeney",
+        "tony kenney",
+        "Finance",
+        "Funding",
+        "Investment",
+        "Ben Robinson",
+        "Chad Beynon",
+        "ed birkin",
+        "Entain",
+        "Flutter Entertainment",
+        "frank fantini",
+        "MGM",
+        "mgm international",
+        "Kalshi",
+        "Ninth Circuit",
+        "texas",
+        "Genius Sports",
+        "Legend",
+        "Tech & innovation",
+        "Catalist Sports",
+        "ParlayX",
+        "NFL"
+      ],
+      "samples": [
+        {
+          "title": "Prediction market roundup: CFTC sends proposed event contract rules to White House",
+          "url": "https://igamingbusiness.com/sports-betting/prediction-market-roundup-10226/",
+          "publishedAt": "2026-10-02T22:51:03.000Z",
+          "bodyChars": 4376,
+          "excerptChars": 127,
+          "categories": [
+            "Online sports betting",
+            "Prediction markets",
+            "Sports betting",
+            "CFTC",
+            "G2E",
+            "white house"
+          ],
+          "detail": null
+        },
+        {
+          "title": "European Lotteries calls for clearer regulation of prediction markets",
+          "url": "https://igamingbusiness.com/prediction-markets/european-lotteries-calls-clearer-regulation-prediction-markets/",
+          "publishedAt": "2026-10-02T09:25:59.000Z",
+          "bodyChars": 3991,
+          "excerptChars": 120,
+          "categories": [
+            "Legal & compliance",
+            "Prediction markets",
+            "Regulation",
+            "EL",
+            "European Lotteries",
+            "prediction market"
+          ],
+          "detail": null
+        },
+        {
+          "title": "2026 G2E Review: Gretzky, top industry CEOs take the stage at world’s largest gambling conference",
+          "url": "https://igamingbusiness.com/casino/2026-g2e-review-gretzky-returns-to-vegas/",
+          "publishedAt": "2026-10-01T20:49:58.000Z",
+          "bodyChars": 7973,
+          "excerptChars": 124,
+          "categories": [
+            "Casino",
+            "Tourism",
+            "AGA",
+            "Caesars Entertainment",
+            "G2E",
+            "Las Vegas",
+            "MGM Resorts"
+          ],
+          "detail": null
+        }
+      ]
+    }
+  ]
+}

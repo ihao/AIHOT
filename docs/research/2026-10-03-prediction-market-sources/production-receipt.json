@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-03T14:48:26.520Z",
+  "before": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  },
+  "after": {
+    "total": 109,
+    "enabled": 80,
+    "paused": 29
+  },
+  "actions": [
+    {
+      "id": "cnbc-prediction-markets",
+      "created": true,
+      "autoPolicy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetchJob": {
+        "jobId": "2a506dff-8196-44f7-af13-eef12b68e6f2"
+      }
+    },
+    {
+      "id": "fos-prediction-markets",
+      "created": true,
+      "autoPolicy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetchJob": {
+        "jobId": "27eb28c2-27a9-4bc1-ae7b-de9b919496f5"
+      }
+    },
+    {
+      "id": "sportico-prediction-markets",
+      "created": true,
+      "autoPolicy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetchJob": {
+        "jobId": "fa07e4c5-c0e8-4475-8b82-c9ac8bc09053"
+      }
+    },
+    {
+      "id": "igb-prediction-markets",
+      "created": true,
+      "autoPolicy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetchJob": {
+        "jobId": "72ada8f6-0091-4594-a4aa-5efdd42b1ea9"
+      }
+    },
+    {
+      "id": "casino-org-prediction-markets",
+      "created": true,
+      "autoPolicy": {
+        "enabled": true,
+        "version": 1
+      },
+      "fetchJob": {
+        "jobId": "584e380c-48b1-49cf-900a-4ceda8acd04c"
+      }
+    }
+  ]
+}

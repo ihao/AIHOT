@@ -23,13 +23,19 @@ async function fixture(name: string, mode = "editorial", relevance = "pass") {
   const { articleId: id } = await upsertMaterial({ sourceId: source, url: `https://example.org/${source}`,
     title: "Source article", bodyText: "Confirmed material", bodyStatus: "ok", publishedAt: new Date(), via: "fetch" });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, title_zh, summary_zh, category, selected, score)
-    VALUES (${id}, 1, 'rule', ${relevance}, '对外标题', '对外摘要', 'ai-models', true, 90)`;
+    VALUES (${id}, 1, 'rule', ${relevance}, '对外标题', '对外摘要', 'infrastructure', true, 90)`;
   await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
   return id;
 }
 
 test("indexing and sitemap require a readable source, while manual archive indexing remains available", async () => {
-  const archive = await fixture("Archived editorial", "editorial", "block");
+  const archive = await fixture("Archived editorial");
+  await sql`UPDATE articles SET backfill = true, published_at = NULL WHERE id = ${archive}`;
+  await sql`UPDATE analyses SET selected = false WHERE article_id = ${archive}`;
+  await publishArticle(archive);
+  const [archiveState] = await sql`SELECT eligible, visibility FROM publications WHERE article_id = ${archive}`;
+  assert.equal(archiveState!.eligible, false, "an undated archive stays outside the news pool");
+  assert.equal(archiveState!.visibility, "public", "an admitted archive retains its readable page");
   const signal = await fixture("Heat signal", "hot_signal");
   const future = await fixture("Not released yet");
   for (const id of [archive, signal]) await setSeoIndexed(id, { indexed: true, reason: "local indexing check" }, "test");

@@ -1,0 +1,1771 @@
+[
+  {
+    "id": "bitcoin-core",
+    "name": "Bitcoin Core 发布与安全公告",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://bitcoincore.org/en/releases/",
+    "why": "直接跟踪主流比特币客户端发布与安全修复",
+    "authorityBoundary": "客户端项目发布不代表全体节点接受某个协议变更",
+    "entryType": "release-list / RSS-link-observed",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://bitcoincore.org/en/releases/",
+      "note": "官网发布列表可读，并有 RSS Feeds 说明页；未执行 XML 解析。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "bitcoin-core",
+          "requestedUrl": "https://bitcoincore.org/en/releasesrss.xml",
+          "checkedAt": "2026-10-01T05:37:42.545452+00:00",
+          "result": "request-failed",
+          "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+        },
+        {
+          "id": "bitcoin-core-github",
+          "requestedUrl": "https://github.com/bitcoin/bitcoin/releases.atom",
+          "checkedAt": "2026-10-01T05:40:24.096755+00:00",
+          "status": 200,
+          "finalUrl": "https://github.com/bitcoin/bitcoin/releases.atom",
+          "contentType": "application/atom+xml; charset=utf-8",
+          "bytes": 8673,
+          "feedVersion": "atom10",
+          "parseWarning": false,
+          "entries": 10,
+          "datedEntries": 10,
+          "linkedEntries": 10,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "bitcoin-bips",
+    "name": "Bitcoin Improvement Proposals",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://github.com/bitcoin/bips",
+    "why": "协议提案原稿、状态和修改历史",
+    "authorityBoundary": "收录或编号不等于形成共识、合并实现或激活",
+    "entryType": "github-repository",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://github.com/bitcoin/bips",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "open_standard_proposals"
+  },
+  {
+    "id": "bitcoin-delving",
+    "name": "Delving Bitcoin",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://delvingbitcoin.org/",
+    "why": "开发者的协议设计、安全与实现讨论",
+    "authorityBoundary": "开放技术社区；发帖者观点不代表 Bitcoin 官方决策",
+    "entryType": "discourse-forum",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://delvingbitcoin.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "bitcoin-optech",
+    "name": "Bitcoin Optech",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://bitcoinops.org/",
+    "why": "高密度追踪 Bitcoin 与 Lightning 技术变更并链接原讨论",
+    "authorityBoundary": "独立专业技术编辑团队；属于二次整理，不是 Bitcoin 官方",
+    "entryType": "newsletter / RSS-link-observed",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://bitcoinops.org/",
+      "note": "页面列出近期周刊、支持者和 RSS 链接；feed 获取未成功。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "bitcoin-optech",
+          "requestedUrl": "https://bitcoinops.org/feed.xml",
+          "checkedAt": "2026-10-01T05:37:48.150750+00:00",
+          "result": "request-failed",
+          "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "independent_specialist_editorial"
+  },
+  {
+    "id": "ethereum-foundation",
+    "name": "Ethereum Foundation Blog",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://blog.ethereum.org/",
+    "why": "基金会研发、升级、安全与资助公告",
+    "authorityBoundary": "基金会声明不等于全体 Ethereum 社区或客户端共识",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.ethereum.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "ethereum-foundation",
+          "requestedUrl": "https://blog.ethereum.org/en/feed.xml",
+          "checkedAt": "2026-10-01T05:37:42.546075+00:00",
+          "status": 200,
+          "finalUrl": "https://blog.ethereum.org/en/feed.xml",
+          "contentType": "application/xml",
+          "bytes": 528443,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 640,
+          "datedEntries": 640,
+          "linkedEntries": 640,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "ethereum-research",
+    "name": "Ethereum Research",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://ethresear.ch/",
+    "why": "扩容、共识、密码学与经济机制的前沿讨论",
+    "authorityBoundary": "开放研究提案；须识别作者与成熟度，未必进入路线图",
+    "entryType": "discourse-forum",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://ethresear.ch/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "ethresearch",
+          "requestedUrl": "https://ethresear.ch/latest.rss",
+          "checkedAt": "2026-10-01T05:37:48.800394+00:00",
+          "status": 200,
+          "finalUrl": "https://ethresear.ch/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 874745,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "ethereum-eips",
+    "name": "Ethereum Improvement Proposals",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://eips.ethereum.org/",
+    "why": "核心协议与 ERC 标准原文和状态",
+    "authorityBoundary": "Draft、Review、Final 各有含义；Final 也不是全部客户端部署证据",
+    "entryType": "specification-index",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://eips.ethereum.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "open_standard_proposals"
+  },
+  {
+    "id": "ethereum-acd",
+    "name": "Ethereum All Core Devs 议程与记录",
+    "category": "Bitcoin 与 Ethereum 技术",
+    "url": "https://github.com/ethereum/pm",
+    "why": "开发协调会议、议程、会议记录与升级讨论",
+    "authorityBoundary": "会议讨论和目标日期不等于实际主网激活",
+    "entryType": "github-repository",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://github.com/ethereum/pm",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "developer_coordination_records"
+  },
+  {
+    "id": "solana-news",
+    "name": "Solana 官方新闻",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://solana.com/news",
+    "why": "网络升级、开发与应用生态的一手公告",
+    "authorityBoundary": "生态宣传和性能数据需核对测量方法；不自动代表所有生态项目",
+    "entryType": "official-news-list",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://solana.com/news",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "solana-blog-candidate",
+          "requestedUrl": "https://solana.com/news/rss.xml",
+          "checkedAt": "2026-10-01T05:40:21.640582+00:00",
+          "status": 200,
+          "finalUrl": "https://solana.com/news/rss.xml",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 14031,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 20,
+          "datedEntries": 20,
+          "linkedEntries": 20,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "solana-status",
+    "name": "Solana Status",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://status.solana.com/",
+    "why": "故障、维护与恢复时间线",
+    "authorityBoundary": "运营方报告；不能单靠绿色状态证明所有用户 RPC 正常",
+    "entryType": "status-page / RSS-Atom-links-observed",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://status.solana.com/",
+      "note": "可见历史事件、RSS 与 Atom 链接；feed 获取未成功。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "optimism-blog",
+    "name": "Optimism Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://optimism.io/blog",
+    "why": "OP Stack、升级、互操作与企业部署动态",
+    "authorityBoundary": "基金会和公司内容带商业立场；需区分 Mainnet 与其他 OP 链",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://optimism.io/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "optimism-gov",
+    "name": "Optimism Collective 治理论坛",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://gov.optimism.io/",
+    "why": "治理提案、预算、升级和资助讨论",
+    "authorityBoundary": "论坛讨论、投票通过与链上执行是不同状态",
+    "entryType": "discourse-forum",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://gov.optimism.io/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "optimism-forum",
+          "requestedUrl": "https://gov.optimism.io/latest.rss",
+          "checkedAt": "2026-10-01T05:37:54.167528+00:00",
+          "status": 200,
+          "finalUrl": "https://gov.optimism.io/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 266316,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "arbitrum-blog",
+    "name": "Arbitrum Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://blog.arbitrum.io/",
+    "why": "Arbitrum 技术、网络与生态公告",
+    "authorityBoundary": "基金会、开发商与 DAO 权限须分别识别",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.arbitrum.io/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "arbitrum-gov",
+    "name": "Arbitrum 治理论坛",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://forum.arbitrum.foundation/",
+    "why": "DAO 预算、委托人、生态与升级提案",
+    "authorityBoundary": "社区作者不等于基金会；提案不等于资金拨付或升级执行",
+    "entryType": "discourse-forum",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://forum.arbitrum.foundation/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "arbitrum-forum",
+          "requestedUrl": "https://forum.arbitrum.foundation/latest.rss",
+          "checkedAt": "2026-10-01T05:37:53.856457+00:00",
+          "status": 200,
+          "finalUrl": "https://forum.arbitrum.foundation/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 253221,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "base-blog",
+    "name": "Base Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://blog.base.org/",
+    "why": "Base 网络与产品动向",
+    "authorityBoundary": "官方运营者的网络公告；不可将宣传直接当作采用数据",
+    "entryType": "official-blog / dynamic-page",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "partial_page",
+      "evidenceUrl": "https://blog.base.org/",
+      "note": "页面可读，但只返回 27 行简要内容；文章列表与正文采集仍须实测。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "starknet-blog",
+    "name": "Starknet Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://www.starknet.io/blog/",
+    "why": "ZK 扩容、Cairo、网络升级与研发",
+    "authorityBoundary": "生态文章与技术结论应区分；路线图不等于上线",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.starknet.io/blog/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "zksync-blog",
+    "name": "ZKsync 官方 Paragraph",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://paragraph.com/@zksync",
+    "why": "ZK Stack、ZKsync 与协议升级动向",
+    "authorityBoundary": "项目观点带生态利益；动态页面需另测正文采集",
+    "entryType": "paragraph-publication / dynamic-page",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "partial_page",
+      "evidenceUrl": "https://paragraph.com/@zksync",
+      "note": "从 https://blog.zksync.io/ 跳转至此；页面仅返回简要壳内容。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "polygon-blog",
+    "name": "Polygon Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://polygon.technology/blog",
+    "why": "Polygon 升级、Agglayer 与支付稳定币生态",
+    "authorityBoundary": "不同产品网络不可混称；合作声明需核实上线状态",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://polygon.technology/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "avalanche-dev",
+    "name": "Avalanche Builder Hub Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://docs.avax.network/blog",
+    "why": "ACP、验证者规则、AvalancheGo 与网络升级",
+    "authorityBoundary": "Ava Labs DevRel 解释不替代代码、ACP 状态和链上激活",
+    "entryType": "developer-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://docs.avax.network/blog",
+      "note": "www.avax.network/blog 获取失败；此 Ava Labs DevRel 博客可读。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "aptos-news",
+    "name": "Aptos 官方 Currents",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://aptosnetwork.com/currents",
+    "why": "Move、网络、支付、开发与生态公告",
+    "authorityBoundary": "页面混有 Press 外部报道；采集需保留原始作者和出处",
+    "entryType": "official-news-list",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://aptosnetwork.com/currents",
+      "note": "从 https://aptosfoundation.org/currents 跳转到此；同时包含基金会内容与第三方 Press 链接。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "sui-blog",
+    "name": "Sui Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://www.sui.io/blog",
+    "why": "Move、网络发布、安全、应用与 Sui Stack",
+    "authorityBoundary": "基金会与开发商内容有生态立场；测试指标不等于生产指标",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.sui.io/blog",
+      "note": "从 https://blog.sui.io/ 跳转到此。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "bnb-blog",
+    "name": "BNB Chain Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://www.bnbchain.org/en/blog",
+    "why": "BNB Chain 网络、开发与生态公告",
+    "authorityBoundary": "与 Binance 交易所公告分开；公链宣传不证明资产风险可控",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.bnbchain.org/en/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "cosmos-blog",
+    "name": "Cosmos Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://cosmos.network/blog",
+    "why": "Cosmos SDK、IBC、网络与生态研究",
+    "authorityBoundary": "Cosmos 官网不能代表每条 Cosmos 链的治理决定",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://cosmos.network/blog",
+      "note": "从 https://blog.cosmos.network/ 跳转到此。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "celestia-blog",
+    "name": "Celestia Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://blog.celestia.org/",
+    "why": "数据可用性、模块化、网络升级与性能研究",
+    "authorityBoundary": "性能宣称需核对环境；DA 项目不等于所有 rollup 的安全保证",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.celestia.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "polkadot-forum",
+    "name": "Polkadot Forum",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://forum.polkadot.network/",
+    "why": "Polkadot 技术与生态讨论入口",
+    "authorityBoundary": "社区论坛；帖子不等于 OpenGov 公投或执行记录",
+    "entryType": "discourse-forum",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://forum.polkadot.network/",
+      "note": "社区论坛可读；polkadot.com/blog 与 newsroom 入口获取失败，首页无可解析正文。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "near-blog",
+    "name": "NEAR Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://www.near.org/blog",
+    "why": "链抽象、账户、协议与 AI 应用动态",
+    "authorityBoundary": "商业和基金会叙述需与网络技术文档相互核对",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.near.org/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "TON-docs",
+    "name": "TON 开发者文档",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://docs.ton.org/",
+    "why": "TON 协议、开发、节点与应用技术参考",
+    "authorityBoundary": "静态文档偏背景；不作为高频新闻流，也不等于 Telegram 全部产品信息",
+    "entryType": "developer-documentation",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://docs.ton.org/",
+      "note": "docs.ton.org 可读；www.ton.org/en 获取失败。blog.ton.org 跳至 t.me/gram，未将其收为候选内容流。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "berachain-blog",
+    "name": "Berachain Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://blog.berachain.com/",
+    "why": "Proof of Liquidity、网络与治理公告",
+    "authorityBoundary": "当前列表最新可见条目在 2025 年；活跃性须重新评估",
+    "entryType": "official-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.berachain.com/",
+      "note": "页面可读，最新可见列表项为 2025-11-19；未证明 2026 年持续更新。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "monad-docs",
+    "name": "Monad Documentation",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://docs.monad.xyz/",
+    "why": "EVM 执行、节点、网络与开发机制参考",
+    "authorityBoundary": "偏技术背景源；发布新闻另需发现并验收入口",
+    "entryType": "developer-documentation",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://docs.monad.xyz/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "ripple-insights",
+    "name": "Ripple Insights",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://ripple.com/insights/",
+    "why": "支付、XRP Ledger 相关产品、RLUSD 与机构应用",
+    "authorityBoundary": "Ripple 公司观点不能代表 XRP Ledger 全部社区或治理",
+    "entryType": "company-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://ripple.com/insights/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "cardano-foundation",
+    "name": "Cardano Foundation Blog",
+    "category": "L1、L2 与模块化网络",
+    "url": "https://cardanofoundation.org/blog",
+    "why": "Cardano 采用、研究、治理和基金会活动",
+    "authorityBoundary": "基金会是生态组织之一；不可将其等同所有协议开发方或治理主体",
+    "entryType": "foundation-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://cardanofoundation.org/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "aave-gov",
+    "name": "Aave 治理论坛",
+    "category": "DeFi 与流动性质押",
+    "url": "https://governance.aave.com/",
+    "why": "借贷参数、抵押品、风险评估、部署与 GHO 讨论",
+    "authorityBoundary": "TEMP CHECK、ARFC、AIP 与执行不同；风险服务商声明也需署名",
+    "entryType": "discourse-forum",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://governance.aave.com/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "aave-forum",
+          "requestedUrl": "https://governance.aave.com/latest.rss",
+          "checkedAt": "2026-10-01T05:37:49.382926+00:00",
+          "status": 200,
+          "finalUrl": "https://governance.aave.com/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 284546,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "aave-blog",
+    "name": "Aave Labs Blog",
+    "category": "DeFi 与流动性质押",
+    "url": "https://aave.com/blog",
+    "why": "协议架构、发布、产品和应用研究",
+    "authorityBoundary": "Labs 产品与 DAO 治理不同；自述安全结果需对应审计报告",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://aave.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "uniswap-gov",
+    "name": "Uniswap 治理论坛",
+    "category": "DeFi 与流动性质押",
+    "url": "https://gov.uniswap.org/",
+    "why": "费率、跨链部署、治理与资金提案",
+    "authorityBoundary": "RFC、Temperature Check 不等于投票通过或已执行",
+    "entryType": "discourse-forum",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://gov.uniswap.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "uniswap-forum",
+          "requestedUrl": "https://gov.uniswap.org/latest.rss",
+          "checkedAt": "2026-10-01T05:37:50.246835+00:00",
+          "status": 200,
+          "finalUrl": "https://gov.uniswap.org/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 378641,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "uniswap-blog",
+    "name": "Uniswap Labs Blog",
+    "category": "DeFi 与流动性质押",
+    "url": "https://blog.uniswap.org/",
+    "why": "AMM、Hooks、UniswapX、钱包与技术研究",
+    "authorityBoundary": "Labs、Foundation、协议 DAO 须分开；前端上线不等于协议变更",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.uniswap.org/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "uniswap-blog-candidate",
+          "requestedUrl": "https://blog.uniswap.org/feed.xml",
+          "checkedAt": "2026-10-01T05:40:20.014314+00:00",
+          "result": "request-failed",
+          "error": "HTTP Error 404: Not Found"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "sky-gov",
+    "name": "Sky 治理论坛",
+    "category": "DeFi 与流动性质押",
+    "url": "https://forum.skyeco.com/",
+    "why": "稳定币治理、风险参数、抵押品与 RWA 讨论",
+    "authorityBoundary": "论坛提案需关联 Executive Vote 与实际链上执行",
+    "entryType": "discourse-forum",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://forum.skyeco.com/",
+      "note": "从 https://forum.sky.money/ 跳转到此。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "curve-gov",
+    "name": "Curve Governance",
+    "category": "DeFi 与流动性质押",
+    "url": "https://gov.curve.finance/",
+    "why": "稳定币流动性、crvUSD、治理与激励",
+    "authorityBoundary": "论坛建议、Gauge 投票与实际资金影响需分别验证",
+    "entryType": "discourse-forum",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://gov.curve.finance/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "compound-gov",
+    "name": "Compound Community Forum",
+    "category": "DeFi 与流动性质押",
+    "url": "https://www.comp.xyz/",
+    "why": "借贷市场、风险参数和治理提案",
+    "authorityBoundary": "开放社区；需跟踪提案编号、投票状态和执行交易",
+    "entryType": "discourse-forum",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.comp.xyz/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "lido-gov",
+    "name": "Lido Governance",
+    "category": "DeFi 与流动性质押",
+    "url": "https://research.lido.fi/",
+    "why": "流动性质押、节点运营、安全和协议治理",
+    "authorityBoundary": "服务商、贡献者、DAO 权限不同；讨论不是协议执行",
+    "entryType": "discourse-forum",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://research.lido.fi/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "lido-forum",
+          "requestedUrl": "https://research.lido.fi/latest.rss",
+          "checkedAt": "2026-10-01T05:37:51.031570+00:00",
+          "status": 200,
+          "finalUrl": "https://research.lido.fi/latest.rss",
+          "contentType": "application/rss+xml; charset=utf-8",
+          "bytes": 179149,
+          "feedVersion": "rss20",
+          "parseWarning": false,
+          "entries": 30,
+          "datedEntries": 30,
+          "linkedEntries": 30,
+          "result": "parsed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "morpho-blog",
+    "name": "Morpho Blog",
+    "category": "DeFi 与流动性质押",
+    "url": "https://morpho.org/blog/",
+    "why": "借贷机制、金库、风险隔离与机构集成",
+    "authorityBoundary": "金库风险取决于策展人和配置；协议方宣传不替代逐库尽调",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://morpho.org/blog/",
+      "note": "带 www 的地址获取失败；morpho.org/blog/ 可读。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "pendle-blog",
+    "name": "Pendle 官方 Medium",
+    "category": "DeFi 与流动性质押",
+    "url": "https://medium.com/pendle",
+    "why": "收益拆分、PT/YT、利率交易与 Boros 动态",
+    "authorityBoundary": "由官网直接链接；产品机制解释不是固定收益承诺",
+    "entryType": "medium-publication",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "partial_page",
+      "evidenceUrl": "https://medium.com/pendle",
+      "note": "https://www.pendle.finance/ 页脚 Blog 直接链接此 Medium；页面可读，仅显示栏目和编辑信息。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "hyperliquid-docs",
+    "name": "Hyperliquid Docs",
+    "category": "DeFi 与流动性质押",
+    "url": "https://hyperliquid.gitbook.io/hyperliquid-docs",
+    "why": "永续、订单簿、HyperCore 与 HyperEVM 原始机制",
+    "authorityBoundary": "性能与透明度为项目自述；交易风险需验证链上与 API 数据",
+    "entryType": "developer-documentation",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://hyperliquid.gitbook.io/hyperliquid-docs",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "jupiter-devblog",
+    "name": "Jupiter Developer Blog",
+    "category": "DeFi 与流动性质押",
+    "url": "https://developers.jup.ag/blog",
+    "why": "Solana 聚合路由、报价、执行与 API 更新",
+    "authorityBoundary": "技术博客覆盖开发产品；不能代替所有 Jupiter DAO 或代币公告",
+    "entryType": "developer-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://developers.jup.ag/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "dydx-blog",
+    "name": "dYdX Blog",
+    "category": "DeFi 与流动性质押",
+    "url": "https://www.dydx.xyz/blog",
+    "why": "去中心化衍生品、产品与交易基础设施",
+    "authorityBoundary": "推广活动噪声较多；原 Labs、链和新产品权责应按文章区分",
+    "entryType": "official-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.dydx.xyz/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "balancer-gov",
+    "name": "Balancer Forum",
+    "category": "DeFi 与流动性质押",
+    "url": "https://forum.balancer.fi/",
+    "why": "AMM、激励、风险与 DAO 讨论",
+    "authorityBoundary": "开放提案，须确认投票和执行；安全事件需对照技术事后报告",
+    "entryType": "discourse-forum",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://forum.balancer.fi/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "rocketpool-gov",
+    "name": "Rocket Pool Governance",
+    "category": "DeFi 与流动性质押",
+    "url": "https://dao.rocketpool.net/",
+    "why": "去中心化节点质押、协议升级与治理",
+    "authorityBoundary": "协议 DAO 与 oracle DAO 角色须区分；帖子不等于 RPIP 已实施",
+    "entryType": "discourse-forum",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://dao.rocketpool.net/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "circle-blog",
+    "name": "Circle Blog",
+    "category": "稳定币与 RWA",
+    "url": "https://www.circle.com/blog",
+    "why": "USDC、EURC、CCTP、支付与产品支持变更",
+    "authorityBoundary": "发行人一手声明有商业立场；储备、赎回与监管结论另核验原始文件",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.circle.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "tether-news",
+    "name": "Tether News",
+    "category": "稳定币与 RWA",
+    "url": "https://tether.io/news/",
+    "why": "USDT、跨链发行、冻结和公司公告",
+    "authorityBoundary": "发行人公告不替代储备鉴证、监管文件或独立风险结论",
+    "entryType": "official-news-list",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://tether.io/news/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "paxos-blog",
+    "name": "Paxos Blog",
+    "category": "稳定币与 RWA",
+    "url": "https://www.paxos.com/blog",
+    "why": "PYUSD、USDG、USDP、PAXG 与发行基础设施",
+    "authorityBoundary": "监管表述需原监管文件；博客不等于审计意见",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.paxos.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "ethena-blog",
+    "name": "Ethena Blog",
+    "category": "稳定币与 RWA",
+    "url": "https://ethena.fi/blog",
+    "why": "USDe、USDtb、对冲机制、网络与产品公告",
+    "authorityBoundary": "合成美元风险不能类比现金储备稳定币；需透明度和托管对冲数据",
+    "entryType": "official-blog / dynamic-page",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "partial_page",
+      "evidenceUrl": "https://ethena.fi/blog",
+      "note": "博客标题、官网导航及治理入口可见，但文章列表未返回。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "ondo-blog",
+    "name": "Ondo Finance Blog",
+    "category": "稳定币与 RWA",
+    "url": "https://ondo.finance/blog",
+    "why": "代币化国债、证券、产品与合作公告",
+    "authorityBoundary": "代币不自动等于股票法律权利；需发行主体、条款及辖区核验",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://ondo.finance/blog",
+      "note": "从 https://blog.ondo.finance/ 跳转到此。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "centrifuge-blog",
+    "name": "Centrifuge Blog",
+    "category": "稳定币与 RWA",
+    "url": "https://centrifuge.io/blog",
+    "why": "RWA、资产池、基金基础设施与代币化",
+    "authorityBoundary": "每个资产池风险和投资者资格不同；协议品牌不保证信用",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://centrifuge.io/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "maple-insights",
+    "name": "Maple Insights",
+    "category": "稳定币与 RWA",
+    "url": "https://maple.finance/insights",
+    "why": "链上信用、收益、贷款与市场研究",
+    "authorityBoundary": "项目兼具利益相关方角色；收益及违约率应核实统计口径",
+    "entryType": "official-insights-list",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://maple.finance/insights",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "chainlink-blog",
+    "name": "Chainlink Blog",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://chain.link/blog",
+    "why": "预言机、CCIP、CRE、数据与机构互操作",
+    "authorityBoundary": "自身性能、采用率和安全表述需要协议配置及独立验证",
+    "entryType": "official-blog",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://chain.link/blog",
+      "note": "从 https://blog.chain.link/ 跳转到此。",
+      "feedTested": true,
+      "feedProbes": [
+        {
+          "id": "chainlink-old-feed",
+          "requestedUrl": "https://blog.chain.link/feed/",
+          "checkedAt": "2026-10-01T05:37:58.435225+00:00",
+          "status": 200,
+          "finalUrl": "https://chain.link/blog",
+          "contentType": "text/html; charset=utf-8",
+          "bytes": 363076,
+          "feedVersion": "",
+          "parseWarning": true,
+          "entries": 0,
+          "datedEntries": 0,
+          "linkedEntries": 0,
+          "result": "not-a-usable-feed"
+        }
+      ],
+      "feedProbeScope": "Local machine public read-only HTTP+feedparser; no EU production collector or database test."
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "pyth-blog",
+    "name": "Pyth Network Blog",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://www.pyth.network/blog",
+    "why": "价格数据、数据发布商与预言机集成",
+    "authorityBoundary": "成功案例是项目选择的材料；预言机数据质量需单独核验",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.pyth.network/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "layerzero-blog",
+    "name": "LayerZero Blog",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://layerzero.network/blog",
+    "why": "消息协议、跨链资产、DVN 与升级",
+    "authorityBoundary": "安全依赖应用配置和验证者；不能把协议品牌视为统一安全保证",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://layerzero.network/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "wormhole-blog",
+    "name": "Wormhole Blog",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://wormhole.com/blog",
+    "why": "跨链消息、NTT、支持网络与产品迁移",
+    "authorityBoundary": "网络支持声明需留意停用日期；桥接资产和消息权限需分别审查",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://wormhole.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "eigenlabs-blog",
+    "name": "Eigen Labs / EigenLayer Blog",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://www.eigenlabs.org/blog/",
+    "why": "再质押、EigenDA、AVS、验证计算与 AI 研究",
+    "authorityBoundary": "Labs 产品研究不等于所有 AVS 的安全证明；带开发商利益",
+    "entryType": "official-blog / RSS-link-observed",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.eigenlabs.org/blog/",
+      "note": "从 https://blog.eigenlayer.xyz/ 跳转到此；官网可见 RSS 链接，但 feed 获取未成功。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "flashbots-writings",
+    "name": "Flashbots Writings",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://writings.flashbots.net/",
+    "why": "MEV、PBS、区块构建、TEE、隐私与交易执行研究",
+    "authorityBoundary": "研究和原型不能直接认定生产可用；商业产品结论要看假设",
+    "entryType": "research-publication",
+    "priority": "P0",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://writings.flashbots.net/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "flashbots-forum",
+    "name": "Flashbots Collective",
+    "category": "预言机、跨链与验证基础设施",
+    "url": "https://collective.flashbots.net/",
+    "why": "MEV 研究交流、提案与技术争议",
+    "authorityBoundary": "开放社区作者需识别；论坛讨论不代表 Flashbots 团队决策",
+    "entryType": "discourse-forum",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://collective.flashbots.net/",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "project_governance_or_developer_community"
+  },
+  {
+    "id": "filecoin-blog",
+    "name": "Filecoin Blog",
+    "category": "DePIN 与去中心化存储",
+    "url": "https://www.filecoin.io/blog",
+    "why": "存储、检索、Filecoin 网络与云产品更新",
+    "authorityBoundary": "项目自述使用量需分清真实客户、存储容量与激励行为",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.filecoin.io/blog",
+      "note": "旧 https://blog.filecoin.io/ 获取失败；此官网 blog 列表可读。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "helium-blog",
+    "name": "Helium Blog",
+    "category": "DePIN 与去中心化存储",
+    "url": "https://www.helium.com/blog",
+    "why": "无线网络、数据卸载、部署者与 HIP 动态",
+    "authorityBoundary": "运营公司与基金会治理须区分；连接量不等于付费收入",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.helium.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "render-blog",
+    "name": "Render Network 官方 Medium",
+    "category": "DePIN 与去中心化存储",
+    "url": "https://medium.com/render-token",
+    "why": "分布式 GPU 渲染、算力与生态公告",
+    "authorityBoundary": "由官网 Blog 链接确认；不是同名 render.com 云服务商",
+    "entryType": "medium-publication",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "partial_page",
+      "evidenceUrl": "https://medium.com/render-token",
+      "note": "https://rendernetwork.com/ 页脚 Blog 直接链接此 Medium；页面可读，仅显示栏目和编辑信息。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "ens-blog",
+    "name": "ENS Blog",
+    "category": "钱包、身份、NFT 与开发平台",
+    "url": "https://ens.domains/blog",
+    "why": "命名、身份、ENS 协议与集成",
+    "authorityBoundary": "团队公告不等于 ENS DAO 治理执行；域名注册量不是活跃用户量",
+    "entryType": "official-blog",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://ens.domains/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "opensea-blog",
+    "name": "OpenSea Blog",
+    "category": "钱包、身份、NFT 与开发平台",
+    "url": "https://opensea.io/blog",
+    "why": "NFT 市场、产品、标准与消费者应用",
+    "authorityBoundary": "平台业务利益较强；不代表 NFT 全市场或独立成交指标",
+    "entryType": "official-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://opensea.io/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "metamask-news",
+    "name": "MetaMask News",
+    "category": "钱包、身份、NFT 与开发平台",
+    "url": "https://metamask.io/news",
+    "why": "钱包、权限、安全、账户与支付产品动态",
+    "authorityBoundary": "产品方资讯；安全建议需对照文档和发布版本",
+    "entryType": "official-news-list",
+    "priority": "P1",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://metamask.io/news",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "alchemy-blog",
+    "name": "Alchemy Blog",
+    "category": "钱包、身份、NFT 与开发平台",
+    "url": "https://www.alchemy.com/blog",
+    "why": "RPC、账户抽象、开发工具与采用案例",
+    "authorityBoundary": "技术和商业服务内容混合；供应商比较需独立测试",
+    "entryType": "developer-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.alchemy.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "quicknode-blog",
+    "name": "QuickNode Blog",
+    "category": "钱包、身份、NFT 与开发平台",
+    "url": "https://www.quicknode.com/blog",
+    "why": "多链节点、数据流、RPC 和开发工具",
+    "authorityBoundary": "供应商观点不等于中立 benchmark；教程与重大新闻需分流",
+    "entryType": "developer-blog",
+    "priority": "P2",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open; official outbound link where noted",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.quicknode.com/blog",
+      "note": "原站页面已读取；页面身份、内容栏目或提案列表可见。",
+      "feedTested": false
+    },
+    "sourceKind": "official_project"
+  },
+  {
+    "id": "lightning-labs",
+    "name": "Lightning Labs Blog",
+    "category": "Bitcoin 二层与基础设施补充",
+    "url": "https://lightning.engineering/blog/",
+    "priority": "P1",
+    "entryType": "official-developer-blog",
+    "why": "LND、Lightning 支付、Taproot Assets、L402 与工具发布",
+    "authorityBoundary": "Lightning Labs 是实现和商业服务团队之一，不代表全体 Lightning 或 Bitcoin 共识",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://lightning.engineering/blog/",
+      "note": "官网 lightning.engineering 导航 Blog 直接链接；原站可见文章列表，旧 /posts 路径失败",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "blockstream-blog",
+    "name": "Blockstream Blog",
+    "category": "Bitcoin 二层与基础设施补充",
+    "url": "https://blog.blockstream.com/",
+    "priority": "P1",
+    "entryType": "official-blog",
+    "why": "Core Lightning、Liquid、Elements、Simplicity、硬件钱包与安全研究",
+    "authorityBoundary": "Blockstream 是商业开发团队；Liquid 的信任模型应区分 Bitcoin 基础层",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://blog.blockstream.com/",
+      "note": "原站可见近期发布、安全事件、研究与工程栏目",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "stacks-blog",
+    "name": "Stacks Blog",
+    "category": "Bitcoin 二层与基础设施补充",
+    "url": "https://www.stacks.co/blog",
+    "priority": "P1",
+    "entryType": "ecosystem-official-blog",
+    "why": "Stacks 网络、Bitcoin 应用、sBTC 与生态治理动向",
+    "authorityBoundary": "包含社区投稿和外部媒体；不能将 Stacks 或 Bitcoin staking 等同 Bitcoin 原生共识",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.stacks.co/blog",
+      "note": "原站列表可读；可见 Submit a post 与 How this blog works，外部原始发布需单独署名",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "hiro-blog",
+    "name": "Hiro Mempool Blog",
+    "category": "Bitcoin 二层与基础设施补充",
+    "url": "https://www.hiro.so/blog",
+    "priority": "P2",
+    "entryType": "official-developer-blog",
+    "why": "Stacks、Clarity、索引 API 和 Bitcoin 应用开发工具",
+    "authorityBoundary": "开发服务商技术观点；不代表 Stacks 所有治理机构",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.hiro.so/blog",
+      "note": "原站文章列表可读，栏目标题为 Mempool by Hiro",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "tron-announcements",
+    "name": "TRON DAO Announcements",
+    "category": "稳定币支付网络与链补充",
+    "url": "https://trondao.org/announcements",
+    "priority": "P1",
+    "entryType": "official-announcements-and-press-list",
+    "why": "稳定币、支付、TRON 集成、网络与生态公告",
+    "authorityBoundary": "混有第三方媒体转载；链上支付量为项目口径，不能不加说明视为独立统计",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://trondao.org/announcements",
+      "note": "通过 trondao.org 页脚 News 精确外链进入；/blog 和 /news 均失败；列表含 Press Release 与 Featured Press 两类",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "stellar-blog",
+    "name": "Stellar Development Foundation Blog",
+    "category": "稳定币支付网络与链补充",
+    "url": "https://stellar.org/blog",
+    "priority": "P1",
+    "entryType": "official-blog",
+    "why": "跨境支付、稳定币、Soroban、资产发行与开发更新",
+    "authorityBoundary": "基金会立场不代表每个发行人信用或法定赎回保障",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://stellar.org/blog",
+      "note": "原站博客列表和文章栏目可读",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "icp-blog",
+    "name": "DFINITY / Internet Computer Review",
+    "category": "稳定币支付网络与链补充",
+    "url": "https://medium.com/dfinity",
+    "priority": "P2",
+    "entryType": "medium-publication / dynamic-page",
+    "why": "ICP、链上计算、Chain Fusion 与开发研究",
+    "authorityBoundary": "基金会及投稿作者观点；性能与托管条件应核对协议文档",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "partial_page",
+      "evidenceUrl": "https://medium.com/dfinity",
+      "note": "internetcomputer.org/blog 直接重定向至此；Medium 可见主体与栏目，Latest 未返回文章，标记 partial_page",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "polymarket-docs",
+    "name": "Polymarket Documentation",
+    "category": "预测市场与信息交易补充",
+    "url": "https://docs.polymarket.com/",
+    "priority": "P2",
+    "entryType": "developer-documentation",
+    "why": "预测市场订单簿、市场数据、结算、开发接口与机制",
+    "authorityBoundary": "市场赔率不是事实确认；区域实体、规则和资产托管需分开；文档不是公告流",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://docs.polymarket.com/",
+      "note": "原站文档目录与机制内容可读；未找到可读官方 blog 或 announcements，候选仅作为技术背景",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "kalshi-announcements",
+    "name": "Kalshi News Announcements",
+    "category": "预测市场与信息交易补充",
+    "url": "https://news.kalshi.com/t/announcements",
+    "priority": "P2",
+    "entryType": "company-announcements / beehiiv",
+    "why": "事件合约、预测市场产品、合作、市场基础设施与政策动态",
+    "authorityBoundary": "机构运营的预测市场；官网自述 CFTC 监管，不列为去中心化协议；宣传与法定合规文件不同",
+    "sourceKind": "regulated_marketplace_company",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://news.kalshi.com/t/announcements",
+      "note": "news.kalshi.com 官方子域栏目可读；kalshi.com 官网有 Regulatory 并明示 CFTC 监管；仅筛选 Announcements 以减少体育和政治行情噪声",
+      "feedTested": false,
+      "additionalEvidenceUrls": [
+        "https://kalshi.com/",
+        "https://news.kalshi.com/"
+      ]
+    }
+  },
+  {
+    "id": "etherfi-blog",
+    "name": "ether.fi Blog",
+    "category": "DeFi 与质押补充",
+    "url": "https://www.ether.fi/blog",
+    "priority": "P1",
+    "entryType": "official-blog",
+    "why": "质押、再质押、金库、支付产品和安全机制",
+    "authorityBoundary": "质押收益与具体策略不同；协议宣传不替代金库或托管风险验证",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.ether.fi/blog",
+      "note": "原站文章列表可读",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "jito-blog",
+    "name": "Jito Foundation Blog",
+    "category": "DeFi 与质押补充",
+    "url": "https://www.jito.network/blog/",
+    "priority": "P1",
+    "entryType": "foundation-blog",
+    "why": "Solana MEV、JitoSOL、再质押和基金会生态更新",
+    "authorityBoundary": "Foundation、Labs、DAO 与节点产品权责不同；需按具体文章主体确认",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://www.jito.network/blog/",
+      "note": "原站标题明确 Blog Jito Foundation，文章列表可读",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "kamino-docs",
+    "name": "Kamino Documentation",
+    "category": "DeFi 与质押补充",
+    "url": "https://kamino.com/docs",
+    "priority": "P2",
+    "entryType": "developer-documentation",
+    "why": "Solana 借贷、金库、风险参数、策展人和开发接口",
+    "authorityBoundary": "金库和隔离市场风险由配置决定；技术文档不是资金安全担保",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://kamino.com/docs",
+      "note": "docs.kamino.finance 重定向至此且可读；blog.kamino.finance 跳 kamino.com/blog 后无可解析正文，因此未收作新闻流",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "spark-blog",
+    "name": "Spark 官方 Paragraph",
+    "category": "DeFi 与质押补充",
+    "url": "https://paragraph.com/@spark-11",
+    "priority": "P1",
+    "entryType": "paragraph-publication",
+    "why": "Spark 借贷、Savings、USDS、流动性配置与机构产品",
+    "authorityBoundary": "项目收益、自有财务报告与营销需区分；治理应回溯 Sky 提案及实际配置",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://paragraph.com/@spark-11",
+      "note": "spark.fi 重定向 spark.finance；官网 Blog 链至 blog.spark.finance 再转此 Paragraph；直接 open 可见最新及热门文章列表",
+      "feedTested": false
+    }
+  },
+  {
+    "id": "beefy-news",
+    "name": "Beefy News",
+    "category": "DeFi 与质押补充",
+    "url": "https://beefy.com/articles/",
+    "priority": "P2",
+    "entryType": "official-news-list",
+    "why": "收益聚合、跨链金库、CLM、风险框架与季度报告",
+    "authorityBoundary": "收益自动复投不保证底层策略安全；自身风险清单揭示策展与依赖协议的边界",
+    "sourceKind": "official_project",
+    "verification": {
+      "date": "2026-10-01",
+      "method": "web official page open and homepage outbound link/redirect verification",
+      "status": "page_readable",
+      "evidenceUrl": "https://beefy.com/articles/",
+      "note": "官网 News/View all Articles 链接与此列表一致，可见 2026 年文章；/blog 路径失败",
+      "feedTested": false
+    }
+  }
+]

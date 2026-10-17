@@ -1,0 +1,230 @@
+{
+  "checkedAtUtc": "2026-10-16T02:25:04.508127+00:00",
+  "head": "055e95ce2a495168af91f0c2a4243741329d1588",
+  "branch": "feat/9btc-web3",
+  "runtime": {
+    "node": "v26.3.0",
+    "postgresql": "17.11",
+    "defaultPgDump": "14.20",
+    "targetedPgDump": "17.11"
+  },
+  "historicalBaseline": "14f4ba2e07ed7749e1379f4ac9c687349a81f9c3",
+  "historicalFiles": 72,
+  "currentMigrationFiles": 73,
+  "allMigrationBytesUnchanged": true,
+  "safetyParserRunnerWorkflowUnchanged": true,
+  "webRuntimeUnchanged": true,
+  "typecheck": {
+    "exitCode": 0,
+    "scope": "full; verified in prior connected execution of this task"
+  },
+  "webBuild": {
+    "exitCode": 0,
+    "scope": "full; verified in prior connected execution of this task"
+  },
+  "logs": {
+    "migration": {
+      "localPath": "/tmp/9btc-cost-ci-20261016-migrations.log",
+      "sha256": "8358fb3a347b76ad57ca73b8df54f395809a44ba57f2d8ea2886b853dc8a110f",
+      "counts": {
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "summaryComplete": true
+    },
+    "adminRecheck": {
+      "localPath": "/tmp/9btc-cost-ci-20261016-admin-recheck.log",
+      "sha256": "7d5439299367a34d62384d0f2a6959dbe1354907db2ebfb30a33e1095aa426a3",
+      "counts": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "summaryComplete": true
+    },
+    "targeted": {
+      "localPath": "/tmp/9btc-cost-ci-20261016-targeted.log",
+      "sha256": "13e11ee84c43fd2d3b67247952f295cf7331892e5127a3f71d1c8d75865f7396",
+      "counts": {
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "summaryComplete": true
+    },
+    "webOriginal": {
+      "localPath": "/tmp/9btc-cost-ci-20261016-web.log",
+      "sha256": "588b13722effb1bb2b2d25d6602d2b8ea28a33fc92dc2324d3b27b4c5e8653f4",
+      "counts": {
+        "tests": 75,
+        "pass": 73,
+        "fail": 1,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "summaryComplete": true
+    },
+    "backendInterrupted": {
+      "localPath": "/tmp/9btc-cost-ci-20261016-backend.log",
+      "sha256": "628865a07dba3e2ea43bc36fbf162e88eb8dde5744aa8dea1f408924a84ed236",
+      "counts": null,
+      "summaryComplete": false
+    },
+    "backendFull": {
+      "localPath": "/tmp/9btc-cost-full-20261016-6xjtrcjd/backend.log",
+      "artifactFile": "full-backend.log",
+      "sha256": "087bc626ffce2bfff3372e6d1ab2192f07d54b59d6222680f83eb3df98308225",
+      "counts": {
+        "tests": 897,
+        "pass": 897,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "summaryComplete": true
+    },
+    "webFull": {
+      "localPath": "/tmp/9btc-cost-full-20261016-pn2u3nc0/web.log",
+      "artifactFile": "full-web.log",
+      "sha256": "a4bcc6ce13cb6b603035390e47dbd41f533ab41c28c8408364a6db4d0ba4a322",
+      "counts": {
+        "tests": 75,
+        "pass": 74,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "summaryComplete": true
+    }
+  },
+  "fullBackendExitCode": 0,
+  "fullBackendReason": null,
+  "adminRecheckExitCode": 0,
+  "targetedExitCode": 0,
+  "realMigrationBases": [
+    "e57da5a",
+    "HEAD"
+  ],
+  "realMigrationChecksExitCode": 0,
+  "remoteCi": {
+    "runId": 38610914465,
+    "head": "055e95ce2a495168af91f0c2a4243741329d1588",
+    "conclusion": "failure",
+    "rerunTriggered": false
+  },
+  "smoke": {
+    "http": 0,
+    "mcp": 0,
+    "servicePids": [
+      95604,
+      95605
+    ],
+    "servicesStopped": true
+  },
+  "cleanup": {
+    "directory": "/tmp/9btc-cost-ci-20261016-3rcq9bts/db",
+    "verifiedPid": 87351,
+    "port": 55816,
+    "stopped": true,
+    "portReadyExit": 2,
+    "dataPreserved": true,
+    "otherServicesModified": false
+  },
+  "boundaries": {
+    "productionAccess": false,
+    "paidCalls": false,
+    "dependencyInstall": false,
+    "commit": false,
+    "push": false,
+    "deploy": false
+  },
+  "costEvidenceDeterministicAcrossTimezone": true,
+  "sequentialFullRegression": {
+    "firstAttempt": {
+      "stateFile": "/tmp/9btc-cost-full-20261016-pn2u3nc0/state.json",
+      "backend": {
+        "exitCode": 1,
+        "counts": {
+          "tests": 897,
+          "pass": 693,
+          "fail": 204,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "log": "/tmp/9btc-cost-full-20261016-pn2u3nc0/backend.log",
+        "sha256": "e2cee0700a299f2201a48eb0f4c1f11ef13519e8f76ae39c6700098992217f77",
+        "cause": "runner omitted USER and database URI had no explicit user; pg-boss client received no PostgreSQL user name specified in startup packet"
+      },
+      "web": {
+        "exitCode": 0,
+        "counts": {
+          "tests": 75,
+          "pass": 74,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 1
+        },
+        "log": "full-web.log",
+        "sha256": "a4bcc6ce13cb6b603035390e47dbd41f533ab41c28c8408364a6db4d0ba4a322"
+      },
+      "cleanup": {
+        "stopped": true,
+        "portReadyExit": 2,
+        "dataPreserved": true,
+        "otherServicesModified": false
+      }
+    },
+    "correctedBackendStateFile": "/tmp/9btc-cost-full-20261016-6xjtrcjd/state.json",
+    "status": "completed",
+    "scope": "all backend test files, concurrency 2; all web files, concurrency 1; never overlapped",
+    "correctedBackend": {
+      "exitCode": 0,
+      "counts": {
+        "tests": 897,
+        "pass": 897,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "stateFile": "full-run-state-corrected.json",
+      "cleanup": {
+        "stopped": true,
+        "portReadyExit": 2,
+        "dataPreserved": true,
+        "otherServicesModified": false
+      }
+    },
+    "fullWeb": {
+      "exitCode": 0,
+      "counts": {
+        "tests": 75,
+        "pass": 74,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "stateFile": "full-run-state-initial.json",
+      "cleanup": {
+        "stopped": true,
+        "portReadyExit": 2,
+        "dataPreserved": true,
+        "otherServicesModified": false
+      }
+    },
+    "overlap": false,
+    "harnessCorrection": "explicit local username in disposable database URI; no application or test assertion changes"
+  },
+  "priorInterruptedFullBackend": {
+    "exitCode": null,
+    "reason": "connection lost; process handle no longer available; no final summary in original log",
+    "logKey": "backendInterrupted"
+  },
+  "fullWebExitCode": 0
+}

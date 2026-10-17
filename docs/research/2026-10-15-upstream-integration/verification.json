@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-15",
+  "upstreamCommit": "e57da5a4f151892a217529744cd68803aec580df",
+  "featureBeforeMerge": "14f4ba2e07ed7749e1379f4ac9c687349a81f9c3",
+  "remoteFeatureBefore": "20ad4184feeb0b99505612a1c11920d77ea81bc8",
+  "productionApplicationCommit": "47994a7050846372909ac23b1e40623266db7802",
+  "productionDeployedByThisTask": false,
+  "upstreamNewCommits": 24,
+  "upstreamChangedFiles": 66,
+  "resolvedConflicts": [
+    "apps/web/app/features/feed/Timeline.tsx",
+    "docs/selection.md",
+    "packages/backend/src/editorial/analyze.ts",
+    "tests/daily-report-alerts.test.ts"
+  ],
+  "protectedFilesUnchanged": [
+    "site/models.ts",
+    "industry/taxonomy.ts",
+    "industry/selection.ts",
+    "industry/sources.json",
+    "industry/topics.json",
+    "packages/backend/src/providers/model-cost.ts",
+    "packages/backend/src/providers/provider-capacity.ts",
+    "packages/backend/src/providers/receipts.ts",
+    "packages/backend/src/providers/llm.ts",
+    "packages/backend/src/providers/embeddings.ts",
+    "packages/backend/src/content/freshness.ts",
+    "packages/backend/src/operations/recover.ts",
+    "deploy/eu.compose.yml"
+  ],
+  "database": {
+    "releasedMigrationFilesUnchanged": 72,
+    "before": 72,
+    "after": 73,
+    "newFile": "0085_grouping_decisions_fact_idx.sql",
+    "upgradeFrom47Via72To73": "passed",
+    "indexValid": true,
+    "repeatMigrationCount": 0
+  },
+  "tests": {
+    "baselineBackend": 859,
+    "backend": {
+      "total": 892,
+      "pass": 892,
+      "fail": 0,
+      "skipped": 0
+    },
+    "web": {
+      "total": 75,
+      "pass": 74,
+      "fail": 0,
+      "skipped": 1,
+      "skipReason": "macOS overlay scrollbars do not expose the upstream classic scrollbar gutter feedback case"
+    },
+    "nonDefaultNavigationBrowser": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "hidden": [
+        "/hot",
+        "/topics"
+      ],
+      "productionSiteConfigUnchanged": true
+    },
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "smoke": {
+      "total": 30,
+      "pass": 30,
+      "fail": 0
+    },
+    "sourceSeedCount": 109
+  },
+  "modelConsumption": {
+    "wordingRulesCount": 0,
+    "defaultAddedWordingCalls": 0,
+    "savedAnalysisNotReplayed": true,
+    "historyCatchUp": false,
+    "callsUseExistingBudgetAndReceipts": true,
+    "realSupplierBillingSavingsVerified": false
+  },
+  "independentCodeReview": "no blockers",
+  "testEnvironment": "isolated local PostgreSQL 17, local supplier doubles, scripts/test-local-only.ts denies external network"
+}

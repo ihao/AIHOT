@@ -8,9 +8,10 @@ import { isEmptyOrLinkOnly } from "../content/posts.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
 import { sourceOwnsPost } from "../sources/account.ts";
 import { displayTags, publicSourceName } from "./rules.ts";
+import { ingestionQuoteView, type IngestionQuoteRow } from "./market.ts";
 import { foldableSelectionCondition, seatedCondition } from "./scope.ts";
 
-export interface ItemRow {
+export interface ItemRow extends IngestionQuoteRow {
   id: string;
   title: string;
   original_title: string | null;
@@ -51,7 +52,8 @@ export const ITEM_COLUMNS = sql`
   p.article_id AS id, p.title, p.original_title, p.summary, p.reason, p.category, p.tags, p.score,
   p.selected, p.seat, p.channel, p.url, p.published_at, p.discovered_at, p.timeline_at, p.visibility,
   p.body_mode, p.indexable, p.fact_id, s.name AS source_name, s.participation_mode AS source_mode,
-  a.x_post, a.author, a.language,
+  a.x_post, a.author, a.language, a.ingested_at,
+  bq.price_usd AS btc_price_usd, bq.quoted_at AS btc_quoted_at, bq.fetched_at AS btc_fetched_at,
   CASE WHEN s.kind = 'x_search' AND ${sourceOwnsPost(sql`s.name`, sql`a.x_post->>'handle'`)} THEN s.icon_url END AS author_avatar_url,
   st.public_id::text AS story_public_id, st.title AS story_title,
   CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
@@ -69,6 +71,7 @@ export const ITEM_FROM = sql`
   FROM publications p
   JOIN sources s ON s.id = p.source_id
   JOIN articles a ON a.id = p.article_id
+  LEFT JOIN btc_usd_quotes bq ON bq.id = a.btc_quote_id
   LEFT JOIN stories st ON st.id = p.story_id AND st.merged_into IS NULL
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
@@ -151,6 +154,7 @@ export function showsPost(row: { channel: string; body_mode: string }): boolean 
 /** The shared public article; its X post is added as each answer shows it. */
 export function toItemSummary(row: ItemRow): ItemSummary {
   return {
+    btcAtIngestion: ingestionQuoteView(row),
     id: row.id,
     title: row.title,
     originalTitle: row.original_title,
@@ -175,6 +179,7 @@ export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
   const item = toItemSummary(row);
   const x = showsPost(row) ? xView(row, true) : null;
   return {
+    btcAtIngestion: item.btcAtIngestion,
     id: item.id, title: item.title, summary: item.summary ?? (x?.text || null), reason: item.reason,
     source: item.source, publishedAt: item.publishedAt, timelineAt: item.timelineAt,
     category: item.category, tags: item.tags, score: item.score, selected: item.selected, channel: item.channel,

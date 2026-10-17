@@ -1,0 +1,221 @@
+{
+  "actor": [
+    "codex-editorial-2026-10-02-1130",
+    "codex-editorial-2026-10-02-1208"
+  ],
+  "startedAt": "2026-10-02T04:03:23.180Z",
+  "capturedAt": "2026-10-02T03:30:28.889Z",
+  "expectedCount": 1288,
+  "finishedAt": "2026-10-02T04:13:13.808Z",
+  "counts": {
+    "applied:approved": 933,
+    "applied:rejected": 355
+  },
+  "auditCounts": [
+    {
+      "action": "content.batch_review",
+      "count": 2
+    },
+    {
+      "action": "content.correction_prepare",
+      "count": 368
+    },
+    {
+      "action": "content.override",
+      "count": 368
+    },
+    {
+      "action": "content.review",
+      "count": 1288
+    }
+  ],
+  "pendingCount": 0,
+  "availabilityCounts": {
+    "public": 933,
+    "unavailable": 355
+  },
+  "approvedPublicValidated": 933,
+  "rejectedUnavailableValidated": 355,
+  "batches": [
+    {
+      "actor": "codex-editorial-2026-10-02-1130",
+      "sha256": "24e2134dc9be40dab8d6ce0fdbdcfe6200afa35554909936c06ea53038184037",
+      "count": 1287,
+      "capturedAt": "2026-10-02T03:30:28.889Z"
+    },
+    {
+      "actor": "codex-editorial-2026-10-02-1208",
+      "sha256": "6ae02565ddebb1f0e65c804c631e375876b2884cddff15f8e2b2e8e3fb8ba10d",
+      "count": 1,
+      "capturedAt": "2026-10-02T04:08:44.235Z"
+    }
+  ],
+  "publicHttps": {
+    "checkedAt": "2026-10-02T04:13:52.882Z",
+    "base": "https://9btc.com",
+    "results": [
+      {
+        "id": "aobk03vdv4srd82pwgnc8hole",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "ia48m4gjq278iezlynchq0ra6",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "eoz0yy4le1fgy5mfqqpb8sdlt",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "gph4eh7d9615uz3gwy3o3p2a5",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "j6o8ybk5rhvluikni2d01f22j",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "util7fthaze3lydybc2w671vy",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      },
+      {
+        "id": "sp1f5u8ulmuzqnyasjs82y5ky",
+        "expected": "rejected",
+        "apiStatus": 404,
+        "pageStatus": 404,
+        "titleMatches": false,
+        "summaryMatches": false,
+        "summaryOnly": false,
+        "valid": true
+      },
+      {
+        "id": "xrdmfuciras2ebc7cuwk8k0cw",
+        "expected": "rejected",
+        "apiStatus": 404,
+        "pageStatus": 404,
+        "titleMatches": false,
+        "summaryMatches": false,
+        "summaryOnly": false,
+        "valid": true
+      },
+      {
+        "id": "bbqsv4fu9mrshvy8lqmzrhtbe",
+        "expected": "rejected",
+        "apiStatus": 404,
+        "pageStatus": 404,
+        "titleMatches": false,
+        "summaryMatches": false,
+        "summaryOnly": false,
+        "valid": true
+      },
+      {
+        "id": "i6w5qm5hlzq22hu4p1y5vqpd2",
+        "expected": "approved",
+        "apiStatus": 200,
+        "pageStatus": 200,
+        "titleMatches": true,
+        "summaryMatches": true,
+        "summaryOnly": true,
+        "valid": true
+      }
+    ],
+    "passed": true,
+    "initialCheckedAt": "2026-10-02T04:05:35.592Z"
+  },
+  "siteSmoke": {
+    "passed": true,
+    "count": 30,
+    "routes": [
+      "/",
+      "/all",
+      "/hot",
+      "/daily",
+      "/daily/archive",
+      "/topics",
+      "/starred",
+      "/agent",
+      "/about",
+      "/changelog",
+      "/feedback",
+      "/terms",
+      "/privacy",
+      "/more",
+      "/admin/login",
+      "/api/health",
+      "/api/v1/items",
+      "/api/v1/hot-topics",
+      "/api/v1/selected/snapshot",
+      "/feed.xml",
+      "/feed/all.xml",
+      "/llms.txt",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/manifest.webmanifest",
+      "/openapi-v1.json",
+      "/og/site.png",
+      "/icon.png",
+      "/favicon.ico",
+      "/api/mcp initialize"
+    ]
+  },
+  "finalProduction": {
+    "checkedAt": "2026-10-02T04:13:52.769Z",
+    "pending": 0,
+    "actors": [
+      "codex-editorial-2026-10-02-1130",
+      "codex-editorial-2026-10-02-1208"
+    ],
+    "reviewed": 1288,
+    "manual": [
+      {
+        "status": "approved",
+        "count": 933
+      },
+      {
+        "status": "rejected",
+        "count": 355
+      }
+    ],
+    "availabilityCounts": {
+      "public": 933,
+      "unavailable": 355
+    },
+    "passed": true
+  }
+}

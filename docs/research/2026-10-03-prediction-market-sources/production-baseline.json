@@ -1,0 +1,1957 @@
+{
+  "at": "2026-10-03T14:45:17.909Z",
+  "rule": "automatic-publication-v1:d7cc9c407669a5f9b1c67141",
+  "editorialMode": "automatic",
+  "counts": {
+    "total": 104,
+    "enabled": 75,
+    "paused": 29
+  },
+  "sources": [
+    {
+      "id": "a16z-crypto",
+      "name": "a16z crypto",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:24:35.247Z",
+      "last_error": null,
+      "feed_url": "https://a16zcrypto.com/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "aave-blog",
+      "name": "Aave Labs Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:35.902Z",
+      "last_error": null,
+      "feed_url": "https://aave.com/blog/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "aave-gov",
+      "name": "Aave 治理论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.811Z",
+      "last_error": null,
+      "feed_url": "https://governance.aave.com/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "arbitrum-blog",
+      "name": "Arbitrum Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:26:35.278Z",
+      "last_error": null,
+      "feed_url": "https://blog.arbitrum.io/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "arbitrum-gov",
+      "name": "Arbitrum 治理论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:26:36.854Z",
+      "last_error": null,
+      "feed_url": "https://forum.arbitrum.foundation/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "balancer-gov",
+      "name": "Balancer Forum",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:36:37.206Z",
+      "last_error": null,
+      "feed_url": "https://forum.balancer.fi/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "beincrypto-news",
+      "name": "BeInCrypto News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T13:52:35.861Z",
+      "last_error": null,
+      "feed_url": "https://beincrypto.com/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bis",
+      "name": "BIS / BCBS / CPMI",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:35.902Z",
+      "last_error": null,
+      "feed_url": "https://www.bis.org/doclist/all_pressrels.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bitcoin-core-releases",
+      "name": "Bitcoin Core 版本说明",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:26:36.038Z",
+      "last_error": null,
+      "feed_url": "https://bitcoincore.org/en/releasesrss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bitcoin-delving",
+      "name": "Delving Bitcoin",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:39.676Z",
+      "last_error": null,
+      "feed_url": "https://delvingbitcoin.org/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bitcoin-magazine-news",
+      "name": "Bitcoin Magazine News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:41:37.665Z",
+      "last_error": null,
+      "feed_url": "https://bitcoinmagazine.com/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bitcoin-optech",
+      "name": "Bitcoin Optech",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:36.631Z",
+      "last_error": null,
+      "feed_url": "https://bitcoinops.org/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "blocksec",
+      "name": "BlockSec",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:09:25.829Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://blocksec.com/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "blockstream-blog",
+      "name": "Blockstream Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "degraded",
+      "last_ok_at": "2026-10-03T12:34:36.940Z",
+      "last_error": "fetch failed",
+      "feed_url": "https://blog.blockstream.com/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "blocktempo-news-zh",
+      "name": "BlockTempo 動區動趨",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:41:37.561Z",
+      "last_error": null,
+      "feed_url": "https://www.blocktempo.com/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "bnb-blog",
+      "name": "BNB Chain Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:39:35.902Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.bnbchain.org/en/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "celestia-blog",
+      "name": "Celestia Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:36:36.588Z",
+      "last_error": null,
+      "feed_url": "https://blog.celestia.org/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "cftc",
+      "name": "美国 CFTC",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:11:23.455Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.cftc.gov/PressRoom/PressReleases",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "chainalysis",
+      "name": "Chainalysis 研究与安全",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:20:36.855Z",
+      "last_error": null,
+      "feed_url": "https://www.chainalysis.com/blog/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "chaincatcher-articles-zh",
+      "name": "ChainCatcher 链捕手文章",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T13:54:37.939Z",
+      "last_error": null,
+      "feed_url": "https://www.chaincatcher.com/rss/clist",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "chainlink-blog",
+      "name": "Chainlink Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:37.970Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://chain.link/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "circle-blog",
+      "name": "Circle Blog",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:19:40.396Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.circle.com/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "coin-metrics",
+      "name": "Coin Metrics State of the Network",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:29:36.487Z",
+      "last_error": null,
+      "feed_url": "https://coinmetrics.substack.com/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "coindesk-news",
+      "name": "CoinDesk News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:43:35.883Z",
+      "last_error": null,
+      "feed_url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "cointelegraph-news",
+      "name": "Cointelegraph News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:43:35.973Z",
+      "last_error": null,
+      "feed_url": "https://cointelegraph.com/rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "compound-gov",
+      "name": "Compound Community Forum",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:26:36.440Z",
+      "last_error": null,
+      "feed_url": "https://www.comp.xyz/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "consensys",
+      "name": "Consensys",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:36.975Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://consensys.io/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "decrypt-news",
+      "name": "Decrypt News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:43:35.811Z",
+      "last_error": null,
+      "feed_url": "https://decrypt.co/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "eba",
+      "name": "EBA",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:12:25.563Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.eba.europa.eu/publications-and-media/press-releases",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "eigenlabs-blog",
+      "name": "Eigen Labs / EigenLayer Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:36.443Z",
+      "last_error": null,
+      "feed_url": "https://www.eigenlabs.org/blog/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "electric-coin",
+      "name": "Electric Coin Company / Zcash",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:01:40.853Z",
+      "last_error": null,
+      "feed_url": "https://electriccoin.co/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ens-blog",
+      "name": "ENS Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.348Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://ens.domains/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ethereum-foundation",
+      "name": "Ethereum Foundation Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:40:36.133Z",
+      "last_error": null,
+      "feed_url": "https://blog.ethereum.org/en/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ethereum-magicians",
+      "name": "Ethereum Magicians EIP/ERC 讨论论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:13:37.158Z",
+      "last_error": null,
+      "feed_url": "https://ethereum-magicians.org/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ethereum-research",
+      "name": "Ethereum Research",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:37.620Z",
+      "last_error": null,
+      "feed_url": "https://ethresear.ch/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "fca",
+      "name": "英国 FCA",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T07:43:24.461Z",
+      "last_error": null,
+      "feed_url": "https://www.fca.org.uk/news/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "filecoin-blog",
+      "name": "Filecoin Blog",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:17:40.648Z",
+      "last_error": null,
+      "feed_url": "https://www.filecoin.io/blog/zh-cn/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "fincen",
+      "name": "美国 FinCEN",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:41:46.828Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.fincen.gov/news",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "flashbots-forum",
+      "name": "Flashbots Collective",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:37.785Z",
+      "last_error": null,
+      "feed_url": "https://collective.flashbots.net/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "flashbots-writings",
+      "name": "Flashbots Writings",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:18:42.112Z",
+      "last_error": null,
+      "feed_url": "https://writings.flashbots.net/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "fsb",
+      "name": "Financial Stability Board",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:32:35.381Z",
+      "last_error": null,
+      "feed_url": "https://www.fsb.org/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "galaxy",
+      "name": "Galaxy Research",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:35:36.579Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.galaxy.com/insights/research",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "geth-release",
+      "name": "Geth Releases",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "degraded",
+      "last_ok_at": "2026-10-03T12:35:37.823Z",
+      "last_error": "fetch failed",
+      "feed_url": "https://github.com/ethereum/go-ethereum/releases.atom",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "glassnode",
+      "name": "Glassnode Research",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:24:35.261Z",
+      "last_error": null,
+      "feed_url": "https://research.glassnode.com/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "halborn",
+      "name": "Halborn",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:08:25.476Z",
+      "last_error": null,
+      "feed_url": "https://www.halborn.com/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "hkma",
+      "name": "香港金管局 HKMA",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:12:28.730Z",
+      "last_error": null,
+      "feed_url": "https://www.hkma.gov.hk/eng/other-information/rss/rss_press-release.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "icp-blog",
+      "name": "DFINITY / Internet Computer Review",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:18:42.690Z",
+      "last_error": null,
+      "feed_url": "https://medium.com/feed/dfinity",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "immunefi",
+      "name": "Immunefi",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:13:41.048Z",
+      "last_error": null,
+      "feed_url": "https://immunefi.com/blog/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ipfs",
+      "name": "IPFS Blog & News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:30:35.409Z",
+      "last_error": null,
+      "feed_url": "https://blog.ipfs.tech/index.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-bluematt",
+      "name": "Matt Corallo / BlueMatt",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:15:41.614Z",
+      "last_error": null,
+      "feed_url": "https://bluematt.bitcoin.ninja/atom.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-christine-kim",
+      "name": "Christine D. Kim",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:36.859Z",
+      "last_error": null,
+      "feed_url": "https://christinedkim.substack.com/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-colin-wu",
+      "name": "吴说 / Colin Wu",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T2",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:08:25.812Z",
+      "last_error": null,
+      "feed_url": "https://wublock.substack.com/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-dankrad",
+      "name": "Dankrad Feist",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:12:40.125Z",
+      "last_error": null,
+      "feed_url": "https://dankradfeist.de/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-haseeb",
+      "name": "Haseeb Qureshi",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:08:25.318Z",
+      "last_error": null,
+      "feed_url": "https://haseebq.com/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-lopp",
+      "name": "Jameson Lopp",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:39.011Z",
+      "last_error": null,
+      "feed_url": "https://blog.lopp.net/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-molly-white",
+      "name": "Molly White",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:36.464Z",
+      "last_error": null,
+      "feed_url": "https://www.citationneeded.news/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-peter-todd",
+      "name": "Peter Todd",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:14:40.271Z",
+      "last_error": null,
+      "feed_url": "https://petertodd.org/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-samczsun",
+      "name": "samczsun",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:15:41.184Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://samczsun.com/",
+      "backfill": {
+        "initialBackfillLimit": 1,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "kol-vitalik",
+      "name": "Vitalik Buterin",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:08:27.754Z",
+      "last_error": null,
+      "feed_url": "https://vitalik.eth.limo/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "layerzero-blog",
+      "name": "LayerZero Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:36.400Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://layerzero.network/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "lido-gov",
+      "name": "Lido Governance",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.465Z",
+      "last_error": null,
+      "feed_url": "https://research.lido.fi/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "lightning-labs",
+      "name": "Lightning Labs Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.559Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://lightning.engineering/blog/",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "metamask-news",
+      "name": "MetaMask News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:36.223Z",
+      "last_error": null,
+      "feed_url": "https://metamask.io/zh-CN/news-rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "monero",
+      "name": "Monero Project",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:33:35.537Z",
+      "last_error": null,
+      "feed_url": "https://www.getmonero.org/feed.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "morpho-blog",
+      "name": "Morpho Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.317Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://morpho.org/blog/",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "nansen",
+      "name": "Nansen",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:35.666Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://nansen.ai/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "odaily-articles-zh",
+      "name": "Odaily 星球日报文章",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:43:36.352Z",
+      "last_error": null,
+      "feed_url": "https://rss.odaily.news/rss/post",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ofac",
+      "name": "美国财政部 OFAC",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:12:35.906Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://ofac.treasury.gov/recent-actions",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ondo-blog",
+      "name": "Ondo Finance Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:36.779Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://ondo.finance/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "openzeppelin",
+      "name": "OpenZeppelin",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:33:35.891Z",
+      "last_error": null,
+      "feed_url": "https://www.openzeppelin.com/news/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "optimism-blog",
+      "name": "Optimism Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:35.865Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://optimism.io/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "optimism-gov",
+      "name": "Optimism Collective 治理论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:36:36.572Z",
+      "last_error": null,
+      "feed_url": "https://gov.optimism.io/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "ottersec",
+      "name": "OtterSec",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:16:39.945Z",
+      "last_error": null,
+      "feed_url": "https://osec.io/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "panews-articles-zh",
+      "name": "PANews 中文文章",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:42:37.342Z",
+      "last_error": null,
+      "feed_url": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "paradigm",
+      "name": "Paradigm",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:35:36.486Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.paradigm.xyz/writing",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "paxos-blog",
+      "name": "Paxos Blog",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:18:40.255Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.paxos.com/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "pendle-blog",
+      "name": "Pendle 官方 Medium",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:36:35.883Z",
+      "last_error": null,
+      "feed_url": "https://medium.com/feed/pendle",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:20:42.711Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://phantom.com/learn/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "polkadot-forum",
+      "name": "Polkadot Forum",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.687Z",
+      "last_error": null,
+      "feed_url": "https://forum.polkadot.network/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "polygon-blog",
+      "name": "Polygon Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:35:35.698Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://polygon.technology/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "protos-news",
+      "name": "Protos Crypto News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T13:51:35.610Z",
+      "last_error": null,
+      "feed_url": "https://protos.com/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "pyth-blog",
+      "name": "Pyth Network Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:36:36.223Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.pyth.network/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "quicknode-blog",
+      "name": "QuickNode Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:40:43.297Z",
+      "last_error": null,
+      "feed_url": "https://blog.quicknode.com/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "render-blog",
+      "name": "Render Network 官方 Medium",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:18:42.122Z",
+      "last_error": null,
+      "feed_url": "https://medium.com/feed/render-token",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "reth-release",
+      "name": "Reth Releases",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "degraded",
+      "last_ok_at": "2026-10-03T12:35:37.903Z",
+      "last_error": "The operation was aborted due to timeout",
+      "feed_url": "https://github.com/paradigmxyz/reth/releases.atom",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "rocketpool-gov",
+      "name": "Rocket Pool Governance",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:39:38.470Z",
+      "last_error": null,
+      "feed_url": "https://dao.rocketpool.net/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "safe",
+      "name": "Safe",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:36.789Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.safe.global/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "sec-press-releases",
+      "name": "SEC 新闻稿",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:21:35.301Z",
+      "last_error": null,
+      "feed_url": "https://www.sec.gov/news/pressreleases.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "sfc",
+      "name": "香港证监会 SFC",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:11:26.392Z",
+      "last_error": null,
+      "feed_url": "https://www.sfc.hk/en/RSS-Feeds/Press-releases",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "sfc-circulars",
+      "name": "香港证监会 SFC 通函",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:11:27.131Z",
+      "last_error": null,
+      "feed_url": "https://www.sfc.hk/en/RSS-Feeds/Circulars",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "sky-gov",
+      "name": "Sky 治理论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:38:39.660Z",
+      "last_error": null,
+      "feed_url": "https://forum.skyeco.com/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "slowmist",
+      "name": "SlowMist / 慢雾",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1_5",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:36.632Z",
+      "last_error": null,
+      "feed_url": "https://slowmist.medium.com/feed",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "solana-news",
+      "name": "Solana 官方新闻",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:27:35.258Z",
+      "last_error": null,
+      "feed_url": "https://solana.com/news/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "starknet-blog",
+      "name": "Starknet Blog",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:20:40.571Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.starknet.io/blog/",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "stellar-blog",
+      "name": "Stellar Development Foundation Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:35:36.495Z",
+      "last_error": null,
+      "feed_url": "https://stellar.org/blog/rss.xml",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "sui-blog",
+      "name": "Sui Blog",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:34:37.567Z",
+      "last_error": null,
+      "feed_url": "https://blog.sui.io/rss/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "techflow-articles-zh",
+      "name": "TechFlow 深潮 Web3 文章",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T13:54:37.979Z",
+      "last_error": null,
+      "feed_url": "https://www.techflowpost.com/rss/v2/feed.xml?lang=zh-CN&type=article&topic=web3&tag=all",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 1
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "tether-news",
+      "name": "Tether News",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:27:35.204Z",
+      "last_error": null,
+      "feed_url": "https://tether.io/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "trail-of-bits",
+      "name": "Trail of Bits",
+      "kind": "rss",
+      "enabled": false,
+      "tier": "T1_5",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T08:07:23.372Z",
+      "last_error": null,
+      "feed_url": "https://blog.trailofbits.com/feed/",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "uniswap-blog",
+      "name": "Uniswap Labs Blog",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:36.108Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://blog.uniswap.org/",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "uniswap-gov",
+      "name": "Uniswap 治理论坛",
+      "kind": "rss",
+      "enabled": true,
+      "tier": "T2",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:33:37.140Z",
+      "last_error": null,
+      "feed_url": "https://gov.uniswap.org/latest.rss",
+      "list_url": null,
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "walletconnect",
+      "name": "WalletConnect",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:39:36.846Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://walletconnect.com/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "wormhole-blog",
+      "name": "Wormhole Blog",
+      "kind": "web_list",
+      "enabled": false,
+      "tier": "T1",
+      "health": "paused",
+      "last_ok_at": "2026-10-02T18:20:42.824Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://wormhole.com/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    },
+    {
+      "id": "zama",
+      "name": "Zama",
+      "kind": "web_list",
+      "enabled": true,
+      "tier": "T1",
+      "health": "ok",
+      "last_ok_at": "2026-10-03T14:37:35.762Z",
+      "last_error": null,
+      "feed_url": null,
+      "list_url": "https://www.zama.org/blog",
+      "backfill": {
+        "initialBackfillLimit": 3,
+        "initialBackfillMonths": 12
+      },
+      "auto_policy": true
+    }
+  ],
+  "publicCounts": {
+    "total": 5,
+    "selected": 0
+  },
+  "items": [
+    {
+      "article_id": "o9j6rlyafilqhcxgaelr87neq",
+      "title": "Clarity法案在参议院程序性投票中失败及SEC发布代币化证券平台豁免令",
+      "source_id": "kol-molly-white",
+      "tags": [
+        "政策/监管",
+        "稳定币",
+        "预测市场",
+        "治理",
+        "Bitcoin",
+        "Ethereum",
+        "SEC",
+        "CFTC",
+        "entity:sec",
+        "entity:cftc"
+      ],
+      "selected": false,
+      "timeline_at": "2026-10-02T21:19:12.178Z",
+      "visibility": "withdrawn",
+      "authorized": false
+    },
+    {
+      "article_id": "nd5mqzj0095fqc9cxm38ldth5",
+      "title": "9月Crypto VC融资额环比增71.1%，Polymarket获1789 Capital领投估值达210亿美元",
+      "source_id": "techflow-articles-zh",
+      "tags": [
+        "项目/商业",
+        "预测市场",
+        "稳定币",
+        "RWA"
+      ],
+      "selected": false,
+      "timeline_at": "2026-10-02T19:37:14.576Z",
+      "visibility": "withdrawn",
+      "authorized": false
+    },
+    {
+      "article_id": "rtkvffrzdkrglgg990frrl9w4",
+      "title": "CFTC 拟调查预测市场奖励计划，Kalshi 终止交易量激励",
+      "source_id": "panews-articles-zh",
+      "tags": [
+        "政策/监管",
+        "预测市场",
+        "CFTC",
+        "entity:cftc"
+      ],
+      "selected": false,
+      "timeline_at": "2026-10-02T16:19:10.523Z",
+      "visibility": "withdrawn",
+      "authorized": false
+    },
+    {
+      "article_id": "dk37r52r6jwcqjcvk5bb7ckvt",
+      "title": "Galaxy Research 周报：Bitget 被黑复盘、白宫 AI 峰会与 SEC 代币回购 FAQ 解析",
+      "source_id": "galaxy",
+      "tags": [
+        "研究/数据",
+        "安全事件",
+        "政策/监管",
+        "预测市场",
+        "链上数据",
+        "Ethereum"
+      ],
+      "selected": false,
+      "timeline_at": "2026-10-02T15:14:40.831Z",
+      "visibility": "withdrawn",
+      "authorized": false
+    },
+    {
+      "article_id": "l9na5m3xlpcemnb4glap0en9n",
+      "title": "Galaxy Research发布Polymarket国际平台交易者链上行为分析报告",
+      "source_id": "galaxy",
+      "tags": [
+        "研究/数据",
+        "链上数据",
+        "研究报告",
+        "预测市场"
+      ],
+      "selected": false,
+      "timeline_at": "2026-10-01T18:59:22.689Z",
+      "visibility": "public",
+      "authorized": true
+    },
+    {
+      "article_id": "ngzro4zyhitvqfsqaqcv8nd2z",
+      "title": "预测市场经济学解析：价格形成机制、参与者激励与概率偏差因素",
+      "source_id": "quicknode-blog",
+      "tags": [
+        "研究/数据",
+        "DeFi",
+        "预测市场"
+      ],
+      "selected": false,
+      "timeline_at": "2026-09-29T04:00:00.000Z",
+      "visibility": "public",
+      "authorized": true
+    },
+    {
+      "article_id": "q3l262tlzhnmm3men5c7x7kas",
+      "title": "MetaMask Agent Wallet 交易 Polymarket 预测市场的九项操作指南",
+      "source_id": "metamask-news",
+      "tags": [
+        "DeFi/产品",
+        "去中心化交易",
+        "预测市场"
+      ],
+      "selected": false,
+      "timeline_at": "2026-09-29T00:00:00.000Z",
+      "visibility": "public",
+      "authorized": true
+    },
+    {
+      "article_id": "nluhp8qmagmjbrag56xmqrfd7",
+      "title": "Trueo 宣布部署至以太坊，但低费率理由与去中心化现状存疑",
+      "source_id": "kol-christine-kim",
+      "tags": [
+        "项目/商业",
+        "DeFi",
+        "Ethereum",
+        "entity:ethereum",
+        "预测市场"
+      ],
+      "selected": false,
+      "timeline_at": "2026-09-25T00:00:33.000Z",
+      "visibility": "public",
+      "authorized": true
+    },
+    {
+      "article_id": "nc4cujj006aaznuqsfkoe44wy",
+      "title": "RawVentures 提案：将 ETH 质押奖励转化为风投资本并由 Futarchy 治理",
+      "source_id": "ethereum-research",
+      "tags": [
+        "DeFi/产品",
+        "治理",
+        "Ethereum",
+        "entity:ethereum",
+        "预测市场"
+      ],
+      "selected": false,
+      "timeline_at": "2026-09-17T18:56:10.000Z",
+      "visibility": "public",
+      "authorized": true
+    }
+  ],
+  "candidates": [
+    {
+      "id": "rtkvffrzdkrglgg990frrl9w4",
+      "source_id": "panews-articles-zh",
+      "title": "Kalshi紧急刹车，监管盯上预测市场的用户交易激励行为",
+      "published_at": "2026-10-02T14:00:00.000Z",
+      "body_status": "ok",
+      "processing_state": "analyzed",
+      "visibility": "withdrawn",
+      "tags": [
+        "政策/监管",
+        "预测市场",
+        "CFTC",
+        "entity:cftc"
+      ],
+      "selected": false
+    },
+    {
+      "id": "nd5mqzj0095fqc9cxm38ldth5",
+      "source_id": "techflow-articles-zh",
+      "title": "9 月 VC 月报：融资额环比大增逾 71%，Polymarket 获 Donald Trump Jr. 公司投资 3 亿美元后估值 210 亿",
+      "published_at": "2026-10-02T05:04:27.000Z",
+      "body_status": "ok",
+      "processing_state": "analyzed",
+      "visibility": "withdrawn",
+      "tags": [
+        "项目/商业",
+        "预测市场",
+        "稳定币",
+        "RWA"
+      ],
+      "selected": false
+    }
+  ]
+}

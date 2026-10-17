@@ -212,6 +212,7 @@ async function upsertIn(db: Db, m: MaterialInput): Promise<MaterialResult> {
         ${m.xPost ? db.json(m.xPost as never) : null}, ${m.raw === undefined ? null : db.json(m.raw as never)})
       ON CONFLICT (identity_key) DO NOTHING RETURNING id`;
     if (inserted) {
+      await emit("articleIngested", { id: newId }, db);
       await db`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
                VALUES (${newId}, 1, ${hash}, ${title}, ${m.bodyText ?? null})`;
       await db`INSERT INTO article_discoveries (article_id, source_id, via, discovered_at)

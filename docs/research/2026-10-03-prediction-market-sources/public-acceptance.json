@@ -1,0 +1,120 @@
+{
+  "checks": [
+    {
+      "name": "pool",
+      "url": "https://9btc.com/api/site/pool?tag=%E9%A2%84%E6%B5%8B%E5%B8%82%E5%9C%BA",
+      "status": 200,
+      "containsNewId": true,
+      "containsTitle": true,
+      "total": 6,
+      "items": [
+        {
+          "id": "ntr4ecbj4rqisel4rv8fpcllz",
+          "title": "Novig 称悉尼·斯威尼广告推动交易量增94%及新用户增218%，遭女运动员批评",
+          "tags": [
+            "项目/商业",
+            "预测市场"
+          ]
+        },
+        {
+          "id": "l9na5m3xlpcemnb4glap0en9n",
+          "title": "Galaxy Research发布Polymarket国际平台交易者链上行为分析报告",
+          "tags": [
+            "研究/数据",
+            "链上数据",
+            "研究报告",
+            "预测市场"
+          ]
+        },
+        {
+          "id": "ngzro4zyhitvqfsqaqcv8nd2z",
+          "title": "预测市场经济学解析：价格形成机制、参与者激励与概率偏差因素",
+          "tags": [
+            "研究/数据",
+            "DeFi",
+            "预测市场"
+          ]
+        },
+        {
+          "id": "q3l262tlzhnmm3men5c7x7kas",
+          "title": "MetaMask Agent Wallet 交易 Polymarket 预测市场的九项操作指南",
+          "tags": [
+            "DeFi/产品",
+            "去中心化交易",
+            "预测市场"
+          ]
+        },
+        {
+          "id": "nluhp8qmagmjbrag56xmqrfd7",
+          "title": "Trueo 宣布部署至以太坊，但低费率理由与去中心化现状存疑",
+          "tags": [
+            "项目/商业",
+            "DeFi",
+            "Ethereum",
+            "预测市场"
+          ]
+        },
+        {
+          "id": "nc4cujj006aaznuqsfkoe44wy",
+          "title": "RawVentures 提案：将 ETH 质押奖励转化为风投资本并由 Futarchy 治理",
+          "tags": [
+            "DeFi/产品",
+            "治理",
+            "Ethereum",
+            "预测市场"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "url": "https://9btc.com/api/site/items/ntr4ecbj4rqisel4rv8fpcllz",
+      "status": 200,
+      "containsNewId": true,
+      "containsTitle": true
+    },
+    {
+      "name": "html",
+      "url": "https://9btc.com/items/ntr4ecbj4rqisel4rv8fpcllz",
+      "status": 200,
+      "containsNewId": true,
+      "containsTitle": true
+    },
+    {
+      "name": "topic",
+      "url": "https://9btc.com/api/site/topics/prediction-markets",
+      "status": 200,
+      "containsNewId": false,
+      "containsTitle": false,
+      "topic": {
+        "slug": "prediction-markets",
+        "name": "预测市场",
+        "group": "field",
+        "definition": "Polymarket、Kalshi 等事件合约平台的机制、预言机结算争议、治理经营融资、监管和数据研究；普通价格预测、体育娱乐结果和下注推广不自动归入。",
+        "total": 0,
+        "recent": 0,
+        "indexable": false,
+        "latestAt": null,
+        "related": [
+          {
+            "slug": "defi",
+            "name": "DeFi"
+          },
+          {
+            "slug": "regulation",
+            "name": "政策与监管"
+          },
+          {
+            "slug": "security",
+            "name": "安全事件"
+          },
+          {
+            "slug": "research",
+            "name": "研究与数据"
+          }
+        ]
+      },
+      "itemCount": 0
+    }
+  ]
+}

@@ -1,0 +1,402 @@
+{
+  "at": "2026-10-02T18:32:25.045Z",
+  "results": [
+    {
+      "id": "coinbase-blog",
+      "error": "Error: HTTP 403"
+    },
+    {
+      "id": "protos-news",
+      "feedUrl": "https://protos.com/feed/",
+      "count": 10,
+      "fresh48h": 9,
+      "dated": 10,
+      "newest": "2026-10-02T18:05:45.000Z",
+      "oldOver30d": 0,
+      "categories": [
+        "Crypto",
+        "Federal Reserve",
+        "Markets",
+        "Stocks",
+        "AI",
+        "Tavus",
+        "Nike",
+        "Hack",
+        "NEAR",
+        "Michael Saylor",
+        "MSTR",
+        "Strategy",
+        "Burwick Law",
+        "Hayden Davis",
+        "Legal",
+        "Libra",
+        "MetaMask",
+        "Staking",
+        "CHART",
+        "Bitcoin",
+        "btc",
+        "Trading",
+        "ETF",
+        "PIMCO",
+        "US",
+        "ZROZ",
+        "Spotlight",
+        "Abracadabra",
+        "DeFi"
+      ],
+      "samples": [
+        {
+          "title": "US jobs data revised lower after Fed rate hike",
+          "url": "https://protos.com/us-jobs-data-revised-lower-after-fed-rate-hike/",
+          "publishedAt": "2026-10-02T18:05:45.000Z",
+          "categories": [
+            "Crypto",
+            "Federal Reserve",
+            "Markets",
+            "Stocks"
+          ],
+          "bodyChars": 2665,
+          "via": "rss",
+          "externalLinks": [
+            "https://www.bls.gov/news.release/empsit.nr0.htm",
+            "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+            "https://www.bls.gov/news.release/archives/empsit_09042026.htm",
+            "https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20260916.pdf",
+            "https://www.ubs.com/global/en/wealthmanagement/insights/chief-investment-office/house-view/daily/2026/latest-07092026.html",
+            "https://www.cnbc.com/amp/2026/10/02/jobs-report-september-2026.html",
+            "https://x.com/zerohedge/status/2106001461351997722",
+            "https://www.bls.gov/news.release/pdf/empsit.pdf"
+          ]
+        },
+        {
+          "title": "Tavus call bot sparks AI scam, psychosis fears",
+          "url": "https://protos.com/tavus-call-bot-sparks-ai-scam-psychosis-fears/",
+          "publishedAt": "2026-10-02T13:31:45.000Z",
+          "categories": [
+            "Crypto",
+            "AI",
+            "Tavus"
+          ],
+          "bodyChars": 3416,
+          "via": "rss",
+          "externalLinks": [
+            "https://x.com/tavus/status/2105704169009246248?s=20",
+            "https://t.co/eb11XbC8Xr",
+            "https://x.com/tavus/status/2105704169009246248?ref_src=twsrc%5Etfw",
+            "https://www.tavus.io/griffin",
+            "https://x.com/PaulTassi/status/2105839992522059871?s=20",
+            "https://x.com/kevinroose/status/2105822736232911266?s=20",
+            "https://x.com/MakoFukasame/status/2105853940017545535?s=20",
+            "https://x.com/sonikudzu/status/2105724257246593045?s=20"
+          ]
+        },
+        {
+          "title": "Nike warns of layoffs as stock hits 13-year low",
+          "url": "https://protos.com/nike-stock-round-trips-to-september-2013-prices/",
+          "publishedAt": "2026-10-02T11:56:59.000Z",
+          "categories": [
+            "Stocks",
+            "Nike"
+          ],
+          "bodyChars": 3380,
+          "via": "rss",
+          "externalLinks": [
+            "https://www.stocktitan.net/articles/nike-q1-fy2027-earnings-outlook-dividend",
+            "https://fortune.com/2026/09/08/nike-stock-plummets-sp500-market-cap-index/",
+            "https://www.sec.gov/Archives/edgar/data/320187/000032018726000184/q1fy27exhibit991er.htm",
+            "https://www.alphapilot.tech/discover/nike-guides-fy2027-eps-to-1-15-1-35-26-below-consensus-at-the-midpoint",
+            "https://www.morningstar.com/news/marketwatch/20261001327/nikes-troubles-are-mounting-and-sales-could-fall-further",
+            "https://x.com/jimcramer/status/2105758040398213617",
+            "https://t.co/DhohEScT6z",
+            "https://x.com/boldleonidas/status/2105820932950626311?ref_src=twsrc%5Etfw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "beincrypto-news",
+      "feedUrl": "https://beincrypto.com/feed/",
+      "count": 12,
+      "fresh48h": 12,
+      "dated": 12,
+      "newest": "2026-10-02T16:31:52.000Z",
+      "oldOver30d": 0,
+      "categories": [
+        "Markets",
+        "Cryptocurrency Market News",
+        "Editor's Pick",
+        "Ethereum (ETH) News",
+        "Layer 2 Blockchain",
+        "Stocks",
+        "Elon Musk News",
+        "Stock Market News",
+        "Bitcoin (BTC) News",
+        "Stablecoin News",
+        "Tether (USDT) News",
+        "Trading",
+        "Altcoin Analysis",
+        "US Crypto News",
+        "Macro",
+        "Federal Reserve",
+        "Gold (XAU) News",
+        "interest-rates",
+        "Technology",
+        "AI Companies",
+        "AI Technology Trends",
+        "Centralized Exchanges (CEX)",
+        "Regulation News",
+        "South Korea News",
+        "Ripple (XRP) News",
+        "NFT News",
+        "Web3 News",
+        "Commodities",
+        "China News",
+        "Copper",
+        "Inflation News"
+      ],
+      "samples": [
+        {
+          "title": "Ethereum Network Blast Is Shutting Down: Who Controls Users' Last $51 Million?",
+          "url": "https://beincrypto.com/blast-shutting-down-ethereum-layer-2/",
+          "publishedAt": "2026-10-02T16:31:52.000Z",
+          "categories": [
+            "Markets",
+            "Cryptocurrency Market News",
+            "Editor's Pick",
+            "Ethereum (ETH) News",
+            "Layer 2 Blockchain"
+          ],
+          "bodyChars": 2750,
+          "via": "rss",
+          "externalLinks": [
+            "https://x.com/blast/status/2106032805280891073?ref_src=twsrc%5Etfw",
+            "https://x.com/PacmanBlur/status/2106033154586763771?s=20",
+            "https://defillama.com/chain/blast",
+            "https://l2beat.com/scaling/projects/blast",
+            "https://l2beat.com/layer2s/projects/blast",
+            "https://l2beat.com/layer2s/projects/blast#tvs"
+          ]
+        },
+        {
+          "title": "Tesla Stock Jumps 6% on Delivery Beat: Will Earnings Back It Up?",
+          "url": "https://beincrypto.com/tesla-stock-jumps-q3-deliveries-beat/",
+          "publishedAt": "2026-10-02T14:32:24.000Z",
+          "categories": [
+            "Stocks",
+            "Editor's Pick",
+            "Elon Musk News",
+            "Stock Market News"
+          ],
+          "bodyChars": 2811,
+          "via": "rss",
+          "externalLinks": [
+            "https://finance.yahoo.com/quote/TSLA/",
+            "https://t.co/sXBSeLiJIj",
+            "https://x.com/Tesla/status/2106008799605923958?ref_src=twsrc%5Etfw",
+            "https://investing.com/news/stock-market-news/tesla-posts-strongerthanexpected-quarterly-deliveries-4929912",
+            "https://ir.tesla.com/press-release/tesla-third-quarter-2026-production-deliveries-and-deployments",
+            "https://www.tipranks.com/stocks/tsla/forecast"
+          ]
+        },
+        {
+          "title": "USDT Is Returning to Bitcoin After 10 Years. Should Users Care?",
+          "url": "https://beincrypto.com/usdt-returning-bitcoin-rgb-utexo/",
+          "publishedAt": "2026-10-02T13:25:59.000Z",
+          "categories": [
+            "Markets",
+            "Bitcoin (BTC) News",
+            "Stablecoin News",
+            "Tether (USDT) News"
+          ],
+          "bodyChars": 3916,
+          "via": "rss",
+          "externalLinks": [
+            "https://tether.io/news/tether-to-launch-usdt-on-rgb-expanding-native-bitcoin-stablecoin-support/",
+            "https://x.com/paoloardoino/status/2103121411338375272?s=20",
+            "https://defillama.com/stablecoin/tether",
+            "https://x.com/MorganStanley?ref_src=twsrc%5Etfw",
+            "https://x.com/MergnerMs?ref_src=twsrc%5Etfw",
+            "https://x.com/utexocom?ref_src=twsrc%5Etfw",
+            "https://t.co/pKn1HfVpq7",
+            "https://x.com/VIhnatiuk/status/2103088653689913350?ref_src=twsrc%5Etfw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kraken-blog",
+      "feedUrl": "https://blog.kraken.com/feed/",
+      "count": 10,
+      "fresh48h": 5,
+      "dated": 10,
+      "newest": "2026-10-02T15:42:33.000Z",
+      "oldOver30d": 0,
+      "categories": [
+        "Asset Listings",
+        "Kraken",
+        "trading",
+        "Promotions",
+        "Crypto Education",
+        "Borrow",
+        "Kraken Derivatives US",
+        "Kraken VIP"
+      ],
+      "samples": [
+        {
+          "title": "DEBIT is available for trading!",
+          "url": "https://blog.kraken.com/product/asset-listings/debit-is-available-for-trading",
+          "publishedAt": "2026-10-02T15:42:33.000Z",
+          "categories": [
+            "Asset Listings",
+            "Kraken",
+            "trading"
+          ],
+          "bodyChars": 1716,
+          "via": "rss",
+          "externalLinks": [
+            "https://proapp.kraken.com/9f1e/DEBIT",
+            "https://www.kraken.com/sign-up",
+            "https://support.kraken.com/hc/en-us/articles/360000678446-Cryptocurrencies-available-on-Kraken",
+            "http://kraken.com/listings",
+            "https://www.x.com/krakenlistings"
+          ]
+        },
+        {
+          "title": "OUSD is available for trading!",
+          "url": "https://blog.kraken.com/product/asset-listings/ousd-is-available-for-trading",
+          "publishedAt": "2026-10-02T15:37:04.000Z",
+          "categories": [
+            "Asset Listings",
+            "Kraken",
+            "trading"
+          ],
+          "bodyChars": 1694,
+          "via": "rss",
+          "externalLinks": [
+            "https://proapp.kraken.com/9f1e/OUSD",
+            "https://www.kraken.com/sign-up",
+            "https://support.kraken.com/hc/en-us/articles/360000678446-Cryptocurrencies-available-on-Kraken",
+            "http://kraken.com/listings",
+            "https://www.x.com/krakenlistings"
+          ]
+        },
+        {
+          "title": "CT is available for trading!",
+          "url": "https://blog.kraken.com/product/asset-listings/ct-is-available-for-trading",
+          "publishedAt": "2026-10-02T15:31:12.000Z",
+          "categories": [
+            "Asset Listings",
+            "Kraken",
+            "trading"
+          ],
+          "bodyChars": 2000,
+          "via": "rss",
+          "externalLinks": [
+            "https://proapp.kraken.com/9f1e/CT",
+            "https://www.kraken.com/sign-up",
+            "https://support.kraken.com/hc/en-us/articles/360000678446-Cryptocurrencies-available-on-Kraken",
+            "http://kraken.com/listings",
+            "https://www.x.com/krakenlistings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "techflow-articles-zh",
+      "feedUrl": "https://www.techflowpost.com/rss/v2/feed.xml?lang=zh-CN&type=all&topic=all&tag=all",
+      "count": 50,
+      "fresh48h": 50,
+      "dated": 50,
+      "newest": "2026-10-02T17:39:06.000Z",
+      "oldOver30d": 0,
+      "categories": [
+        "TechFlow"
+      ],
+      "samples": [
+        {
+          "title": "BNY 正与 Kraken 母公司 Payward 洽谈基础设施合作",
+          "url": "https://www.techflowpost.com/newsletter/138685",
+          "publishedAt": "2026-10-02T17:39:06.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyChars": 367,
+          "via": "readability",
+          "externalLinks": []
+        },
+        {
+          "title": "前 SEC 主席 Jay Clayton 拟任美 AI 沙皇",
+          "url": "https://www.techflowpost.com/newsletter/138684",
+          "publishedAt": "2026-10-02T17:17:17.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyChars": 444,
+          "via": "readability",
+          "externalLinks": []
+        },
+        {
+          "title": "Blast 因运营成本过高宣布关停",
+          "url": "https://www.techflowpost.com/newsletter/138683",
+          "publishedAt": "2026-10-02T17:17:07.000Z",
+          "categories": [
+            "TechFlow"
+          ],
+          "bodyChars": 484,
+          "via": "readability",
+          "externalLinks": []
+        }
+      ]
+    },
+    {
+      "id": "chaincatcher-articles-zh",
+      "feedUrl": "https://www.chaincatcher.com/rss/clist",
+      "count": 674,
+      "fresh48h": 442,
+      "dated": 674,
+      "newest": "2026-10-02T18:16:03.000Z",
+      "oldOver30d": 0,
+      "categories": [
+        "快讯",
+        "文章"
+      ],
+      "samples": [
+        {
+          "title": "南非 Absa 银行成为非洲首家提供比特币托管的银行",
+          "url": "https://www.chaincatcher.com/article/2293813",
+          "publishedAt": "2026-10-02T18:16:03.000Z",
+          "categories": [
+            "快讯"
+          ],
+          "bodyChars": 490,
+          "via": "rss",
+          "externalLinks": []
+        },
+        {
+          "title": "Catcher Predict：“比特币 9 月 28 日至 10 月 4 日价格预测” “84,000 美元以下” 胜率飙升 17%",
+          "url": "https://www.chaincatcher.com/article/2293812",
+          "publishedAt": "2026-10-02T18:15:12.000Z",
+          "categories": [
+            "快讯"
+          ],
+          "bodyChars": 1281,
+          "via": "readability",
+          "externalLinks": [
+            "https://t.me/CatcherPredict"
+          ]
+        },
+        {
+          "title": "SpaceX 13 小时内完成 3 次火箭发射",
+          "url": "https://www.chaincatcher.com/article/2293811",
+          "publishedAt": "2026-10-02T17:48:41.000Z",
+          "categories": [
+            "快讯"
+          ],
+          "bodyChars": 0,
+          "via": null,
+          "externalLinks": []
+        }
+      ]
+    }
+  ]
+}

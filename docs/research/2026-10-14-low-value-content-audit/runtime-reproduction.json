@@ -1,0 +1,29 @@
+{
+  "syntheticOnly": true,
+  "modelCalls": 0,
+  "businessWrites": 0,
+  "cases": [
+    {
+      "prefilter": "UNKNOWN",
+      "scores": [
+        0,
+        0
+      ],
+      "relevance": "pass",
+      "score": 0,
+      "selected": false,
+      "eligible": true
+    },
+    {
+      "prefilter": "PASS",
+      "scores": [
+        0,
+        0
+      ],
+      "relevance": "pass",
+      "score": 0,
+      "selected": false,
+      "eligible": true
+    }
+  ]
+}
