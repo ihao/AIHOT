@@ -1,0 +1,49 @@
+{
+  "mode": "apply",
+  "at": "2026-10-17T03:22:13.036Z",
+  "changed": 62,
+  "publications": 4791,
+  "selectedBefore": 309,
+  "selectedAfter": 309,
+  "allOtherPublicTablesPreserved": 56,
+  "readerContentPreserved": true,
+  "paidCallsEnabled": false,
+  "waitingAfter": 0,
+  "applicationCommit": "1ec8be0ab81d4c9771a8889cbb56927cdab6d3e4",
+  "image": "ninebtc-grouping:1ec8be0",
+  "protectedOriginalTables": 56,
+  "backendTests": {
+    "passed": 898,
+    "failed": 0
+  },
+  "webTests": {
+    "passed": 74,
+    "skipped": 1,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "webBuild": "passed",
+  "serverLocalSmoke": "passed",
+  "serverPublicSmoke": "passed",
+  "independentPublicSmoke": "passed",
+  "ci": "not_dispatched_gh_not_authenticated",
+  "backupSha256": "e173c476692d1d359a7a6707149cf4e87d7fef4872f6a58e4f8ec488e8da0632",
+  "independentMcpContract": "passed",
+  "postRestartCheck": {
+    "at": "2026-10-17T03:24:28.534Z",
+    "waiting": 0,
+    "selected": 309,
+    "staleCandidates": 0,
+    "servicesRunning": 3,
+    "serviceRestarts": 0,
+    "workerHeartbeat": "fresh",
+    "sourceSchedule": "ok"
+  },
+  "extendedMcpBoundary": "--full requires a published monthly report; none exists yet. Daily and weekly reads succeeded; no report was generated for this check.",
+  "cleanup": {
+    "isolatedLocalPostgres": "stopped",
+    "isolatedProductionRestoreDatabase": "removed",
+    "productionBackup": "retained",
+    "previousImage": "retained"
+  }
+}
