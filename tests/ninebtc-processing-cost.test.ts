@@ -12,6 +12,7 @@ import { rerun } from "@aihot/backend/admin/content";
 import { REPORTS } from "@aihot/site";
 import { publishArticle } from "@aihot/backend/publication/publish";
 import { installModules, serverModules } from "@aihot/backend/modules";
+import { waitingSelectedNews } from "@aihot/backend/operations/grouping";
 
 const source = "ninebtc-cost-eligibility";
 const oldHours = config.contentMaxAgeHours;
@@ -100,6 +101,34 @@ async function savedFixture(name: string, state = "analyzed") {
   await sql`UPDATE articles SET processing_state=${state} WHERE id=${articleId}`;
   return {articleId, analysisId:analysis!.id};
 }
+
+test("an expired material revision cannot inherit an old analysis's selection nomination", async () => {
+  const { articleId, analysisId } = await savedFixture("expired-revised-selection");
+  await sql`UPDATE analyses SET selected=true,score=90 WHERE id=${analysisId}`;
+  await sql`UPDATE articles SET grouping_status='complete',selection_adds_value=true WHERE id=${articleId}`;
+  await publishArticle(articleId);
+  assert.equal((await sql`SELECT selected FROM publications WHERE article_id=${articleId}`)[0]!.selected, true);
+  const receipts = (await sql`SELECT count(*) AS n FROM receipts`)[0]!.n;
+  await sql`UPDATE articles SET published_at=now()-interval '49 hours' WHERE id=${articleId}`;
+  await upsertMaterial({ sourceId: source, url: "https://example.invalid/expired-revised-selection", title: "Changed expired material",
+    bodyText: "A revised original body. ".repeat(20), bodyStatus: "ok", via: "fetch" });
+  assert.equal(await queueProcessing(articleId), null);
+  assert.deepEqual(await processArticle(articleId), { state: "skipped" });
+  await publishArticle(articleId);
+  const [publication] = await sql`SELECT analysis_id,visibility,eligible,selected,selection_candidate,summary FROM publications WHERE article_id=${articleId}`;
+  assert.deepEqual({ ...publication }, { analysis_id: analysisId, visibility: "public", eligible: true,
+    selected: false, selection_candidate: false, summary: "保存的新闻摘要" });
+  assert.equal((await waitingSelectedNews()).some(item => item.articleId === articleId), false);
+  assert.equal((await sql`SELECT count(*) AS n FROM receipts`)[0]!.n, receipts);
+  assert.equal((await sql`SELECT count(*) AS n FROM analyses WHERE article_id=${articleId}`)[0]!.n, 1);
+
+  // A genuine judgement of the replacement revision can nominate it normally again.
+  await sql`INSERT INTO analyses (article_id,input_revision,origin,relevance,title_zh,summary_zh,score,selected)
+    SELECT id,revision,'rule','pass','新版标题','新版摘要',90,true FROM articles WHERE id=${articleId}`;
+  await publishArticle(articleId);
+  assert.equal((await sql`SELECT selection_candidate FROM publications WHERE article_id=${articleId}`)[0]!.selection_candidate, true);
+  assert.equal((await waitingSelectedNews()).some(item => item.articleId === articleId), true);
+});
 
 test("a committed analysis recovers its missing publication and grouping without extraction or paid replay", async () => {
   const {articleId,analysisId}=await savedFixture("committed-before-publication");

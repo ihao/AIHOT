@@ -20,6 +20,7 @@ import { foldableSelectionCondition, latestCompositeCondition, ownFactEvidenceCo
 
 interface ArticleRow {
   id: string;
+  revision: number;
   source_id: string;
   url: string;
   title: string;
@@ -39,6 +40,7 @@ interface ArticleRow {
 
 interface AnalysisRow {
   id: number;
+  input_revision: number;
   relevance: string | null;
   category: string | null;
   tags: string[];
@@ -250,7 +252,7 @@ export async function publishArticle(articleId: string, options: PublishOptions 
 
 export async function publishArticleTx(tx: Tx, articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
   const [article] = await tx<ArticleRow[]>`
-    SELECT id, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
+    SELECT id, revision, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
            body_text, x_post, x_article, grouped_at, grouping_status, selection_adds_value
     FROM articles WHERE id = ${articleId} FOR UPDATE`;
   if (!article) return null;
@@ -263,7 +265,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext FROM sources WHERE id = ${article.source_id}`;
   if (!source) return null;
   const [analysis] = await tx<AnalysisRow[]>`
-    SELECT id, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected,
+    SELECT id, input_revision, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected,
       output->'prefilter'->>'label' AS prefilter_label
     FROM analyses WHERE article_id = ${articleId} ORDER BY input_revision DESC, id DESC LIMIT 1`;
   const [override] = await tx<OverrideRow[]>`SELECT fields, visibility FROM editorial_overrides WHERE article_id = ${articleId}`;
@@ -307,7 +309,10 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   // Explicit imports can retain an editorial decision already published elsewhere.
   const eligible = isPoolEligible({ participationMode: source.participation_mode, relevance, score, title, summary, originalPost: !!original })
     && (!article.backfill || article.published_at !== null || !!options.releasedAt);
-  const selectionCandidate = isSelectable(eligible, judgedSelected, source.tier);
+  // Retain the last readable summary while a revision waits or ages out of processing, but an old
+  // analysis cannot nominate the replacement material. Explicit editorial selection still wins.
+  const selectionCandidate = (f.selected === true || analysis?.input_revision === article.revision)
+    && isSelectable(eligible, judgedSelected, source.tier);
   // Scoring nominates a report; a completed identity/value decision admits it to selection.
   // A historical import already has its public decision. Preserve that confirmed state on rebuild.
   const selected = selectionCandidate && article.grouping_status === "complete"
