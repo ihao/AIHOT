@@ -70,4 +70,3 @@ test("an unmatchable translated layout stays intact, is not a follow-up and does
   assert.equal((await collectSource(sourceId)).status, "ok");
   assert.match((await sql`SELECT body_html FROM articles WHERE id=${articleId}`)[0]!.body_html, /restored.png/, "a layout the translation can follow is applied");
 });
-

@@ -6,6 +6,7 @@
 // stays readable in 全部动态. On a month of real cards the pair prompt that already decides merges
 // found such repeats at precision 0.93 and recall 0.88 from this similarity up; most of them were
 // history and composites, which no other step ever compared with a card.
+import { PAID_FEATURES } from "@aihot/site";
 import { modelRoute } from "../editorial/models.ts";
 import { sql, type Tx } from "../db.ts";
 import { chatJson } from "../providers/llm.ts";
@@ -93,17 +94,20 @@ export async function factHasCard(factId: number): Promise<boolean> {
  * failed call leaves the report waiting, not a duplicate out.
  */
 export async function seenOnCard(reader: Reader, ownFact: number | null): Promise<CardRow | null> {
+  if (!PAID_FEATURES.readerCardComparison) return null;
   return firstSame(reader, await recall(reader, ownFact, { skip: independentSelectedSources() }));
 }
 
 /** The card of the author's own article telling this post's news, whatever fact the two share. */
 export async function ownArticleOnCard(reader: Reader): Promise<CardRow | null> {
+  if (!PAID_FEATURES.readerCardComparison) return null;
   const article = independentOfEcho(reader.sourceId);
   return article ? firstSame(reader, await recall(reader, null, { only: [article] })) : null;
 }
 
 /** The cards an independent source's article replaces: its author's posts telling the same news. */
 export async function echoesOnCard(reader: Reader): Promise<CardRow[]> {
+  if (!PAID_FEATURES.readerCardComparison) return [];
   const only = echoesOfIndependent(reader.sourceId);
   if (!only.length) return [];
   const echoes: CardRow[] = [];

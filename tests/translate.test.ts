@@ -9,7 +9,7 @@ import { closeDb, sql } from "@aihot/backend/db";
 import { upsertMaterial } from "@aihot/backend/content/materials";
 import { translateArticle, translatePending, importBodyTranslation } from "@aihot/backend/editorial/translate";
 import { stopBoss } from "@aihot/backend/jobs/queue";
-import { autoReleaseUnknownReceipts } from "@aihot/backend/operations/recover";
+import { autoReleaseUnknownReceipts, releaseReceipt } from "@aihot/backend/operations/recover";
 import { publishArticle } from "@aihot/backend/publication/publish";
 import { buildApp } from "../apps/api/src/app.ts";
 
@@ -184,7 +184,7 @@ test("a translation finishing during a layout refresh cannot restore the missing
 test("a text corrected while its translation was running is translated again, and the old translation is not shown", async () => {
   const { articleId: id } = await material("ten");
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
-            VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`价格更新-${T}`}, '摘要', '理由', 90, true)`;
+            VALUES (${id}, 1, 'rule', 'pass', 'infrastructure', ${`价格更新-${T}`}, '摘要', '理由', 90, true)`;
   await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
 
   // The model is asked about revision 1; the source corrects the price before it answers.
@@ -226,7 +226,7 @@ test("links and images inside a paragraph survive the translation, or the paragr
     bodyStatus: "ok", via: "fetch", publishedAt: new Date(), discoveredAt: new Date(Date.now() + 1_200_000),
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
-            VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`链接-${T}`}, '摘要', '理由', 90, true)`;
+            VALUES (${id}, 1, 'rule', 'pass', 'infrastructure', ${`链接-${T}`}, '摘要', '理由', 90, true)`;
   await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
   await translatePending({ limit: 1 });
   const [tr] = await sql<{ body_html: string; complete: boolean }[]>`SELECT body_html, complete FROM translations WHERE article_id = ${id}`;
@@ -239,6 +239,40 @@ test("links and images inside a paragraph survive the translation, or the paragr
   assert.ok(receipts.every((receipt) => receipt.status === "completed"), "every paid batch covered by the committed translation is completed");
 });
 
+test("translation storage and receipt completion commit together, then reuse the saved answer", async () => {
+  const { articleId: id } = await upsertMaterial({
+    sourceId: SOURCE, url: `${URL_}-receipt`, title: `Receipt ${T}`, language: "en",
+    bodyText: `Receipt lifecycle ${T}.`, bodyHtml: `<p>Receipt lifecycle ${T}.</p>`,
+    bodyStatus: "ok", via: "fetch", publishedAt: new Date(), discoveredAt: new Date(Date.now() + 1_500_000),
+  });
+  await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
+            VALUES (${id}, 1, 'rule', 'pass', 'infrastructure', ${`回执-${T}`}, '摘要', '理由', 90, true)`;
+  await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
+
+  await sql.unsafe(`CREATE FUNCTION fail_translation_receipt() RETURNS trigger LANGUAGE plpgsql AS $body$ BEGIN
+    IF NEW.status = 'completed' AND NEW.purpose = 'translate_body' THEN RAISE EXCEPTION 'receipt commit interrupted'; END IF;
+    RETURN NEW; END $body$`);
+  await sql`CREATE TRIGGER fail_translation_receipt BEFORE UPDATE ON receipts FOR EACH ROW EXECUTE FUNCTION fail_translation_receipt()`;
+  const before = provider.hits();
+  try {
+    await assert.rejects(translateArticle(id), /receipt commit interrupted/);
+  } finally {
+    await sql`DROP TRIGGER fail_translation_receipt ON receipts`;
+    await sql`DROP FUNCTION fail_translation_receipt()`;
+  }
+  assert.equal(provider.hits(), before + 1);
+  assert.equal((await sql`SELECT 1 FROM translations WHERE article_id = ${id}`).length, 0, "translation write rolls back with receipt completion");
+  const [received] = await sql<{ status: string }[]>`SELECT status FROM receipts WHERE purpose = 'translate_body' AND subject = ${`article:${id}@1#0`}`;
+  assert.equal(received!.status, "received");
+
+  const retried = await translateArticle(id);
+  assert.equal(retried.status, "translated");
+  assert.equal(provider.hits(), before + 1, "retry reuses the already received provider answer");
+  const [completed] = await sql<{ status: string }[]>`SELECT status FROM receipts WHERE purpose = 'translate_body' AND subject = ${`article:${id}@1#0`}`;
+  assert.equal(completed!.status, "completed");
+  assert.equal((await sql`SELECT 1 FROM translations WHERE article_id = ${id}`).length, 1);
+});
+
 test("the post a selected X post quotes is translated once and shown with the item", async () => {
   const tweetId = `7${Date.now()}`;
   const { articleId: id } = await upsertMaterial({
@@ -247,7 +281,7 @@ test("the post a selected X post quotes is translated once and shown with the it
     xPost: { tweetId: `8${Date.now()}`, authorName: "Boris", handle: "bcherny", text: "Try it!", quoted: { authorName: "Anthropic", handle: "AnthropicAI", text: `Introducing Claude Sonnet 5.5 ${T}`, url: `https://x.com/AnthropicAI/status/${tweetId}` } },
   });
   await sql`INSERT INTO analyses (article_id, input_revision, origin, relevance, category, title_zh, summary_zh, reason_zh, score, selected)
-            VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`引用-${T}`}, '摘要', '理由', 90, true)`;
+            VALUES (${id}, 1, 'rule', 'pass', 'infrastructure', ${`引用-${T}`}, '摘要', '理由', 90, true)`;
   await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
   const run = await translatePending({ limit: 1 });
   assert.ok(run.quotes >= 1);
@@ -367,9 +401,9 @@ test("a received alignment retry survives a failed translation commit without pa
   assert.equal((await detail(id)).body.complete, true);
 });
 
-test("an overloaded provider and a timed-out request use up no attempts: after the release the text is translated", async () => {
+test("an overloaded provider and a timed-out request use up no attempts: billing confirmation allows translation", async () => {
   // A timed-out batch leaves its receipt unknown; the next two runs met that receipt again and spent all three
-  // attempts within ten minutes, so the automatic release half an hour later came too late and nothing alerted.
+  // attempts within ten minutes. Waiting for billing confirmation must preserve those article attempts.
   const { articleId: id } = await upsertMaterial({
     sourceId: SOURCE, url: `${URL_}-timeout`, title: `Timeout ${T}`, language: "en",
     bodyText: `A paragraph whose answer is lost ${T}.`, bodyHtml: `<p>A paragraph whose answer is lost ${T}.</p>`,
@@ -379,7 +413,7 @@ test("an overloaded provider and a timed-out request use up no attempts: after t
             VALUES (${id}, 1, 'rule', 'pass', 'ai-models', ${`超时-${T}`}, '摘要', '理由', 90, true)`;
   await publishArticle(id, { releasedAt: new Date(Date.now() - 60_000) });
 
-  // First overloaded (503, nothing billed), then the connection is lost after the request went out.
+  // First overloaded (503), then the connection is lost after the request went out; neither proves no billing.
   let trouble: "overloaded" | "lost" = "overloaded";
   const troubled = http.createServer((req, res) => {
     req.resume();
@@ -400,9 +434,18 @@ test("an overloaded provider and a timed-out request use up no attempts: after t
   assert.deepEqual((await receipts()).map((r) => r.status), ["unknown"]);
   assert.equal((await sql`SELECT 1 FROM translation_attempts WHERE article_id = ${id}`).length, 0, "no attempt was used up");
 
-  // ops.recover releases the unknown receipt after half an hour; the next run translates.
-  await sql`UPDATE receipts SET updated_at = now() - interval '31 minutes' WHERE id = ${(await receipts())[0]!.id}`;
-  assert.equal((await autoReleaseUnknownReceipts()).released, 1);
+  // Time alone cannot authorize another model purchase. Repeated runs keep waiting without consuming
+  // translation attempts, until the supplier confirms the missing response was not charged.
+  const receiptId = (await receipts())[0]!.id;
+  await sql`UPDATE receipts SET updated_at = now() - interval '31 minutes' WHERE id = ${receiptId}`;
+  assert.equal((await autoReleaseUnknownReceipts()).released, 0);
+  const callsBeforeRelease = provider.hits();
+  await translatePending({ limit: 1 });
+  assert.equal(provider.hits(), callsBeforeRelease, "an unknown receipt cannot buy another answer");
+  assert.equal((await sql`SELECT 1 FROM translation_attempts WHERE article_id = ${id}`).length, 0);
+  assert.equal(await releaseReceipt(receiptId, { billed: null, note: "billing remains unknown" }, "test"), null);
+  assert.deepEqual((await receipts()).map((r) => r.status), ["unknown"]);
+  assert.ok(await releaseReceipt(receiptId, { billed: false, note: "supplier confirmed no charge" }, "test"));
   const run = await translatePending({ limit: 1 });
   assert.equal(run.done.find((r) => r.articleId === id)?.status, "translated");
   const [attempt] = await sql<{ attempts: number; outcome: string }[]>`SELECT attempts, outcome FROM translation_attempts WHERE article_id = ${id}`;

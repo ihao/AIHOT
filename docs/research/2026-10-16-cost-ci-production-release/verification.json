@@ -1,0 +1,254 @@
+{
+  "verifiedAtUtc": "2026-10-16T03:04:58.888Z",
+  "applicationCommit": "1f7622f9b54880006cabcaafd8367293217beb9c",
+  "migrationsBefore": 73,
+  "migrationsAfter": 73,
+  "protectedTables": 56,
+  "conservation": {
+    "checkedTables": 56,
+    "changedTables": [],
+    "sameProjections": true,
+    "newMigrations": []
+  },
+  "projectionsAtRelease": {
+    "public": {
+      "count": 3127,
+      "hash": "56e79c533f774965f9310ab8b0b0f5c0"
+    },
+    "selected": {
+      "count": 297,
+      "hash": "d0e5a2ad3ba65703153795e9d7ec6105"
+    }
+  },
+  "sourceSummary": {
+    "total": 109,
+    "enabled": 79
+  },
+  "finalBackupActuallyRestored": true,
+  "dataVolumeActuallyRestoredAndCompared": true,
+  "smoke": {
+    "isolated": 30,
+    "productionLocal": 30,
+    "productionPublic": 30,
+    "mcpContract": true,
+    "independentPublic": 30,
+    "existingLocalSdkMcp": true
+  },
+  "runtime": {
+    "schedules": [
+      {
+        "name": "cron.content.sweep",
+        "cron": "*/5 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.content.translate",
+        "cron": "*/5 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.feedback.forward",
+        "cron": "*/10 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.hot.rank",
+        "cron": "*/5 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.hot.snapshot",
+        "cron": "2 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.market.btc-usd",
+        "cron": "*/5 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.ops.alerts",
+        "cron": "*/10 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.ops.digest",
+        "cron": "0 9 * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.ops.recover",
+        "cron": "*/10 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.ops.retention",
+        "cron": "30 3 * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.reports.compose",
+        "cron": "0,30 * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.reports.source-health",
+        "cron": "0 9 * * 1",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.seo.indexnow",
+        "cron": "50 5 * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.sources.adapt-intervals",
+        "cron": "20 4 * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.sources.icons",
+        "cron": "40 4 * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.sources.schedule",
+        "cron": "* * * * *",
+        "timezone": "Asia/Shanghai"
+      },
+      {
+        "name": "cron.stories.links",
+        "cron": "12 * * * *",
+        "timezone": "Asia/Shanghai"
+      }
+    ],
+    "workerRuns": [
+      {
+        "job": "sources.schedule",
+        "status": "ok",
+        "started_at": "2026-10-16T03:04:28.160Z",
+        "finished_at": "2026-10-16T03:04:28.170Z"
+      },
+      {
+        "job": "sources.schedule",
+        "status": "ok",
+        "started_at": "2026-10-16T03:03:58.155Z",
+        "finished_at": "2026-10-16T03:03:58.369Z"
+      },
+      {
+        "job": "reports.compose",
+        "status": "ok",
+        "started_at": "2026-10-16T03:03:58.108Z",
+        "finished_at": "2026-10-16T03:03:58.140Z"
+      }
+    ],
+    "reports": [
+      {
+        "kind": "daily",
+        "count": 15
+      },
+      {
+        "kind": "weekly",
+        "count": 1
+      }
+    ],
+    "budgets": [
+      {
+        "service": "dajiala",
+        "per_minute": 5,
+        "per_hour": 60,
+        "per_day": 500
+      },
+      {
+        "service": "dashscope",
+        "per_minute": 20,
+        "per_hour": 300,
+        "per_day": 2000
+      },
+      {
+        "service": "deepseek",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      },
+      {
+        "service": "embedding",
+        "per_minute": 300,
+        "per_hour": 6000,
+        "per_day": 40000
+      },
+      {
+        "service": "jina",
+        "per_minute": 5,
+        "per_hour": 50,
+        "per_day": 300
+      },
+      {
+        "service": "llm",
+        "per_minute": 0,
+        "per_hour": 0,
+        "per_day": 0
+      },
+      {
+        "service": "mimo",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      },
+      {
+        "service": "socialdata",
+        "per_minute": 10,
+        "per_hour": 100,
+        "per_day": 1000
+      },
+      {
+        "service": "zhipu",
+        "per_minute": 100,
+        "per_hour": 2000,
+        "per_day": 20000
+      }
+    ],
+    "money": [
+      {
+        "enabled": false,
+        "timezone": "Asia/Shanghai",
+        "day_limit_cny": "9.000000000",
+        "rolling_limit_cny": "9.000000000"
+      }
+    ]
+  },
+  "ci": {
+    "runId": 38841858501,
+    "head": "1f7622f9b54880006cabcaafd8367293217beb9c",
+    "conclusion": "success",
+    "url": "https://github.com/ihao/AIHOT/actions/runs/38841858501"
+  },
+  "deployment": {
+    "previousApplicationCommit": "055e95ce2a495168af91f0c2a4243741329d1588",
+    "image": "ninebtc-cost-ci:1f7622f",
+    "imageId": "sha256:c2c8a568f535af1900ce000c39ba04f30d8c3e5cf6567ec2a986d77a009003f0",
+    "roles": {
+      "api": {
+        "status": "running",
+        "restartCount": 0
+      },
+      "web": {
+        "status": "running",
+        "restartCount": 0
+      },
+      "worker": {
+        "status": "running",
+        "restartCount": 0
+      }
+    },
+    "operationalCheckoutCommit": "1f7622f9b54880006cabcaafd8367293217beb9c",
+    "environmentBytesUnchanged": true,
+    "deployUnitResult": "success",
+    "deployUnitExitCode": 0,
+    "backupUnitResult": "success",
+    "backupUnitExitCode": 0,
+    "backupDirectory": "/srv/9btc-release-backups/cost-ci-20261016-1f7622f",
+    "databaseBackupSha256": "ac6a1d6e013a6e6eae451481422147ea143ec008e0a189922276d9838a18bee5",
+    "dataBackupSha256": "017f7dd1f8c99c30e315a04081abe8a1146327cb6b7fa5e2aa8f4854e0b43c72"
+  }
+}

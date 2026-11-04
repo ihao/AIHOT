@@ -1,3 +1,4 @@
+import { BtcIngestionPrice } from "../features/market/BtcIngestionPrice";
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Await, isRouteErrorResponse, Link, useAsyncError, useLoaderData, useNavigate, useRevalidator, type ClientLoaderFunctionArgs } from "react-router";
 import type { Route } from "./+types/item";
@@ -594,6 +595,8 @@ function ItemView({ item, followups }: Loaded) {
               ))}
             </div>
           )}
+
+          <BtcIngestionPrice quote={item.btcAtIngestion} detail />
 
           {item.story && <StoryFollowups followups={followups} story={item.story} currentId={item.id} />}
 

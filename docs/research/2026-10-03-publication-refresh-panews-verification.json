@@ -1,0 +1,401 @@
+{
+  "productionCommit": "df7e45ea2fffbf2f88e026863ae5f88cf05d576b",
+  "backup": {
+    "service": "ninebtc-local-backup.service",
+    "result": "success",
+    "exitCode": 0
+  },
+  "diagnosis": {
+    "at": "2026-10-02T16:17:50.913Z",
+    "since": "2026-10-02T09:12:00.000Z",
+    "mode": "automatic",
+    "modelCallsEnabled": true,
+    "latestPublic": {
+      "article_id": "aogy1eackjkw1yu1z9yjf98h8",
+      "title": "Zama 9月通讯：机密DeFi扩展至16个金库，Shielded TVL超9000万美元，$ZAMA上线Solana",
+      "name": "Zama",
+      "published_at": "2026-10-01T00:00:00.000Z",
+      "discovered_at": "2026-10-02T09:12:31.607Z",
+      "timeline_at": "2026-10-02T09:12:31.607Z",
+      "sort_at": "2026-10-02T09:12:31.607Z",
+      "visible_after": null,
+      "updated_at": "2026-10-02T09:13:15.755Z",
+      "selected": false
+    },
+    "fetchTotals": [
+      {
+        "status": "failed",
+        "count": 2,
+        "found": 0,
+        "new": 0,
+        "latest": "2026-10-02T15:18:38.725Z"
+      },
+      {
+        "status": "ok",
+        "count": 558,
+        "found": 19149,
+        "new": 12,
+        "latest": "2026-10-02T16:17:42.701Z"
+      }
+    ],
+    "newArticles": [
+      {
+        "processing_state": "analyzed",
+        "processing_error": null,
+        "count": 11,
+        "latest": "2026-10-02T16:16:45.101Z"
+      },
+      {
+        "processing_state": "blocked",
+        "processing_error": null,
+        "count": 1,
+        "latest": "2026-10-02T15:14:40.739Z"
+      }
+    ],
+    "verificationStatuses": [
+      {
+        "status": "rejected",
+        "stage": "evidence",
+        "reasons": [
+          "no_new_primary_evidence"
+        ],
+        "count": 7,
+        "last_updated": "2026-10-02T16:17:29.801Z",
+        "next_retry": null
+      },
+      {
+        "status": "accepted",
+        "stage": "initial",
+        "reasons": [],
+        "count": 1,
+        "last_updated": "2026-10-02T09:13:06.401Z",
+        "next_retry": null
+      },
+      {
+        "status": "rejected",
+        "stage": "evidence",
+        "reasons": [
+          "claim_0_primary_evidence_missing",
+          "claim_1_primary_evidence_missing",
+          "claim_2_primary_evidence_missing",
+          "claim_4_quote_invalid",
+          "claim_4_primary_evidence_missing"
+        ],
+        "count": 1,
+        "last_updated": "2026-10-02T15:21:35.486Z",
+        "next_retry": null
+      },
+      {
+        "status": "rejected",
+        "stage": "evidence",
+        "reasons": [
+          "verification_needs_evidence",
+          "claim_0_primary_evidence_missing",
+          "claim_1_primary_evidence_missing",
+          "claim_2_primary_evidence_missing",
+          "claim_3_primary_evidence_missing",
+          "claim_4_primary_evidence_missing",
+          "claim_5_primary_evidence_missing"
+        ],
+        "count": 1,
+        "last_updated": "2026-10-02T15:15:45.674Z",
+        "next_retry": null
+      },
+      {
+        "status": "rejected",
+        "stage": "initial",
+        "reasons": [
+          "Error: Model qwen3.8-max returned unusable output for article:fv0xmzq9th4bwq4mcyk0sppls@1: [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"supported\",\n      \"needs_evidence\",\n      \"contradicted\"\n    ],\n    \"path\": [\n      \"claims\",\n      4,\n      \"verdict\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"supported\\\"|\\\"needs_evidence\\\"|\\\"contradicted\\\"\"\n  },\n  {\n    \"exp"
+        ],
+        "count": 1,
+        "last_updated": "2026-10-02T15:18:02.010Z",
+        "next_retry": null
+      }
+    ],
+    "budget": [
+      {
+        "service": "dashscope",
+        "per_minute": 20,
+        "per_hour": 300,
+        "per_day": 2000,
+        "usage_reset_at": "2026-10-01T17:32:45.035Z",
+        "used_day": 291,
+        "used_hour": 34
+      }
+    ],
+    "attempts": [
+      {
+        "count": 13355,
+        "last_call": "2026-10-02T16:17:14.718Z",
+        "calls_since": 104,
+        "pending": 0
+      }
+    ]
+  },
+  "enable": {
+    "at": "2026-10-02T16:19:08.994Z",
+    "reason": "站长于北京时间2026-10-03明确要求打开 PANews 信源；恢复正常采集、独立核验和自动发布，保留原有评分门槛、摘要许可与48小时时效规则。",
+    "before": {
+      "id": "panews-articles-zh",
+      "enabled": false,
+      "updated_at": "2026-10-02T08:14:42.064Z"
+    },
+    "after": {
+      "id": "panews-articles-zh",
+      "name": "PANews 中文文章",
+      "enabled": true,
+      "health": "unknown",
+      "updated_at": "2026-10-02T16:19:06.620Z",
+      "next_fetch_at": "2026-10-02T16:19:06.620Z",
+      "site_fulltext": false,
+      "syndicate_fulltext": false,
+      "automatic_policy_enabled": true,
+      "automatic_policy_version": 1
+    },
+    "fetch": {
+      "jobId": "9e244eed-ad26-4388-a423-830fcbfe2869"
+    }
+  },
+  "verification": {
+    "at": "2026-10-02T16:27:51.598Z",
+    "panews": [
+      {
+        "id": "panews-articles-zh",
+        "name": "PANews 中文文章",
+        "enabled": true,
+        "health": "ok",
+        "last_ok_at": "2026-10-02T16:19:10.958Z",
+        "next_fetch_at": "2026-10-02T17:17:10.958Z",
+        "fail_count": 0,
+        "last_error": null,
+        "site_fulltext": false,
+        "syndicate_fulltext": false,
+        "auto_policy_enabled": true
+      }
+    ],
+    "totals": [
+      {
+        "total": 94,
+        "enabled": 81
+      }
+    ],
+    "panewsFetches": [
+      {
+        "started_at": "2026-10-02T16:19:09.180Z",
+        "finished_at": "2026-10-02T16:19:10.969Z",
+        "status": "ok",
+        "found_count": 100,
+        "new_count": 7,
+        "error": null,
+        "detail": {
+          "freshness": {
+            "skipped": {
+              "future": 0,
+              "expired": 36,
+              "undated": 0
+            },
+            "accepted": 24,
+            "windowHours": 48
+          }
+        }
+      },
+      {
+        "started_at": "2026-10-02T07:44:24.346Z",
+        "finished_at": "2026-10-02T07:44:26.767Z",
+        "status": "ok",
+        "found_count": 100,
+        "new_count": 0,
+        "error": null,
+        "detail": {
+          "freshness": {
+            "skipped": {
+              "future": 0,
+              "expired": 33,
+              "undated": 0
+            },
+            "accepted": 27,
+            "windowHours": 48
+          }
+        }
+      }
+    ],
+    "newPanews": [
+      {
+        "id": "af4rifit02yvnti1xlo0loesb",
+        "title": "以太坊基金会上线 zkAPI：用零知识证明给 AI 模型付费，可不暴露身份",
+        "published_at": "2026-10-02T08:00:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.718Z",
+        "processing_state": "analyzed",
+        "verification_status": "accepted",
+        "reasons": [],
+        "chinese_title": "以太坊基金会与OA项目在主网上线zkAPI，支持不暴露身份为AI模型付费",
+        "selected": false,
+        "visibility": "public",
+        "publicly_visible": true
+      },
+      {
+        "id": "ou7qxb956peo10z0tr2rpogj5",
+        "title": "Zcash 的百倍神话？不，这是一场理想主义的「复仇」",
+        "published_at": "2026-10-02T08:30:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.694Z",
+        "processing_state": "analyzed",
+        "verification_status": "rejected",
+        "reasons": [
+          "no_new_primary_evidence"
+        ],
+        "chinese_title": "Zcash 价格重回千美元：从隐私技术落地到机构持仓推动的十年复兴",
+        "selected": false,
+        "visibility": "withdrawn",
+        "publicly_visible": false
+      },
+      {
+        "id": "apra30a27z7smnlf2rxfz0ag4",
+        "title": "Asia Market Daily: Tether-backed Utexo brings USDT back to Bitcoin this month (2026/10/2)",
+        "published_at": "2026-10-02T09:02:03.000Z",
+        "discovered_at": "2026-10-02T16:19:10.667Z",
+        "processing_state": "analyzed",
+        "verification_status": "rejected",
+        "reasons": [
+          "no_new_primary_evidence"
+        ],
+        "chinese_title": "Tether支持的Utexo本月将USDT带回比特币网络；SMBC Nikko与Uniswap Labs合作开发日本合规DeFi网关",
+        "selected": false,
+        "visibility": "withdrawn",
+        "publicly_visible": false
+      },
+      {
+        "id": "ak94pg3e4y9t49fitbkz3bydk",
+        "title": "PA日报 | Anthropic最早11月中旬启动IPO，估值或达2万亿美元；NEAR新提案拟逐步将代币年最大发行率降至1.6%",
+        "published_at": "2026-10-02T09:26:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.631Z",
+        "processing_state": "new",
+        "verification_status": null,
+        "reasons": null,
+        "chinese_title": null,
+        "selected": null,
+        "visibility": null,
+        "publicly_visible": false
+      },
+      {
+        "id": "rom63uoqga3ze5enl69upr11l",
+        "title": "RWA周刊：香港特区政府引入港元代币化存款；Stripe主导的美元稳定币OUSD正式上线",
+        "published_at": "2026-10-02T10:18:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.604Z",
+        "processing_state": "new",
+        "verification_status": null,
+        "reasons": null,
+        "chinese_title": null,
+        "selected": null,
+        "visibility": null,
+        "publicly_visible": false
+      },
+      {
+        "id": "oeclprbkxf5ymvsjvza5zu808",
+        "title": "盘点15个Crypto应用：谁在回购，谁在分红？",
+        "published_at": "2026-10-02T10:34:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.566Z",
+        "processing_state": "new",
+        "verification_status": null,
+        "reasons": null,
+        "chinese_title": null,
+        "selected": null,
+        "visibility": null,
+        "publicly_visible": false
+      },
+      {
+        "id": "rtkvffrzdkrglgg990frrl9w4",
+        "title": "Kalshi紧急刹车，监管盯上预测市场的用户交易激励行为",
+        "published_at": "2026-10-02T14:00:00.000Z",
+        "discovered_at": "2026-10-02T16:19:10.523Z",
+        "processing_state": "analyzed",
+        "verification_status": "rejected",
+        "reasons": [
+          "no_new_primary_evidence"
+        ],
+        "chinese_title": "CFTC调查预测市场奖励计划 Kalshi终止激励 Polymarket面临合规风险",
+        "selected": false,
+        "visibility": "withdrawn",
+        "publicly_visible": false
+      }
+    ],
+    "publicAfter": [
+      {
+        "article_id": "af4rifit02yvnti1xlo0loesb",
+        "title": "以太坊基金会与OA项目在主网上线zkAPI，支持不暴露身份为AI模型付费",
+        "name": "PANews 中文文章",
+        "published_at": "2026-10-02T08:00:00.000Z",
+        "timeline_at": "2026-10-02T16:19:10.718Z",
+        "selected": false
+      },
+      {
+        "article_id": "a8p6klk8ntfg1koav9he33296",
+        "title": "SMBC Nikko与Nethermind基于Uniswap v4构建日本DeFi Gateway，目标2027年中完成",
+        "name": "Uniswap Labs Blog",
+        "published_at": "2026-10-02T14:07:50.225Z",
+        "timeline_at": "2026-10-02T16:18:42.415Z",
+        "selected": false
+      }
+    ],
+    "panewsAudit": [
+      {
+        "created_at": "2026-10-02T16:19:08.987Z",
+        "actor": "codex:owner-request",
+        "action": "source.fetch",
+        "reason": null,
+        "before": null,
+        "after": {
+          "jobId": "9e244eed-ad26-4388-a423-830fcbfe2869"
+        }
+      },
+      {
+        "created_at": "2026-10-02T16:19:06.620Z",
+        "actor": "codex:owner-request",
+        "action": "source.update",
+        "reason": "站长于北京时间2026-10-03明确要求打开 PANews 信源；恢复正常采集、独立核验和自动发布，保留原有评分门槛、摘要许可与48小时时效规则。",
+        "before": {
+          "enabled": false
+        },
+        "after": {
+          "enabled": true
+        }
+      }
+    ]
+  },
+  "acceptance": {
+    "at": "2026-10-02T16:27:01.651Z",
+    "poolStatus": 200,
+    "allStatus": 200,
+    "checks": [
+      {
+        "id": "af4rifit02yvnti1xlo0loesb",
+        "title": "以太坊基金会与OA项目在主网上线zkAPI，支持不暴露身份为AI模型付费",
+        "source": "PANews 中文文章",
+        "publishedAt": "2026-10-02T08:00:00.000Z",
+        "timelineAt": "2026-10-02T16:19:10.718Z",
+        "poolVisible": true,
+        "allHtmlVisible": true,
+        "detailStatus": 200,
+        "pageStatus": 200,
+        "pageTitleVisible": true
+      },
+      {
+        "id": "a8p6klk8ntfg1koav9he33296",
+        "title": "SMBC Nikko与Nethermind基于Uniswap v4构建日本DeFi Gateway，目标2027年中完成",
+        "source": "Uniswap Labs Blog",
+        "publishedAt": "2026-10-02T14:07:50.225Z",
+        "timelineAt": "2026-10-02T16:18:42.415Z",
+        "poolVisible": true,
+        "allHtmlVisible": true,
+        "detailStatus": 200,
+        "pageStatus": 200,
+        "pageTitleVisible": true
+      }
+    ]
+  },
+  "checks": {
+    "typecheck": "passed",
+    "sourceCatalog": "94 total, 81 enabled, PANews enabled, public fulltext off",
+    "diffCheck": "passed"
+  },
+  "implementation": "Audited production source restoration; application code, verification policy and budget limits unchanged"
+}

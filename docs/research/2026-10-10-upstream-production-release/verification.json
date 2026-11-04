@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-10",
+  "applicationCommit": "8d221174fc68ad49c9e9c8798fa2ffe4b4ffcd9c",
+  "branch": "feat/9btc-web3",
+  "site": "https://9btc.com",
+  "productionDeployed": true,
+  "timezone": "Asia/Shanghai",
+  "editionTimes": {
+    "daily": "08:00",
+    "weekly": "10:00 Monday",
+    "monthly": "10:30 day 1"
+  },
+  "automaticKinds": [
+    "daily",
+    "weekly",
+    "monthly"
+  ],
+  "catchUpHistory": false,
+  "containers": [
+    {
+      "name": "/ninebtc-api-1",
+      "imageTag": "ninebtc-upstream:8d22117",
+      "imageId": "sha256:a26e903fdc62a73a8a6d10700697bdd2e9d420a488e6a5da577f312b226705ad",
+      "status": "running",
+      "restartCount": 0
+    },
+    {
+      "name": "/ninebtc-web-1",
+      "imageTag": "ninebtc-upstream:8d22117",
+      "imageId": "sha256:a26e903fdc62a73a8a6d10700697bdd2e9d420a488e6a5da577f312b226705ad",
+      "status": "running",
+      "restartCount": 0
+    },
+    {
+      "name": "/ninebtc-worker-1",
+      "imageTag": "ninebtc-upstream:8d22117",
+      "imageId": "sha256:a26e903fdc62a73a8a6d10700697bdd2e9d420a488e6a5da577f312b226705ad",
+      "status": "running",
+      "restartCount": 0
+    }
+  ],
+  "tests": {
+    "backend": 853,
+    "backendFailed": 0,
+    "web": 66,
+    "webFailed": 0,
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "privatePreviewSmoke": 30,
+    "productionLocalSmoke": 30,
+    "productionPublicSmokeEU": 30,
+    "productionPublicSmokeLocal": 30
+  },
+  "conservation": {
+    "protectedTables": 22,
+    "unchanged": true,
+    "migrationBefore": 47,
+    "migrationAfter": 72,
+    "projections": {
+      "public": {
+        "count": 1809,
+        "hash": "91a400d9cefbdaf2bba5d80f8211b241"
+      },
+      "selected": {
+        "count": 120,
+        "hash": "6d243561f9e9c4323364b58d4f1f4d94"
+      }
+    },
+    "sourceCount": 109
+  },
+  "backupRestore": {
+    "restoreVerified": true,
+    "protectedTables": 22,
+    "migrationCount": 47
+  },
+  "environmentUnchanged": true,
+  "backupService": {
+    "Result": "success",
+    "ExecMainStatus": 0
+  },
+  "currentDaily": {
+    "key": "2026-10-10",
+    "windowStart": "2026-10-09T00:00:00.000Z",
+    "windowEnd": "2026-10-10T00:00:00.000Z",
+    "generatedAt": "2026-10-10T04:00:38.119Z",
+    "sectionCount": 3
+  },
+  "historicalPaidArticleAnalysisCallsSinceRelease": 0,
+  "weeklyMonthlyPaidCallsSinceRelease": 0,
+  "periodicReportBoundary": {
+    "weekly": "2026-W40: no daily entries in period; no model call",
+    "monthly": "2026-09: no daily entries in period; no model call",
+    "nextScheduledWeekly": "2026-10-12 10:00 Asia/Shanghai",
+    "nextScheduledMonthly": "2026-11-01 10:30 Asia/Shanghai"
+  },
+  "realProviderBillingSavingsVerified": false,
+  "visualOrPhysicalDeviceAcceptanceVerified": false,
+  "backup": {
+    "privateServerDirectory": "/srv/9btc-release-backups/upstream-20261010/",
+    "databaseSha256": "498c3633a463926caa92433235a0b2297e517749060f5a3adb71113fc9c02fcd",
+    "dataVolumeSha256": "20ca39193ca448f6a5496a65400a1042c922488b19ca5859f1ee36def79f3eab"
+  }
+}

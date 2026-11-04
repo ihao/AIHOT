@@ -1,0 +1,963 @@
+{
+  "listed": {
+    "zero": 3,
+    "total": 2899,
+    "below10": 17,
+    "selected": 285,
+    "unscored": 0
+  },
+  "buckets": [
+    {
+      "count": 17,
+      "bucket": "00-09",
+      "selected": 0
+    },
+    {
+      "count": 486,
+      "bucket": "10-19",
+      "selected": 0
+    },
+    {
+      "count": 431,
+      "bucket": "20-29",
+      "selected": 0
+    },
+    {
+      "count": 425,
+      "bucket": "30-39",
+      "selected": 0
+    },
+    {
+      "count": 534,
+      "bucket": "40-49",
+      "selected": 0
+    },
+    {
+      "count": 248,
+      "bucket": "50-59",
+      "selected": 0
+    },
+    {
+      "count": 758,
+      "bucket": "60+",
+      "selected": 285
+    }
+  ],
+  "impacts": [
+    {
+      "proposed_floor": 10,
+      "selected_removed": 0,
+      "score_only_removed": 17,
+      "score_or_unknown_removed": 20
+    },
+    {
+      "proposed_floor": 20,
+      "selected_removed": 0,
+      "score_only_removed": 503,
+      "score_or_unknown_removed": 503
+    },
+    {
+      "proposed_floor": 30,
+      "selected_removed": 0,
+      "score_only_removed": 934,
+      "score_or_unknown_removed": 934
+    },
+    {
+      "proposed_floor": 40,
+      "selected_removed": 0,
+      "score_only_removed": 1359,
+      "score_or_unknown_removed": 1359
+    },
+    {
+      "proposed_floor": 50,
+      "selected_removed": 0,
+      "score_only_removed": 1893,
+      "score_or_unknown_removed": 1893
+    }
+  ],
+  "unknowns": [
+    {
+      "score": 3.0,
+      "title": "Donella Meadows 关于系统杠杆点的理论探讨",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅系统论摘要，无Web3实质"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "r55ebtien41pougyi6bvtk5x7",
+      "analyzed_at": "2026-10-14T10:00:24.394406+00:00"
+    },
+    {
+      "score": 0.0,
+      "title": "[2010] Drift into failure",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅引用书籍元数据，无Web3实质内容"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "xmtvg0m54luf3gcrv1cw93x69",
+      "analyzed_at": "2026-10-14T09:32:33.350247+00:00"
+    },
+    {
+      "score": 0.0,
+      "title": "1990年著作《治理公共池塘资源》书目信息",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅引用学术书目，无Web3实质内容"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "td17rk62ei14bf272ww2j10ub",
+      "analyzed_at": "2026-10-14T09:32:31.085335+00:00"
+    },
+    {
+      "score": 15.0,
+      "title": "金融稳定理事会发布监管现代化原则咨询报告",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "未明确涉及Web3或加密资产"
+      },
+      "source_id": "fsb",
+      "article_id": "on22lrc4mfabidg6mwwwcpry5",
+      "analyzed_at": "2026-10-14T04:42:27.943196+00:00"
+    },
+    {
+      "score": 18.0,
+      "title": "金融稳定理事会发布2026年G20实施监测审查报告",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "FSB报告未明确涉及Web3"
+      },
+      "source_id": "fsb",
+      "article_id": "s8g3i4fgzpzagnw7vsffsgd7n",
+      "analyzed_at": "2026-10-14T04:42:25.581536+00:00"
+    },
+    {
+      "score": 15.0,
+      "title": "FTX 加密货币挖矿业务现被用于推进 AI",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "正文缺失，仅标题涉及FTX转型"
+      },
+      "source_id": "cointelegraph-news",
+      "article_id": "dcvpucds0jrerv08s0jk6p7wz",
+      "analyzed_at": "2026-10-12T21:15:32.177848+00:00"
+    },
+    {
+      "score": 7.0,
+      "title": "XRP 财库公司 Evernorth 股价在纳斯达克开盘上涨5%",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "正文缺失，仅标题涉及股价波动"
+      },
+      "source_id": "cointelegraph-news",
+      "article_id": "ftpc5w0eluersseczuwx45kk9",
+      "analyzed_at": "2026-10-12T14:51:34.71338+00:00"
+    }
+  ],
+  "prefilters": [
+    {
+      "count": 2892,
+      "label": "PASS",
+      "below10": 13,
+      "selected": 285
+    },
+    {
+      "count": 7,
+      "label": "UNKNOWN",
+      "below10": 4,
+      "selected": 0
+    }
+  ],
+  "snapshot_at": "2026-10-14T10:09:38.810648+00:00",
+  "low_score_items": [
+    {
+      "url": "https://collective.flashbots.net/t/1990-governing-the-commons/6084",
+      "tier": "T2",
+      "scope": "unknown",
+      "score": 0.0,
+      "title": "1990年著作《治理公共池塘资源》书目信息",
+      "scores": [
+        0,
+        0
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅引用学术书目，无Web3实质内容"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "td17rk62ei14bf272ww2j10ub",
+      "body_chars": 382,
+      "analysis_id": 4610,
+      "analyzed_at": "2026-10-14T09:32:31.085335+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Flashbots Collective",
+      "published_at": "2026-10-14T08:48:22+00:00",
+      "discovered_at": "2026-10-14T09:32:19.966+00:00",
+      "analysis_score": 0.0,
+      "score_receipts": [
+        {
+          "id": 27175,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 0}"
+        },
+        {
+          "id": 27177,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 0}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://collective.flashbots.net/t/1997-leverage-points/6085",
+      "tier": "T2",
+      "scope": "unknown",
+      "score": 3.0,
+      "title": "Donella Meadows 关于系统杠杆点的理论探讨",
+      "scores": [
+        1,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅系统论摘要，无Web3实质"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "r55ebtien41pougyi6bvtk5x7",
+      "body_chars": null,
+      "analysis_id": 4625,
+      "analyzed_at": "2026-10-14T10:00:24.394406+00:00",
+      "body_status": "unconfirmed",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Flashbots Collective",
+      "published_at": "2026-10-14T08:52:53+00:00",
+      "discovered_at": "2026-10-14T09:32:19.814+00:00",
+      "analysis_score": 3.0,
+      "score_receipts": [
+        {
+          "id": 27218,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 1}"
+        },
+        {
+          "id": 27219,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://collective.flashbots.net/t/2010-drift-into-failure/6086",
+      "tier": "T2",
+      "scope": "unknown",
+      "score": 0.0,
+      "title": "[2010] Drift into failure",
+      "scores": [
+        0,
+        0
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "仅引用书籍元数据，无Web3实质内容"
+      },
+      "source_id": "flashbots-forum",
+      "article_id": "xmtvg0m54luf3gcrv1cw93x69",
+      "body_chars": 293,
+      "analysis_id": 4612,
+      "analyzed_at": "2026-10-14T09:32:33.350247+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Flashbots Collective",
+      "published_at": "2026-10-14T09:26:01+00:00",
+      "discovered_at": "2026-10-14T09:32:19.524+00:00",
+      "analysis_score": 0.0,
+      "score_receipts": [
+        {
+          "id": 27173,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 0}"
+        },
+        {
+          "id": 27176,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 0}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://cointelegraph.com/news/xrp-treasury-evernorth-rise-nasdaq-opening?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+      "tier": "T2",
+      "scope": "unknown",
+      "score": 7.0,
+      "title": "XRP 财库公司 Evernorth 股价在纳斯达克开盘上涨5%",
+      "scores": [
+        10,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "UNKNOWN",
+        "reason": "正文缺失，仅标题涉及股价波动"
+      },
+      "source_id": "cointelegraph-news",
+      "article_id": "ftpc5w0eluersseczuwx45kk9",
+      "body_chars": 315,
+      "analysis_id": 4237,
+      "analyzed_at": "2026-10-12T14:51:34.71338+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Cointelegraph News",
+      "published_at": "2026-10-12T14:18:49+00:00",
+      "discovered_at": "2026-10-12T14:51:24.836+00:00",
+      "analysis_score": 7.0,
+      "score_receipts": [
+        {
+          "id": 25043,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 10}"
+        },
+        {
+          "id": 25045,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n\"attentionScore\": 5\n}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://www.cnbc.com/2026/10/09/kalshi-traders-see-high-odds-of-5000-plus-data-centers-by-2027.html",
+      "tier": "T2",
+      "scope": null,
+      "score": 2.0,
+      "title": "Kalshi 交易者预测2027年前规划或运营数据中心超5100个概率升至75%",
+      "scores": [
+        2,
+        2
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "Kalshi预测市场合约机制及结算数据"
+      },
+      "source_id": "cnbc-prediction-markets",
+      "article_id": "gn0vtzgi3xq7821b25qsr2oo1",
+      "body_chars": 1849,
+      "analysis_id": 3821,
+      "analyzed_at": "2026-10-09T12:48:00.393672+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "CNBC 预测市场报道",
+      "published_at": "2026-10-09T11:54:04+00:00",
+      "discovered_at": "2026-10-09T12:47:41.343+00:00",
+      "analysis_score": 2.0,
+      "score_receipts": [
+        {
+          "id": 22382,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n \"attentionScore\": 2\n}"
+        },
+        {
+          "id": 22384,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n  \"attentionScore\": 2\n}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://www.cnbc.com/2026/10/08/little-relief-expected-for-gas-prices-ahead-of-election-day.html",
+      "tier": "T2",
+      "scope": null,
+      "score": 0.0,
+      "title": "Kalshi 预测市场显示大选前汽油价格难大幅回落，AAA 均价超4美元概率达87%",
+      "scores": [
+        0,
+        1
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Kalshi平台具体预测数据及治理关系"
+      },
+      "source_id": "cnbc-prediction-markets",
+      "article_id": "s1r8h09mae96cbtmlunzl7b7j",
+      "body_chars": 1983,
+      "analysis_id": 3679,
+      "analyzed_at": "2026-10-08T19:31:35.436266+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "CNBC 预测市场报道",
+      "published_at": "2026-10-08T17:51:51+00:00",
+      "discovered_at": "2026-10-08T19:31:22.911+00:00",
+      "analysis_score": 0.0,
+      "score_receipts": [
+        {
+          "id": 21410,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 0}"
+        },
+        {
+          "id": 21412,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 1}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://dao.rocketpool.net/t/round-42-gmc-community-discussion-of-submitted-applications/4069",
+      "tier": "T2",
+      "scope": null,
+      "score": 7.0,
+      "title": "Rocket Pool 治理委员会第42轮资助申请社区讨论",
+      "scores": [
+        10,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "Rocket Pool治理论坛讨论资助申请"
+      },
+      "source_id": "rocketpool-gov",
+      "article_id": "evpl35mi3tujwy5s9xraqh7m7",
+      "body_chars": 290,
+      "analysis_id": 3443,
+      "analyzed_at": "2026-10-08T00:10:44.799776+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Rocket Pool Governance",
+      "published_at": "2026-10-08T00:05:22+00:00",
+      "discovered_at": "2026-10-08T00:10:34.399+00:00",
+      "analysis_score": 7.0,
+      "score_receipts": [
+        {
+          "id": 19894,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 10}"
+        },
+        {
+          "id": 19896,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://haseebq.com/i-passed-on-solanas-seed-round/",
+      "tier": "T1_5",
+      "scope": null,
+      "score": 5.0,
+      "title": "Haseeb Qureshi 回顾2018年错过 Solana 种子轮投资",
+      "scores": [
+        5,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Solana早期融资及公链技术背景"
+      },
+      "source_id": "kol-haseeb",
+      "article_id": "vnqanqr8j14dp99d1niu40ubt",
+      "body_chars": 546,
+      "analysis_id": 1302,
+      "analyzed_at": "2026-10-01T16:07:01.112871+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Haseeb Qureshi",
+      "published_at": "2025-03-17T00:00:00+00:00",
+      "discovered_at": "2026-10-01T14:57:37.898+00:00",
+      "analysis_score": 5.0,
+      "score_receipts": [
+        {
+          "id": 7004,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        },
+        {
+          "id": 7014,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": false
+    },
+    {
+      "url": "https://christinedkim.substack.com/p/ready-for-merge-ep-31",
+      "tier": "T1_5",
+      "scope": null,
+      "score": 8.0,
+      "title": "Ready for Merge 第31期：Christine D. Kim 介绍新联合主持人及第二季规划",
+      "scores": [
+        5,
+        12
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及BTC/ETH开发资源与协议升级讨论"
+      },
+      "source_id": "kol-christine-kim",
+      "article_id": "dygpj15vegcfpwviyvgmc3n6m",
+      "body_chars": 1598,
+      "analysis_id": 1264,
+      "analyzed_at": "2026-10-01T16:05:21.083169+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Christine D. Kim",
+      "published_at": "2026-09-04T11:03:25+00:00",
+      "discovered_at": "2026-10-01T14:57:34.974+00:00",
+      "analysis_score": 8.0,
+      "score_receipts": [
+        {
+          "id": 6769,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        },
+        {
+          "id": 6775,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 12}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://ens.domains/blog/13",
+      "tier": "T1",
+      "scope": null,
+      "score": 8.0,
+      "title": "ENS Blog 回顾 Devcon 6 与 EthCC5 活动及百万域名里程碑",
+      "scores": [
+        5,
+        12
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "ENS官方动态，涉及项目里程碑及活动"
+      },
+      "source_id": "ens-blog",
+      "article_id": "gknbynsyrg1czhah0181aazg4",
+      "body_chars": 458,
+      "analysis_id": 174,
+      "analyzed_at": "2026-10-01T15:28:42.803687+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "ENS Blog",
+      "published_at": null,
+      "discovered_at": "2026-10-01T12:57:50.593+00:00",
+      "analysis_score": 8.0,
+      "score_receipts": [
+        {
+          "id": 858,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        },
+        {
+          "id": 866,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 12}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "pending",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://dao.rocketpool.net/t/round-40-gmc-community-discussion-of-submitted-applications/4018",
+      "tier": "T2",
+      "scope": null,
+      "score": 3.0,
+      "title": "Rocket Pool 治理第40轮资助申请社区讨论开启",
+      "scores": [
+        2,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Rocket Pool治理与资助申请讨论"
+      },
+      "source_id": "rocketpool-gov",
+      "article_id": "u0lr63t5rbysi0p79jkr0frlr",
+      "body_chars": 289,
+      "analysis_id": 215,
+      "analyzed_at": "2026-10-01T15:29:59.845709+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Rocket Pool Governance",
+      "published_at": "2026-08-08T00:22:35+00:00",
+      "discovered_at": "2026-10-01T12:57:39.164+00:00",
+      "analysis_score": 3.0,
+      "score_receipts": [
+        {
+          "id": 1075,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 2}"
+        },
+        {
+          "id": 1082,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://dao.rocketpool.net/t/round-41-gmc-community-discussion-of-submitted-applications-read/4044",
+      "tier": "T2",
+      "scope": null,
+      "score": 5.0,
+      "title": "Rocket Pool 治理第41轮申请社区讨论开启",
+      "scores": [
+        5,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Rocket Pool治理委员会申请讨论"
+      },
+      "source_id": "rocketpool-gov",
+      "article_id": "imke0v37o99znkevewccd2k7c",
+      "body_chars": 292,
+      "analysis_id": 278,
+      "analyzed_at": "2026-10-01T15:31:46.878775+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Rocket Pool Governance",
+      "published_at": "2026-09-08T00:13:11+00:00",
+      "discovered_at": "2026-10-01T12:57:38.516+00:00",
+      "analysis_score": 5.0,
+      "score_receipts": [
+        {
+          "id": 1402,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        },
+        {
+          "id": 1407,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://metamask.io/zh-CN/news/what-is-a-smart-contract",
+      "tier": "T1",
+      "scope": null,
+      "score": 8.0,
+      "title": "MetaMask 发布智能合约定义与多链运行原理指南",
+      "scores": [
+        12,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "实质涉及智能合约机制、多链架构及DeFi基础"
+      },
+      "source_id": "metamask-news",
+      "article_id": "iez2oz5njwqess22b2b3h1hpe",
+      "body_chars": 4401,
+      "analysis_id": 1682,
+      "analyzed_at": "2026-10-01T16:19:24.587533+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "MetaMask News",
+      "published_at": "2026-09-29T00:00:00+00:00",
+      "discovered_at": "2026-10-01T12:57:37.975+00:00",
+      "analysis_score": 8.0,
+      "score_receipts": [
+        {
+          "id": 9217,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n\"attentionScore\": 12\n}"
+        },
+        {
+          "id": 9238,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n\"attentionScore\": 5\n}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "pending",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://gov.uniswap.org/t/about-the-getting-started-with-urcs-category/26073",
+      "tier": "T2",
+      "scope": null,
+      "score": 4.0,
+      "title": "Uniswap 治理论坛“URC 入门”分类说明",
+      "scores": [
+        5,
+        3
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Uniswap治理流程与URC机制"
+      },
+      "source_id": "uniswap-gov",
+      "article_id": "vkspdcagi6qaso9tpmc53uote",
+      "body_chars": null,
+      "analysis_id": 482,
+      "analyzed_at": "2026-10-01T15:38:27.468449+00:00",
+      "body_status": "unconfirmed",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Uniswap 治理论坛",
+      "published_at": "2026-04-02T16:20:52+00:00",
+      "discovered_at": "2026-10-01T12:56:44.081+00:00",
+      "analysis_score": 4.0,
+      "score_receipts": [
+        {
+          "id": 2490,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        },
+        {
+          "id": 2495,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 3}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://gov.uniswap.org/t/about-the-canonical-urcs-category/26074",
+      "tier": "T2",
+      "scope": null,
+      "score": 7.0,
+      "title": "Uniswap 治理论坛关于 Canonical URCs 类别的说明",
+      "scores": [
+        10,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Uniswap治理分类机制"
+      },
+      "source_id": "uniswap-gov",
+      "article_id": "add3gnjul93c6c67me62ic8ds",
+      "body_chars": null,
+      "analysis_id": 490,
+      "analyzed_at": "2026-10-01T15:38:47.086404+00:00",
+      "body_status": "unconfirmed",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Uniswap 治理论坛",
+      "published_at": "2026-04-02T21:19:22+00:00",
+      "discovered_at": "2026-10-01T12:56:44.029+00:00",
+      "analysis_score": 7.0,
+      "score_receipts": [
+        {
+          "id": 2536,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\n\"attentionScore\": 10\n}"
+        },
+        {
+          "id": 2547,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://gov.uniswap.org/t/about-the-urc-discussion-category/26075",
+      "tier": "T2",
+      "scope": null,
+      "score": 3.0,
+      "title": "Uniswap 治理论坛 URC Discussion 分类说明",
+      "scores": [
+        2,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "涉及Uniswap治理流程与提案分类"
+      },
+      "source_id": "uniswap-gov",
+      "article_id": "nxgi33khcuk2sebb6y87mu0lc",
+      "body_chars": null,
+      "analysis_id": 495,
+      "analyzed_at": "2026-10-01T15:38:55.613121+00:00",
+      "body_status": "unconfirmed",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Uniswap 治理论坛",
+      "published_at": "2026-04-02T21:31:22+00:00",
+      "discovered_at": "2026-10-01T12:56:43.973+00:00",
+      "analysis_score": 3.0,
+      "score_receipts": [
+        {
+          "id": 2567,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 2}"
+        },
+        {
+          "id": 2575,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    },
+    {
+      "url": "https://solana.com/news/breakpoint-guide-part1",
+      "tier": "T1",
+      "scope": null,
+      "score": 7.0,
+      "title": "Solana 发布 Breakpoint London 2026 参会指南第一部分",
+      "scores": [
+        10,
+        5
+      ],
+      "writer": "summarize",
+      "selected": false,
+      "prefilter": {
+        "label": "PASS",
+        "reason": "Solana官方会议指南，含生态战略与RWA等实质信息"
+      },
+      "source_id": "solana-news",
+      "article_id": "ae9wxm93z3p3ul71cku5ubbze",
+      "body_chars": 15345,
+      "analysis_id": 932,
+      "analyzed_at": "2026-10-01T15:53:38.2476+00:00",
+      "body_status": "ok",
+      "score_model": "qwen3.8-flash",
+      "source_name": "Solana 官方新闻",
+      "published_at": "2026-09-18T10:00:00+00:00",
+      "discovered_at": "2026-10-01T12:56:35.452+00:00",
+      "analysis_score": 7.0,
+      "score_receipts": [
+        {
+          "id": 4943,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 10}"
+        },
+        {
+          "id": 4953,
+          "model": "qwen3.8-flash",
+          "status": "completed",
+          "content": "{\"attentionScore\": 5}"
+        }
+      ],
+      "analysis_origin": "model",
+      "grouping_status": "complete",
+      "analysis_relevance": "pass",
+      "has_score_override": null
+    }
+  ]
+}

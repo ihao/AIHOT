@@ -2,6 +2,7 @@
 // constraint validation run separately so earlier DDL cannot hold a strong lock during a table scan.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { setTimeout as sleep } from "node:timers/promises";
 import type postgres from "postgres";
 import { FIRST_ONLINE_MIGRATION, migrationPlan, type MigrationPlan } from "./migration-safety.ts";
@@ -44,6 +45,13 @@ export async function runMigrations(sql: postgres.Sql, root: string, { backupWai
     catch (error) { throw new Error(`${migration.name}: ${(error as Error).message}`, { cause: error }); }
     return { ...migration, text, plan };
   });
+  const hookFile = path.join(root, "site/migrations.ts");
+  let beforeMigration: ((db: postgres.ReservedSql, name: string) => Promise<void>) | undefined;
+  if (existsSync(hookFile)) {
+    const hook = await import(pathToFileURL(hookFile).href);
+    if (typeof hook.beforeMigration !== "function") throw new Error(`${hookFile}: export a beforeMigration function`);
+    beforeMigration = hook.beforeMigration;
+  }
   const session = await sql.reserve();
   try {
     await session`SET lock_timeout = '1s'`;
@@ -74,6 +82,7 @@ export async function runMigrations(sql: postgres.Sql, root: string, { backupWai
         } else {
           await session`BEGIN`;
           try {
+            await beforeMigration?.(session, name);
             await session.unsafe(text);
             await session`INSERT INTO schema_migrations (name) VALUES (${name})`;
             await session`COMMIT`;

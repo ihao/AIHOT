@@ -1,0 +1,121 @@
+{
+  "checkedAtUtc": "2026-10-09T09:23:43.318714+00:00",
+  "containers": [
+    {
+      "name": "/ninebtc-api-1",
+      "imageTag": "ninebtc-btc-usd:ad33c4b",
+      "imageId": "sha256:2f22b0f63e7161dcc20d23184ad7d1220a57e1fa41cf83d66d3f3706c55cf3da",
+      "status": "running",
+      "startedAt": "2026-10-04T18:08:07.98971218Z",
+      "workingDir": "/srv/9btc-releases/btc-usd-ad33c4b/deploy",
+      "composeFiles": "/srv/9btc-releases/btc-usd-ad33c4b/deploy/eu.compose.yml,/srv/9btc-releases/btc-usd-ad33c4b/deploy/btc-usd-image.yml",
+      "nonSecretConfig": {
+        "COLLECT_ENABLED": "true",
+        "MODEL_CALLS_ENABLED": "true",
+        "EDITORIAL_MODE": "automatic",
+        "AUTOMATIC_DAILY_TIME": "21:30",
+        "SITE_URL": "https://9btc.com"
+      }
+    },
+    {
+      "name": "/ninebtc-worker-1",
+      "imageTag": "ninebtc-btc-usd:ad33c4b",
+      "imageId": "sha256:2f22b0f63e7161dcc20d23184ad7d1220a57e1fa41cf83d66d3f3706c55cf3da",
+      "status": "running",
+      "startedAt": "2026-10-04T18:08:13.546243169Z",
+      "workingDir": "/srv/9btc-releases/btc-usd-ad33c4b/deploy",
+      "composeFiles": "/srv/9btc-releases/btc-usd-ad33c4b/deploy/eu.compose.yml,/srv/9btc-releases/btc-usd-ad33c4b/deploy/btc-usd-image.yml",
+      "nonSecretConfig": {
+        "COLLECT_ENABLED": "true",
+        "MODEL_CALLS_ENABLED": "true",
+        "EDITORIAL_MODE": "automatic",
+        "AUTOMATIC_DAILY_TIME": "21:30",
+        "SITE_URL": "https://9btc.com"
+      }
+    },
+    {
+      "name": "/ninebtc-web-1",
+      "imageTag": "ninebtc-prediction-filter:12c9509",
+      "imageId": "sha256:fe581eb155a865ca7bc6aaf1200d63c283df107dea00f8cb0661c8c44d839580",
+      "status": "running",
+      "startedAt": "2026-10-06T02:15:33.110130401Z",
+      "workingDir": "/srv/9btc-releases/btc-usd-ad33c4b/deploy",
+      "composeFiles": "/srv/9btc-releases/btc-usd-ad33c4b/deploy/eu.compose.yml,/srv/9btc-releases/btc-usd-ad33c4b/deploy/btc-usd-image.yml,/srv/9btc-releases/prediction-filter-12c9509/deploy/web-filter-image.yml",
+      "nonSecretConfig": {
+        "COLLECT_ENABLED": "true",
+        "MODEL_CALLS_ENABLED": "true",
+        "EDITORIAL_MODE": "automatic",
+        "AUTOMATIC_DAILY_TIME": "21:30",
+        "SITE_URL": "https://9btc.com"
+      }
+    }
+  ],
+  "migrations": [
+    "0001_core.sql",
+    "0002_events_reports.sql",
+    "0003_monitor_leaderboard_notify.sql",
+    "0004_admin_ops.sql",
+    "0005_grouping_state.sql",
+    "0006_embeddings.sql",
+    "0007_leaderboard_prices.sql",
+    "0008_monitor_display.sql",
+    "0009_selectbench.sql",
+    "0010_service_prices.sql",
+    "0011_lb_alias_unique.sql",
+    "0013_translation_attempts.sql",
+    "0014_pool_search.sql",
+    "0015_pool_freshness_idx.sql",
+    "0016_publication_fact_release_idx.sql",
+    "0017_sitemap_idx.sql",
+    "0018_publication_sort_at.sql",
+    "0019_seo_indexed.sql",
+    "0020_story_summary.sql",
+    "0021_seo_auto_index.sql",
+    "0022_receipt_attempts_budgets.sql",
+    "0023_processing_retry.sql",
+    "0024_grouping_overrides_digest_inputs.sql",
+    "0026_source_icon_checked.sql",
+    "0027_feedback_forward_error.sql",
+    "0028_selectbench_mean_score.sql",
+    "0029_source_config_content_public.sql",
+    "0030_collection_url_index.sql",
+    "0031_selected_ready_index.sql",
+    "0032_regroup_pending.sql",
+    "0033_receipt_budget_index.sql",
+    "0034_lz4_toast.sql",
+    "0036_open_source_defaults.sql",
+    "0037_x_article.sql",
+    "0038_quote_translations.sql",
+    "0039_editorial_review.sql",
+    "0040_report_review.sql",
+    "0041_close_legacy_publications.sql",
+    "0042_close_legacy_selection.sql",
+    "0043_automatic_verification.sql",
+    "0044_automatic_reports.sql",
+    "0045_event_group_waits.sql",
+    "0046_budget_usage_reset.sql",
+    "0047_automatic_rewrite_identity.sql",
+    "0048_model_cost_budget.sql",
+    "0049_verification_execution.sql",
+    "0050_btc_usd_quotes.sql"
+  ],
+  "moneyPolicy": {
+    "enabled": false,
+    "timezone": "Asia/Shanghai",
+    "day_limit_cny": 9.0,
+    "rolling_limit_cny": 9.0
+  },
+  "priceColumns": [
+    "service",
+    "model",
+    "currency",
+    "input_per_mtok",
+    "cached_per_mtok",
+    "output_per_mtok",
+    "per_request",
+    "source_url",
+    "verified_on",
+    "note",
+    "updated_at"
+  ]
+}

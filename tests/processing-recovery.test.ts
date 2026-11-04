@@ -10,7 +10,7 @@ import { upsertMaterial } from "@aihot/backend/content/materials";
 import { rerun } from "@aihot/backend/admin/content";
 import { processArticle, queueProcessing, registerContentJobs, sweepUnprocessed } from "@aihot/backend/jobs/content";
 import { enqueue, getBoss, QUEUES, stopBoss } from "@aihot/backend/jobs/queue";
-import { recoverStaleWork, releaseReceipt } from "@aihot/backend/operations/recover";
+import { autoReleaseUnknownReceipts, recoverStaleWork, releaseReceipt } from "@aihot/backend/operations/recover";
 import { ReceiptUnknownError } from "@aihot/backend/providers/receipts";
 
 const T = tag();
@@ -33,8 +33,8 @@ const provider = await stub(async (_hit, request) => {
   }
   const content = step === "prefilter" ? { label: original ? "BLOCK" : "PASS", reason: "local fixture" }
     : step === "score" ? { attentionScore: SELECTING_SCORE }
-    : step === "structure" ? { category: "ai-models", tags: [], subjects: [], fact: null }
-    : { itemType: "model_release", authorRole: "principal", tags: ["模型发布"], editorialJudgment: "模型能力提升", titleZh: `新判断 ${T}`, summaryZh: "模型发布并提供评测和价格。" };
+    : step === "structure" ? { category: "infrastructure", tags: [], subjects: [], fact: null }
+    : { itemType: "protocol_upgrade", authorRole: "principal", tags: ["公链/基础设施"], editorialJudgment: "模型能力提升", titleZh: `新判断 ${T}`, summaryZh: "公链/基础设施并提供评测和价格。" };
   return { choices: [{ message: { content: JSON.stringify(content) } }] };
 });
 pointModels(provider.url);
@@ -76,6 +76,10 @@ test("a failed audit rolls back the receipt release and the processing job", asy
   await sql`UPDATE articles SET processing_state='failed',processing_error='unknown receipt' WHERE id=${id}`;
   const [receipt] = await sql<{ id: number }[]>`INSERT INTO receipts (logical_key,service,purpose,subject,status)
     VALUES (${`atomic-${T}`},'deepseek','score_article',${`article:${id}@1`},'unknown') RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,attempt,service,status,model_cost_reserved_cny,model_cost_cny,model_cost_state)
+    VALUES(${receipt!.id},1,'deepseek','unknown',.5,.5,'reserved')`;
+  await sql`UPDATE receipts SET updated_at=now()-interval '31 minutes' WHERE id=${receipt!.id}`;
+  assert.equal((await autoReleaseUnknownReceipts()).released, 0, "a model's billing uncertainty cannot be released by elapsed time");
   await sql.unsafe(`CREATE FUNCTION fail_release_audit() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN IF NEW.actor = 'test-release-atomic' THEN RAISE EXCEPTION 'injected audit failure'; END IF; RETURN NEW; END $$`);
   await sql.unsafe("CREATE TRIGGER fail_release_audit BEFORE INSERT ON audit_log FOR EACH ROW EXECUTE FUNCTION fail_release_audit()");
@@ -86,10 +90,14 @@ test("a failed audit rolls back the receipt release and the processing job", asy
     await sql.unsafe("DROP FUNCTION fail_release_audit()");
   }
   assert.equal((await sql`SELECT status FROM receipts WHERE id=${receipt!.id}`)[0]!.status, "unknown");
+  const [reserved] = await sql`SELECT status,model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...reserved }, { status: "unknown", model_cost_cny: .5, model_cost_state: "reserved" }, "an audit failure rolls back the money release together with the receipt");
   assert.equal((await sql`SELECT processing_state FROM articles WHERE id=${id}`)[0]!.processing_state, "failed");
   assert.equal((await sql`SELECT 1 FROM pgboss.job WHERE data->>'articleId'=${id}`).length, 0);
   const released = await releaseReceipt(receipt!.id, { billed: false, note: "verified" }, "test");
   assert.equal(released?.requeued, true);
+  const [free] = await sql`SELECT status,model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...free }, { status: "failed", model_cost_cny: 0, model_cost_state: "released" });
   assert.equal((await sql`SELECT 1 FROM audit_log WHERE subject=${`receipt:${receipt!.id}`} AND action='receipt.release'`).length, 1);
   const boss = await getBoss();
   await queuedMinuteAgo();
@@ -97,14 +105,40 @@ test("a failed audit rolls back the receipt release and the processing job", asy
   for (const job of jobs) await boss.complete(QUEUES.analyze, job.id);
 });
 
-test("an authorized recovery preserves unknown billing instead of claiming no charge", async () => {
+test("model recovery waits for billing confirmation and a confirmed charged recovery keeps its reservation", async () => {
   const id = await article("billing-unknown");
   await sql`UPDATE articles SET processing_state='failed',processing_error='unknown receipt' WHERE id=${id}`;
-  const [receipt] = await sql<{ id: number }[]>`INSERT INTO receipts(logical_key,service,purpose,subject,status)
-    VALUES(${`billing-unknown-${T}`},'deepseek','summarize_article',${`article:${id}@1`},'unknown') RETURNING id`;
-  await sql`INSERT INTO receipt_attempts(receipt_id,service,attempt,status,error) VALUES(${receipt!.id},'deepseek',1,'unknown','request timed out')`;
+  const [receipt] = await sql<{ id: number }[]>`INSERT INTO receipts(logical_key,service,purpose,subject,status,error)
+    VALUES(${`billing-unknown-${T}`},'deepseek','summarize_article',${`article:${id}@1`},'unknown','request timed out') RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,service,attempt,status,error,model_cost_reserved_cny,model_cost_cny,model_cost_state)
+    VALUES(${receipt!.id},'deepseek',1,'unknown','request timed out',.5,.5,'reserved')`;
   const result = await releaseReceipt(receipt!.id, { billed: null, note: "owner authorized recovery; billing remains unknown" }, "test");
-  assert.equal(result?.requeued, true);
+  assert.equal(result, null, "authorization alone cannot release a model whose bill is unknown");
+  const [record] = await sql`SELECT status,error FROM receipts WHERE id=${receipt!.id}`;
+  assert.deepEqual({ ...record }, { status: "unknown", error: "request timed out" });
+  const [reserved] = await sql`SELECT status,model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...reserved }, { status: "unknown", model_cost_cny: .5, model_cost_state: "reserved" });
+  assert.equal((await sql`SELECT processing_state FROM articles WHERE id=${id}`)[0]!.processing_state, "failed");
+  assert.equal((await sql`SELECT 1 FROM pgboss.job WHERE data->>'articleId'=${id}`).length, 0);
+  assert.equal((await sql`SELECT 1 FROM audit_log WHERE action='receipt.release' AND subject=${`receipt:${receipt!.id}`}`).length, 0);
+
+  const confirmed = await releaseReceipt(receipt!.id, { billed: true, note: "supplier confirmed charged; owner authorized recovery" }, "test");
+  assert.equal(confirmed?.requeued, true);
+  const [charged] = await sql`SELECT error FROM receipts WHERE id=${receipt!.id}`;
+  assert.match(charged!.error, /供应商已计费/);
+  assert.doesNotMatch(charged!.error, /供应商未计费/);
+  const [retained] = await sql`SELECT model_cost_cny,model_cost_state FROM receipt_attempts WHERE receipt_id=${receipt!.id}`;
+  assert.deepEqual({ ...retained }, { model_cost_cny: .5, model_cost_state: "reserved" });
+  const [logged] = await sql`SELECT after FROM audit_log WHERE action='receipt.release' AND subject=${`receipt:${receipt!.id}`}`;
+  assert.equal(logged!.after.billed, true);
+});
+
+test("an authorized non-model recovery records unknown billing without claiming no charge", async () => {
+  const [receipt] = await sql<{ id: number }[]>`INSERT INTO receipts(logical_key,service,purpose,status)
+    VALUES(${`non-model-billing-unknown-${T}`},'socialdata','fetch_post','unknown') RETURNING id`;
+  await sql`INSERT INTO receipt_attempts(receipt_id,service,attempt,status,error) VALUES(${receipt!.id},'socialdata',1,'unknown','request timed out')`;
+  const result = await releaseReceipt(receipt!.id, { billed: null, note: "owner authorized recovery; billing remains unknown" }, "test");
+  assert.equal(result?.status, "failed");
   const [record] = await sql`SELECT error FROM receipts WHERE id=${receipt!.id}`;
   assert.match(record!.error, /计费未知/);
   assert.doesNotMatch(record!.error, /供应商未计费/);

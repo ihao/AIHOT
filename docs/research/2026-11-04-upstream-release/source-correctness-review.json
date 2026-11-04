@@ -1,0 +1,405 @@
+{
+  "method": "Read raw XML entries and concrete before/after snippets manually; verify each difference category with complete-corpus invariants. These checks validate parser fidelity, not the truth of article claims.",
+  "xmlWellFormed": [
+    {
+      "id": "ethereum-foundation",
+      "root": "rss",
+      "itemCount": 645
+    },
+    {
+      "id": "coin-metrics",
+      "root": "rss",
+      "itemCount": 20
+    },
+    {
+      "id": "chainalysis",
+      "root": "rss",
+      "itemCount": 10
+    },
+    {
+      "id": "panews-articles-zh",
+      "root": "rss",
+      "itemCount": 100
+    }
+  ],
+  "publicationTimeChecks": [
+    {
+      "id": "ethereum-foundation",
+      "count": 645,
+      "allOriginalExplicitZoneDatesMatch": true,
+      "rawDateExamples": [
+        "Tue, 03 Nov 2026 00:00:00 GMT",
+        "Thu, 22 Oct 2026 00:00:00 GMT"
+      ]
+    },
+    {
+      "id": "coin-metrics",
+      "count": 20,
+      "allOriginalExplicitZoneDatesMatch": true,
+      "rawDateExamples": [
+        "Tue, 03 Nov 2026 17:43:25 GMT",
+        "Wed, 28 Oct 2026 13:03:52 GMT"
+      ]
+    },
+    {
+      "id": "chainalysis",
+      "count": 10,
+      "allOriginalExplicitZoneDatesMatch": true,
+      "rawDateExamples": [
+        "Tue, 03 Nov 2026 19:43:21 +0000",
+        "Mon, 02 Nov 2026 22:59:13 +0000"
+      ]
+    },
+    {
+      "id": "panews-articles-zh",
+      "count": 100,
+      "allOriginalExplicitZoneDatesMatch": true,
+      "rawDateExamples": [
+        "Wed, 04 Nov 2026 06:03:13 GMT",
+        "Wed, 04 Nov 2026 06:00:00 GMT"
+      ]
+    }
+  ],
+  "textChanges": [
+    {
+      "source": "coin-metrics",
+      "index": 3,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 7,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 8,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 10,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 15,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 0,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 1,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 2,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 3,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 4,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 5,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 6,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 7,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 8,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "chainalysis",
+      "index": 9,
+      "field": "excerpt",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "panews-articles-zh",
+      "index": 56,
+      "field": "bodyText",
+      "entityDecodeAndWhitespaceOnly": true
+    },
+    {
+      "source": "panews-articles-zh",
+      "index": 72,
+      "field": "bodyText",
+      "entityDecodeAndWhitespaceOnly": true
+    }
+  ],
+  "htmlChanges": [
+    {
+      "source": "coin-metrics",
+      "index": 0,
+      "restoredLinkedPictures": 11,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 1,
+      "restoredLinkedPictures": 7,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 2,
+      "restoredLinkedPictures": 6,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 3,
+      "restoredLinkedPictures": 8,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 4,
+      "restoredLinkedPictures": 9,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 5,
+      "restoredLinkedPictures": 9,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 6,
+      "restoredLinkedPictures": 6,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 7,
+      "restoredLinkedPictures": 8,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 8,
+      "restoredLinkedPictures": 6,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 9,
+      "restoredLinkedPictures": 10,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 10,
+      "restoredLinkedPictures": 10,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 11,
+      "restoredLinkedPictures": 8,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 12,
+      "restoredLinkedPictures": 8,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 13,
+      "restoredLinkedPictures": 7,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 14,
+      "restoredLinkedPictures": 7,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 15,
+      "restoredLinkedPictures": 6,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 16,
+      "restoredLinkedPictures": 7,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 17,
+      "restoredLinkedPictures": 9,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 18,
+      "restoredLinkedPictures": 6,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    },
+    {
+      "source": "coin-metrics",
+      "index": 19,
+      "restoredLinkedPictures": 7,
+      "restOtherwiseByteIdentical": true,
+      "allOutputImageUrlsPresentInOriginalEntry": true
+    }
+  ],
+  "manualSamples": [
+    {
+      "source": "ethereum-foundation",
+      "index": 0,
+      "url": "https://blog.ethereum.org/en/2026/11/03/digital-pub-infra",
+      "title": "Designing for sovereignty: Ethereum for digital public infrastructure",
+      "field": "publicationTime",
+      "rawPublicationDate": "Tue, 03 Nov 2026 00:00:00 GMT",
+      "beforeSnippet": null,
+      "afterSnippet": "2026-11-03T00:00:00.000Z",
+      "assessment": "Correct: preserves original dated instant and adds original precision."
+    },
+    {
+      "source": "coin-metrics",
+      "index": 0,
+      "url": "https://coinmetrics.substack.com/p/stock-market-that-never-sleeps-inside",
+      "title": "Stock Market that Never Sleeps: Inside the Premiums and Liquidity Gaps of Tokenized Equities",
+      "field": "bodyHtml",
+      "rawPublicationDate": "Tue, 03 Nov 2026 17:43:25 GMT",
+      "beforeSnippet": "<figure></figure><p><em>Get the best data-driven crypto insights and analysis every week:</em></p><h2><strong>Stock Market that Never Sleeps: Inside the Premiums and Liquidity Gap",
+      "afterSnippet": "<figure><a href=\"https://substackcdn.com/image/fetch/$s_!hHLt!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd5683",
+      "assessment": "Correct: restores linked picture from original feed; other HTML byte-identical."
+    },
+    {
+      "source": "coin-metrics",
+      "index": 7,
+      "url": "https://coinmetrics.substack.com/p/the-perpification-of-pre-ipos",
+      "title": "The Perpification of pre-IPOs",
+      "field": "excerpt",
+      "rawPublicationDate": "Tue, 15 Sep 2026 13:02:56 GMT",
+      "beforeSnippet": "Exploring Anthropic&#8217;s pre-IPO markets and Entropy, an emerging HIP-3 builder",
+      "afterSnippet": "Exploring Anthropic’s pre-IPO markets and Entropy, an emerging HIP-3 builder",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    },
+    {
+      "source": "coin-metrics",
+      "index": 15,
+      "url": "https://coinmetrics.substack.com/p/state-of-the-network-issue-373",
+      "title": "Robinhood Chain and the Race to Build a Financial Super App",
+      "field": "excerpt",
+      "rawPublicationDate": "Wed, 22 Jul 2026 13:05:11 GMT",
+      "beforeSnippet": "An overview of Robinhood&#8217;s Layer&#8209;2 chain, its early onchain activity and economics",
+      "afterSnippet": "An overview of Robinhood’s Layer‑2 chain, its early onchain activity and economics",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    },
+    {
+      "source": "chainalysis",
+      "index": 0,
+      "url": "https://www.chainalysis.com/blog/binance-hack-dprk-employment-fraud/",
+      "title": "DPRK Hackers Perfected Their Fake Interview Playbook Over Dozens of Attacks Before Binance",
+      "field": "excerpt",
+      "rawPublicationDate": "Tue, 03 Nov 2026 19:43:21 +0000",
+      "beforeSnippet": "PRK fake employment scheme was behind its $6 billion hack: Attackers used a fabricated job&#8230; The post DPRK Hackers Perfected Their Fake Interview Playbook Over Dozens of Attacks Before Binance appeared first on Chainalysis .",
+      "afterSnippet": "PRK fake employment scheme was behind its $6 billion hack: Attackers used a fabricated job… The post DPRK Hackers Perfected Their Fake Interview Playbook Over Dozens of Attacks Before Binance appeared first on Chainalysis .",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    },
+    {
+      "source": "chainalysis",
+      "index": 7,
+      "url": "https://www.chainalysis.com/blog/middle-east-north-africa-crypto-adoption-2026/",
+      "title": "War, Shutdowns, and Licensing Reshape MENA’s $443 Billion Crypto Economy",
+      "field": "excerpt",
+      "rawPublicationDate": "Mon, 26 Oct 2026 12:55:36 +0000",
+      "beforeSnippet": "Summary MENA&#8217;s crypto economy was essentially flat at $443.3 billion in the 2026 reporting period, a 1.4% decline that tracks&#8230; The post War, Shutdowns, and Licensing Resh",
+      "afterSnippet": "Summary MENA’s crypto economy was essentially flat at $443.3 billion in the 2026 reporting period, a 1.4% decline that tracks… The post War, Shutdowns, and Licensing Reshape MENA’s $",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    },
+    {
+      "source": "panews-articles-zh",
+      "index": 56,
+      "url": "https://www.panewslab.com/zh/articles/01a19bc4-8e2b-7203-8972-ef0edc8bfc1b",
+      "title": "马斯克嘲讽 CZ，徐明星呼吁联手：币安 63 亿美元失窃背后的朝鲜黑客",
+      "field": "bodyText",
+      "rawPublicationDate": "Mon, 02 Nov 2026 10:18:00 GMT",
+      "beforeSnippet": "御能力终究存在边界。行业能否建立起更快的信息共享和协同响应机制，将直接影响被盗资产能否在流入洗钱网络之前得到拦截。 *本文内容仅供参考，不构成任何投资建议。市场有风险，投资需谨慎。&#xA;",
+      "afterSnippet": "御能力终究存在边界。行业能否建立起更快的信息共享和协同响应机制，将直接影响被盗资产能否在流入洗钱网络之前得到拦截。 *本文内容仅供参考，不构成任何投资建议。市场有风险，投资需谨慎。",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    },
+    {
+      "source": "panews-articles-zh",
+      "index": 72,
+      "url": "https://www.panewslab.com/zh/articles/01a19ac3-9e94-767e-8123-b782ca4072b5",
+      "title": "波场TRON行业周报：加密安全事件致BTC持续走弱，详解构建经济智能体能力基础设施Neosoul",
+      "field": "bodyText",
+      "rawPublicationDate": "Mon, 02 Nov 2026 05:37:00 GMT",
+      "beforeSnippet": "。 托管 Agent 与外部 Agent 使用统一规则体系，是跨 Agent 比较具有实际意义的基础；而可移植身份则让 Agent 的历史记录能够独立于任何单一运行环境长期存在。 &#xA; 哪些内容上链，哪些内容不上链（What is on-chain and what is not） 合约角色、部署地址以及安全审计信息位于 Smart Contracts（智能合约） 页面。 技术栈（Technology stack） Tron点评 NEOSOUL 的优势在于其并非单纯构建预测或交易 Agent，而是围绕 evo",
+      "afterSnippet": "。 托管 Agent 与外部 Agent 使用统一规则体系，是跨 Agent 比较具有实际意义的基础；而可移植身份则让 Agent 的历史记录能够独立于任何单一运行环境长期存在。 哪些内容上链，哪些内容不上链（What is on-chain and what is not） 合约角色、部署地址以及安全审计信息位于 Smart Contracts（智能合约） 页面。 技术栈（Technology stack） Tron点评 NEOSOUL 的优势在于其并非单纯构建预测或交易 Agent，而是围绕 evoevo + ",
+      "assessment": "Correct: decodes literal numeric character references; no wording is removed beyond decoded whitespace."
+    }
+  ],
+  "counts": {
+    "candidatesWithContentChangesBeyondPublicationMetadata": 32,
+    "publicationMetadataOnly": 743,
+    "restoredLinkedPictures": 155,
+    "textFieldChanges": 17
+  }
+}

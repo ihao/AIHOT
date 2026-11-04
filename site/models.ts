@@ -12,7 +12,7 @@ export const PRESETS: Record<string, ModelPreset> = {
     service: "zhipu", model: "glm-5.3-flash", baseUrlEnv: "ZHIPU_BASE_URL", apiKeyEnv: "ZHIPU_API_KEY",
     extra: { thinking: { type: "enabled" }, reasoning_effort: "low" }, jsonMode: true, vision: true,
   },
-  // The scorer's parameters for glm-5.3-flash: temperature 1 with high reasoning, up to 180 s per call.
+  // The scorer's parameters for glm-5.3-flash (score calls; temperature 1 is set per call).
   "glm-5.3-flash-selection": {
     service: "zhipu", model: "glm-5.3-flash", baseUrlEnv: "ZHIPU_BASE_URL", apiKeyEnv: "ZHIPU_API_KEY",
     extra: { thinking: { type: "enabled", clear_thinking: false }, reasoning_effort: "high", top_p: 0.95 }, jsonMode: true, vision: true,
@@ -33,6 +33,14 @@ export const PRESETS: Record<string, ModelPreset> = {
   },
   "qwen3.8-flash": {
     service: "dashscope", model: "qwen3.8-flash", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  },
+  "qwen3.8-max": {
+    service: "dashscope", model: "qwen3.8-max", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
+    extra: { enable_thinking: false }, jsonMode: true,
+  },
+  "dashscope-deepseek-v4.1-flash": {
+    service: "dashscope", model: "deepseek-v4.1-flash", baseUrlEnv: "DASHSCOPE_BASE_URL", apiKeyEnv: "DASHSCOPE_API_KEY",
     extra: { enable_thinking: false }, jsonMode: true,
   },
   "mimo-v2.6-flash": {

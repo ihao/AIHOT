@@ -16,6 +16,7 @@
 // call lets the duplicate out; a report an editor took out still merges facts; the owner's post and
 // article show twice, or the post goes while the article is not shown; an independent source loses
 // its card; a revision brings back a report that stayed out.
+import { PAID_FEATURES } from "@aihot/site";
 import { embeddingsStub, stub, tag } from "./setup.ts";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -65,6 +66,8 @@ for (const name of ["DEEPSEEK", "XIAOMI_MIMO"]) {
 }
 const embeddings = await embeddingsStub();
 before(async () => {
+  // Exercise the upstream opt-in capability with local stubs; the live site default stays off.
+  PAID_FEATURES.readerCardComparison = true;
   await sql`INSERT INTO sources(id,name,kind,tier,participation_mode,next_fetch_at) VALUES
     (${sourceId},'News value','rss','T1','editorial','2100-01-01'),
     (${ownArticles},'Owner articles','mp_account','T1_5','editorial','2100-01-01'),
@@ -78,7 +81,7 @@ async function report(text: string, scope = "single", selected = true, from = so
   const { articleId } = await upsertMaterial({ sourceId: from, url: `https://example.org/value/${randomUUID()}`, title: text,
     bodyText: text, bodyStatus: "ok", via: "fetch", publishedAt });
   await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,category,score,selected,output)
-    VALUES(${articleId},1,'rule','pass',${text},${text},'ai-products',80,${selected},${sql.json({ scope, fact: scope === "composite" ? null : { title: text, subject: text, action: "发布", object: text } })})`;
+    VALUES(${articleId},1,'rule','pass',${text},${text},'defi',80,${selected},${sql.json({ scope, fact: scope === "composite" ? null : { title: text, subject: text, action: "发布", object: text } })})`;
   await publishArticle(articleId);
   return articleId;
 }
@@ -180,7 +183,7 @@ test("a material revision rechecks value in the same batch while keeping its con
     await upsertMaterial({ sourceId, url: article!.url, title: revised, bodyText: revised,
       bodyStatus: "ok", via: "fetch", publishedAt: article!.published_at });
     await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,category,score,selected,output)
-      VALUES(${id},${revision},'rule','pass',${revised},${revised},'ai-products',80,true,
+      VALUES(${id},${revision},'rule','pass',${revised},${revised},'defi',80,true,
         ${sql.json({ scope: "single", fact: { title: revised, subject: text, action: "介绍", object: text } })})`;
     assert.deepEqual([(await state(id)).grouping_status,(await state(id)).selected], ["pending",false]);
     selection = { addsValue, reason: addsValue ? "补充了新测量结果" : "仅措辞变化" };

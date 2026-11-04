@@ -8,6 +8,7 @@
 // idea: handling names a suggestion after the names in it, and one missing would get a second name.
 // Before a report is pushed a cheap model reads it: one with nothing in it is marked spam and not pushed,
 // and a model that cannot answer never holds a report back.
+import { PAID_FEATURES } from "@aihot/site";
 import { pointModels, tag } from "./setup.ts";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, utimesSync, writeFileSync } from "node:fs";
@@ -167,7 +168,23 @@ test("a browser retry creates one feedback and forwards one notification", async
   assert.ok(JSON.stringify(sentFor(id)?.content).includes(input.content));
 });
 
+test("the site forwards feedback without buying the new noise judgement by default", async () => {
+  pointModels(MODEL_URL, ["qwen3.7-flash"]);
+  process.env.FEISHU_INTERNAL_ENABLED = "true";
+  config.modelCallsEnabled = true;
+  model.noise = true;
+  const calls = model.calls;
+  try {
+    const { id } = await submitFeedback({ content: `反馈默认路径 ${T}`, ip: "198.51.100.98", userAgent: "Firefox" });
+    for (let i = 0; i < 100 && !(await state(id)).forwarded; i++) await new Promise(resolve => setTimeout(resolve, 10));
+    assert.equal(model.calls, calls, "upgrading must not add feedback model requests");
+    assert.ok((await state(id)).forwarded);
+    assert.equal((await sql`SELECT status FROM feedback WHERE id=${id}`)[0]!.status, "new");
+  } finally { model.noise = false; }
+});
+
 test("a report the model reads as empty is marked spam and not pushed; a real one, or a model that cannot answer, still goes out", async () => {
+  PAID_FEATURES.feedbackNoiseJudgement = true;
   pointModels(MODEL_URL, ["qwen3.7-flash"]);
   config.modelCallsEnabled = true;
   try {
@@ -224,6 +241,7 @@ test("a report the model reads as empty is marked spam and not pushed; a real on
     assert.ok(sentFor(shot));
     assert.ok(asked.some((text) => text.includes("这里不对") && text.includes('"has_screenshot":true')), "the model knows a picture came with the words");
   } finally {
+    PAID_FEATURES.feedbackNoiseJudgement = false;
     config.modelCallsEnabled = false;
   }
 });

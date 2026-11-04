@@ -1,0 +1,24 @@
+✔ unchanged history is accepted, but edits and deletions fail (166.790875ms)
+✔ new module migrations are checked even when untracked or named below the cutoff (165.010375ms)
+✔ a fixed deployed baseline recognizes site and module history absent from the PR base (389.99325ms)
+✔ both baselines remain immutable, including deleted module history (659.990541ms)
+✔ a deployed baseline cannot exempt newly committed writes, low numbers or blocking indexes (1433.229125ms)
+✔ new safe migrations may share a number but never a complete filename (475.771083ms)
+✔ a missing or unrelated deployed baseline fails closed (361.434292ms)
+✔ online migrations reject writes, blocking indexes and table rewrites before execution (10.430583ms)
+✔ online migrations permit metadata changes and split constraint validation (0.434584ms)
+✔ online vacuum tuning accepts only bounded insert and dead-tuple scale factors (0.716667ms)
+✔ a table nothing uses can be dropped alone, never with its dependents (0.240958ms)
+✔ a column or a constraint nothing uses can be dropped alone, never with its dependents (0.343417ms)
+✔ concurrent indexes have one retriable statement per file, outside a transaction (1.214625ms)
+✔ comments and string literals cannot disguise dangerous statements or split safe defaults (0.19775ms)
+✔ online DDL cannot accumulate strong table locks across several otherwise safe statements (0.236875ms)
+✔ statistics maintenance names one table and its columns without skipping work or evaluating expressions (0.550125ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4067.004917

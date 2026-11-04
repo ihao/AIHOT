@@ -1,6 +1,7 @@
 // Public vocabularies shared by the website, the API and the worker. The categories themselves belong to
 // the industry pack (industry/taxonomy.ts); their keys are external identities (URLs, API, RSS) and never change.
 // How the public API, RSS and MCP differ from the website is the site's (site/site.ts PUBLIC_CATEGORIES).
+export { FEED_TOPIC_TAGS } from "@aihot/industry/taxonomy";
 import { CATEGORIES } from "@aihot/industry/taxonomy";
 import { PUBLIC_CATEGORIES } from "@aihot/site";
 

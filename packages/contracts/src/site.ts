@@ -1,5 +1,6 @@
 // First-party site API (/api/site/*). Not a public API: it may evolve with the website,
 // but it is served from the same public read layer as v1, RSS and MCP.
+import type { BtcIngestionQuote } from "./market.ts";
 import type { CategoryKey, ChannelKey } from "./taxonomy.ts";
 import { isoWeekRange, monthDay } from "./time.ts";
 
@@ -47,6 +48,7 @@ export interface StoryRef {
 
 /** What every site answer about an article carries; a card and a page each add the X post in their own form. */
 export interface ItemSummary {
+  btcAtIngestion?: BtcIngestionQuote | null;
   id: string;
   title: string;
   originalTitle: string | null;
@@ -66,7 +68,7 @@ export interface ItemSummary {
 }
 
 /** The fields rendered by a site feed card; full original text lives in the item detail. */
-export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "source" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel"> {
+export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "source" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel" | "btcAtIngestion"> {
   x: (Pick<XPostView, "authorName" | "handle" | "avatarUrl" | "avatarSrcSet" | "media"> & {
     quoted: Omit<NonNullable<XPostView["quoted"]>, "url"> | null;
   }) | null;
@@ -164,6 +166,7 @@ export interface SiteItemDetail extends ItemSummary {
 
 /** A fact's public reports under the list's filters: what "另外 N 家也报道了" opens. */
 export interface GroupReport {
+  btcAtIngestion?: BtcIngestionQuote | null;
   id: string;
   title: string;
   source: SourceRef;
@@ -224,6 +227,7 @@ export interface HeatPoint {
 }
 
 export interface StoryReportView {
+  btcAtIngestion?: BtcIngestionQuote | null;
   id: string;
   title: string;
   summary: string | null;

@@ -9,6 +9,7 @@ import { behindSources, currentSignals, heatSeries, sourceClocks, type HotRankin
 import { relatedEvidence, RELATED_MIN_REPORTS } from "../events/related.ts";
 import { pickRepresentative, REPRESENTATIVE_COLUMNS, type RepresentativeIdentity } from "./representative.ts";
 import { compositeCondition, evidenceCondition, listedCondition, storyReportCondition } from "./scope.ts";
+import { ingestionQuoteView, type IngestionQuoteRow } from "./market.ts";
 import { publicSourceName } from "./rules.ts";
 import { latestHotRanking, rankingExtras } from "./hot.ts";
 import { storyTexts } from "./story-text.ts";
@@ -48,7 +49,7 @@ export async function resolveStory(publicId: string): Promise<StoryLookup> {
   return { kind: "found", storyId: s!.id, publicId };
 }
 
-interface ReportRow extends RepresentativeIdentity {
+interface ReportRow extends RepresentativeIdentity, IngestionQuoteRow {
   role: string;
   body_mode: "full" | "summary";
   score: number | null;
@@ -73,18 +74,22 @@ interface ReportRow extends RepresentativeIdentity {
  */
 async function storyReports(storyId: number, now: Date): Promise<ReportRow[]> {
   return sql<ReportRow[]>`
-    SELECT DISTINCT ON (p.article_id) p.article_id AS id, p.title, p.summary, p.url, p.selected,
+    SELECT DISTINCT ON (p.article_id) p.article_id AS id, p.title, p.summary, p.url, p.selected, a.ingested_at,
+      bq.price_usd AS btc_price_usd, bq.quoted_at AS btc_quoted_at, bq.fetched_at AS btc_fetched_at,
       coalesce(p.published_at, p.discovered_at) AS at, s.id AS source_id, s.name AS source_name,
       (s.tier = 'T1') AS first_party, f.id AS fact_id,
       CASE WHEN ${compositeCondition()} THEN 'mention' ELSE fa.role END AS role, p.body_mode, p.score, p.timeline_at, ${REPRESENTATIVE_COLUMNS}
     FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id
     JOIN sources s ON s.id = p.source_id
+    JOIN articles a ON a.id = p.article_id
+    LEFT JOIN btc_usd_quotes bq ON bq.id = a.btc_quote_id
     WHERE f.story_id = ${storyId} AND ${storyReportCondition(now)}
     ORDER BY p.article_id, (fa.role = 'primary') DESC, (fa.role <> 'mention') DESC, f.id`;
 }
 
 function reportView(r: ReportRow): StoryReportView {
   return {
+    btcAtIngestion: ingestionQuoteView(r),
     id: r.id,
     title: r.title,
     summary: r.summary,

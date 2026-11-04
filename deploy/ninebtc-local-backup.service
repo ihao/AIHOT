@@ -1,0 +1,9 @@
+[Unit]
+Description=9BTC local database and uploads backup on EU
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/srv/9btc/deploy/local-backup.sh
+TimeoutStartSec=2h

@@ -1,0 +1,1094 @@
+{
+  "verifiedAt": "2026-10-01T11:02:33.692Z",
+  "totals": {
+    "sources": 94,
+    "enabled": 94,
+    "healthy": 94
+  },
+  "ingest": {
+    "new_source_articles": 254,
+    "backfill": 254,
+    "first_import": 254,
+    "undated": 1,
+    "invalid_urls": 0,
+    "suspicious_titles": 0,
+    "readable_bodies": 242
+  },
+  "processing": [
+    {
+      "processing_state": "new",
+      "body_status": "ok",
+      "count": 242
+    },
+    {
+      "processing_state": "new",
+      "body_status": "unconfirmed",
+      "count": 12
+    }
+  ],
+  "runs": [
+    {
+      "status": "ok",
+      "count": 88,
+      "new_count": 254
+    }
+  ],
+  "undated": [
+    {
+      "source_id": "bnb-blog",
+      "title": "0 Fee Transactions for USDC, USD1 & U Extended until October 31!",
+      "url": "https://www.bnbchain.org/en/blog/0-fee-transactions-for-usdc-usd1-u-extended-until-october-31"
+    }
+  ],
+  "publications": [
+    {
+      "visibility": "withdrawn",
+      "selected": false,
+      "count": 94
+    }
+  ],
+  "sourceStats": [
+    {
+      "id": "a16z-crypto",
+      "name": "a16z crypto",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:41.445Z",
+      "next_fetch_at": "2026-10-01T14:56:41.445Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "aave-blog",
+      "name": "Aave Labs Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.266Z",
+      "next_fetch_at": "2026-10-01T12:56:31.266Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "aave-gov",
+      "name": "Aave 治理论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.730Z",
+      "next_fetch_at": "2026-10-01T12:56:31.730Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "arbitrum-blog",
+      "name": "Arbitrum Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:29.291Z",
+      "next_fetch_at": "2026-10-01T12:56:29.291Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "arbitrum-gov",
+      "name": "Arbitrum 治理论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:29.748Z",
+      "next_fetch_at": "2026-10-01T12:56:29.748Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "balancer-gov",
+      "name": "Balancer Forum",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.188Z",
+      "next_fetch_at": "2026-10-01T12:56:33.188Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "bis",
+      "name": "BIS / BCBS / CPMI",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:35.742Z",
+      "next_fetch_at": "2026-10-01T12:56:35.742Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "bitcoin-delving",
+      "name": "Delving Bitcoin",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.502Z",
+      "next_fetch_at": "2026-10-01T12:56:31.502Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "bitcoin-optech",
+      "name": "Bitcoin Optech",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.094Z",
+      "next_fetch_at": "2026-10-01T14:56:31.094Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "blocksec",
+      "name": "BlockSec",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:51.366Z",
+      "next_fetch_at": "2026-10-01T14:56:51.366Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "blockstream-blog",
+      "name": "Blockstream Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:35.527Z",
+      "next_fetch_at": "2026-10-01T12:56:35.527Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "bnb-blog",
+      "name": "BNB Chain Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:57:03.176Z",
+      "next_fetch_at": "2026-10-01T12:57:03.176Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "celestia-blog",
+      "name": "Celestia Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.062Z",
+      "next_fetch_at": "2026-10-01T12:56:31.062Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "cftc",
+      "name": "美国 CFTC",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:42.694Z",
+      "next_fetch_at": "2026-10-01T12:56:42.694Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "chainlink-blog",
+      "name": "Chainlink Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:46.652Z",
+      "next_fetch_at": "2026-10-01T12:56:46.652Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "circle-blog",
+      "name": "Circle Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:45.622Z",
+      "next_fetch_at": "2026-10-01T12:56:45.622Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "compound-gov",
+      "name": "Compound Community Forum",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.012Z",
+      "next_fetch_at": "2026-10-01T12:56:33.012Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "consensys",
+      "name": "Consensys",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:52.781Z",
+      "next_fetch_at": "2026-10-01T12:56:52.781Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "eba",
+      "name": "EBA",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:50.186Z",
+      "next_fetch_at": "2026-10-01T12:56:50.186Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "eigenlabs-blog",
+      "name": "Eigen Labs / EigenLayer Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.561Z",
+      "next_fetch_at": "2026-10-01T12:56:33.561Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "electric-coin",
+      "name": "Electric Coin Company / Zcash",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.288Z",
+      "next_fetch_at": "2026-10-02T10:56:36.288Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ens-blog",
+      "name": "ENS Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:51.546Z",
+      "next_fetch_at": "2026-10-01T12:56:51.546Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ethereum-magicians",
+      "name": "Ethereum Magicians EIP/ERC 讨论论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:42.296Z",
+      "next_fetch_at": "2026-10-01T12:56:42.296Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ethereum-research",
+      "name": "Ethereum Research",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:30.071Z",
+      "next_fetch_at": "2026-10-01T12:56:30.071Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "fca",
+      "name": "英国 FCA",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.380Z",
+      "next_fetch_at": "2026-10-01T12:56:36.380Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "filecoin-blog",
+      "name": "Filecoin Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.702Z",
+      "next_fetch_at": "2026-10-01T12:56:33.702Z",
+      "articles": 1,
+      "bodies_ok": 1,
+      "analyzed": 0
+    },
+    {
+      "id": "fincen",
+      "name": "美国 FinCEN",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:57:28.563Z",
+      "next_fetch_at": "2026-10-01T12:57:28.563Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "flashbots-forum",
+      "name": "Flashbots Collective",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:34.921Z",
+      "next_fetch_at": "2026-10-01T12:56:34.921Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "flashbots-writings",
+      "name": "Flashbots Writings",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.511Z",
+      "next_fetch_at": "2026-10-01T12:56:33.511Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "fsb",
+      "name": "Financial Stability Board",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:35.742Z",
+      "next_fetch_at": "2026-10-01T12:56:35.742Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "galaxy",
+      "name": "Galaxy Research",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:50.174Z",
+      "next_fetch_at": "2026-10-01T14:56:50.174Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "geth-release",
+      "name": "Geth Releases",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:38.120Z",
+      "next_fetch_at": "2026-10-01T12:56:38.120Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "glassnode",
+      "name": "Glassnode Research",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.895Z",
+      "next_fetch_at": "2026-10-01T14:56:33.895Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "halborn",
+      "name": "Halborn",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:41.616Z",
+      "next_fetch_at": "2026-10-01T14:56:41.616Z",
+      "articles": 3,
+      "bodies_ok": 0,
+      "analyzed": 0
+    },
+    {
+      "id": "hkma",
+      "name": "香港金管局 HKMA",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:43.699Z",
+      "next_fetch_at": "2026-10-01T12:56:43.699Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "icp-blog",
+      "name": "DFINITY / Internet Computer Review",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:34.103Z",
+      "next_fetch_at": "2026-10-01T12:56:34.103Z",
+      "articles": 1,
+      "bodies_ok": 1,
+      "analyzed": 0
+    },
+    {
+      "id": "immunefi",
+      "name": "Immunefi",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:35.403Z",
+      "next_fetch_at": "2026-10-01T14:56:35.403Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ipfs",
+      "name": "IPFS Blog & News",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.380Z",
+      "next_fetch_at": "2026-10-01T12:56:36.380Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-bluematt",
+      "name": "Matt Corallo / BlueMatt",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:37.381Z",
+      "next_fetch_at": "2026-10-01T14:56:37.381Z",
+      "articles": 2,
+      "bodies_ok": 2,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-christine-kim",
+      "name": "Christine D. Kim",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:38.112Z",
+      "next_fetch_at": "2026-10-01T14:56:38.112Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-colin-wu",
+      "name": "吴说 / Colin Wu",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:41.482Z",
+      "next_fetch_at": "2026-10-01T14:56:41.482Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-dankrad",
+      "name": "Dankrad Feist",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:37.697Z",
+      "next_fetch_at": "2026-10-01T14:56:37.697Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-haseeb",
+      "name": "Haseeb Qureshi",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:38.986Z",
+      "next_fetch_at": "2026-10-01T14:56:38.986Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-lopp",
+      "name": "Jameson Lopp",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:39.054Z",
+      "next_fetch_at": "2026-10-01T14:56:39.054Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-molly-white",
+      "name": "Molly White",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:38.961Z",
+      "next_fetch_at": "2026-10-01T14:56:38.961Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-peter-todd",
+      "name": "Peter Todd",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.604Z",
+      "next_fetch_at": "2026-10-01T14:56:36.604Z",
+      "articles": 1,
+      "bodies_ok": 1,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-samczsun",
+      "name": "samczsun",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:51.782Z",
+      "next_fetch_at": "2026-10-01T14:56:51.782Z",
+      "articles": 1,
+      "bodies_ok": 1,
+      "analyzed": 0
+    },
+    {
+      "id": "kol-vitalik",
+      "name": "Vitalik Buterin",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.983Z",
+      "next_fetch_at": "2026-10-01T14:56:36.983Z",
+      "articles": 3,
+      "bodies_ok": 0,
+      "analyzed": 0
+    },
+    {
+      "id": "layerzero-blog",
+      "name": "LayerZero Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:49.402Z",
+      "next_fetch_at": "2026-10-01T12:56:49.402Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "lido-gov",
+      "name": "Lido Governance",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.602Z",
+      "next_fetch_at": "2026-10-01T12:56:31.602Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "lightning-labs",
+      "name": "Lightning Labs Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:54.152Z",
+      "next_fetch_at": "2026-10-01T12:56:54.152Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "metamask-news",
+      "name": "MetaMask News",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:42.076Z",
+      "next_fetch_at": "2026-10-01T12:56:42.076Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "monero",
+      "name": "Monero Project",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.597Z",
+      "next_fetch_at": "2026-10-01T12:56:36.597Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "morpho-blog",
+      "name": "Morpho Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:49.722Z",
+      "next_fetch_at": "2026-10-01T12:56:49.722Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "nansen",
+      "name": "Nansen",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:48.620Z",
+      "next_fetch_at": "2026-10-01T14:56:48.620Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ofac",
+      "name": "美国财政部 OFAC",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:57:29.806Z",
+      "next_fetch_at": "2026-10-01T12:57:29.806Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ondo-blog",
+      "name": "Ondo Finance Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:46.914Z",
+      "next_fetch_at": "2026-10-01T12:56:46.914Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "openzeppelin",
+      "name": "OpenZeppelin",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:34.822Z",
+      "next_fetch_at": "2026-10-01T14:56:34.822Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "optimism-blog",
+      "name": "Optimism Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:47.220Z",
+      "next_fetch_at": "2026-10-01T12:56:47.220Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "optimism-gov",
+      "name": "Optimism Collective 治理论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:29.298Z",
+      "next_fetch_at": "2026-10-01T12:56:29.298Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "ottersec",
+      "name": "OtterSec",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:41.490Z",
+      "next_fetch_at": "2026-10-01T14:56:41.490Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "paradigm",
+      "name": "Paradigm",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:46.487Z",
+      "next_fetch_at": "2026-10-01T14:56:46.487Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "paxos-blog",
+      "name": "Paxos Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:45.628Z",
+      "next_fetch_at": "2026-10-01T12:56:45.628Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "pendle-blog",
+      "name": "Pendle 官方 Medium",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.725Z",
+      "next_fetch_at": "2026-10-01T12:56:31.725Z",
+      "articles": 2,
+      "bodies_ok": 2,
+      "analyzed": 0
+    },
+    {
+      "id": "phantom",
+      "name": "Phantom",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:51.094Z",
+      "next_fetch_at": "2026-10-01T12:56:51.094Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "polkadot-forum",
+      "name": "Polkadot Forum",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.091Z",
+      "next_fetch_at": "2026-10-01T12:56:31.091Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "polygon-blog",
+      "name": "Polygon Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:43.704Z",
+      "next_fetch_at": "2026-10-01T12:56:43.704Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "pyth-blog",
+      "name": "Pyth Network Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:45.626Z",
+      "next_fetch_at": "2026-10-01T12:56:45.626Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "quicknode-blog",
+      "name": "QuickNode Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:41.484Z",
+      "next_fetch_at": "2026-10-01T12:56:41.484Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "render-blog",
+      "name": "Render Network 官方 Medium",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.583Z",
+      "next_fetch_at": "2026-10-01T12:56:33.583Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "reth-release",
+      "name": "Reth Releases",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:37.714Z",
+      "next_fetch_at": "2026-10-01T12:56:37.714Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "rocketpool-gov",
+      "name": "Rocket Pool Governance",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:36.287Z",
+      "next_fetch_at": "2026-10-01T12:56:36.287Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "safe",
+      "name": "Safe",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:57:03.840Z",
+      "next_fetch_at": "2026-10-01T12:57:03.840Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "sfc",
+      "name": "香港证监会 SFC",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:42.670Z",
+      "next_fetch_at": "2026-10-01T12:56:42.670Z",
+      "articles": 3,
+      "bodies_ok": 0,
+      "analyzed": 0
+    },
+    {
+      "id": "sfc-circulars",
+      "name": "香港证监会 SFC 通函",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:43.327Z",
+      "next_fetch_at": "2026-10-01T12:56:43.327Z",
+      "articles": 3,
+      "bodies_ok": 0,
+      "analyzed": 0
+    },
+    {
+      "id": "sky-gov",
+      "name": "Sky 治理论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.183Z",
+      "next_fetch_at": "2026-10-01T12:56:33.183Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "slowmist",
+      "name": "SlowMist / 慢雾",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:34.610Z",
+      "next_fetch_at": "2026-10-01T14:56:34.610Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "solana-news",
+      "name": "Solana 官方新闻",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:29.480Z",
+      "next_fetch_at": "2026-10-01T12:56:29.480Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "starknet-blog",
+      "name": "Starknet Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:53.164Z",
+      "next_fetch_at": "2026-10-01T12:56:53.164Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "stellar-blog",
+      "name": "Stellar Development Foundation Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:34.361Z",
+      "next_fetch_at": "2026-10-01T12:56:34.361Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "sui-blog",
+      "name": "Sui Blog",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:30.053Z",
+      "next_fetch_at": "2026-10-01T12:56:30.053Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "tether-news",
+      "name": "Tether News",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:31.947Z",
+      "next_fetch_at": "2026-10-01T12:56:31.947Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "trail-of-bits",
+      "name": "Trail of Bits",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:35.510Z",
+      "next_fetch_at": "2026-10-01T14:56:35.510Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "uniswap-blog",
+      "name": "Uniswap Labs Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:43.708Z",
+      "next_fetch_at": "2026-10-01T12:56:43.708Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "uniswap-gov",
+      "name": "Uniswap 治理论坛",
+      "kind": "rss",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:33.556Z",
+      "next_fetch_at": "2026-10-01T12:56:33.556Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "walletconnect",
+      "name": "WalletConnect",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:53.348Z",
+      "next_fetch_at": "2026-10-01T12:56:53.348Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "wormhole-blog",
+      "name": "Wormhole Blog",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:48.469Z",
+      "next_fetch_at": "2026-10-01T12:56:48.469Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    },
+    {
+      "id": "zama",
+      "name": "Zama",
+      "kind": "web_list",
+      "health": "ok",
+      "last_ok_at": "2026-10-01T10:56:50.793Z",
+      "next_fetch_at": "2026-10-01T12:56:50.793Z",
+      "articles": 3,
+      "bodies_ok": 3,
+      "analyzed": 0
+    }
+  ],
+  "unconfirmed": [
+    {
+      "source_id": "kol-vitalik",
+      "title": "Obfuscation (Part II): Diamond iO",
+      "url": "https://vitalik.ca/general/2026/07/28/obfuscation_part_ii_diamond_io.html"
+    },
+    {
+      "source_id": "halborn",
+      "title": "Morpho Vault Security: Risks, Vulnerability Classes, and Best Practices",
+      "url": "https://www.halborn.com/blog/post/morpho-vault-security-risks-vulnerability-classes-and-best-practices"
+    },
+    {
+      "source_id": "halborn",
+      "title": "Explained: The Nostra Finance Hack (September 2026)",
+      "url": "https://www.halborn.com/blog/post/explained-the-nostra-finance-hack-september-2026"
+    },
+    {
+      "source_id": "sfc",
+      "title": "SFC, Securities Commission Malaysia announce Single Submission Arrangement to streamline simultaneous listings in Malaysia and Hong Kong",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR159"
+    },
+    {
+      "source_id": "kol-vitalik",
+      "title": "Obfuscation (Part III): Local Mixing",
+      "url": "https://vitalik.ca/general/2026/08/21/obfuscation_part_iii_local_mixing.html"
+    },
+    {
+      "source_id": "kol-vitalik",
+      "title": "The cryptographic world computer",
+      "url": "https://vitalik.ca/general/2026/09/27/the_cryptographic_world_computer.html"
+    },
+    {
+      "source_id": "halborn",
+      "title": "Explained: The Bitget Hack (September 2026)",
+      "url": "https://www.halborn.com/blog/post/explained-the-bitget-hack-september-2026"
+    },
+    {
+      "source_id": "sfc",
+      "title": "SFC shares updates with securities industry on scam prevention and cybersecurity",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR157"
+    },
+    {
+      "source_id": "sfc-circulars",
+      "title": "Circular to Intermediaries Roadmap for Implementing the Hong Kong Investor Identification Regime for the Exchange-traded Derivatives Market",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/circular/doc?refNo=26EC61"
+    },
+    {
+      "source_id": "sfc-circulars",
+      "title": "Securities and Futures Commission & Securities Commission Malaysia Memorandum of Understanding on Simplified Dual IPO Listing Framework Circular on the Single Submission Arrangement for Dual Listings in Hong Kong",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/circular/doc?refNo=26EC59"
+    },
+    {
+      "source_id": "sfc",
+      "title": "SFC reprimands and fines Zheng Da International Financial Holding Limited $7 million and suspends its responsible officer for regulatory breaches",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=26PR158"
+    },
+    {
+      "source_id": "sfc-circulars",
+      "title": "Circular to intermediaries Obtaining client consent under the Hong Kong Investor Identification Regime for the exchange-traded derivatives market (HKIDR-DM)",
+      "url": "https://apps.sfc.hk/edistributionWeb/gateway/EN/circular/doc?refNo=26EC60"
+    }
+  ],
+  "providerReceipts": [
+    {
+      "service": "dashscope",
+      "status": "completed",
+      "count": 130
+    },
+    {
+      "service": "dashscope",
+      "status": "received",
+      "count": 70
+    }
+  ]
+}

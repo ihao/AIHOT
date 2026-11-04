@@ -13,7 +13,9 @@ let deadline: number;
 /** Root metadata answers only after the selected deadline has passed: a slow sibling loader. */
 let metaAfterDeadline = false;
 const apiCookies: Array<string | undefined> = [];
+const marketQuote = { priceUsd: 62000, quotedAt: new Date().toISOString(), fetchedAt: new Date().toISOString(), source: "Coinbase", currency: "USD" };
 const api = fakeApi(async (url, res, req) => {
+  if (url.pathname === "/api/site/market/btc") return { quote: marketQuote };
   apiCookies.push(req.headers.cookie);
   if (url.pathname === "/api/site/meta") {
     // Past the deadline on the wall clock the server reads: timers run on another clock, and a CI VM

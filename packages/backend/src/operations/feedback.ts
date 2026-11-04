@@ -1,3 +1,4 @@
+import { PAID_FEATURES } from "@aihot/site";
 // Feedback: content, optional email, page URL, one optional screenshot. The screenshot goes to the
 // internal Feishu chat and only its image key is stored (without that chat the file stays here). Abuse
 // control uses an unreadable source identifier (HMAC of client IP + UA family), persistent rate
@@ -249,7 +250,7 @@ async function pushFeedback(id: number): Promise<"sent" | "disabled" | "dropped"
   if (!screenshotsForwarded()) return "disabled";
   const [fb] = await sql<{ id: number; content: string; screenshot_key: string | null }[]>`
     SELECT id, content, screenshot_key FROM feedback WHERE id = ${id} AND status = 'new' AND forwarded_at IS NULL`;
-  if (fb && (await readsAsNoise(fb).catch(() => false))) {
+  if (PAID_FEATURES.feedbackNoiseJudgement && fb && (await readsAsNoise(fb).catch(() => false))) {
     const dropped = await sql.begin(async (tx) => {
       const rows = await tx`UPDATE feedback SET status = 'spam', kind = 'other', note = ${`${beijingStamp(new Date())} 模型判断没有内容，未转发`}, forward_error = NULL, updated_at = now()
         WHERE id = ${id} AND status = 'new' RETURNING id`;

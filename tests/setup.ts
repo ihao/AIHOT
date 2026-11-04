@@ -22,6 +22,8 @@ process.env.LOG_LEVEL ??= "error";
 // Paid providers are local stubs in these tests: calls and collection may run (the valves default off).
 process.env.MODEL_CALLS_ENABLED ??= "true";
 process.env.COLLECT_ENABLED ??= "true";
+// Generic engine fixtures replay historical articles; ninebtc-processing-cost tests enable the live gate.
+process.env.AUTOMATIC_CONTENT_MAX_AGE_HOURS ??= "0";
 // The tests were written against named model presets, one per step (each provider is pointed at a
 // local stub by the test that needs it). A step the site leaves on the `default` model gets its
 // preset here; tests/default-model.test.ts covers the default.

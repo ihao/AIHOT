@@ -350,6 +350,7 @@ export async function rerun(id: string, step: AdminRerun["step"], requestId: str
     if (step === "group") jobId = await requestRegroup(id, requestId, tx);
     else {
       await tx`UPDATE articles SET processing_state = 'new', processing_error = NULL, processing_attempts = 0, processing_retry_at = NULL,
+                  manual_processing = true,
                   body_status = CASE WHEN ${step === "extract"} THEN 'pending' ELSE body_status END WHERE id = ${id}`;
       jobId = await queueProcessing(id, { step, ...(step === "analyze" ? { attemptTag: `admin:${requestId}` } : {}), db: tx });
     }

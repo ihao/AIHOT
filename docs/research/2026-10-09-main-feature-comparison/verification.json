@@ -1,0 +1,12 @@
+{
+  "localMainMatchesOrigin": true,
+  "localMain": "cf1c4643993a1fc9bcdd523fc4018a9024258418",
+  "activeBranch": "feat/9btc-web3",
+  "featureHeadUnchanged": true,
+  "originalTrackedEditsByteIdentical": true,
+  "allOriginalStatusEntriesPreserved": true,
+  "conflicts": 113,
+  "productionMigrationCount": 47,
+  "mainNewMigrationsAgainstProduction": 23,
+  "report": "docs/research/2026-10-09-main-feature-comparison.md"
+}

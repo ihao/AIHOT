@@ -1,0 +1,199 @@
+{
+  "applicationCommit": "ad33c4b8587f4fb10d0f097357f58c256e8192f7",
+  "branch": "feat/9btc-web3",
+  "site": "https://9btc.com",
+  "node": "v24.21.0",
+  "postgres": "17.11",
+  "containers": [
+    {
+      "name": "/ninebtc-api-1",
+      "imageId": "sha256:2f22b0f63e7161dcc20d23184ad7d1220a57e1fa41cf83d66d3f3706c55cf3da",
+      "status": "running",
+      "restartCount": 0,
+      "startedAt": "2026-10-04T18:08:07.98971218Z"
+    },
+    {
+      "name": "/ninebtc-web-1",
+      "imageId": "sha256:2f22b0f63e7161dcc20d23184ad7d1220a57e1fa41cf83d66d3f3706c55cf3da",
+      "status": "running",
+      "restartCount": 0,
+      "startedAt": "2026-10-04T18:08:08.509042913Z"
+    },
+    {
+      "name": "/ninebtc-worker-1",
+      "imageId": "sha256:2f22b0f63e7161dcc20d23184ad7d1220a57e1fa41cf83d66d3f3706c55cf3da",
+      "status": "running",
+      "restartCount": 0,
+      "startedAt": "2026-10-04T18:08:13.546243169Z"
+    }
+  ],
+  "migration": {
+    "before": 46,
+    "after": 47,
+    "counts": {
+      "articles": 2574,
+      "publicCount": 1330,
+      "selectedCount": 100,
+      "receipts": 16111,
+      "receiptAttempts": 16605
+    },
+    "preserved": {
+      "articles": true,
+      "publicCount": true,
+      "selectedCount": true,
+      "publicHash": true,
+      "sourcesHash": true,
+      "policiesHash": true,
+      "budgetsHash": true,
+      "pricesHash": true,
+      "modelPolicyHash": true,
+      "receipts": true,
+      "receiptAttempts": true
+    }
+  },
+  "environmentUnchanged": true,
+  "backup": {
+    "serviceResult": [
+      "Result=success",
+      "ExecMainStatus=0"
+    ],
+    "dumpSha256": "8ed52e480c37cc3a1246d1d119c5a904a136d753e19cd186d2c8970db2430394",
+    "dumpBytes": 60731753,
+    "readableDirectory": true,
+    "restoreExecuted": false
+  },
+  "tests": {
+    "backend": {
+      "passed": 512,
+      "failed": 0,
+      "commit": "19f0069",
+      "runtimeAndBackendTestsUnchangedAtFinalCommit": true
+    },
+    "web": {
+      "passed": 28,
+      "failed": 0,
+      "commit": "ad33c4b"
+    },
+    "isolatedSmoke": {
+      "passed": 30,
+      "failed": 0
+    },
+    "publicSmoke": {
+      "passed": 30,
+      "failed": 0
+    }
+  },
+  "health": {
+    "ok": true,
+    "db": "ok",
+    "ms": 1,
+    "release": "dev"
+  },
+  "production": {
+    "at": "2026-10-04T18:16:22.441099+00:00",
+    "sources": 109,
+    "migration": "0050_btc_usd_quotes.sql",
+    "schedule": {
+      "name": "cron.market.btc-usd",
+      "cron": "*/5 * * * *",
+      "timezone": "Asia/Shanghai"
+    },
+    "quotes": [
+      {
+        "id": 2,
+        "price_usd": 85320.48,
+        "quoted_at": "2026-10-04T18:15:31.285+00:00",
+        "fetched_at": "2026-10-04T18:15:32.127+00:00"
+      },
+      {
+        "id": 1,
+        "price_usd": 85303.82,
+        "quoted_at": "2026-10-04T18:10:31.099+00:00",
+        "fetched_at": "2026-10-04T18:10:32.076+00:00"
+      }
+    ],
+    "runs": [
+      {
+        "id": 17772,
+        "started_at": "2026-10-04T18:15:32.026535+00:00",
+        "finished_at": "2026-10-04T18:15:32.146179+00:00",
+        "status": "ok",
+        "detail": {
+          "source": "Coinbase",
+          "currency": "USD",
+          "priceUsd": 85320.48,
+          "quotedAt": "2026-10-04T18:15:31.285Z",
+          "fetchedAt": "2026-10-04T18:15:32.127Z"
+        },
+        "error": null
+      },
+      {
+        "id": 17754,
+        "started_at": "2026-10-04T18:10:31.990068+00:00",
+        "finished_at": "2026-10-04T18:10:32.091575+00:00",
+        "status": "ok",
+        "detail": {
+          "source": "Coinbase",
+          "currency": "USD",
+          "priceUsd": 85303.82,
+          "quotedAt": "2026-10-04T18:10:31.099Z",
+          "fetchedAt": "2026-10-04T18:10:32.076Z"
+        },
+        "error": null
+      }
+    ],
+    "articleCounts": {
+      "total": 2574,
+      "historical": 2574,
+      "withQuote": 0,
+      "ingestedWithoutQuote": 0
+    },
+    "pricedArticles": [],
+    "observedIntervalSeconds": 300.036467
+  },
+  "publicMarketEndpoint": {
+    "status": 200,
+    "cacheControl": "no-store",
+    "body": {
+      "quote": {
+        "priceUsd": 85320.48,
+        "quotedAt": "2026-10-04T18:15:31.285Z",
+        "fetchedAt": "2026-10-04T18:15:32.127Z",
+        "source": "Coinbase",
+        "currency": "USD"
+      }
+    }
+  },
+  "publicHtml": {
+    "bar": "₿BTC$85,303.82 USDCoinbase行情时间：2026-10-05 02:10:31（北京时间）",
+    "footerCount": 40,
+    "footerSamples": [
+      "入库时 BTC：暂缺",
+      "入库时 BTC：暂缺",
+      "入库时 BTC：暂缺"
+    ],
+    "firstItemHref": "/items/rhiq3llkd2rmof4qj6sod0wgv"
+  },
+  "publicDetail": {
+    "href": "/items/rhiq3llkd2rmof4qj6sod0wgv",
+    "pageStatus": 200,
+    "apiStatus": 200,
+    "bar": "₿BTC$85,303.82 USDCoinbase行情时间：2026-10-05 02:10:31（北京时间）",
+    "footers": [
+      "入库时 BTC：暂缺"
+    ],
+    "btcAtIngestion": null
+  },
+  "localPublicSmoke": {
+    "passed": 30,
+    "failed": 0
+  },
+  "limitations": {
+    "newNaturalArticleSampleObserved": false,
+    "productionBrowserVerified": false,
+    "browserTool": "two timeouts",
+    "browserTenMinutePolling": "automated regression passed; not observed in production browser",
+    "physicalMobileVerified": false,
+    "automaticCadence": "two natural successful runs; ongoing uptime not claimed"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "checked_at": "2026-10-14T10:11:01.407573+00:00",
+  "checks": [
+    {
+      "path": "/all?q=1990",
+      "status": 200,
+      "content_type": "text/html",
+      "sample_id_present": true
+    },
+    {
+      "path": "/api/site/pool?q=1990",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "sample_id_present": true,
+      "sample_items": [
+        {
+          "id": "td17rk62ei14bf272ww2j10ub",
+          "title": "1990年著作《治理公共池塘资源》书目信息",
+          "score": 0,
+          "selected": false
+        }
+      ]
+    },
+    {
+      "path": "/api/site/items/td17rk62ei14bf272ww2j10ub",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "sample_id_present": true,
+      "sample_items": [
+        {
+          "id": "td17rk62ei14bf272ww2j10ub",
+          "title": "1990年著作《治理公共池塘资源》书目信息",
+          "score": 0,
+          "selected": false
+        }
+      ]
+    },
+    {
+      "path": "/api/v1/items?mode=all&q=1990&limit=10",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "sample_id_present": true,
+      "sample_items": [
+        {
+          "id": "td17rk62ei14bf272ww2j10ub",
+          "title": "1990年著作《治理公共池塘资源》书目信息",
+          "score": 0,
+          "selected": false
+        }
+      ]
+    },
+    {
+      "path": "/feed/all.xml",
+      "status": 200,
+      "content_type": "application/rss+xml; charset=utf-8",
+      "sample_id_present": true
+    },
+    {
+      "checked_at": "2026-10-14T10:11:28.148472+00:00",
+      "path": "/items/td17rk62ei14bf272ww2j10ub/markdown",
+      "status": 200,
+      "content_type": "text/markdown; charset=utf-8",
+      "sample_id_present": true,
+      "sample_title_present": true
+    }
+  ],
+  "runtime_file_hashes": {
+    "api": {
+      "packages/backend/src/publication/rules.ts": "e4d2e24690ed7be5cc41c030ae3da18f7199ffd9af9fac6c6d26b4689e508e25",
+      "packages/backend/src/publication/publish.ts": "2e8e7dc506fc3a90edf1d8ab734608ca3132430a035fb8229998727d6e1765ba",
+      "packages/backend/src/editorial/analyze.ts": "a51bfdbd13080cbb5db47e02ad5ca659d14f8adad4c209511075ac283d194223",
+      "industry/prompts/prefilter.md": "4ffd1d55bb4c512bc79d0bb82fd581d3799340ceb9421789e525ae6873fd2db7",
+      "industry/prompts/selection-score.md": "8eb6f46227b0ab7834acaa6ab15243010294beef9244f9a1b07a1bb14f70abc4"
+    },
+    "worker": {
+      "packages/backend/src/publication/rules.ts": "e4d2e24690ed7be5cc41c030ae3da18f7199ffd9af9fac6c6d26b4689e508e25",
+      "packages/backend/src/publication/publish.ts": "2e8e7dc506fc3a90edf1d8ab734608ca3132430a035fb8229998727d6e1765ba",
+      "packages/backend/src/editorial/analyze.ts": "a51bfdbd13080cbb5db47e02ad5ca659d14f8adad4c209511075ac283d194223",
+      "industry/prompts/prefilter.md": "4ffd1d55bb4c512bc79d0bb82fd581d3799340ceb9421789e525ae6873fd2db7",
+      "industry/prompts/selection-score.md": "8eb6f46227b0ab7834acaa6ab15243010294beef9244f9a1b07a1bb14f70abc4"
+    }
+  },
+  "runtime_image": "ninebtc-upstream:8d22117",
+  "discarded_probes": [
+    {
+      "path": "/item/td17rk62ei14bf272ww2j10ub.md",
+      "error": "HTTP Error 404: Not Found",
+      "note": "Incorrect guessed route; not evidence of a publication gate."
+    }
+  ]
+}

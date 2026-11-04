@@ -1,0 +1,971 @@
+{
+  "generatedAt": "2026-10-03T16:35:52.247562+00:00",
+  "codeCommit": "56650d8068e51c090380cc83ca7a8ba657d62da8",
+  "image": "sha256:6e877a60cd11a2b9acf6113778b08305620f4021f138e52d9f14e514d242b3d4",
+  "previousImage": "sha256:c4b98ce9369fe7decedb0c57e8e598697c96c642fdc09340f7b0ee5265d2ebe2",
+  "ruleBefore": "automatic-publication-v1:d7cc9c407669a5f9b1c67141",
+  "ruleAfter": "automatic-publication-v1:743f241ab8a474544fda3e20",
+  "backup": {
+    "result": "success",
+    "exitStatus": 0,
+    "completedAt": "2026-10-03T16:10:46Z"
+  },
+  "migrationApplied": "0047_automatic_rewrite_identity.sql",
+  "privateEnvironmentPreserved": true,
+  "sourceSettingsPreserved": true,
+  "budgetSettingsPreserved": true,
+  "articleDatesAndScoresPreserved": true,
+  "unrelatedTrackedChangesSha256": "0b2d1ecfca83d47bd70cdf0ce4bac36aac251623b7c4c4347146cd58f1652355",
+  "roleEnvironment": {
+    "api": {
+      "collect": true,
+      "models": true,
+      "mode": "automatic"
+    },
+    "web": {
+      "collect": true,
+      "models": true,
+      "mode": "automatic"
+    },
+    "worker": {
+      "collect": true,
+      "models": true,
+      "mode": "automatic"
+    }
+  },
+  "validation": {
+    "backend": {
+      "passed": 367,
+      "failed": 0,
+      "skipped": 0
+    },
+    "web": {
+      "passed": 18,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "webBuild": "passed",
+    "localPublicSmoke": "passed",
+    "localAdminSmoke": {
+      "page": 200,
+      "api": 200,
+      "labelsMatch": true
+    },
+    "productionPublicSmoke": "passed",
+    "node24OfflineImageTests": {
+      "passed": 29,
+      "failed": 0
+    },
+    "specReviews": "passed",
+    "qualityReviews": "passed",
+    "finalCodeReview": "ready_to_merge"
+  },
+  "before": {
+    "at": "2026-10-03T16:14:26.063Z",
+    "public": 1237,
+    "selected": 93
+  },
+  "after": {
+    "at": "2026-10-03T16:32:49.814Z",
+    "public": 1249,
+    "selected": 99,
+    "publicAdded": [
+      "a6awr1ebyi7o2majbeo6jb1ea",
+      "acn2curze8l2dtx3xu9wqbt9b",
+      "b6fvz0vl3iv1e2p7crhb77c59",
+      "fv0xmzq9th4bwq4mcyk0sppls",
+      "hsiffhnm0jyzxitixubw2kyqb",
+      "mds4lnopebezhaepnt1t19axt",
+      "mu691jlqzdsahha4mzsevvgcl",
+      "n7wu81ae1rikrf541iy4nrrea",
+      "p4um7sln8vc6fjkyzo4zwnsbq",
+      "pba4fbw665jqy3ssd3kden77b",
+      "quiesujmiybrnkm2wmhaknwdu",
+      "wpxqec4d34grpfcxiasr22h9p",
+      "zrjz6i1slya0c7hpyk0ywdnkp"
+    ],
+    "publicRemoved": [
+      "ye2rgxg1y87s3tto9nh3sjcca"
+    ],
+    "selectedAdded": [
+      "acn2curze8l2dtx3xu9wqbt9b",
+      "b6fvz0vl3iv1e2p7crhb77c59",
+      "fv0xmzq9th4bwq4mcyk0sppls",
+      "hsiffhnm0jyzxitixubw2kyqb",
+      "pba4fbw665jqy3ssd3kden77b",
+      "wpxqec4d34grpfcxiasr22h9p"
+    ],
+    "selectedRemoved": [],
+    "legacyRewrittenPublicPreserved": 11,
+    "legacyRewrittenSelectedPreserved": 4,
+    "pausedSourcePublicCount": 0
+  },
+  "selection": {
+    "thresholds": {
+      "T1": 60,
+      "T1_5": 65,
+      "T2": 76
+    },
+    "understandFloor": 50
+  },
+  "sources": {
+    "total": 109,
+    "enabled": 80
+  },
+  "budgetSettings": [
+    {
+      "service": "dajiala",
+      "per_minute": 5,
+      "per_hour": 60,
+      "per_day": 500,
+      "usage_reset_at": null
+    },
+    {
+      "service": "dashscope",
+      "per_minute": 20,
+      "per_hour": 300,
+      "per_day": 2000,
+      "usage_reset_at": "2026-10-01T17:32:45.035Z"
+    },
+    {
+      "service": "deepseek",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "embedding",
+      "per_minute": 300,
+      "per_hour": 6000,
+      "per_day": 40000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "jina",
+      "per_minute": 5,
+      "per_hour": 50,
+      "per_day": 300,
+      "usage_reset_at": null
+    },
+    {
+      "service": "llm",
+      "per_minute": 0,
+      "per_hour": 0,
+      "per_day": 0,
+      "usage_reset_at": null
+    },
+    {
+      "service": "mimo",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "socialdata",
+      "per_minute": 10,
+      "per_hour": 100,
+      "per_day": 1000,
+      "usage_reset_at": null
+    },
+    {
+      "service": "zhipu",
+      "per_minute": 100,
+      "per_hour": 2000,
+      "per_day": 20000,
+      "usage_reset_at": null
+    }
+  ],
+  "cases": [
+    {
+      "id": "acn2curze8l2dtx3xu9wqbt9b",
+      "source": "TechFlow 深潮 Web3 文章",
+      "originalUrl": "https://www.techflowpost.com/article/34355",
+      "score": 80,
+      "publishedAt": "2026-10-03T03:01:10.000Z",
+      "discoveredAt": "2026-10-03T04:45:36.604Z",
+      "outcome": "restored_selected",
+      "stage": "initial",
+      "rewritten": false,
+      "reasons": [],
+      "paidVerification": 1,
+      "paidRewrite": 0,
+      "coreEventPreserved": true,
+      "evidenceFetch": []
+    },
+    {
+      "id": "b6fvz0vl3iv1e2p7crhb77c59",
+      "source": "Arbitrum 治理论坛",
+      "originalUrl": "https://forum.arbitrum.foundation/t/security-council-emergency-action-2-10-2026/31530",
+      "score": 82,
+      "publishedAt": "2026-10-02T15:31:20.000Z",
+      "discoveredAt": "2026-10-02T17:07:41.510Z",
+      "outcome": "restored_selected",
+      "stage": "evidence",
+      "rewritten": false,
+      "reasons": [],
+      "paidVerification": 2,
+      "paidRewrite": 0,
+      "coreEventPreserved": true,
+      "evidenceFetch": [
+        [
+          {
+            "url": "https://forum.arbitrum.foundation/t/security-council-emergency-action-2-10-2026/31530",
+            "reason": "fetched"
+          },
+          {
+            "url": "https://docs.arbitrum.io/stylus/concepts/activation#programtimeleft",
+            "reason": "fetched"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "hsiffhnm0jyzxitixubw2kyqb",
+      "source": "Cointelegraph News",
+      "originalUrl": "https://cointelegraph.com/news/sec-moves-to-clear-custody-hurdle-for-advisers-offering-crypto?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+      "score": 78,
+      "publishedAt": "2026-10-02T01:07:08.000Z",
+      "discoveredAt": "2026-10-02T19:26:42.119Z",
+      "outcome": "restored_selected",
+      "stage": "rewrite",
+      "rewritten": true,
+      "reasons": [],
+      "paidVerification": 3,
+      "paidRewrite": 1,
+      "coreEventPreserved": true,
+      "evidenceFetch": [
+        [
+          {
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-100-sec-proposal-would-address-how-investment-advisers-funds-can-custody-crypto-assets-under-federal",
+            "reason": "fetched"
+          },
+          {
+            "url": "https://www.sec.gov/newsroom/speeches-statements/atkins-crypto-custody-100126-statement-proposal-address-custody-crypto-assets-under-investment-advisers-act-investment-company",
+            "reason": "fetched"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "l5tgmis45q6klr0vc75v7cw8l",
+      "source": "Cointelegraph News",
+      "originalUrl": "https://cointelegraph.com/news/zano-exploiter-created-369m-unauthorized-zano-before-blockchain-rollback?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+      "score": 80,
+      "publishedAt": "2026-10-02T05:02:23.000Z",
+      "discoveredAt": "2026-10-02T19:26:42.015Z",
+      "outcome": "rejected",
+      "stage": "rewrite",
+      "rewritten": true,
+      "reasons": [
+        "verification_needs_evidence",
+        "claim_2_primary_evidence_missing",
+        "claim_3_primary_evidence_missing",
+        "claim_4_primary_evidence_missing",
+        "claim_5_primary_evidence_missing",
+        "claim_6_primary_evidence_missing"
+      ],
+      "paidVerification": 2,
+      "paidRewrite": 1,
+      "coreEventPreserved": true,
+      "evidenceFetch": [
+        [
+          {
+            "url": "https://cointelegraph.com/news/zano-exploiter-created-369m-unauthorized-zano-before-blockchain-rollback?utm_source=rss_feed&utm_medium=rss&utm_campaign=rss_partner_inbound",
+            "reason": "unsupported_entry"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "o9j6rlyafilqhcxgaelr87neq",
+      "source": "Molly White",
+      "originalUrl": "https://www.citationneeded.news/issue-110/",
+      "score": 78,
+      "publishedAt": "2026-10-02T20:29:05.000Z",
+      "discoveredAt": "2026-10-02T21:19:12.178Z",
+      "outcome": "rejected",
+      "stage": "rewrite",
+      "rewritten": true,
+      "reasons": [
+        "verification_needs_evidence",
+        "check_chineseCopyFaithful_failed",
+        "check_numbers_failed",
+        "claim_4_primary_evidence_missing",
+        "claim_6_needs_evidence",
+        "claim_6_evidence_missing"
+      ],
+      "paidVerification": 3,
+      "paidRewrite": 1,
+      "coreEventPreserved": true,
+      "evidenceFetch": [
+        [
+          {
+            "url": "https://www.reginfo.gov/public/do/eoDetails?rrid=1537870",
+            "reason": "fetched"
+          },
+          {
+            "url": "https://www.sec.gov/files/rules/exorders/2026/34-106402.pdf",
+            "reason": "pdf_unreadable"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pba4fbw665jqy3ssd3kden77b",
+      "source": "Decrypt News",
+      "originalUrl": "https://decrypt.co/379921/us-designates-russias-a7-network-as-transnational-criminal-organization",
+      "score": 84,
+      "publishedAt": "2026-10-02T11:28:41.000Z",
+      "discoveredAt": "2026-10-02T18:25:42.100Z",
+      "outcome": "restored_selected",
+      "stage": "evidence",
+      "rewritten": false,
+      "reasons": [],
+      "paidVerification": 2,
+      "paidRewrite": 0,
+      "coreEventPreserved": true,
+      "evidenceFetch": [
+        [
+          {
+            "url": "https://home.treasury.gov/news/press-releases/sb0644",
+            "reason": "fetched"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "rlvb9t5mnnubwq5epf2ipb48d",
+      "source": "Decrypt News",
+      "originalUrl": "https://decrypt.co/379800/metamask-exits-lido-validators-amid-infrastructure-security-incident",
+      "score": 78,
+      "publishedAt": "2026-10-01T09:38:06.000Z",
+      "discoveredAt": "2026-10-02T19:26:41.889Z",
+      "outcome": "expired_not_replayed",
+      "stage": null,
+      "rewritten": false,
+      "reasons": [
+        "expired"
+      ],
+      "paidVerification": 0,
+      "paidRewrite": 0,
+      "coreEventPreserved": null,
+      "evidenceFetch": []
+    },
+    {
+      "id": "wpxqec4d34grpfcxiasr22h9p",
+      "source": "BeInCrypto News",
+      "originalUrl": "https://beincrypto.com/blast-shutting-down-ethereum-layer-2/",
+      "score": 78,
+      "publishedAt": "2026-10-02T16:31:52.000Z",
+      "discoveredAt": "2026-10-02T18:36:12.689Z",
+      "outcome": "restored_selected",
+      "stage": "initial",
+      "rewritten": false,
+      "reasons": [],
+      "paidVerification": 1,
+      "paidRewrite": 0,
+      "coreEventPreserved": true,
+      "evidenceFetch": []
+    },
+    {
+      "id": "yaywgdjemcjq9u8iv2uh9g7an",
+      "source": "Protos Crypto News",
+      "originalUrl": "https://protos.com/metamask-unstakes-1-4b-of-eth-after-validator-rewards-stolen/",
+      "score": 80,
+      "publishedAt": "2026-10-01T13:29:29.000Z",
+      "discoveredAt": "2026-10-02T19:37:11.645Z",
+      "outcome": "expired_not_replayed",
+      "stage": null,
+      "rewritten": false,
+      "reasons": [
+        "expired"
+      ],
+      "paidVerification": 0,
+      "paidRewrite": 0,
+      "coreEventPreserved": null,
+      "evidenceFetch": []
+    },
+    {
+      "id": "zosf8v89iz4cybgq2krlaapks",
+      "source": "ChainCatcher 链捕手文章",
+      "originalUrl": "https://www.chaincatcher.com/article/2293146",
+      "score": 77,
+      "publishedAt": "2026-10-01T07:21:59.000Z",
+      "discoveredAt": "2026-10-02T19:37:14.758Z",
+      "outcome": "expired_not_replayed",
+      "stage": null,
+      "rewritten": false,
+      "reasons": [
+        "expired"
+      ],
+      "paidVerification": 0,
+      "paidRewrite": 0,
+      "coreEventPreserved": null,
+      "evidenceFetch": []
+    }
+  ],
+  "paidRecoveryBounds": {
+    "at": "2026-10-03T16:31:47.005Z",
+    "currentRuleRounds": 60,
+    "maxPaidVerification": 3,
+    "maxPaidRewrite": 1,
+    "paidVerificationTotal": 46,
+    "paidRewriteTotal": 14
+  },
+  "publicExits": {
+    "24h": {
+      "at": "2026-10-03T16:30:49.544Z",
+      "apiStatus": 200,
+      "selectedItems": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "title": "Arbitrum 安全委员会执行紧急行动以缓解 BoLD 与 Stylus 风险"
+        }
+      ],
+      "restoredApiIds": [
+        "b6fvz0vl3iv1e2p7crhb77c59"
+      ],
+      "mcpStatus": 200,
+      "restoredMcpIds": [
+        "b6fvz0vl3iv1e2p7crhb77c59"
+      ],
+      "rssStatus": 200,
+      "restoredRss": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "present": true
+        }
+      ],
+      "homeStatus": 200,
+      "restoredInHomeHtml": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "present": true
+        }
+      ],
+      "health": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "db": "ok",
+          "ms": 2,
+          "release": "dev"
+        }
+      }
+    },
+    "7d": {
+      "at": "2026-10-03T16:30:55.365Z",
+      "apiStatus": 200,
+      "selectedItems": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "title": "Arbitrum 安全委员会执行紧急行动以缓解 BoLD 与 Stylus 风险"
+        },
+        {
+          "id": "wpxqec4d34grpfcxiasr22h9p",
+          "title": "以太坊 Layer 2 网络 Blast 宣布关停及用户资产退出安排"
+        },
+        {
+          "id": "acn2curze8l2dtx3xu9wqbt9b",
+          "title": "Blast团队宣布关停该以太坊L2网络并公布资产提取流程"
+        },
+        {
+          "id": "fv0xmzq9th4bwq4mcyk0sppls",
+          "title": "Galaxy Research 解析 SEC 加密资产 FAQ 中“中央方”定义的遗留问题"
+        },
+        {
+          "id": "egklcikxpektfq3vwuobmoefh",
+          "title": "Compound 基金会声明：指称2024年以来存在疑似恶意治理活动"
+        },
+        {
+          "id": "ekbwxwxir4n34fz6agnmks3nu",
+          "title": "Chainalysis 披露利用 AI 追踪 Bitget 3.87 亿美元被盗资金的调查细节"
+        },
+        {
+          "id": "hsiffhnm0jyzxitixubw2kyqb",
+          "title": "美国 SEC 提议放宽投资顾问持有加密资产的托管规则"
+        },
+        {
+          "id": "c9z6kvo81j6ty1tjrmu9gdt53",
+          "title": "SEC 提议制定投资顾问和基金加密资产托管新规"
+        },
+        {
+          "id": "wzrw23x7cpzrlgerpyzgun6f4",
+          "title": "Celestia 公布 Fibre 3.07 Tb/s 吞吐量基准测试结果"
+        },
+        {
+          "id": "i31o8kb6jiduu650xlpqnl7i7",
+          "title": "以太坊基金会发布 zkAPI：支持任意 API 的匿名使用积分"
+        },
+        {
+          "id": "pba4fbw665jqy3ssd3kden77b",
+          "title": "美国将俄罗斯A7网络列为跨国犯罪组织并拟禁止相关加密转账"
+        },
+        {
+          "id": "rfq8na5dmoyreoe7a7vjn5ip9",
+          "title": "Eclair v0.14.1 修复两个通道开启流程中的 DoS 漏洞"
+        },
+        {
+          "id": "ac17x791gapnkbxv2fgg1y1rk",
+          "title": "Aave Labs 发布 2026 年 9 月开发更新：V4 存款破十亿并扩展至新网络"
+        },
+        {
+          "id": "hx2pbp25dt945l7hsi9l59rxk",
+          "title": "Morpho 推出固定利率借贷协议 Midnight 并披露多项机构合作进展"
+        },
+        {
+          "id": "gp0m40o1m34gf2tevlmzgrlev",
+          "title": "Chainlink 推出运行时环境（CRE）并完成平台架构重大升级"
+        },
+        {
+          "id": "m14npszeaw9lfretww18p1ecv",
+          "title": "OFAC 制裁 Tren de Aragua ATM 盗窃洗钱网络及 FBI 通缉犯 Prometheus"
+        },
+        {
+          "id": "uasaw0y7x8h7mh3kdphm24fum",
+          "title": "MetaMask Staking 因基础设施妥协在 Lido 协议中预防性退出以太坊验证器"
+        },
+        {
+          "id": "bm00mzdwda0ze2v6az8euda2t",
+          "title": "Solana 官方发布 Slot Time 缩减效果分析：跳过率稳定但亚洲节点投票延迟增加"
+        },
+        {
+          "id": "xhg9qwzq6m8vznzejgzyebn9a",
+          "title": "Chainlink 宣布 CCIP 2.0 正式上线"
+        },
+        {
+          "id": "s1lu07ox6gmglwzq5uxm7zyd1",
+          "title": "以太坊基金会宣布Glamsterdam升级将于10月6日在Sepolia测试网激活"
+        }
+      ],
+      "restoredApiIds": [
+        "b6fvz0vl3iv1e2p7crhb77c59",
+        "wpxqec4d34grpfcxiasr22h9p",
+        "acn2curze8l2dtx3xu9wqbt9b",
+        "hsiffhnm0jyzxitixubw2kyqb",
+        "pba4fbw665jqy3ssd3kden77b"
+      ],
+      "mcpStatus": 200,
+      "restoredMcpIds": [
+        "b6fvz0vl3iv1e2p7crhb77c59",
+        "wpxqec4d34grpfcxiasr22h9p",
+        "acn2curze8l2dtx3xu9wqbt9b",
+        "hsiffhnm0jyzxitixubw2kyqb",
+        "pba4fbw665jqy3ssd3kden77b"
+      ],
+      "rssStatus": 200,
+      "restoredRss": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "present": true
+        },
+        {
+          "id": "wpxqec4d34grpfcxiasr22h9p",
+          "present": true
+        },
+        {
+          "id": "acn2curze8l2dtx3xu9wqbt9b",
+          "present": true
+        },
+        {
+          "id": "hsiffhnm0jyzxitixubw2kyqb",
+          "present": true
+        },
+        {
+          "id": "pba4fbw665jqy3ssd3kden77b",
+          "present": true
+        }
+      ],
+      "homeStatus": 200,
+      "restoredInHomeHtml": [
+        {
+          "id": "b6fvz0vl3iv1e2p7crhb77c59",
+          "present": true
+        },
+        {
+          "id": "wpxqec4d34grpfcxiasr22h9p",
+          "present": false
+        },
+        {
+          "id": "acn2curze8l2dtx3xu9wqbt9b",
+          "present": true
+        },
+        {
+          "id": "hsiffhnm0jyzxitixubw2kyqb",
+          "present": false
+        },
+        {
+          "id": "pba4fbw665jqy3ssd3kden77b",
+          "present": true
+        }
+      ],
+      "health": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "db": "ok",
+          "ms": 1,
+          "release": "dev"
+        }
+      }
+    }
+  },
+  "admin": {
+    "at": "2026-10-03T16:30:46.220Z",
+    "page": 200,
+    "api": 200,
+    "apiMs": 541,
+    "labelsMatch": true,
+    "current": {
+      "collected": 210,
+      "passed": 150,
+      "scoreQualified": 10,
+      "public": 23,
+      "selected": 5,
+      "counts": {
+        "accepted": 23,
+        "queued": 27,
+        "rejected": 6,
+        "running": 2
+      },
+      "acceptanceRate": 0.7931034482758621,
+      "reasons": [
+        {
+          "reason": "verification_needs_evidence",
+          "n": 4
+        },
+        {
+          "reason": "claim_0_primary_evidence_missing",
+          "n": 3
+        },
+        {
+          "reason": "claim_6_needs_evidence",
+          "n": 3
+        },
+        {
+          "reason": "check_attribution_failed",
+          "n": 2
+        },
+        {
+          "reason": "claim_2_primary_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_3_primary_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_4_primary_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_6_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_6_primary_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "check_chineseCopyFaithful_failed",
+          "n": 1
+        },
+        {
+          "reason": "check_numbers_failed",
+          "n": 1
+        },
+        {
+          "reason": "claim_0_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_1_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_1_primary_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_2_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_3_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_4_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_5_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_5_primary_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_7_primary_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_9_primary_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "copy_amount_conflict",
+          "n": 1
+        },
+        {
+          "reason": "runtime_error",
+          "n": 1
+        }
+      ],
+      "diagnostics": [
+        {
+          "reason": "primary_evidence_unverified",
+          "n": 10
+        },
+        {
+          "reason": "unsupported_entry",
+          "n": 4
+        },
+        {
+          "reason": "pdf_unreadable",
+          "n": 1
+        }
+      ],
+      "historicalReasons": [
+        {
+          "reason": "no_new_primary_evidence",
+          "n": 112
+        },
+        {
+          "reason": "claim_4_primary_evidence_missing",
+          "n": 22
+        },
+        {
+          "reason": "claim_1_primary_evidence_missing",
+          "n": 21
+        },
+        {
+          "reason": "claim_5_primary_evidence_missing",
+          "n": 19
+        },
+        {
+          "reason": "claim_2_primary_evidence_missing",
+          "n": 18
+        },
+        {
+          "reason": "claim_3_primary_evidence_missing",
+          "n": 17
+        },
+        {
+          "reason": "claim_0_primary_evidence_missing",
+          "n": 16
+        },
+        {
+          "reason": "runtime_error",
+          "n": 11
+        },
+        {
+          "reason": "verification_needs_evidence",
+          "n": 11
+        },
+        {
+          "reason": "claim_2_quote_invalid",
+          "n": 10
+        },
+        {
+          "reason": "claim_6_primary_evidence_missing",
+          "n": 10
+        },
+        {
+          "reason": "check_chineseCopyFaithful_failed",
+          "n": 8
+        },
+        {
+          "reason": "claim_4_quote_invalid",
+          "n": 8
+        },
+        {
+          "reason": "claim_5_quote_invalid",
+          "n": 8
+        },
+        {
+          "reason": "claim_7_primary_evidence_missing",
+          "n": 8
+        },
+        {
+          "reason": "claim_8_primary_evidence_missing",
+          "n": 7
+        },
+        {
+          "reason": "check_numbers_failed",
+          "n": 6
+        },
+        {
+          "reason": "claim_1_quote_invalid",
+          "n": 5
+        },
+        {
+          "reason": "claim_3_quote_invalid",
+          "n": 5
+        },
+        {
+          "reason": "claim_0_quote_invalid",
+          "n": 4
+        },
+        {
+          "reason": "verification_contradicted",
+          "n": 4
+        },
+        {
+          "reason": "check_attribution_failed",
+          "n": 3
+        },
+        {
+          "reason": "claim_1_needs_evidence",
+          "n": 3
+        },
+        {
+          "reason": "claim_5_needs_evidence",
+          "n": 3
+        },
+        {
+          "reason": "claim_6_quote_invalid",
+          "n": 3
+        },
+        {
+          "reason": "claim_7_quote_invalid",
+          "n": 3
+        },
+        {
+          "reason": "copy_amount_conflict",
+          "n": 3
+        },
+        {
+          "reason": "input_changed_or_manual_hold",
+          "n": 3
+        },
+        {
+          "reason": "claim_0_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_0_needs_evidence",
+          "n": 2
+        },
+        {
+          "reason": "claim_1_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_3_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "claim_3_needs_evidence",
+          "n": 2
+        },
+        {
+          "reason": "claim_4_needs_evidence",
+          "n": 2
+        },
+        {
+          "reason": "claim_9_primary_evidence_missing",
+          "n": 2
+        },
+        {
+          "reason": "check_noSpeculationAsFact_failed",
+          "n": 1
+        },
+        {
+          "reason": "check_time_failed",
+          "n": 1
+        },
+        {
+          "reason": "claim_0_contradicted",
+          "n": 1
+        },
+        {
+          "reason": "claim_2_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_2_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_4_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_5_contradicted",
+          "n": 1
+        },
+        {
+          "reason": "claim_5_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_6_contradicted",
+          "n": 1
+        },
+        {
+          "reason": "claim_7_contradicted",
+          "n": 1
+        },
+        {
+          "reason": "claim_7_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_7_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_8_evidence_missing",
+          "n": 1
+        },
+        {
+          "reason": "claim_8_needs_evidence",
+          "n": 1
+        },
+        {
+          "reason": "claim_8_quote_invalid",
+          "n": 1
+        }
+      ],
+      "historicalDiagnostics": [
+        {
+          "reason": "primary_evidence_unverified",
+          "n": 117
+        },
+        {
+          "reason": "quote_invalid",
+          "n": 79
+        },
+        {
+          "reason": "body_unreadable",
+          "n": 1
+        }
+      ],
+      "highScoreWaiting": 2,
+      "oldestHighScoreAt": "2026-10-02T19:30:16.574305+00:00",
+      "selected24h": 6,
+      "selectionState": "normal"
+    },
+    "initialAnomalyState": "investigate",
+    "finalAnomalyState": "normal"
+  },
+  "boundaries": [
+    "Candidate SEC PDF 34-106402.pdf remained unreadable and its article remained rejected.",
+    "Homepage groups and time windows do not equal the number of newly approved articles.",
+    "Health release field remains dev from the preserved environment; actual version proved by container image, fixed code archive and rule fingerprint."
+  ]
+}

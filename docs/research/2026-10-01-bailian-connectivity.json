@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-09-30T17:03:54.906Z",
+  "scope": "isolated_test_db_synthetic_fixture_not_production_news",
+  "modelCatalogTotal": 518,
+  "catalogPageInspected": 100,
+  "models": [
+    {
+      "model": "qwen3.8-flash",
+      "receiptId": 153,
+      "usage": {
+        "prompt_tokens": 105,
+        "total_tokens": 176,
+        "completion_tokens": 71,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 105
+        }
+      },
+      "estimatedCny": 0.00027570000000000003,
+      "verdict": null,
+      "claims": 0
+    },
+    {
+      "model": "qwen3.8-max",
+      "receiptId": 154,
+      "usage": {
+        "prompt_tokens": 931,
+        "total_tokens": 1260,
+        "completion_tokens": 329,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "text_tokens": 931
+        }
+      },
+      "estimatedCny": 0.023016,
+      "verdict": "supported",
+      "claims": 4
+    }
+  ],
+  "estimatedTotalCny": 0.0232917,
+  "billingBasis": "catalog list prices, no promotions; final invoice governs",
+  "collectEnabled": false,
+  "productionModelCallsEnabled": false
+}

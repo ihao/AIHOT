@@ -1,0 +1,90 @@
+{
+  "at": "2026-10-02T18:39:34.479Z",
+  "poolStatus": 200,
+  "allStatus": 200,
+  "checks": [
+    {
+      "article_id": "x81qxncnd8ynubgrsp7a5d42o",
+      "source_id": "blocktempo-news-zh",
+      "title": "以太坊 L2 网络 Blast 宣布永久关闭，要求用户在10月26日前撤出资产",
+      "published_at": "2026-10-02T15:41:01.000Z",
+      "selected": false,
+      "detailStatus": 200,
+      "pageStatus": 200,
+      "poolVisible": true,
+      "allHtmlVisible": true,
+      "pageTitleVisible": true
+    },
+    {
+      "article_id": "dnnpn1p4nhfweiu832ejtfnx8",
+      "source_id": "blocktempo-news-zh",
+      "title": "Cboe 拟推 VIX 永续期货，处于早期规划阶段",
+      "published_at": "2026-10-02T13:47:16.000Z",
+      "selected": false,
+      "detailStatus": 200,
+      "pageStatus": 200,
+      "poolVisible": true,
+      "allHtmlVisible": true,
+      "pageTitleVisible": true
+    }
+  ],
+  "budget": {
+    "service": "dashscope",
+    "per_minute": 20,
+    "per_hour": 300,
+    "per_day": 2000,
+    "used_day": 425,
+    "used_hour": 84
+  },
+  "waiting": [
+    {
+      "source_id": "beincrypto-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:26.810Z",
+      "n": 3
+    },
+    {
+      "source_id": "chaincatcher-articles-zh",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:18.783Z",
+      "n": 3
+    },
+    {
+      "source_id": "coindesk-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:02.788Z",
+      "n": 3
+    },
+    {
+      "source_id": "cointelegraph-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:08.805Z",
+      "n": 2
+    },
+    {
+      "source_id": "decrypt-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:04.849Z",
+      "n": 3
+    },
+    {
+      "source_id": "protos-news",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:24.791Z",
+      "n": 3
+    },
+    {
+      "source_id": "techflow-articles-zh",
+      "processing_state": "new",
+      "processing_error": "Budget for dashscope exhausted (minute)",
+      "next_retry": "2026-10-02T18:37:36.818Z",
+      "n": 3
+    }
+  ]
+}

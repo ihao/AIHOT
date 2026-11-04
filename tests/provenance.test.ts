@@ -2,9 +2,9 @@
 // Attribution preserves material and existing judgements, and routes new work through one pipeline.
 import { tag } from "./setup.ts";
 import assert from "node:assert/strict";
-import { after, test } from "node:test";
+import { after, before, test } from "node:test";
 import { closeDb, sql } from "@aihot/backend/db";
-import { QUEUES, stopBoss } from "@aihot/backend/jobs/queue";
+import { getBoss, QUEUES, stopBoss } from "@aihot/backend/jobs/queue";
 import { upsertMaterial } from "@aihot/backend/content/materials";
 import { publisherOwnsUrl } from "@aihot/backend/content/provenance";
 import { publishArticle } from "@aihot/backend/publication/publish";
@@ -15,6 +15,7 @@ import { collectSource } from "@aihot/backend/sources/collect";
 import { createSource, updateSource } from "@aihot/backend/admin/sources";
 import { groupArticle } from "@aihot/backend/events/group";
 
+before(async () => { await getBoss(); });
 after(async () => { await stopBoss(); await closeDb(); });
 
 async function source(tier: string, config = {}, firstParty = tier === "T1", opts: { kind?: string; mode?: string; enabled?: boolean } = {}) {
@@ -27,7 +28,7 @@ async function source(tier: string, config = {}, firstParty = tier === "T1", opt
 const jobs = (articleId: string) => sql<{ name: string; data: { signalOnly?: boolean } }[]>`
   SELECT name, data FROM pgboss.job WHERE data->>'articleId' = ${articleId} AND name IN (${QUEUES.extractBody}, ${QUEUES.analyze}, ${QUEUES.group})`;
 
-test("the first external discovery uses a paused verified publisher, keeps the real discovery and queues extraction once", async () => {
+test("the first external discovery keeps its paused publisher and real discovery without paid processing", async () => {
   const scope = `https://www.${tag()}.example/news`;
   const official = await source("T1", { publisherUrlPrefixes: [scope], fetchPublicContent: true }, true, { enabled: false });
   const media = await source("T2");
@@ -38,12 +39,14 @@ test("the first external discovery uses a paused verified publisher, keeps the r
   assert.deepEqual([a!.source_id, a!.author, a!.revision, a!.body_status], [official, null, 1, "pending"]);
   assert.deepEqual((await sql`SELECT source_id FROM article_discoveries WHERE article_id = ${a!.id}`).map((d) => d.source_id), [media]);
   await ingestItems(input);
-  assert.deepEqual((await jobs(a!.id)).map((j) => j.name), [QUEUES.extractBody]);
+  assert.deepEqual((await jobs(a!.id)).map((j) => j.name), [], "a paused publisher does not enqueue paid extraction or analysis");
+  assert.equal((await sql`SELECT processing_state FROM articles WHERE id=${a!.id}`)[0]!.processing_state, "skipped");
+  assert.equal((await sql`SELECT 1 FROM receipts WHERE subject LIKE ${`article:${a!.id}%`}`).length, 0, "attribution cannot buy requests on behalf of a paused source");
   assert.equal((await collectSource(official)).error, "paused", "publisher identity does not start its collector");
-  assert.equal((await sql`SELECT 1 FROM analyses WHERE article_id = ${a!.id}`).length, 0, "queueing never calls a model");
+  assert.equal((await sql`SELECT 1 FROM analyses WHERE article_id = ${a!.id}`).length, 0, "attribution never calls a model");
 });
 
-test("a repeated signal discovery adopts a newly registered publisher and resumes editorial processing without revising material", async () => {
+test("a repeated signal discovery adopts a paused publisher without revising material or buying editorial processing", async () => {
   const scope = `https://${tag()}.example/news`;
   const signal = await source("T2", {}, false, { mode: "hot_signal" });
   const url = `${scope}/release`;
@@ -59,8 +62,9 @@ test("a repeated signal discovery adopts a newly registered publisher and resume
   const [a] = await sql`SELECT * FROM articles WHERE id = ${first.articleId}`;
   for (const key of ["revision", "content_hash", "title", "body_text", "published_at", "discovered_at", "timeline_at"]) assert.deepEqual(a![key], before![key], key);
   assert.equal(a!.source_id, official);
-  assert.equal(a!.processing_state, "new", "a previously settled signal still needs editorial judgement");
-  assert.deepEqual((await jobs(first.articleId)).map((j) => j.name).sort(), [QUEUES.analyze, QUEUES.group].sort());
+  assert.equal(a!.processing_state, "skipped", "publisher attribution preserves the pause on paid processing");
+  assert.deepEqual((await jobs(first.articleId)).map((j) => j.name), [QUEUES.group], "the existing signal job stays attributable; paused promotion adds no paid analysis");
+  assert.equal((await sql`SELECT 1 FROM receipts WHERE subject LIKE ${`article:${first.articleId}%`}`).length, 0);
   assert.equal((await settleNonEditorial(first.articleId)).group, false, "the old signal job will stop after attribution changes");
   assert.deepEqual((await sql`SELECT source_id, via FROM article_discoveries WHERE article_id = ${first.articleId} ORDER BY via`).map((d) => [d.source_id, d.via]), [[signal, "fetch"], [signal, "ingest"]]);
   const revised = await upsertMaterial({ sourceId: official, url, title: "Publisher edit", bodyText: "Actual publisher update", via: "fetch" });
@@ -79,8 +83,8 @@ for (const entrance of ["publisher", "source-mode"] as const) test(`${entrance} 
   await settleNonEditorial(fresh);
   assert.equal((await groupArticle(fresh, { signalOnly: true })).verdict, "signal-unmatched");
   const judged = await make("already-judged");
-  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,selected)
-    VALUES (${judged},1,'rule','pass','已判断的报道','既有精选已经覆盖全部要点',true)`;
+  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,score,selected)
+    VALUES (${judged},1,'rule','pass','已判断的报道','既有精选已经覆盖全部要点',90,true)`;
   await sql`UPDATE articles SET grouping_status='complete',grouped_at=now(),selection_adds_value=false,
     selection_value_reason='既有精选已覆盖' WHERE id=${judged}`;
   if (entrance === "publisher") {
@@ -94,8 +98,8 @@ for (const entrance of ["publisher", "source-mode"] as const) test(`${entrance} 
   }
   const [preserved] = await sql`SELECT grouping_status,selection_adds_value FROM articles WHERE id=${judged}`;
   assert.deepEqual({ ...preserved }, { grouping_status: "complete", selection_adds_value: false }, "current editorial judgement stays reusable");
-  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,selected)
-    VALUES (${fresh},1,'rule','pass','首次编辑判断','新的新闻候选摘要',true)`;
+  await sql`INSERT INTO analyses(article_id,input_revision,origin,relevance,title_zh,summary_zh,score,selected)
+    VALUES (${fresh},1,'rule','pass','首次编辑判断','新的新闻候选摘要',90,true)`;
   await publishArticle(fresh);
   const [pending] = await sql`SELECT p.selection_candidate,p.selected,a.grouping_status FROM publications p JOIN articles a ON a.id=p.article_id WHERE a.id=${fresh}`;
   assert.deepEqual({ ...pending }, { selection_candidate: true, selected: false, grouping_status: "pending" });

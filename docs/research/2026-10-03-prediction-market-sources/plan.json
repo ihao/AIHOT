@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-03",
+  "activeCap": 100,
+  "expectedBefore": {
+    "enabled": 75,
+    "paused": 29,
+    "total": 104
+  },
+  "newSources": [
+    {
+      "id": "cnbc-prediction-markets",
+      "name": "CNBC 预测市场报道",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkers": [
+            ""
+          ],
+          "keepIfMatches": [
+            "polymarket",
+            "kalshi",
+            "prediction market",
+            "prediction-market",
+            "event contract",
+            "novig"
+          ]
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "first_party": false,
+      "tags": [],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "fos-prediction-markets",
+      "name": "Front Office Sports 预测市场",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://frontofficesports.com/tag/prediction-markets/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "first_party": false,
+      "tags": [],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "sportico-prediction-markets",
+      "name": "Sportico 预测市场",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.sportico.com/t/prediction-markets/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "first_party": false,
+      "tags": [],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "igb-prediction-markets",
+      "name": "iGaming Business 预测市场",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://igamingbusiness.com/tag/prediction-markets/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "first_party": false,
+      "tags": [],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "casino-org-prediction-markets",
+      "name": "Casino.org 预测市场新闻",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.casino.org/news/tag/prediction-markets/feed/",
+        "sortByPublishedAt": true,
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillMonths": 1,
+          "initialBackfillLimit": 3
+        },
+        "ingestNoiseFilter": {
+          "dropMarkersTitleOnly": [
+            "promo code",
+            "bonus code",
+            "sign-up bonus",
+            "signup bonus",
+            "best prediction market",
+            "how to bet",
+            "picks for",
+            "betting picks",
+            "betting odds"
+          ]
+        }
+      },
+      "tier": "T2",
+      "participation_mode": "editorial",
+      "interval_minutes": 60,
+      "first_party": false,
+      "tags": [],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    }
+  ],
+  "reason": "用户要求调研预测市场主流媒体并接入3-5个新信源；仅处理有可靠日期的近48小时稿，首次历史范围至多1个月；不调整评分、核验及精选门槛。"
+}

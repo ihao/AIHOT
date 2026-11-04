@@ -1,0 +1,260 @@
+{
+  "checkedAt": "2026-10-02T08:23:29.156Z",
+  "passed": true,
+  "receipt": {
+    "operationId": "daily-revision-2026-10-02-two-existing-issues",
+    "actor": "codex-daily-revision-2026-10-02",
+    "planHash": "78546bf05928a79607259bf6d9dc0d205725c976e4fb633237265eb0a823efda",
+    "cutoff": "2026-10-02T08:21:05.409Z",
+    "curations": [
+      {
+        "articleId": "ac17x791gapnkbxv2fgg1y1rk",
+        "fingerprint": "f03421dc504e7590d1824d43974f4746b311683fe04799b432e1de2d6c58c264",
+        "reviewVersion": 3,
+        "curationVersion": 1,
+        "selectionOverride": true
+      },
+      {
+        "articleId": "c9z6kvo81j6ty1tjrmu9gdt53",
+        "fingerprint": "df543c2be25e0e6e818c0d04ca14777a1f8133eba00b08e1726f9c6a7c0ffb16",
+        "reviewVersion": 2,
+        "curationVersion": 1,
+        "selectionOverride": false
+      },
+      {
+        "articleId": "egklcikxpektfq3vwuobmoefh",
+        "fingerprint": "b8d9ad0c51ccf571119afada5b8b94c4f52c5a6c481c99e5bd0a0ecea6a83891",
+        "reviewVersion": 2,
+        "curationVersion": 1,
+        "selectionOverride": false
+      },
+      {
+        "articleId": "i31o8kb6jiduu650xlpqnl7i7",
+        "fingerprint": "070d96e45b53b431e9d6a322899011154e62f1b122b0c78a90c7686ef9962fb7",
+        "reviewVersion": 2,
+        "curationVersion": 1,
+        "selectionOverride": false
+      },
+      {
+        "articleId": "rfq8na5dmoyreoe7a7vjn5ip9",
+        "fingerprint": "a5354f51ebe56162d64d507dcdbfb06f1183280521b1406abe497af56a897f73",
+        "reviewVersion": 3,
+        "curationVersion": 1,
+        "selectionOverride": true
+      },
+      {
+        "articleId": "uasaw0y7x8h7mh3kdphm24fum",
+        "fingerprint": "aa81525f3e90d05f630b81bea82cfd951e21ba617f546f49286f896657af04d4",
+        "reviewVersion": 2,
+        "curationVersion": 1,
+        "selectionOverride": false
+      },
+      {
+        "articleId": "wzrw23x7cpzrlgerpyzgun6f4",
+        "fingerprint": "8d10dbbe3ee9ac320e28df2e048be7e4e0f3a876cd77e002662c0327a86ca326",
+        "reviewVersion": 2,
+        "curationVersion": 1,
+        "selectionOverride": false
+      }
+    ],
+    "issues": [
+      {
+        "key": "2026-10-01",
+        "reportId": 1,
+        "previousVersionId": 1,
+        "versionId": 5,
+        "version": 2,
+        "draftId": 5,
+        "count": 4,
+        "windowStart": "2026-09-30T10:37:41.711Z",
+        "windowEnd": "2026-10-01T15:40:15.688Z",
+        "candidateHash": "2ca55e64d1dbc8b0c183f6e256ed2c4389498b1cab28bfa4270459835994ae8c",
+        "contentHash": "b912d5587de8020270e10d9337c70ff8043ce25a26b1c123d1e21b3a47930769",
+        "publishedAt": "2026-10-02T08:21:04.489Z"
+      },
+      {
+        "key": "2026-10-02",
+        "reportId": 2,
+        "previousVersionId": 2,
+        "versionId": 6,
+        "version": 2,
+        "draftId": 6,
+        "count": 5,
+        "windowStart": "2026-10-01T15:40:15.688Z",
+        "windowEnd": "2026-10-02T08:21:05.409Z",
+        "candidateHash": "28dfe80016b94abacd9f520d8a9bbd99d7de2a89e6a4e93677ed24feb8df6475",
+        "contentHash": "ac5415d8c60a49f2def364f76d9c1ef08c54379d9413ef2e990a6ad261d6b6b4",
+        "publishedAt": "2026-10-02T08:21:04.489Z"
+      }
+    ]
+  },
+  "checks": {
+    "dryRunRolledBack": true,
+    "staleFingerprintRejected": true,
+    "stalePreviousVersionRejected": true,
+    "idempotencyConfirmed": true,
+    "oldVersionsUnchanged": 2,
+    "publicCitationsAvailable": 9,
+    "sourceDatesUnchanged": 9,
+    "titleSummaryUnchanged": 9,
+    "publicChecks": [
+      {
+        "path": "/daily/2026-10-01",
+        "status": 200,
+        "allTitlesRendered": true,
+        "revisionNoteRendered": true
+      },
+      {
+        "path": "/api/site/reports/daily/2026-10-01",
+        "status": 200,
+        "revision": 2,
+        "count": 4,
+        "availableCitations": 4
+      },
+      {
+        "path": "/api/v1/dailies/2026-10-01",
+        "status": 200,
+        "count": 4
+      },
+      {
+        "path": "/api/mcp",
+        "date": "2026-10-01",
+        "status": 200,
+        "allTitlesReturned": true
+      },
+      {
+        "path": "/daily/2026-10-02",
+        "status": 200,
+        "allTitlesRendered": true,
+        "revisionNoteRendered": true
+      },
+      {
+        "path": "/api/site/reports/daily/2026-10-02",
+        "status": 200,
+        "revision": 2,
+        "count": 5,
+        "availableCitations": 5
+      },
+      {
+        "path": "/api/v1/dailies/2026-10-02",
+        "status": 200,
+        "count": 5
+      },
+      {
+        "path": "/api/mcp",
+        "date": "2026-10-02",
+        "status": 200,
+        "allTitlesReturned": true
+      },
+      {
+        "path": "/api/site/items/m14npszeaw9lfretww18p1ecv",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/uasaw0y7x8h7mh3kdphm24fum",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/i31o8kb6jiduu650xlpqnl7i7",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/ac17x791gapnkbxv2fgg1y1rk",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/c9z6kvo81j6ty1tjrmu9gdt53",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/rfq8na5dmoyreoe7a7vjn5ip9",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/wzrw23x7cpzrlgerpyzgun6f4",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/ekbwxwxir4n34fz6agnmks3nu",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/api/site/items/egklcikxpektfq3vwuobmoefh",
+        "status": 200,
+        "titleSummaryAndDateMatch": true
+      },
+      {
+        "path": "/daily",
+        "status": 200
+      },
+      {
+        "path": "/daily/archive",
+        "status": 200
+      },
+      {
+        "path": "/api/site/reports/daily",
+        "status": 200
+      },
+      {
+        "path": "/feed/daily.xml",
+        "status": 200
+      }
+    ],
+    "auditCounts": {
+      "content.override": 2,
+      "content.review": 2,
+      "content.curation": 7,
+      "report.draft": 2,
+      "report.revise": 2,
+      "report.revision_batch": 1
+    },
+    "finalCountsAfterRetry": {
+      "versions": [
+        {
+          "key": "2026-10-01",
+          "versions": 2,
+          "latest": 2
+        },
+        {
+          "key": "2026-10-02",
+          "versions": 2,
+          "latest": 2
+        }
+      ],
+      "audit": [
+        {
+          "action": "content.curation",
+          "n": 7
+        },
+        {
+          "action": "content.override",
+          "n": 2
+        },
+        {
+          "action": "content.review",
+          "n": 2
+        },
+        {
+          "action": "report.draft",
+          "n": 2
+        },
+        {
+          "action": "report.revise",
+          "n": 2
+        },
+        {
+          "action": "report.revision_batch",
+          "n": 1
+        }
+      ]
+    }
+  }
+}

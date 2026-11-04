@@ -1,0 +1,228 @@
+{
+  "deploymentCommit": "5f5af62298f43dad76964e713ca0e1d48d7d2e20",
+  "site": "https://9btc.com",
+  "observedAt": "2026-10-01T04:16:26.366Z",
+  "editorialMode": "automatic",
+  "dailyTimeBeijing": "21:30",
+  "schemaMigrations": 41,
+  "sources": [
+    {
+      "id": "bitcoin-core-releases",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 60,
+      "readable": 60
+    },
+    {
+      "id": "chainalysis",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 10,
+      "readable": 10
+    },
+    {
+      "id": "coin-metrics",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 20,
+      "readable": 20
+    },
+    {
+      "id": "ethereum-foundation",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 60,
+      "readable": 60
+    },
+    {
+      "id": "panews-articles-zh",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 60,
+      "readable": 60
+    },
+    {
+      "id": "sec-press-releases",
+      "enabled": true,
+      "participation_mode": "editorial",
+      "automatic_enabled": true,
+      "policy_version": 1,
+      "articles": 25,
+      "readable": 25
+    }
+  ],
+  "articleStates": [
+    {
+      "processing_state": "analyzed",
+      "n": 11
+    },
+    {
+      "processing_state": "blocked",
+      "n": 2
+    },
+    {
+      "processing_state": "new",
+      "n": 222
+    }
+  ],
+  "modelAttempts": [
+    {
+      "model": "qwen3.8-flash",
+      "status": "received",
+      "n": 77,
+      "first": "2026-09-30T19:34:09.289Z",
+      "last": "2026-10-01T04:01:54.537Z",
+      "input_tokens": 379824,
+      "output_tokens": 7873,
+      "cached_tokens": 115456
+    },
+    {
+      "model": "qwen3.8-max",
+      "status": "received",
+      "n": 37,
+      "first": "2026-09-30T19:34:20.987Z",
+      "last": "2026-10-01T04:03:08.497Z",
+      "input_tokens": 163003,
+      "output_tokens": 36214,
+      "cached_tokens": 46080
+    },
+    {
+      "model": "text-embedding-v4",
+      "status": "received",
+      "n": 6,
+      "first": "2026-09-30T19:34:20.873Z",
+      "last": "2026-09-30T19:50:39.343Z",
+      "input_tokens": 590,
+      "output_tokens": 0,
+      "cached_tokens": 0
+    }
+  ],
+  "budgets": [
+    {
+      "service": "dashscope",
+      "per_minute": 10,
+      "per_hour": 60,
+      "per_day": 200
+    },
+    {
+      "service": "llm",
+      "per_minute": 0,
+      "per_hour": 0,
+      "per_day": 0
+    }
+  ],
+  "verifiedPublic": [
+    {
+      "article_id": "lb5k9m8yoqq0jm8fvc9nwt6c0",
+      "title": "隐私币与Meme币领涨山寨币行情，Aave预计以太坊借贷收入4700万美元",
+      "summary": "Zcash年内回报218%，其屏蔽交易占比达52%。Pump.fun代币PUMP上涨134%，但MSCI分类下Meme币中位数收益下跌27%。投资者转向创收协议，Aave预计从以太坊借贷产生4700万美元收入，Uniswap自宣布回购计划以来已销毁超1200万美元UNI。",
+      "selected": false,
+      "visibility": "public",
+      "body_mode": "summary",
+      "syndicate": false,
+      "published_at": "2026-09-29T13:02:18.000Z",
+      "story_id": 1,
+      "fact_id": 1,
+      "currentVerification": {
+        "id": 20,
+        "selected": false
+      }
+    },
+    {
+      "article_id": "rybzuonz72gmh4ziuf5k8bj64",
+      "title": "Chainalysis 2026 全球加密采用指数：巴西居首且链上经济活动仅微降 1.6%",
+      "summary": "Chainalysis 发布第七版年度地理报告（2026 全球加密采用指数），指出在统计周期内（2025年7月1日至2026年6月30日）尽管加密货币总市值下跌约 50%，但链上经济活动仅从 9.5 万亿美元微降至 9.4 万亿美元（跌幅 1.6%）。",
+      "selected": true,
+      "visibility": "public",
+      "body_mode": "summary",
+      "syndicate": false,
+      "published_at": "2026-09-23T13:00:45.000Z",
+      "story_id": null,
+      "fact_id": null,
+      "currentVerification": {
+        "id": 27,
+        "selected": true
+      }
+    },
+    {
+      "article_id": "ota0y9oj9yx5qxaqs74eouhsq",
+      "title": "Coin Metrics 分析代币化股票竞争格局及 SEC 创新豁免影响",
+      "summary": "Coin Metrics 发布研究指出，数字资产交易所正通过整合现货、衍生品和链上基础设施向“全能交易所”转型。数据显示，Binance 推出的 bStocks 在数月内交易量突破 37 亿美元，权益类永续合约在 Hyperliquid 期货成交量中的占比一度超过 60%。",
+      "selected": true,
+      "visibility": "public",
+      "body_mode": "summary",
+      "syndicate": false,
+      "published_at": "2026-09-22T13:00:40.000Z",
+      "story_id": null,
+      "fact_id": null,
+      "currentVerification": {
+        "id": 25,
+        "selected": true
+      }
+    },
+    {
+      "article_id": "a30c8h7vvqipvstdgovreep80",
+      "title": "Entropy 上线 Anthropic IPO前永续合约，未平仓量达3063万美元居首",
+      "summary": "Hyperliquid HIP-3构建者Entropy于8月19日上线Anthropic IPO前永续合约，两周日均交易量超1000万美元，未平仓量达3063万美元，为各交易所中最高。因缺乏现货市场，不同交易所资金费率策略各异，Entropy采用外部数据源定价，与中心化交易所存在2.47%价差。",
+      "selected": false,
+      "visibility": "public",
+      "body_mode": "summary",
+      "syndicate": false,
+      "published_at": "2026-09-15T13:02:56.000Z",
+      "story_id": null,
+      "fact_id": null,
+      "currentVerification": {
+        "id": 24,
+        "selected": false
+      }
+    }
+  ],
+  "publishedReports": [],
+  "verification": {
+    "fixedCommitCI": "https://github.com/ihao/AIHOT/actions/runs/36812744249",
+    "backendTestsPassed": 286,
+    "webTestsPassed": 16,
+    "privateAndPublicSmokeChecks": 30,
+    "realReaderCalls": {
+      "beforeAttempts": 120,
+      "afterAttempts": 120,
+      "workerStoppedDuringCheck": true
+    },
+    "adminSessionCsrfPassed": true,
+    "publicTLSFromEUAndNaban": true,
+    "localDirectTLSAndSelectedTitlesInHTML": true,
+    "localProxiedBrowserCompleted": false,
+    "localProxiedBrowserLimitation": "Proxy connection closes before HTTP response; no certificate checks bypassed or local network settings changed."
+  },
+  "billing": {
+    "directoryEstimatedCNY": 3.0204921,
+    "actualBillVerified": false,
+    "excludedIsolatedConnectivityEstimateCNY": 0.0232917
+  },
+  "dailyBoundary": "21:30 Asia/Shanghai scheduled; no eligible current daily candidates at acceptance, no premature issue published.",
+  "sampleBoundary": "Initial 18 real articles: 11 analyzed, 2 relevance-blocked, 5 awaiting budget; regular six-source collection subsequently stored 235 real articles. No synthetic business news.",
+  "offsiteRestore": {
+    "snapshot": "20261001T041325Z",
+    "initiator": "naban",
+    "sameSha256": true,
+    "databaseSha256": "aa647a33cb1f5952b80ffe184268f3dc8e6aaea06c2dcc666c9a3d3458e6ade5",
+    "migrations": 41,
+    "sources": 6,
+    "articles": 235,
+    "attempts": 120,
+    "publicSummaries": 4,
+    "selected": 2,
+    "currentAccepted": 4,
+    "productionDatabaseOverwritten": false
+  }
+}

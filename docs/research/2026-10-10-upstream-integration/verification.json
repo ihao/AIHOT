@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-10",
+  "upstreamCommit": "cf1c4643993a1fc9bcdd523fc4018a9024258418",
+  "savedLocalCommit": "2cd0d2e552b5b5159f2039e8ba43a1744f2b9923",
+  "targetBranch": "feat/9btc-web3",
+  "backend": {
+    "tests": 853,
+    "pass": 853,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "web": {
+    "tests": 66,
+    "pass": 66,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "smokeChecks": 30,
+  "typecheck": "passed",
+  "webBuild": "passed",
+  "database": {
+    "engine": "PostgreSQL 17",
+    "oldProductionBaselineMigrationFiles": 47,
+    "fullMigrationFiles": 72,
+    "secondMigrationRun": 0,
+    "originalMigrationFilesUnchanged": 70,
+    "newMigrationFiles": [
+      "0084_articles_manual_processing.sql",
+      "0085_ninebtc_model_price_evidence.sql"
+    ],
+    "pricePreflightRollback": "passed"
+  },
+  "sourceSeedCount": 109,
+  "externalModelOrCollectionRequests": "denied by scripts/test-local-only.ts; local doubles only",
+  "realProviderBillingVerified": false,
+  "productionDeployed": false,
+  "deliveryTarget": "origin/feat/9btc-web3"
+}
