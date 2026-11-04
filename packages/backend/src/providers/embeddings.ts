@@ -5,8 +5,7 @@ import { config, credential } from "../config.ts";
 import { sql } from "../db.ts";
 import { sha256 } from "../lib/ids.ts";
 import { z } from "zod";
-import { ModelOutputError } from "./llm.ts";
-import { assertAccepted, completeReceipt, paidRequest, rejectReceivedResponse } from "./receipts.ts";
+import { assertAccepted, completeReceipt, ModelOutputError, ModelUnavailableError, paidRequest, rejectReceivedResponse } from "./receipts.ts";
 
 import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from "./provider-capacity.ts";
 
@@ -24,10 +23,10 @@ export function embeddingsAvailable(): boolean {
 }
 
 async function embedBatch(texts: string[], subject: string): Promise<{ vectors: number[][]; receiptId: number }> {
-  if (!config.modelCallsEnabled) throw new Error("Model calls are disabled (MODEL_CALLS_ENABLED=false)");
+  if (!config.modelCallsEnabled) throw new ModelUnavailableError("Model calls are disabled (MODEL_CALLS_ENABLED=false)");
   const base = own ? credential("models", "EMBEDDING_BASE_URL") ?? "https://api.openai.com/v1" : credential("models", "DASHSCOPE_BASE_URL") ?? "https://dashscope.aliyuncs.com/compatible-mode/v1";
   const key = own ? credential("models", "EMBEDDING_API_KEY") : credential("models", "DASHSCOPE_API_KEY");
-  if (!key) throw new Error("EMBEDDING_API_KEY (or DASHSCOPE_API_KEY) missing");
+  if (!key) throw new ModelUnavailableError("EMBEDDING_API_KEY (or DASHSCOPE_API_KEY) missing");
   const capacityKey = providerCapacityKey(base, key);
   const inputTokenBound = Buffer.byteLength(JSON.stringify(texts)) + 1024 + texts.length * 64;
   const receipt = await paidRequest(

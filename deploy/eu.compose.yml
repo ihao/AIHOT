@@ -62,7 +62,7 @@ services:
   worker:
     <<: *backend
     command: ["node", "apps/worker/src/main.ts"]
-    stop_grace_period: 210s
+    stop_grace_period: 515s
     depends_on:
       setup:
         condition: service_completed_successfully

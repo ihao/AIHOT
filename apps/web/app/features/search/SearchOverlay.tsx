@@ -81,7 +81,7 @@ export function SearchOverlay() {
     setMore(null);
     void loadSuggestions().then(value => { if (active) setMore(value); }).catch(() => {});
     // At the desktop breakpoint this layer is hidden by CSS; it must stop holding the page still too.
-    const desktop = window.matchMedia("(min-width: 961px)");
+    const desktop = window.matchMedia("(min-width: 700px)");
     const onResize = () => { if (desktop.matches) close(); };
     onResize();
     desktop.addEventListener("change", onResize);
@@ -132,7 +132,7 @@ export function SearchOverlay() {
       >
         {["category", "channel", "tag"].map(name => feedParams.get(name) ? <input key={name} type="hidden" name={name} value={feedParams.get(name)!} /> : null)}
         <label className="relative flex-1">
-          <span className="sr-only">搜索标题、摘要和正文</span>
+          <span className="sr-only">搜索标题和摘要</span>
           <IconSearch size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4" />
           <input
             ref={input}
@@ -140,7 +140,7 @@ export function SearchOverlay() {
             type="search"
             onInput={(e) => setHasText(!!e.currentTarget.value)}
             tabIndex={shown ? 0 : -1}
-            placeholder="搜索标题、摘要和正文"
+            placeholder="搜索标题、摘要…"
             maxLength={200}
             autoComplete="off"
             enterKeyHint="search"
@@ -192,7 +192,7 @@ export function SearchOverlay() {
               <h2 className="text-[13px] font-semibold text-ink-3">按主题找</h2>
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {companies.map((t) => (
-                  <Link viewTransition key={t.slug} to={`/topics/${t.slug}`} className={`${chip} bg-bg-sunk text-ink-2 ring-1 ring-inset ring-line-soft active:bg-bg-muted dark:bg-bg-muted/60`}>
+                  <Link viewTransition key={t.slug} to={`/topics/${t.slug}`} className={`${chip} bg-well text-ink-2 ring-1 ring-inset ring-line-soft active:bg-bg-muted`}>
                     <span className="truncate">{t.name}</span>
                   </Link>
                 ))}

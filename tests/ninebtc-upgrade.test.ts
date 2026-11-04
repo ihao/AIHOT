@@ -1,4 +1,5 @@
 import "./setup.ts";
+import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -47,19 +48,19 @@ test("the production 47-migration baseline upgrades without losing money history
     assert.equal((await db`SELECT to_regclass('ninebtc_model_price_evidence') AS name`)[0]!.name, null, "price preflight rolls back with the failed historical migration");
     assert.equal((await db`SELECT count(*)::int AS n FROM schema_migrations`)[0]!.n, 47);
     assert.equal((await db`SELECT verified_on::text FROM service_prices WHERE model = 'upgrade-fixture'`)[0]!.verified_on, "2026-10-09");
-    // First reach the currently deployed 72-file baseline, then prove this sync only adds its index.
+    // Replay the immutable deployed tree, not the new branch's migration directory.
     mkdirSync(path.join(legacy, "site"), { recursive: true });
     copyFileSync(path.join(REPO_ROOT, "site/migrations.ts"), path.join(legacy, "site/migrations.ts"));
-    for (const file of readdirSync(path.join(REPO_ROOT, "database/migrations"))) {
-      if (file.endsWith(".sql") && file !== "0085_grouping_decisions_fact_idx.sql") {
-        copyFileSync(path.join(REPO_ROOT, "database/migrations", file), path.join(legacy, "database/migrations", file));
-      }
+    const production = "1ec8be0ab81d4c9771a8889cbb56927cdab6d3e4";
+    const deployed = execFileSync("git", ["ls-tree", "-r", "--name-only", production, "database/migrations"], { cwd: REPO_ROOT, encoding: "utf8" }).trim().split("\n");
+    for (const file of deployed) {
+      if (file.endsWith(".sql")) writeFileSync(path.join(legacy, file), execFileSync("git", ["show", `${production}:${file}`], { cwd: REPO_ROOT }));
     }
-    assert.equal(await runMigrations(db, legacy), 72 - 47);
-    assert.equal((await db`SELECT count(*)::int AS n FROM schema_migrations`)[0]!.n, 72);
-    const count = await runMigrations(db, REPO_ROOT);
-    assert.equal(count, 1);
+    assert.equal(await runMigrations(db, legacy), 73 - 47);
     assert.equal((await db`SELECT count(*)::int AS n FROM schema_migrations`)[0]!.n, 73);
+    const count = await runMigrations(db, REPO_ROOT);
+    assert.equal(count, 12);
+    assert.equal((await db`SELECT count(*)::int AS n FROM schema_migrations`)[0]!.n, 85);
     assert.equal((await db`SELECT i.indisvalid FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid WHERE c.relname = 'grouping_decisions_fact_idx'`)[0]!.indisvalid, true);
     assert.equal(await runMigrations(db, REPO_ROOT), 0, "a second upgrade is a no-op");
     assert.deepEqual((await db`SELECT enabled, day_limit_cny, rolling_limit_cny FROM model_cost_policy WHERE id = 1`)[0], { enabled: true, day_limit_cny: 7, rolling_limit_cny: 8 });

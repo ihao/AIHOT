@@ -4,8 +4,9 @@
 // new work only.
 import type { AdminModels, BeforeJson } from "@aihot/contracts/admin";
 import { sql } from "../db.ts";
-import { capabilities, capabilityAcceptsModel, invalidateModelCache, modelSources } from "../editorial/models.ts";
+import { capabilities, capabilityAcceptsModel, fallbackModelFor, invalidateModelCache, modelSources } from "../editorial/models.ts";
 import { MODELS } from "../providers/llm.ts";
+import { modelCircuits } from "../providers/circuit.ts";
 import { audit } from "../audit.ts";
 
 import { benchmarkModelCostOverview, modelCostOverview, modelTokenUsage } from "../providers/model-cost.ts";
@@ -31,8 +32,9 @@ interface UsageRow {
 
 export async function modelsOverview(days = 7): Promise<BeforeJson<AdminModels>> {
   const since = new Date(Date.now() - days * 86400_000);
-  const [sources, usage, prices, history, benches, moneyBudget, benchmarkBudget] = await Promise.all([
+  const [sources, circuits, usage, prices, history, benches, moneyBudget, benchmarkBudget] = await Promise.all([
     modelSources(),
+    modelCircuits(),
     sql<UsageRow[]>`
       SELECT r.purpose, a.model, r.request->>'promptVersion' AS prompt_version, a.service, count(*)::int AS calls,
              count(*) FILTER (WHERE a.status = 'received')::int AS ok,
@@ -83,33 +85,40 @@ export async function modelsOverview(days = 7): Promise<BeforeJson<AdminModels>>
     return { amount: settled + ((tokens.input - tokens.cached) * Number(p.input_per_mtok ?? 0)
       + tokens.cached * Number(p.cached_per_mtok ?? p.input_per_mtok ?? 0) + tokens.output * Number(p.output_per_mtok ?? 0)) / 1e6, currency: p.currency };
   };
-  const steps = Object.entries(capabilities()).map(([key, c]) => ({
-    key,
-    label: c.label,
-    env: c.env,
-    defaultModel: c.default,
-    vision: !!c.vision,
-    current: sources[key]!,
-    usage: usage
-      .filter((u) => c.purposes.includes(u.purpose))
-      .map((u) => {const tokens=tokenTotals(u.token_usages);return ({
-        purpose: u.purpose,
-        model: u.model,
-        promptVersion: u.prompt_version,
-        calls: u.calls,
-        ok: u.ok,
-        failed: u.failed,
-        unknown: u.unknown,
-        p50: u.p50,
-        p95: u.p95,
-        tokensIn: tokens.input,
-        tokensOut: tokens.output,
-        cachedTokensIn: tokens.cached,
-        actualCost: u.actual_cost === null ? null : Number(u.actual_cost),
-        currency: u.currency,
-        estimate: priced(u),
-      });}),
-  }));
+  const steps = Object.entries(capabilities()).map(([key, c]) => {
+    const backup = fallbackModelFor(key, sources[key]!.model);
+    const primaryCircuit = circuits[MODELS[sources[key]!.model]!.service];
+    const backupCircuit = backup ? circuits[MODELS[backup]!.service] : undefined;
+    return {
+      key,
+      label: c.label,
+      env: c.env,
+      defaultModel: c.default,
+      vision: !!c.vision,
+      current: sources[key]!,
+      fallback: backup ? { model: backup, primaryPaused: !!primaryCircuit?.openUntil, backupPaused: !!backupCircuit?.openUntil,
+        nextProbeAt: primaryCircuit?.openUntil ? new Date(Math.max(primaryCircuit.openUntil, primaryCircuit.probeUntil)).toISOString() : null } : null,
+      usage: usage
+        .filter((u) => c.purposes.includes(u.purpose))
+        .map((u) => {const tokens=tokenTotals(u.token_usages);return ({
+          purpose: u.purpose,
+          model: u.model,
+          promptVersion: u.prompt_version,
+          calls: u.calls,
+          ok: u.ok,
+          failed: u.failed,
+          unknown: u.unknown,
+          p50: u.p50,
+          p95: u.p95,
+          tokensIn: tokens.input,
+          tokensOut: tokens.output,
+          cachedTokensIn: tokens.cached,
+          actualCost: u.actual_cost === null ? null : Number(u.actual_cost),
+          currency: u.currency,
+          estimate: priced(u),
+        });}),
+    };
+  });
   const choices = Object.values(MODELS).map((m) => ({ key: m.key, service: m.service, vision: !!m.vision }));
   return { days, capabilities: steps, choices, history, benches, moneyBudget, benchmarkBudget };
 }

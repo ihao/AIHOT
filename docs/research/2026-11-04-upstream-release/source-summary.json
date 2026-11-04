@@ -1,0 +1,257 @@
+{
+  "generatedAt": "2026-11-04T06:06:38.757Z",
+  "purpose": "Read-only real public feed bytes; identical loopback response consumed by before/after fetchRss. No worker, extraction, model, database, or production collection validation.",
+  "revisions": {
+    "before": {
+      "directory": "/Users/ahao/Documents/projects/9BTC/site",
+      "head": "1678b36f5a7cb40a878576c2c1fcc09d52e95a1c",
+      "files": {
+        "packages/backend/src/sources/rss.ts": "37ffe0dbfd50128b7b21ba07674d7f73d444e0f93c523239f017b6d865e67def",
+        "packages/backend/src/lib/http-fetch.ts": "4211e2a5a56d688cc68c500c175dc3d12e8d546b62423b6730c9c4683090ac9a",
+        "packages/backend/src/content/sanitize.ts": "2f70991788b7ff21ccfc6547ae888b5391ae61c4a10bdf9a5542f4685d92eae0",
+        "packages/backend/src/lib/text.ts": "466a707ee2355cb316c08555c40dc3e8d8eee04b9a0838e470bbaa14ce456506",
+        "packages/backend/src/sources/dates.ts": "0d93d746715bbfdf24881fc851155b5dd493093a412e80b7601d0af46353ea9e"
+      }
+    },
+    "after": {
+      "directory": "/Users/ahao/Documents/projects/9BTC/.worktrees/upgrade-20261104",
+      "head": "1678b36f5a7cb40a878576c2c1fcc09d52e95a1c",
+      "files": {
+        "packages/backend/src/sources/rss.ts": "7479ae5aa5b5bf7090f731e2a49ed6afe170077bfb03aa43cd647c0c642b14bb",
+        "packages/backend/src/lib/http-fetch.ts": "78ae570b1b6d33790fe33ffd5a2fdc4a8c04b74d72052ebc080a38a573539dd8",
+        "packages/backend/src/content/sanitize.ts": "e34d1f06b8e919b7d2027087733ee6af965d9c7a8bd5b8d51191ad9f35617a54",
+        "packages/backend/src/lib/text.ts": "be38e766b6cdcb04d0563ef2598239c09faa52f1332fce0cfe4b43e062c964b3",
+        "packages/backend/src/sources/dates.ts": "61eb829fbcdd6333df1e38d3c1fea1716ab082d3a752d0bc4b014ec16bccb2e5"
+      }
+    }
+  },
+  "safety": {
+    "cleanEnvironment": true,
+    "modelKeysPresent": false,
+    "COLLECT_ENABLED": "false",
+    "MODEL_CALLS_ENABLED": "false",
+    "FEISHU_CONTENT_PUSH_ENABLED": "false",
+    "INDEXNOW_SUBMIT_ENABLED": "false",
+    "databaseUrl": "postgres://127.0.0.1:1/source_validation_test",
+    "guardProof": "Test external network denied: 203.0.113.1",
+    "guardPreload": "/Users/ahao/Documents/projects/9BTC/.worktrees/upgrade-20261104/scripts/test-local-only.ts",
+    "connections": [
+      {
+        "host": "127.0.0.1",
+        "port": "60044"
+      },
+      {
+        "host": "127.0.0.1",
+        "port": "60044"
+      }
+    ],
+    "nonReplayConnections": [],
+    "requests": [
+      {
+        "path": "/ethereum-foundation",
+        "method": "GET"
+      },
+      {
+        "path": "/ethereum-foundation",
+        "method": "GET"
+      },
+      {
+        "path": "/coin-metrics",
+        "method": "GET"
+      },
+      {
+        "path": "/coin-metrics",
+        "method": "GET"
+      },
+      {
+        "path": "/chainalysis",
+        "method": "GET"
+      },
+      {
+        "path": "/chainalysis",
+        "method": "GET"
+      },
+      {
+        "path": "/panews-articles-zh",
+        "method": "GET"
+      },
+      {
+        "path": "/panews-articles-zh",
+        "method": "GET"
+      }
+    ]
+  },
+  "totals": {
+    "sources": 5,
+    "downloadedSources": 4,
+    "beforeCandidates": 775,
+    "afterCandidates": 775,
+    "changedCandidates": 775,
+    "parseErrors": 0
+  },
+  "sources": [
+    {
+      "id": "bitcoin-core-releases",
+      "url": "https://bitcoincore.org/en/releasesrss.xml",
+      "downloadedAt": "2026-11-04T06:05:04.431848+00:00",
+      "exitCode": 18,
+      "error": "curl: (18) Transferred a partial file",
+      "status": 200,
+      "responseUrl": "https://bitcoincore.org/en/releasesrss.xml",
+      "contentType": "text/xml",
+      "bytes": 278510,
+      "sha256": "1965ec60b2356b3e457716eaaec00a90457dfb092f0f6f25977c863078d845a5",
+      "rawFile": "bitcoin-core-releases.xml",
+      "success": false,
+      "beforeCount": 0,
+      "afterCount": 0,
+      "skipped": true
+    },
+    {
+      "id": "ethereum-foundation",
+      "url": "https://blog.ethereum.org/en/feed.xml",
+      "downloadedAt": "2026-11-04T06:05:04.432238+00:00",
+      "exitCode": 0,
+      "error": "",
+      "status": 200,
+      "responseUrl": "https://blog.ethereum.org/en/feed.xml",
+      "contentType": "application/xml",
+      "bytes": 532876,
+      "sha256": "58b7950da92e22de354afdee042cf3ba70f3a8fd9281675b84d86c8def0160ce",
+      "rawFile": "ethereum-foundation.xml",
+      "success": true,
+      "beforeCount": 645,
+      "afterCount": 645,
+      "changedCandidates": 645,
+      "fieldChanges": {
+        "url": 0,
+        "title": 0,
+        "excerpt": 0,
+        "bodyHtml": 0,
+        "bodyText": 0,
+        "publishedAt": 0,
+        "publicationTime": 645,
+        "sourceUpdatedAt": 0,
+        "bodyStatus": 0
+      },
+      "sampleTitles": [
+        "Designing for sovereignty: Ethereum for digital public infrastructure",
+        "Glamsterdam on Hoodi Postponed",
+        "Glamsterdam Hoodi Testnet Announcement"
+      ]
+    },
+    {
+      "id": "coin-metrics",
+      "url": "https://coinmetrics.substack.com/feed",
+      "downloadedAt": "2026-11-04T06:05:04.433810+00:00",
+      "exitCode": 0,
+      "error": "",
+      "status": 200,
+      "responseUrl": "https://coinmetrics.substack.com/feed",
+      "contentType": "application/xml; charset=utf-8",
+      "bytes": 1014783,
+      "sha256": "6011162c0136f95a567c70abf420e920b72cafd643b3f5dcfc75c89f3dbdfe41",
+      "rawFile": "coin-metrics.xml",
+      "success": true,
+      "beforeCount": 20,
+      "afterCount": 20,
+      "changedCandidates": 20,
+      "fieldChanges": {
+        "url": 0,
+        "title": 0,
+        "excerpt": 5,
+        "bodyHtml": 20,
+        "bodyText": 0,
+        "publishedAt": 0,
+        "publicationTime": 20,
+        "sourceUpdatedAt": 0,
+        "bodyStatus": 0
+      },
+      "sampleTitles": [
+        "Stock Market that Never Sleeps: Inside the Premiums and Liquidity Gaps of Tokenized Equities",
+        "50 Shades of Gray: Explore Pricing Gaps in Midterm Prediction Markets",
+        "What Drives Stablecoin Supply Growth?"
+      ]
+    },
+    {
+      "id": "chainalysis",
+      "url": "https://www.chainalysis.com/blog/feed/",
+      "downloadedAt": "2026-11-04T06:05:04.435330+00:00",
+      "exitCode": 0,
+      "error": "",
+      "status": 200,
+      "responseUrl": "https://www.chainalysis.com/blog/feed/",
+      "contentType": "application/rss+xml; charset=UTF-8",
+      "bytes": 12884,
+      "sha256": "b0620b7c1d604e827195cef11de9506f61789d487e82f75a2e74d03fea093cd5",
+      "rawFile": "chainalysis.xml",
+      "success": true,
+      "beforeCount": 10,
+      "afterCount": 10,
+      "changedCandidates": 10,
+      "fieldChanges": {
+        "url": 0,
+        "title": 0,
+        "excerpt": 10,
+        "bodyHtml": 0,
+        "bodyText": 0,
+        "publishedAt": 0,
+        "publicationTime": 10,
+        "sourceUpdatedAt": 0,
+        "bodyStatus": 0
+      },
+      "sampleTitles": [
+        "DPRK Hackers Perfected Their Fake Interview Playbook Over Dozens of Attacks Before Binance",
+        "Disrupting the Mercado Bitcoin Attack: How Chainalysis Led the Freeze of Nearly $10M in Stolen Funds",
+        "Updated Nov 2: Chainalysis Security Incident Information"
+      ]
+    },
+    {
+      "id": "panews-articles-zh",
+      "url": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+      "downloadedAt": "2026-11-04T06:05:04.435842+00:00",
+      "exitCode": 0,
+      "error": "",
+      "status": 200,
+      "responseUrl": "https://www.panewslab.com/rss.xml?lang=zh&type=NORMAL",
+      "contentType": "application/rss+xml; charset=utf-8",
+      "bytes": 1157808,
+      "sha256": "787157d2483a29e9a3067f698f86bd91f944ed6475e3bc5d785d9fea462d328f",
+      "rawFile": "panews-articles-zh.xml",
+      "success": true,
+      "beforeCount": 100,
+      "afterCount": 100,
+      "changedCandidates": 100,
+      "fieldChanges": {
+        "url": 0,
+        "title": 0,
+        "excerpt": 0,
+        "bodyHtml": 0,
+        "bodyText": 2,
+        "publishedAt": 0,
+        "publicationTime": 100,
+        "sourceUpdatedAt": 0,
+        "bodyStatus": 0
+      },
+      "sampleTitles": [
+        "Meme日报，一图了解过去24小时热门Meme（2026.11.4）",
+        "美股永续合约获批，华尔街却坐不住了",
+        "HashKey Capital成为AMBR转型后首个战略伙伴，携手加速AI智能体融入金融服务"
+      ]
+    }
+  ],
+  "correctnessReview": {
+    "candidatesWithContentChangesBeyondPublicationMetadata": 32,
+    "publicationMetadataOnly": 743,
+    "restoredLinkedPictures": 155,
+    "textFieldChanges": 17,
+    "allObservedChangesExplainedAndCorrect": true
+  },
+  "boundaryNotes": [
+    "A sandbox DNS-denied attempt preceded the approved download pass; final manifest records that approved pass.",
+    "Bitcoin Core returned HTTP 200 but curl exit 18 (partial transfer); retained bytes are excluded from parser comparison.",
+    "No feedparser installation exists here; direct curl downloaded raw public RSS as required for byte-preserving replay.",
+    "Both HEAD values were 1678b36 during replay; after directory includes staged upstream merge. Source-file SHA-256 identifies actual parser versions.",
+    "This was RSS parsing only. No page-body extraction, model call, database query, worker ingestion, live production collection or publication was exercised."
+  ]
+}

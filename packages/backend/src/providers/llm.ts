@@ -3,25 +3,20 @@
 // site, an environment variable or the admin's model page picks one of the site's named presets
 // (site/models.ts).
 import type { z } from "zod";
+import type { ModelPreset } from "@aihot/contracts/site-config";
 import { PRESETS } from "@aihot/site/models";
 import { config, credential } from "../config.ts";
 import { sha256 } from "../lib/ids.ts";
-import { assertAccepted, paidRequest, ProviderRejectedError, rejectReceivedResponse, type ReceiptRequest } from "./receipts.ts";
+import {
+  assertAccepted, failureKind, logicalKeyFor, ModelOutputError, ModelUnavailableError, paidRequest, ProviderRejectedError, receiptState, rejectReceivedResponse,
+  type ReceiptRequest,
+} from "./receipts.ts";
+import { enterModelCircuit, recordModelHealth, type CircuitPermit } from "./circuit.ts";
 
 import { clearProviderProbe, providerCapacityKey, ProviderBudgetExceededError, recordProviderBudgetStop } from "./provider-capacity.ts";
 
-export interface ModelSpec {
+export interface ModelSpec extends ModelPreset {
   key: string;
-  service: string;
-  model: string;
-  baseUrlEnv: string;
-  apiKeyEnv: string;
-  /** Extra request fields, e.g. switching reasoning off for short structured tasks. */
-  extra?: Record<string, unknown>;
-  /** Output tokens added to every call's own limit for a reasoning model, which reasons before it answers. */
-  reasoningTokens?: number;
-  jsonMode: boolean;
-  vision?: boolean;
 }
 
 function extraFromEnv(value: string | undefined): Record<string, unknown> | undefined {
@@ -57,6 +52,8 @@ export type ContentPart = { type: "text"; text: string } | { type: "image_url"; 
 
 export interface ChatJsonOptions<S extends z.ZodType> {
   model: string;
+  /** One independently operated, evaluated backup. Only availability failures switch providers. */
+  fallbackModel?: string;
   purpose: string;
   subject: string;
   promptVersion: string;
@@ -78,14 +75,6 @@ export interface ChatJsonResult<T> {
   reused: boolean;
   model: string;
   usage: Record<string, unknown> | null;
-}
-
-export class ModelOutputError extends Error {
-  readonly receiptId: number | null;
-  constructor(message: string, receiptId: number | null = null) {
-    super(message);
-    this.receiptId = receiptId;
-  }
 }
 
 function extractJson(text: string): unknown {
@@ -188,16 +177,50 @@ export function chatJsonRequestIdentity(opts: ChatIdentityOptions) {
   return { spec, temperature, maxTokens, userText, receiptRequest };
 }
 
+/** A call without a backup waits this long for its answer. */
+const TIMEOUT_MS = 120_000;
+/**
+ * A call with an evaluated backup gives up sooner: the backup takes over at once, and the primary's
+ * receipt stays unknown (it may be billed as well). On the steps that have a backup, 6 of about 14,000
+ * answers took longer than this (99.9% came within it, the slowest in 77 s), while in an outage every
+ * call held its work for the full wait before failing.
+ */
+const FAILOVER_TIMEOUT_MS = 30_000;
+
+/**
+ * With a backup (fallbackModel: editorial/models.ts picks one at another provider), a primary whose
+ * outcome is unknown, or that the provider turns away for now, is continued by the backup at once:
+ * besides the one release in operations/recover.ts, the other place where an unknown outcome is
+ * followed by a second paid request.
+ */
 export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): Promise<ChatJsonResult<z.infer<S>>> {
+  if (!opts.fallbackModel) return chatOnce(opts);
+  const backupOpts = { ...opts, model: opts.fallbackModel };
+  const fallbackFor = logicalKeyFor(chatJsonRequestIdentity(opts).receiptRequest);
+  const saved = await receiptState(chatJsonRequestIdentity(backupOpts).receiptRequest);
+  // Finish an existing backup attempt before choosing a provider again, even after recovery/restart.
+  if (saved && saved !== "failed") return chatOnce(backupOpts, true, fallbackFor);
+  try {
+    return await chatOnce(opts, true);
+  } catch (error) {
+    const kind = failureKind(error);
+    if (kind !== "unknown" && kind !== "outage") throw error;
+    return chatOnce(backupOpts, true, fallbackFor);
+  }
+}
+
+async function chatOnce<S extends z.ZodType>(opts: ChatJsonOptions<S>, circuit = false, fallbackFor?: string): Promise<ChatJsonResult<z.infer<S>>> {
   const spec = MODELS[opts.model];
   if (!spec) throw new Error(`Unknown model ${opts.model}`);
-  if (!config.modelCallsEnabled) throw new Error("Model calls are disabled (MODEL_CALLS_ENABLED=false)");
+  if (!config.modelCallsEnabled) throw new ModelUnavailableError("Model calls are disabled (MODEL_CALLS_ENABLED=false)");
   const baseUrl = credential("models", spec.baseUrlEnv);
   const apiKey = credential("models", spec.apiKeyEnv);
-  if (!baseUrl || !apiKey || !spec.model) throw new Error(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
+  if (!baseUrl || !apiKey || !spec.model) throw new ModelUnavailableError(`Model ${opts.model} is not configured (${spec.baseUrlEnv}, ${spec.apiKeyEnv}${spec.key === "default" ? ", LLM_MODEL" : ""})`);
 
-  const { temperature, maxTokens, userText, receiptRequest } = chatJsonRequestIdentity(opts);
+  const { receiptRequest, temperature, maxTokens, userText } = chatJsonRequestIdentity(opts);
   const capacityKey = providerCapacityKey(baseUrl, apiKey);
+  const timeoutMs = opts.timeoutMs ?? (circuit ? FAILOVER_TIMEOUT_MS : TIMEOUT_MS);
+  let permit: CircuitPermit;
   const body: Record<string, unknown> = {
     model: spec.model,
     messages: [
@@ -213,31 +236,35 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
   };
 
   const receipt = await paidRequest(
-    { ...receiptRequest, providerCapacityKey: capacityKey },
+    { ...receiptRequest, providerCapacityKey: capacityKey, fallbackFor },
     async () => {
-      const started = Date.now();
+      const started = performance.now();
       let res: Response;
+      let text: string;
       try {
         res = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
           method: "POST",
           headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
           body: JSON.stringify(body),
-          signal: AbortSignal.timeout(opts.timeoutMs ?? 120_000),
+          signal: AbortSignal.timeout(timeoutMs),
         });
-      } catch (error) {
-        if (isConnectFailure(error)) throw new ProviderRejectedError(`connect failed: ${String(error)}`, null, true);
-        throw error;
-      }
-      const text = await res.text();
-      if (res.status === 429) {
-        let code: unknown;
-        try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Keep normal HTTP rejection handling. */ }
-        if (code === "BudgetLimitExceeded") {
-          await recordProviderBudgetStop(capacityKey, spec.service);
-          throw new ProviderBudgetExceededError(spec.service, true);
+        text = await res.text();
+        if (res.status === 429) {
+          let code: unknown;
+          try { const body = JSON.parse(text); code = body.error?.code ?? body.code; } catch { /* Keep normal HTTP rejection handling. */ }
+          if (code === "BudgetLimitExceeded") {
+            await recordProviderBudgetStop(capacityKey, spec.service);
+            throw new ProviderBudgetExceededError(spec.service, true);
+          }
         }
+        assertAccepted(spec.service, res.status, text);
+      } catch (error) {
+        const failure = isConnectFailure(error) ? new ProviderRejectedError(`connect failed: ${String(error)}`, null, true) : error;
+        // A refusal is the provider answering; any other failure counts against its availability.
+        if (circuit) await recordModelHealth(spec.service, permit!, !["refused", "budget"].includes(failureKind(failure)));
+        throw failure;
       }
-      assertAccepted(spec.service, res.status, text);
+      if (circuit) await recordModelHealth(spec.service, permit!, false);
       await clearProviderProbe(capacityKey);
       let json: Record<string, unknown>;
       try {
@@ -248,12 +275,13 @@ export async function chatJson<S extends z.ZodType>(opts: ChatJsonOptions<S>): P
       }
       const usage = (json.usage as Record<string, unknown> | undefined) ?? null;
       return {
-        response: { ...json, _latencyMs: Date.now() - started },
+        response: { ...json, _latencyMs: Math.round(performance.now() - started) },
         requestId: (json.id as string | undefined) ?? res.headers.get("x-request-id"),
         usage,
         cost: null,
       };
     },
+    circuit ? async tx => { permit = await enterModelCircuit(tx, spec.service, timeoutMs); } : undefined,
   );
 
   const response = receipt.response as { choices?: Array<{ message?: { content?: string }; finish_reason?: string }>; usage?: Record<string, unknown> };

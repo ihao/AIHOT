@@ -1,8 +1,8 @@
 // 精选的门槛。评分标准本身写在 prompts/selection-score.md；这里只决定“多少分算入选”。
 // 每篇资料由评分模型独立打两次分（0–100），两次之和 ≥ 2 × 门槛才成为精选候选；
 // 确认新闻身份与新增价值后，由发布规则决定展示（见 docs/selection.md），卡片上显示两次的平均分。
-// 门槛按信源分级区分：官方一手信源的门槛低一些，媒体和个人的高一些。改了门槛或评分提示词，
-// 用 scripts/eval-selection.ts 在你自己标注的样本上重跑一遍，再决定上线（见 docs/selection.md）。
+// 门槛按信源分级区分：官方一手信源的门槛低一些，媒体和个人的高一些；信源类别再把某些官方信源的门槛抬高。
+// 改了门槛或评分提示词，用 scripts/eval-selection.ts 在你自己标注的样本上重跑一遍，再决定上线（见 docs/selection.md）。
 
 export const SELECTION = {
   /** 全部动态的最低有效分；未评分及未确认相关性保持内部留存。 */
@@ -13,9 +13,13 @@ export const SELECTION = {
    * 分级 EXCLUDE_MP 以及这里没有列出的分级，不参与精选评分；未评分材料不自动公开。
    */
   thresholds: { T1: 60, T1_5: 65, T2: 76 } as Record<string, number>,
+  /** Optional source-class floors: no Web3 classes have been calibrated or assigned. */
+  classes: {} as Record<string, { label: string; threshold: number }>,
   /**
    * 没入选、但平均分高于这个数的资料，也用精选的写法（内容理解：标题、摘要、推荐理由）来写，
    * 其余用更便宜的“标题摘要翻译”。
    */
   understandFloor: 50,
+  /** Browsing keeps the same admitted pool as other public exits. */
+  browseFloor: 10,
 } as const;

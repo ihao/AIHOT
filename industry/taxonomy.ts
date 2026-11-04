@@ -2,13 +2,13 @@
 // 模型只在有原文或明确来源证据时认定主体；BTC、ETH 等资产代码不等于项目或机构。
 
 export const CATEGORIES = [
-  { key: "infrastructure", label: "公链与基础设施", section: "公链与基础设施", guide: "公链协议升级、网络运行、扩容、跨链及开发者基础设施的实质变化" },
-  { key: "defi", label: "DeFi", section: "DeFi", guide: "去中心化金融协议的产品、机制、流动性与风险参数变化" },
-  { key: "stablecoin-rwa", label: "稳定币与 RWA", section: "稳定币与 RWA", guide: "稳定币发行、储备、赎回，以及真实世界资产上链的可核实进展" },
-  { key: "security", label: "安全", section: "安全", guide: "漏洞、攻击、资产损失、审计发现与处置进展；区分已证实事件和传闻" },
-  { key: "policy", label: "政策与监管", section: "政策与监管", guide: "监管机构正式文件、执法、立法与政策进展；区分提案和生效规则" },
-  { key: "industry", label: "项目与商业", section: "项目与商业", guide: "项目治理、组织经营、合作、融资与商业模式变化" },
-  { key: "research", label: "研究与数据", section: "研究与数据", guide: "链上数据、技术研究、市场分析与有方法和来源的研究报告" },
+  { key: "infrastructure", tagColor: "indigo", label: "公链与基础设施", section: "公链与基础设施", guide: "公链协议升级、网络运行、扩容、跨链及开发者基础设施的实质变化" },
+  { key: "defi", tagColor: "turquoise", label: "DeFi", section: "DeFi", guide: "去中心化金融协议的产品、机制、流动性与风险参数变化" },
+  { key: "stablecoin-rwa", tagColor: "green", label: "稳定币与 RWA", section: "稳定币与 RWA", guide: "稳定币发行、储备、赎回，以及真实世界资产上链的可核实进展" },
+  { key: "security", tagColor: "red", label: "安全", section: "安全", guide: "漏洞、攻击、资产损失、审计发现与处置进展；区分已证实事件和传闻" },
+  { key: "policy", tagColor: "orange", label: "政策与监管", section: "政策与监管", guide: "监管机构正式文件、执法、立法与政策进展；区分提案和生效规则" },
+  { key: "industry", tagColor: "purple", label: "项目与商业", section: "项目与商业", guide: "项目治理、组织经营、合作、融资与商业模式变化" },
+  { key: "research", tagColor: "blue", label: "研究与数据", section: "研究与数据", guide: "链上数据、技术研究、市场分析与有方法和来源的研究报告" },
 ] as const;
 
 /** 内容理解步骤的类型；评分提示词需要使用同一组类型。 */
@@ -35,7 +35,7 @@ export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
 
 
 /** 项目、网络与机构；BTC、ETH、SOL 是资产，不是这里的别名。 */
-export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; otherNames?: string[] }> = {
+export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[]; otherNames?: string[]; orgNames?: string[] }> = {
   bitcoin: { name: "Bitcoin", displayTag: "Bitcoin", aliases: ["Bitcoin network", "Bitcoin protocol", "Bitcoin Core", "比特币网络", "比特币协议"] },
   ethereum: { name: "Ethereum", displayTag: "Ethereum", aliases: ["Ethereum network", "Ethereum protocol", "以太坊网络", "以太坊协议"] },
   solana: { name: "Solana", displayTag: "Solana", aliases: ["Solana network", "Solana protocol", "索拉纳网络", "索拉纳协议"] },

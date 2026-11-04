@@ -1,3 +1,4 @@
+import { BEIJING_TIMEZONE } from "@aihot/contracts/time";
 // One CNY ledger for all model attempts. Catalog estimates never represent a provider's bill.
 import { sql, type Db } from '../db.ts';
 import type { CallOutcome, ReceiptRequest } from './receipts.ts';
@@ -140,7 +141,7 @@ async function costOverview(scope: 'all_models'|'verification_benchmark', now?: 
   const at=now ?? (await db<{at:Date}[]>`SELECT clock_timestamp() AS at`)[0]!.at;
   // PostgreSQL is microsecond-precise; Date truncates its clock read. Include that live millisecond.
   const until=now ? at : new Date(at.getTime()+1);
-  const [time]=await db<{day_start:Date}[]>`SELECT date_trunc('day',${at}::timestamptz AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai' AS day_start`;
+  const [time]=await db<{day_start:Date}[]>`SELECT date_trunc('day',${at}::timestamptz AT TIME ZONE ${BEIJING_TIMEZONE}) AT TIME ZONE ${BEIJING_TIMEZONE} AS day_start`;
   const day=emptyWindow(),rolling=emptyWindow();
   const rows=await db<HistoricAttempt[]>`SELECT a.id,a.service,a.model,a.started_at,a.status,a.error,a.usage,a.cost,a.currency,a.cost_basis,
     a.model_cost_cny,a.model_cost_state,r.request FROM receipt_attempts a JOIN receipts r ON r.id=a.receipt_id

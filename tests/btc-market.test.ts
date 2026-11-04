@@ -46,7 +46,7 @@ async function isolated(run: (db: Tx) => Promise<void>) {
 }
 function response(payload: unknown, status = 200): GuardedResponse {
   const body = Buffer.from(typeof payload === "string" ? payload : JSON.stringify(payload));
-  return { status, body, url: "https://api.exchange.coinbase.com/products/BTC-USD/ticker", headers: new Headers(), text: () => body.toString("utf8") };
+  return { truncated: false, status, body, url: "https://api.exchange.coinbase.com/products/BTC-USD/ticker", headers: new Headers(), text: () => body.toString("utf8") };
 }
 const ticker = (at: Date, changes: Record<string, unknown> = {}) => ({ price: "62000.50", trade_id: 123456789, time: at.toISOString(), ...changes });
 async function clock(db: Db) { return (await db<{ at: Date }[]>`SELECT clock_timestamp() AS at`)[0]!.at; }

@@ -2,20 +2,8 @@
 // 这里再列出具名的模型（每个用自己的地址和密钥环境变量），以及每一步默认用哪个；没写的步骤用 default。
 // 部署时还可以用环境变量（PREFILTER_MODEL、SCORE_MODEL……）或后台的“模型与评测”页逐步改选。
 
-export interface ModelPreset {
-  service: string;
-  model: string;
-  baseUrlEnv: string;
-  apiKeyEnv: string;
-  /** 额外的请求字段，比如短小的结构化任务关掉推理。 */
-  extra?: Record<string, unknown>;
-  /** 推理模型先想再答，额外给推理留的输出额度（token），加在每一步自己的额度上。default 用环境变量 LLM_REASONING_TOKENS。 */
-  reasoningTokens?: number;
-  /** 接口支持 JSON 模式。 */
-  jsonMode: boolean;
-  /** 能看图。 */
-  vision?: boolean;
-}
+import type { ModelPreset } from "@aihot/contracts/site-config";
+export type { ModelPreset } from "@aihot/contracts/site-config";
 
 /** 具名的模型示例（每个要配自己的密钥）。用不上可以删掉。 */
 export const PRESETS: Record<string, ModelPreset> = {
@@ -28,6 +16,7 @@ export const PRESETS: Record<string, ModelPreset> = {
   "glm-5.3-flash-selection": {
     service: "zhipu", model: "glm-5.3-flash", baseUrlEnv: "ZHIPU_BASE_URL", apiKeyEnv: "ZHIPU_API_KEY",
     extra: { thinking: { type: "enabled", clear_thinking: false }, reasoning_effort: "high", top_p: 0.95 }, jsonMode: true, vision: true,
+    scoreCall: { temperature: 1, maxTokens: 65_536, timeoutMs: 180_000 },
   },
   // DeepSeek Flash reasons by default; structured tasks switch it off. deepseek-flash-think keeps it on,
   // with room in the output for the reasoning.

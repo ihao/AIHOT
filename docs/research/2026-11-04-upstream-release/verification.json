@@ -1,0 +1,36 @@
+{
+  "stage": "local_verified_production_pending",
+  "upstream": "cd424b0a513c7c8535b6f291b106a3086d6b75bf",
+  "productionBefore": "1ec8be0ab81d4c9771a8889cbb56927cdab6d3e4",
+  "backend": {
+    "passed": 1186,
+    "failed": 0,
+    "skipped": 0
+  },
+  "web": {
+    "passed": 80,
+    "failed": 0,
+    "skipped": 0
+  },
+  "scoreParameterRegression": {
+    "red": "observed temperature 0.2 / max_tokens 1024",
+    "green": "temperature 1 / max_tokens 65536; analyze 12 passed"
+  },
+  "typecheck": "passed",
+  "migrationSafety": "passed",
+  "localSmoke": 30,
+  "localMcp": "passed",
+  "independentSpecReview": "approved_after_score_parameter_fix",
+  "independentQualityReview": "approved",
+  "sourceSamples": 775,
+  "databaseMigrationPlan": {
+    "before": 73,
+    "after": 85,
+    "additions": 12
+  },
+  "newPaidFeatures": {
+    "readerCardComparison": false,
+    "feedbackNoiseJudgement": false
+  },
+  "ci": "not_dispatched_gh_auth_invalid_workflow_push_only_main"
+}
