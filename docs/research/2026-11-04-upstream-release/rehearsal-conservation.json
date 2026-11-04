@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "beforeTableCount": 57,
+  "afterTableCount": 58,
+  "newTableCount": 1,
+  "expectedMigrationAdditions": 12,
+  "mismatchCount": 0,
+  "mismatches": []
+}

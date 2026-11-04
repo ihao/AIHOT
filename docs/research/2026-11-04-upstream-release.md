@@ -1,6 +1,6 @@
 # 9BTC 2026-11-04 上游整合与发布验收
 
-用户已完成 fork 的 main 同步，本轮按授权将 cd424b0 增量整合到 9BTC 业务历史，保留正常双父 merge。生产发布前本地验收已通过；此提交中的生产状态仍为待执行，最终证据将在发布后补充。
+用户已完成 fork 的 main 同步，本轮按授权将 cd424b0 增量整合到 9BTC 业务历史，保留正常双父 merge。应用提交 `7a03ab1abcaefe0defb13b992734a4d56f0a35e0` 已推送业务分支并部署生产。后续文档提交只记录验收，不改变运行应用源码。
 
 ## 保留与适配
 
@@ -21,6 +21,24 @@
 
 ## 生产发布
 
-待执行固定提交构建、生产备份实际恢复、隔离迁移保全、停旧服务、最终冻结备份与保全、新版出口和worker任务验收。未满足这些步骤前不能将本地通过称为生产完成。
+应用镜像 `ninebtc-upstream:7a03ab1`，ID `sha256:3575d1b9f8716d396ce6c5b6dcf3e010688cdd99ae2ed358d859d67397c48941`，三个应用容器一致；Node `v24.22.2`，均运行中、重启0，worker停止宽限515秒。生产备份先在无外网独立PostgreSQL容器恢复，迁移73→85，二次执行0；正式冻结窗口又保存并实际恢复最终备份，再迁移并重复全量保全核对。
 
-机器可读本地验收：[verification.json](2026-11-04-upstream-release/verification.json)。完整决策以[长期差异化决策](../9btc-upstream-decisions.md)为准。
+| 验收 | 结果 |
+| --- | --- |
+| 迁移 | 73→85，精确12项，二次为空操作 |
+| 原始业务表 | 原56张业务表全部旧列全行指纹一致（另含原迁移账本行保全）；新增1张反馈状态表 |
+| 公开/精选集合 | 所有持久化集合身份及字段摘要不变，详情见[生产保全](2026-11-04-upstream-release/production-conservation.json) |
+| 运行配置 | 旧环境值全部保持；只预期更新Node版本、release标识和worker停止宽限；原.env逐字一致 |
+| 模型金额策略/来源 | enabled=False，日/滚动值9.0/9.0元；来源109个、启用79个，全文展示及再分发仍为0；未seed覆盖 |
+| 页面与出口 | 服务器本机、公网及本机独立公网各30项烟测通过，独立MCP标准契约通过 |
+| 实际worker | 心跳release为7a03ab1，观察时新版本有14个成功任务、无失败，含sources.schedule、market.btc-usd、hot.rank、ops.recover、reports.compose |
+| 浏览器 | 真实线上Chromium1440px与393px仿真视口检查，品牌/BTC/筛选保持，无横向溢出；不代表物理手机或微信内置浏览器验收 |
+| 定时备份 | 原timer恢复active，未改变其启用设置 |
+
+[桌面截图](2026-11-04-upstream-release/production-desktop.png)、[手机视口截图](2026-11-04-upstream-release/production-phone.png)。
+
+备份位于服务器受限目录 `/srv/9btc-release-backups/upstream-20261104`，最终数据库SHA256 `c812163fbdc2f522dfe94a95af9b13c17e246aab41a2193f1248eae6acd59f5d`，完整数据卷SHA256 `e888c0f793f9b28421ec843ba9d5d1b68485cd735f8494e40f9059ea372ed757`。最终数据库备份实际恢复至独立测试库成功；旧镜像 `ninebtc-grouping:1ec8be0` 和原Compose保留可回退。未把dump、环境文件、凭据或原始私密内容提交到仓库。
+
+机器可读最终验收：[verification.json](2026-11-04-upstream-release/verification.json)。完整决策以[长期差异化决策](../9btc-upstream-decisions.md)为准。
+
+本次本地API/web/独立PostgreSQL已停止；服务器三个人工验收容器及其测试卷已删除，临时数据库连接文件已删除。生产数据库卷、应用数据卷、最终备份和旧镜像保留。

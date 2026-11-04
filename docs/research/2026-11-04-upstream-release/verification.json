@@ -1,5 +1,5 @@
 {
-  "stage": "local_verified_production_pending",
+  "stage": "production_verified",
   "upstream": "cd424b0a513c7c8535b6f291b106a3086d6b75bf",
   "productionBefore": "1ec8be0ab81d4c9771a8889cbb56927cdab6d3e4",
   "backend": {
@@ -32,5 +32,106 @@
     "readerCardComparison": false,
     "feedbackNoiseJudgement": false
   },
-  "ci": "not_dispatched_gh_auth_invalid_workflow_push_only_main"
+  "ci": "not_dispatched_gh_auth_invalid_workflow_push_only_main",
+  "applicationCommit": "7a03ab1abcaefe0defb13b992734a4d56f0a35e0",
+  "productionImage": "ninebtc-upstream:7a03ab1",
+  "productionImageId": "sha256:3575d1b9f8716d396ce6c5b6dcf3e010688cdd99ae2ed358d859d67397c48941",
+  "productionNode": "v24.22.2",
+  "node24CoreTests": {
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0
+  },
+  "serverLocalSmoke": 30,
+  "serverPublicSmoke": 30,
+  "independentPublicSmoke": 30,
+  "independentPublicMcp": "passed",
+  "productionConservation": {
+    "version": 1,
+    "beforeTableCount": 57,
+    "afterTableCount": 58,
+    "newTableCount": 1,
+    "expectedMigrationAdditions": 12,
+    "mismatchCount": 0,
+    "mismatches": []
+  },
+  "runtimeConfigurationPreserved": true,
+  "finalBackupActuallyRestored": true,
+  "browser": {
+    "liveDesktopWidth": 1440,
+    "livePhoneViewport": 393,
+    "horizontalOverflow": false,
+    "realDeviceOrWeChat": "not_tested"
+  },
+  "runtimeObservation": {
+    "migrationCount": 85,
+    "heartbeatAgeSeconds": 23,
+    "heartbeatRelease": "7a03ab1abcaefe0defb13b992734a4d56f0a35e0",
+    "jobsSinceStart": [
+      {
+        "job": "content.sweep",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "content.translate",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "feedback.forward",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "hot.rank",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "market.btc-usd",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "ops.alerts",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "ops.recover",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "reports.compose",
+        "status": "ok",
+        "count": 1
+      },
+      {
+        "job": "sources.schedule",
+        "status": "ok",
+        "count": 6
+      }
+    ],
+    "moneyPolicy": {
+      "enabled": false,
+      "dayLimitCny": 9.0,
+      "rollingLimitCny": 9.0
+    },
+    "sources": {
+      "total": 109,
+      "enabled": 79,
+      "siteFulltext": 0,
+      "syndicateFulltext": 0
+    }
+  },
+  "cleanup": {
+    "localApiWeb": "stopped",
+    "localIsolatedPostgresql": "stopped",
+    "serverIsolatedContainers": "removed_with_test_volume",
+    "rollbackImage": "retained",
+    "productionBackups": "retained",
+    "temporaryDatabaseConnectionFile": "removed"
+  }
 }
